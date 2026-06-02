@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Off-Season · Pablo PT</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0b0e;--s1:#111318;--s2:#181b22;--s3:#1e2230;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#eef0f5;--muted:#6b7280;--muted2:#3d4350;
+  --w1:#a8e063;--w2:#38d9c0;--w3:#ff7043;--w4:#5b9cf6;
+  --mob:#a8e063;--act:#f9c846;--fza:#ff7043;--exp:#c77dff;
+  --danger:#ff4d4d;--r:16px;--rsm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* ══ PLAYER SELECT SCREEN ══ */
+#screen-select{min-height:100vh;display:flex;flex-direction:column;}
+.select-header{padding:20px 18px 0;display:flex;align-items:center;justify-content:space-between;max-width:540px;margin:0 auto;width:100%;}
+.select-header h1{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;}
+.select-header p{font-size:10px;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-top:1px;}
+.coach-toggle{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.coach-toggle.active{background:rgba(249,200,70,0.12);border-color:var(--act);color:var(--act);}
+
+.select-body{flex:1;max-width:540px;margin:0 auto;width:100%;padding:24px 16px 100px;}
+.select-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;margin-bottom:4px;}
+.select-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+
+.players-grid{display:flex;flex-direction:column;gap:12px;}
+
+.player-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.15s;position:relative;}
+.player-card:active{transform:scale(0.985);}
+.player-card:hover{border-color:var(--border2);}
+.player-card-inner{display:flex;align-items:center;gap:14px;padding:16px;}
+.player-photo{width:60px;height:60px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--muted2);border:2px solid var(--border2);}
+.player-photo img{width:60px;height:60px;border-radius:50%;object-fit:cover;}
+.player-info{flex:1;min-width:0;}
+.player-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.player-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.player-arrow{font-size:18px;color:var(--muted2);flex-shrink:0;}
+.player-card-actions{display:flex;border-top:1px solid var(--border);}
+.pca-btn{flex:1;padding:10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;transition:background 0.2s;}
+.pca-edit{color:var(--muted);}
+.pca-edit:hover{background:var(--s2);}
+.pca-del{color:var(--danger);}
+.pca-del:hover{background:rgba(255,77,77,0.08);}
+.pca-sep{width:1px;background:var(--border);}
+
+.player-card-locked{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;position:relative;opacity:0.45;cursor:not-allowed;}
+.player-card-locked .player-card-inner{display:flex;align-items:center;gap:14px;padding:16px;}
+.player-card-locked .player-photo{filter:blur(6px);}
+.player-card-locked .player-name{filter:blur(5px);user-select:none;}
+.player-card-locked .player-meta{filter:blur(3px);user-select:none;}
+.lock-badge{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);}
+.lock-badge .lock-icon{font-size:16px;}border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+.add-player-btn:hover{background:var(--s1);color:var(--text);}
+.add-player-btn.hidden{display:none;}
+
+/* ══ WELCOME SCREEN ══ */
+#screen-welcome{position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;transition:opacity 0.4s ease,transform 0.4s ease;}
+#screen-welcome.hidden{opacity:0;pointer-events:none;transform:scale(1.04);}
+#screen-welcome.gone{display:none;}
+.welcome-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0a0b0e 0%,#111a08 50%,#0a0b0e 100%);}
+.welcome-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(168,224,99,0.08),transparent 65%);}
+.welcome-content{position:relative;z-index:1;text-align:center;width:100%;max-width:340px;}
+.welcome-avatar-wrap{position:relative;width:110px;height:110px;margin:0 auto 20px;}
+.welcome-avatar-inner{width:110px;height:110px;border-radius:50%;overflow:hidden;border:3px solid var(--w1);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--muted2);}
+.welcome-avatar-inner img{width:100%;height:100%;object-fit:cover;}
+.welcome-ring{position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(168,224,99,0.25);animation:pulse-ring 2.5s ease-in-out infinite;}
+@keyframes pulse-ring{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:0.8;transform:scale(1.04);}}
+.welcome-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--w1);background:rgba(168,224,99,0.10);border:1px solid rgba(168,224,99,0.20);border-radius:4px;padding:3px 10px;margin-bottom:12px;}
+.welcome-name{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;line-height:1;margin-bottom:6px;}
+.welcome-sub{font-size:13px;color:var(--muted);margin-bottom:32px;line-height:1.6;}
+.welcome-btn{width:100%;padding:14px;background:var(--w1);color:#0a0b0e;border:none;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+.welcome-footer{position:relative;z-index:1;margin-top:20px;font-size:11px;color:var(--muted2);}
+
+/* ══ PLAN SCREEN ══ */
+#screen-plan{display:none;}
+#screen-plan.active{display:block;}
+
+header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 16px 10px;}
+.hdr{max-width:540px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.hdr-left{display:flex;align-items:center;gap:10px;min-width:0;}
+.hdr-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--w1);flex-shrink:0;}
+.hdr-avatar-ph{width:32px;height:32px;border-radius:50%;background:var(--s2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.hdr-text{}
+.hdr-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hdr-sub{font-size:10px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+#hdr-badge{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;border-radius:4px;background:var(--w1);color:#0a0b0e;transition:background 0.3s;}
+.back-btn{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);cursor:pointer;}
+
+/* ══ WEEK / DAY BARS ══ */
+.week-bar{position:sticky;top:55px;z-index:190;background:rgba(10,11,14,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.week-tabs{max-width:540px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);}
+.wtab{padding:10px 4px 8px;text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.wtab-n{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--muted2);display:block;transition:color 0.2s;}
+.wtab-l{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2);display:block;margin-top:1px;transition:color 0.2s;}
+.day-bar{position:sticky;top:103px;z-index:180;background:rgba(14,15,18,0.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.day-tabs{max-width:540px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);}
+.dtab{padding:8px 2px 7px;text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.dtab-n{font-size:10px;font-weight:600;color:var(--muted2);letter-spacing:0.06em;text-transform:uppercase;display:block;transition:color 0.2s;}
+.dtab-l{font-size:9px;color:var(--muted2);display:block;margin-top:1px;transition:color 0.2s;}
+.dtab.act-day .dtab-n{color:var(--text);}
+.dtab.act-day .dtab-l{color:var(--muted);}
+.dtab.act-day{border-bottom-color:var(--text);}
+
+/* ══ PLAN CONTENT ══ */
+.plan-content{max-width:540px;margin:0 auto;padding:16px 13px 20px;}
+.hero{border-radius:var(--r);padding:18px 16px 14px;margin-bottom:12px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;opacity:0.10;pointer-events:none;}
+.hero-w1{background:linear-gradient(135deg,#111a08,#131f0a);}.hero-w1::before{background:radial-gradient(circle at 90% 10%,var(--w1),transparent 55%);}
+.hero-w2{background:linear-gradient(135deg,#081a18,#081e1c);}.hero-w2::before{background:radial-gradient(circle at 90% 10%,var(--w2),transparent 55%);}
+.hero-w3{background:linear-gradient(135deg,#1a0d08,#20100a);}.hero-w3::before{background:radial-gradient(circle at 90% 10%,var(--w3),transparent 55%);}
+.hero-w4{background:linear-gradient(135deg,#080f1a,#0a1222);}.hero-w4::before{background:radial-gradient(circle at 90% 10%,var(--w4),transparent 55%);}
+.hero-over{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6;margin-bottom:4px;}
+.hero-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;line-height:1.05;margin-bottom:3px;}
+.hero-pat{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.hero-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:500;}
+
+/* ══ BLOCK CARD ══ */
+.bcard{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;}
+.bcard-hdr{display:flex;align-items:center;gap:8px;padding:12px 14px 10px;cursor:pointer;user-select:none;}
+.bstripe{width:3px;border-radius:2px;align-self:stretch;min-height:24px;flex-shrink:0;}
+.bs-mob{background:var(--mob);}.bs-act{background:var(--act);}.bs-fza{background:var(--fza);}.bs-exp{background:var(--exp);}
+.bicon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.bi-mob{background:rgba(168,224,99,0.10);}.bi-act{background:rgba(249,200,70,0.10);}.bi-fza{background:rgba(255,112,67,0.10);}.bi-exp{background:rgba(199,125,255,0.10);}
+.binfo{flex:1;min-width:0;}
+.btitle{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:var(--text);}
+.bsub{font-size:11px;color:var(--muted);margin-top:1px;}
+.btoggle{font-size:12px;color:var(--muted2);background:var(--s2);border-radius:4px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;transition:transform 0.25s;flex-shrink:0;}
+.bcard.open .btoggle{transform:rotate(90deg);}
+.bbody{max-height:0;overflow:hidden;transition:max-height 0.35s ease;}
+.bcard.open .bbody{max-height:2000px;}
+.bsep{height:1px;background:var(--border);margin:0 14px;}
+.exlist{padding:10px 14px 12px;}
+.exrow{display:grid;grid-template-columns:8px 1fr auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.exrow:last-child{border-bottom:none;}
+.exdot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.d-mob{background:var(--mob);}.d-act{background:var(--act);}.d-fza{background:var(--fza);}.d-exp{background:var(--exp);}
+.exbody{min-width:0;}
+.exname{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+.exnote{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.exlink{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:5px 10px;background:rgba(60,156,240,0.10);border:1px solid rgba(60,156,240,0.20);border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--w4);text-decoration:none;}
+.exright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.exload{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;}
+.l-mob{background:rgba(168,224,99,0.10);color:var(--mob);}.l-act{background:rgba(249,200,70,0.10);color:var(--act);}.l-fza{background:rgba(255,112,67,0.10);color:var(--fza);}.l-exp{background:rgba(199,125,255,0.10);color:var(--exp);}
+.ex-del{background:rgba(255,77,77,0.10);color:var(--danger);border:none;border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.add-ex-btn{width:100%;margin-top:6px;padding:9px;border-radius:var(--rsm);border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.add-ex-btn:hover{background:var(--s2);color:var(--text);}
+
+/* ══ DAY NAV ══ */
+.day-nav{max-width:540px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 13px 4px;}
+.narrow{background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:7px 16px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text);cursor:pointer;}
+.narrow:disabled{opacity:0.2;cursor:default;}
+.ncenter{text-align:center;}
+.nwlbl{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;}
+.ndlbl{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;color:var(--text);display:block;margin-top:1px;}
+
+/* ══ LIBRARY SCREEN ══ */
+#screen-lib{display:none;padding-bottom:80px;}
+#screen-lib.active{display:block;}
+.lib-topbar{position:sticky;top:55px;z-index:190;background:rgba(10,11,14,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:10px 16px;}
+.lib-topbar-inner{max-width:540px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.lib-topbar h2{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;}
+.add-lib-btn{background:var(--act);color:#0a0b0e;border:none;border-radius:8px;padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.add-lib-btn.hidden{display:none;}
+.lib-filters{max-width:540px;margin:0 auto;padding:10px 13px 4px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.lib-filters::-webkit-scrollbar{display:none;}
+.filter-chip{padding:5px 12px;border-radius:50px;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border2);background:var(--s1);color:var(--muted);transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
+.filter-chip.active{border-color:var(--text);color:var(--text);background:var(--s2);}
+.lib-grid{max-width:540px;margin:0 auto;padding:6px 13px;}
+.lib-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;}
+.lib-card-img-ph{width:100%;height:100px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--muted2);}
+.lib-card-img{width:100%;height:130px;object-fit:cover;display:block;}
+.lib-card-body{padding:12px 14px 14px;}
+.lib-card-tags{display:flex;gap:6px;margin-bottom:7px;flex-wrap:wrap;}
+.lib-tag{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;}
+.tag-mob{background:rgba(168,224,99,0.12);color:var(--mob);}.tag-act{background:rgba(249,200,70,0.12);color:var(--act);}.tag-fza{background:rgba(255,112,67,0.12);color:var(--fza);}.tag-exp{background:rgba(199,125,255,0.12);color:var(--exp);}
+.lib-card-name{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.02em;margin-bottom:3px;}
+.lib-card-load{font-size:12px;color:var(--act);font-weight:600;margin-bottom:4px;}
+.lib-card-note{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:6px;}
+.lib-card-link{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:7px 14px;background:rgba(60,156,240,0.10);border:1px solid rgba(60,156,240,0.20);border-radius:8px;font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--w4);text-decoration:none;}
+.lib-card-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.lca-btn{flex:1;padding:7px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;}
+.lca-edit{background:var(--s2);color:var(--muted);}
+.lca-del{background:rgba(255,77,77,0.10);color:var(--danger);}
+
+/* ══ APP BOTTOM TABS ══ */
+.app-tabs{position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(10,11,14,0.96);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));}
+.app-tabs.hidden{display:none;}
+.tabs-row{max-width:540px;margin:0 auto;display:flex;}
+.atab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;}
+.atab-icon{font-size:20px;line-height:1;}
+.atab-lbl{font-size:9px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);transition:color 0.2s;}
+.atab.active .atab-lbl{color:var(--text);}
+
+/* ══ MODALS ══ */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
+.modal-handle{width:36px;height:4px;background:var(--muted2);border-radius:2px;margin:0 auto 16px;}
+.modal h3{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:16px;}
+.form-row{margin-bottom:12px;}
+.form-row label{font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px;}
+.form-row input,.form-row textarea,.form-row select{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color 0.2s;}
+.form-row input:focus,.form-row textarea:focus,.form-row select:focus{border-color:var(--act);}
+.form-row textarea{resize:vertical;min-height:70px;}
+.form-row select option{background:var(--s2);}
+.modal-btns{display:flex;gap:8px;margin-top:16px;}
+.mbtn{flex:1;padding:11px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border:none;}
+.mbtn-cancel{background:var(--s2);color:var(--muted);}
+.mbtn-save{background:var(--act);color:#0a0b0e;}
+
+/* player modal avatar upload */
+.avatar-upload-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.av-preview{width:64px;height:64px;border-radius:50%;background:var(--s2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;}
+.av-preview img{width:64px;height:64px;object-fit:cover;}
+.av-upload-btn{flex:1;padding:10px;background:var(--s2);border:1px dashed var(--border2);border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-align:center;display:block;}
+#photo-input{display:none;}
+
+/* pick from library */
+.pick-list{max-height:50vh;overflow-y:auto;margin-bottom:8px;}
+.pick-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.pick-item:last-child{border-bottom:none;}
+.pick-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.pick-info{flex:1;}
+.pick-name{font-size:13px;font-weight:600;color:var(--text);}
+.pick-load{font-size:11px;color:var(--muted);}
+.pick-add{font-size:18px;color:var(--mob);}
+
+/* PIN */
+.pin-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.80);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px;}
+.pin-overlay.open{display:flex;}
+.pin-box{background:var(--s1);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:310px;padding:28px 24px 24px;text-align:center;}
+.pin-icon{font-size:36px;margin-bottom:8px;}
+.pin-box h3{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;}
+.pin-box p{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:20px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--s3);border:2px solid var(--border2);transition:all 0.15s;}
+.pin-dot.filled{background:var(--act);border-color:var(--act);}
+.pin-dot.error{background:var(--danger);border-color:var(--danger);}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.pin-key{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:15px 8px;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--text);cursor:pointer;transition:all 0.15s;}
+.pin-key:active{background:var(--s3);transform:scale(0.95);}
+.pin-key.del{font-size:16px;color:var(--muted);}
+.pin-cancel{width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);cursor:pointer;}
+.pin-shake{animation:shake 0.4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-8px);}40%{transform:translateX(8px);}60%{transform:translateX(-6px);}80%{transform:translateX(6px);}}
+
+/* misc */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.fadein{animation:fadeUp 0.25s ease;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-state .emi{font-size:36px;margin-bottom:8px;}
+.empty-state p{font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- ══ PLAYER SELECT SCREEN ══ -->
+<div id="screen-select">
+  <div class="select-header">
+    <div>
+      <h1>Pablo PT</h1>
+      <p>Off-Season 2025 · Fútbol Élite</p>
+    </div>
+    <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">👤 Jugador</button>
+  </div>
+  <div class="select-body">
+    <div class="select-title">¿Quién sos?</div>
+    <div class="select-sub">Seleccioná tu nombre para ver tu plan.</div>
+    <div class="players-grid" id="players-grid"></div>
+    <button class="add-player-btn hidden" id="add-player-btn" onclick="openPlayerModal()">＋ Agregar jugador</button>
+  </div>
+</div>
+
+<!-- ══ WELCOME SCREEN ══ -->
+<div id="screen-welcome" class="gone">
+  <div class="welcome-bg"></div>
+  <div class="welcome-content">
+    <div class="welcome-avatar-wrap">
+      <div class="welcome-avatar-inner" id="welcome-av"></div>
+      <div class="welcome-ring"></div>
+    </div>
+    <div class="welcome-tag">Off-Season 2025</div>
+    <div class="welcome-name" id="welcome-name">Jugador</div>
+    <div class="welcome-sub" id="welcome-sub">Plan personalizado · Pablo PT</div>
+    <button class="welcome-btn" onclick="enterPlan()">Ver mi plan →</button>
+  </div>
+  <div class="welcome-footer">Desarrollado por Pablo PT</div>
+</div>
+
+<!-- ══ PLAN SCREEN ══ -->
+<div id="screen-plan">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left">
+        <div id="hdr-av-wrap"></div>
+        <div class="hdr-text">
+          <div class="hdr-name" id="hdr-name">Jugador</div>
+          <div class="hdr-sub">Off-Season 2025</div>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <div id="hdr-badge">SEM 1</div>
+        <button class="back-btn" onclick="goBack()">← Volver</button>
+      </div>
+    </div>
+  </header>
+  <div class="week-bar"><div class="week-tabs" id="week-tabs"></div></div>
+  <div class="day-bar"><div class="day-tabs" id="day-tabs"></div></div>
+  <div class="plan-content" id="plan-content"></div>
+  <div class="day-nav">
+    <button class="narrow" id="btn-prev" onclick="navigate(-1)">← Ant</button>
+    <div class="ncenter">
+      <span class="nwlbl" id="nwlbl"></span>
+      <span class="ndlbl" id="ndlbl"></span>
+    </div>
+    <button class="narrow" id="btn-next" onclick="navigate(1)">Sig →</button>
+  </div>
+</div>
+
+<!-- ══ LIBRARY SCREEN (inside plan area) ══ -->
+<div id="screen-lib">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left">
+        <div class="hdr-text">
+          <div class="hdr-name">Biblioteca</div>
+          <div class="hdr-sub">Ejercicios guardados</div>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <button class="back-btn" onclick="goBack()">← Volver</button>
+      </div>
+    </div>
+  </header>
+  <div class="lib-topbar">
+    <div class="lib-topbar-inner">
+      <h2>📚 Ejercicios</h2>
+      <button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button>
+    </div>
+  </div>
+  <div class="lib-filters">
+    <div class="filter-chip active" onclick="filterLib('all',this)">Todos</div>
+    <div class="filter-chip" onclick="filterLib('mob',this)">🧘 Movilidad</div>
+    <div class="filter-chip" onclick="filterLib('act',this)">🎗️ Activación</div>
+    <div class="filter-chip" onclick="filterLib('fza',this)">🏋️ Fuerza</div>
+    <div class="filter-chip" onclick="filterLib('exp',this)">⚡ Explosivos</div>
+  </div>
+  <div class="lib-grid" id="lib-grid"></div>
+</div>
+
+<!-- ══ APP TABS ══ -->
+<div class="app-tabs hidden" id="app-tabs">
+  <div class="tabs-row">
+    <div class="atab active" id="atab-plan" onclick="showTab('plan')">
+      <div class="atab-icon">📋</div>
+      <div class="atab-lbl">Plan</div>
+    </div>
+    <div class="atab" id="atab-lib" onclick="showTab('lib')">
+      <div class="atab-icon">📚</div>
+      <div class="atab-lbl">Biblioteca</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD/EDIT PLAYER -->
+<div class="modal-overlay" id="modal-player">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="modal-player-title">Nuevo Jugador</h3>
+    <div class="avatar-upload-row">
+      <div class="av-preview" id="av-preview">👤</div>
+      <label class="av-upload-btn" for="photo-input">📷 Subir foto desde celular</label>
+      <input type="file" id="photo-input" accept="image/*" onchange="handlePhotoUpload(event)"/>
+    </div>
+    <div class="form-row"><label>Nombre completo</label><input type="text" id="f-pname" placeholder="Ej: Lionel Messi"/></div>
+    <div class="form-row"><label>Club / Equipo</label><input type="text" id="f-pclub" placeholder="Ej: Inter Miami"/></div>
+    <div class="form-row"><label>Posición</label><input type="text" id="f-ppos" placeholder="Ej: Delantero · #10"/></div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closePlayerModal()">Cancelar</button>
+      <button class="mbtn mbtn-save" onclick="savePlayer()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ADD/EDIT LIBRARY EXERCISE -->
+<div class="modal-overlay" id="modal-lib">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="modal-lib-title">Nuevo Ejercicio</h3>
+    <div class="form-row"><label>Nombre</label><input type="text" id="f-name" placeholder="Ej: Hip CARs bilateral"/></div>
+    <div class="form-row"><label>Categoría</label>
+      <select id="f-type">
+        <option value="mob">🧘 Movilidad</option>
+        <option value="act">🎗️ Activación & Prevención</option>
+        <option value="fza">🏋️ Fuerza</option>
+        <option value="exp">⚡ Explosivos</option>
+      </select>
+    </div>
+    <div class="form-row"><label>Series / Reps / Carga</label><input type="text" id="f-load" placeholder="Ej: 3×8 c/l · @70%"/></div>
+    <div class="form-row"><label>Nota técnica</label><textarea id="f-note" placeholder="Descripción, cues técnicos..."></textarea></div>
+    <div class="form-row"><label>Video o link de referencia</label><input type="url" id="f-link" placeholder="https://..."/></div>
+    <div class="form-row"><label>Imagen (URL)</label><input type="url" id="f-img" placeholder="https://..."/></div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeLibModal()">Cancelar</button>
+      <button class="mbtn mbtn-save" onclick="saveLibExercise()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PICK FROM LIBRARY -->
+<div class="modal-overlay" id="modal-pick">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Agregar desde Biblioteca</h3>
+    <div class="pick-list" id="pick-list"></div>
+    <button class="mbtn mbtn-cancel" style="width:100%;margin-top:4px;" onclick="closePickModal()">Cerrar</button>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-box" id="pin-box">
+    <div class="pin-icon">🔐</div>
+    <h3>Modo Coach</h3>
+    <p>Ingresá tu PIN para continuar</p>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-grid">
+      <div class="pin-key" onclick="pinPress('1')">1</div>
+      <div class="pin-key" onclick="pinPress('2')">2</div>
+      <div class="pin-key" onclick="pinPress('3')">3</div>
+      <div class="pin-key" onclick="pinPress('4')">4</div>
+      <div class="pin-key" onclick="pinPress('5')">5</div>
+      <div class="pin-key" onclick="pinPress('6')">6</div>
+      <div class="pin-key" onclick="pinPress('7')">7</div>
+      <div class="pin-key" onclick="pinPress('8')">8</div>
+      <div class="pin-key" onclick="pinPress('9')">9</div>
+      <div class="pin-key" onclick="pinPress('0')">0</div>
+      <div class="pin-key del" onclick="pinDel()">⌫</div>
+    </div>
+    <button class="pin-cancel" onclick="closePinModal()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════
+var COACH_PIN = '2204';
+var WMETA = [{lbl:'Descarga',col:'w1',badge:'#a8e063'},{lbl:'Base',col:'w2',badge:'#38d9c0'},{lbl:'Carga',col:'w3',badge:'#ff7043'},{lbl:'Integración',col:'w4',badge:'#5b9cf6'}];
+var DMETA = ['Empuje Rod.','Trac. MMSS','Empuje Cad.','Empuje MMSS','Explosivos'];
+var DFULL = ['Empuje Dom. Rodillas','Tracción MMSS','Empuje Dom. Cadera','Empuje MMSS','Explosivos & Técnica'];
+var BICONS = {mob:'🧘',act:'🎗️',fza:'🏋️',exp:'⚡'};
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+var isCoach = false;
+var cW = 0, cD = 0;
+var activeLibFilter = 'all';
+var editingLibId = null;
+var editingPlayerId = null;
+var currentPlayerId = null;
+var activePid = null; // tracks which player "owns" this session
+var pendingPhotoData = null;
+var pickTarget = null;
+var currentTab = 'plan';
+
+// ══════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════
+function loadPlayers(){ try{ var s=localStorage.getItem('pablo_players'); return s?JSON.parse(s):[]; }catch(e){ return []; } }
+function savePlayers(){ try{ localStorage.setItem('pablo_players',JSON.stringify(PLAYERS)); }catch(e){} }
+function loadLib(){ try{ var s=localStorage.getItem('pablo_lib'); return s?JSON.parse(s):[]; }catch(e){ return []; } }
+function saveLib(){ try{ localStorage.setItem('pablo_lib',JSON.stringify(LIB)); }catch(e){} }
+function loadPlanForPlayer(pid){ try{ var s=localStorage.getItem('pablo_plan_'+pid); return s?JSON.parse(s):deepCopy(defaultData()); }catch(e){ return deepCopy(defaultData()); } }
+function savePlanForPlayer(pid,plan){ try{ localStorage.setItem('pablo_plan_'+pid,JSON.stringify(plan)); }catch(e){} }
+function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
+
+var PLAYERS = loadPlayers();
+var LIB = loadLib();
+var PLAN = [];
+
+// ══════════════════════════════════════════════
+// SELECT SCREEN
+// ══════════════════════════════════════════════
+function renderSelect(){
+  var grid = document.getElementById('players-grid');
+  if(!PLAYERS.length){
+    grid.innerHTML = '<div class="empty-state"><div class="emi">⚽</div><p>'+(isCoach?'Todavía no hay jugadores. ¡Agregá el primero!':'Todavía no hay jugadores cargados.')+'</p></div>';
+  } else {
+    grid.innerHTML = PLAYERS.map(function(p){
+      var avHTML = p.photo
+        ? '<div class="player-photo"><img src="'+p.photo+'" alt=""/></div>'
+        : '<div class="player-photo">👤</div>';
+      var meta = [p.pos,p.club].filter(Boolean).join(' · ') || 'Pablo PT · Off-Season 2025';
+
+      // If a player is already active (returned to select), lock other cards
+      if(activePid && activePid !== p.id && !isCoach){
+        return '<div class="player-card-locked">'+
+          '<div class="player-card-inner">'+avHTML+
+            '<div class="player-info"><div class="player-name">'+p.name+'</div><div class="player-meta">'+meta+'</div></div>'+
+            '<div class="lock-badge"><span class="lock-icon">🔒</span></div>'+
+          '</div>'+
+        '</div>';
+      }
+
+      var actions = isCoach
+        ? '<div class="player-card-actions">'+
+            '<button class="pca-btn pca-edit" onclick="event.stopPropagation();editPlayer(\''+p.id+'\')">✏️ Editar</button>'+
+            '<div class="pca-sep"></div>'+
+            '<button class="pca-btn pca-del" onclick="event.stopPropagation();delPlayer(\''+p.id+'\')">🗑 Eliminar</button>'+
+          '</div>'
+        : '';
+      return '<div class="player-card" onclick="selectPlayer(\''+p.id+'\')">'  +
+        '<div class="player-card-inner">'+avHTML+'<div class="player-info"><div class="player-name">'+p.name+'</div><div class="player-meta">'+meta+'</div></div><div class="player-arrow">›</div></div>'+
+        actions+
+      '</div>';
+    }).join('');
+  }
+  document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);
+}
+
+function selectPlayer(pid){
+  currentPlayerId = pid;
+  activePid = pid; // lock other cards from now on
+  PLAN = loadPlanForPlayer(pid);
+  var p = PLAYERS.find(function(x){ return x.id===pid; });
+  if(!p) return;
+  // set welcome
+  var av = document.getElementById('welcome-av');
+  av.innerHTML = p.photo ? '<img src="'+p.photo+'"/>' : '👤';
+  document.getElementById('welcome-name').textContent = p.name;
+  var sub = 'Plan personalizado · 4 semanas · 5 días';
+  if(p.pos||p.club) sub = (p.pos?p.pos+' · ':'')+( p.club||'');
+  sub += '\nPablo PT · Off-Season 2025';
+  document.getElementById('welcome-sub').textContent = sub;
+  // show welcome
+  var ws = document.getElementById('screen-welcome');
+  ws.classList.remove('gone','hidden');
+  document.getElementById('screen-select').style.display='none';
+}
+
+function enterPlan(){
+  var ws = document.getElementById('screen-welcome');
+  ws.classList.add('hidden');
+  setTimeout(function(){ ws.classList.add('gone'); },420);
+  // show plan
+  document.getElementById('screen-plan').classList.add('active');
+  document.getElementById('app-tabs').classList.remove('hidden');
+  // set header
+  var p = PLAYERS.find(function(x){ return x.id===currentPlayerId; });
+  if(p){
+    document.getElementById('hdr-name').textContent = p.name;
+    var avWrap = document.getElementById('hdr-av-wrap');
+    if(p.photo){ avWrap.innerHTML='<img class="hdr-avatar" src="'+p.photo+'" alt=""/>'; }
+    else{ avWrap.innerHTML='<div class="hdr-avatar-ph">👤</div>'; }
+  }
+  cW=0; cD=0;
+  renderPlan();
+}
+
+function goBack(){
+  document.getElementById('screen-plan').classList.remove('active');
+  document.getElementById('screen-lib').classList.remove('active');
+  document.getElementById('app-tabs').classList.add('hidden');
+  document.getElementById('screen-select').style.display='';
+  currentPlayerId=null; PLAN=[];
+  // activePid stays set — other cards remain locked until coach resets
+  renderSelect();
+}
+
+// ══════════════════════════════════════════════
+// TABS (plan / lib)
+// ══════════════════════════════════════════════
+function showTab(name){
+  currentTab=name;
+  document.getElementById('screen-plan').classList.toggle('active',name==='plan');
+  document.getElementById('screen-lib').classList.toggle('active',name==='lib');
+  document.querySelectorAll('.atab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('atab-'+name).classList.add('active');
+  if(name==='lib'){ document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach); renderLib(); }
+}
+
+// ══════════════════════════════════════════════
+// MODE / PIN
+// ══════════════════════════════════════════════
+function toggleMode(){
+  if(isCoach){ deactivateCoach(); } else { openPinModal(); }
+}
+function deactivateCoach(){
+  isCoach=false;
+  document.getElementById('coach-toggle').textContent='👤 Jugador';
+  document.getElementById('coach-toggle').classList.remove('active');
+  document.getElementById('add-player-btn').classList.add('hidden');
+  document.getElementById('add-lib-btn').classList.add('hidden');
+  renderSelect(); if(currentPlayerId) renderPlan();
+}
+function activateCoach(){
+  isCoach=true;
+  activePid=null; // coach can see all players
+  document.getElementById('coach-toggle').textContent='🔑 Coach';
+  document.getElementById('coach-toggle').classList.add('active');
+  document.getElementById('add-player-btn').classList.remove('hidden');
+  if(currentTab==='lib') document.getElementById('add-lib-btn').classList.remove('hidden');
+  renderSelect(); if(currentPlayerId) renderPlan();
+}
+
+var pinBuffer='';
+function openPinModal(){ pinBuffer=''; updatePinDots(); document.getElementById('pin-overlay').classList.add('open'); }
+function closePinModal(){ document.getElementById('pin-overlay').classList.remove('open'); pinBuffer=''; updatePinDots(); }
+function pinPress(d){ if(pinBuffer.length>=4) return; pinBuffer+=d; updatePinDots(); if(pinBuffer.length===4) setTimeout(checkPin,120); }
+function pinDel(){ pinBuffer=pinBuffer.slice(0,-1); updatePinDots(); }
+function updatePinDots(){ for(var i=0;i<4;i++){ var d=document.getElementById('pd'+i); d.classList.toggle('filled',i<pinBuffer.length); d.classList.remove('error'); } }
+function checkPin(){
+  if(pinBuffer===COACH_PIN){ closePinModal(); activateCoach(); }
+  else{
+    for(var i=0;i<4;i++) document.getElementById('pd'+i).classList.add('error');
+    var box=document.getElementById('pin-box');
+    box.classList.add('pin-shake');
+    setTimeout(function(){ box.classList.remove('pin-shake'); pinBuffer=''; updatePinDots(); },450);
+  }
+}
+
+// ══════════════════════════════════════════════
+// PLAYER MODAL
+// ══════════════════════════════════════════════
+function openPlayerModal(id){
+  editingPlayerId=id||null; pendingPhotoData=null;
+  var p=id?PLAYERS.find(function(x){ return x.id===id; }):null;
+  document.getElementById('modal-player-title').textContent=p?'Editar Jugador':'Nuevo Jugador';
+  document.getElementById('f-pname').value=p?p.name:'';
+  document.getElementById('f-pclub').value=p?(p.club||''):'';
+  document.getElementById('f-ppos').value=p?(p.pos||''):'';
+  var prev=document.getElementById('av-preview');
+  prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'👤';
+  if(p&&p.photo) pendingPhotoData=p.photo;
+  document.getElementById('modal-player').classList.add('open');
+}
+function closePlayerModal(){ document.getElementById('modal-player').classList.remove('open'); editingPlayerId=null; pendingPhotoData=null; }
+function editPlayer(id){ openPlayerModal(id); }
+function delPlayer(id){
+  if(!confirm('¿Eliminar este jugador y su plan?')) return;
+  PLAYERS=PLAYERS.filter(function(p){ return p.id!==id; });
+  try{ localStorage.removeItem('pablo_plan_'+id); }catch(e){}
+  savePlayers(); renderSelect();
+}
+function handlePhotoUpload(e){
+  var file=e.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    pendingPhotoData=ev.target.result;
+    document.getElementById('av-preview').innerHTML='<img src="'+ev.target.result+'"/>';
+  };
+  reader.readAsDataURL(file);
+}
+function savePlayer(){
+  var name=document.getElementById('f-pname').value.trim();
+  if(!name){ alert('El nombre es obligatorio.'); return; }
+  if(editingPlayerId){
+    var idx=PLAYERS.findIndex(function(p){ return p.id===editingPlayerId; });
+    if(idx>=0){
+      PLAYERS[idx].name=name;
+      PLAYERS[idx].club=document.getElementById('f-pclub').value.trim();
+      PLAYERS[idx].pos=document.getElementById('f-ppos').value.trim();
+      if(pendingPhotoData) PLAYERS[idx].photo=pendingPhotoData;
+    }
+  } else {
+    PLAYERS.push({ id:'p_'+Date.now(), name:name, club:document.getElementById('f-pclub').value.trim(), pos:document.getElementById('f-ppos').value.trim(), photo:pendingPhotoData||'' });
+  }
+  savePlayers(); closePlayerModal(); renderSelect();
+}
+
+// ══════════════════════════════════════════════
+// PLAN RENDER
+// ══════════════════════════════════════════════
+function renderPlan(){
+  var wm=WMETA[cW];
+  var badge=document.getElementById('hdr-badge');
+  badge.textContent='SEM '+(cW+1); badge.style.background=wm.badge;
+  // week tabs
+  var wt='';
+  for(var i=0;i<4;i++){
+    var ac=(i===cW)?'border-bottom-color:'+WMETA[i].badge:'';
+    var nc=(i===cW)?'color:'+WMETA[i].badge:'color:var(--muted2)';
+    wt+='<div class="wtab" onclick="setW('+i+')" style="'+ac+'"><span class="wtab-n" style="'+nc+'">0'+(i+1)+'</span><span class="wtab-l" style="'+nc+'">'+WMETA[i].lbl+'</span></div>';
+  }
+  document.getElementById('week-tabs').innerHTML=wt;
+  // day tabs
+  var dt='';
+  for(var j=0;j<5;j++){
+    var dac=(j===cD)?'act-day':'';
+    dt+='<div class="dtab '+dac+'" onclick="setD('+j+')"><span class="dtab-n">D'+(j+1)+'</span><span class="dtab-l">'+DMETA[j]+'</span></div>';
+  }
+  document.getElementById('day-tabs').innerHTML=dt;
+  // nav
+  document.getElementById('nwlbl').textContent='Semana '+(cW+1)+' · '+wm.lbl;
+  document.getElementById('ndlbl').textContent='Día '+(cD+1)+' — '+DFULL[cD];
+  document.getElementById('btn-prev').disabled=(cW===0&&cD===0);
+  document.getElementById('btn-next').disabled=(cW===3&&cD===4);
+  // day content
+  var day=PLAN[cW][cD];
+  var pillsH=day.pills.map(function(p){ return '<div class="pill">'+p+'</div>'; }).join('');
+  var blocksH=day.blocks.map(function(b,bi){ return renderBlock(b,bi,cW,cD); }).join('');
+  document.getElementById('plan-content').innerHTML=
+    '<div class="fadein">'+
+    '<div class="hero hero-'+wm.col+'">'+
+      '<div class="hero-over" style="color:'+wm.badge+'">Semana '+(cW+1)+' · '+wm.lbl+' — Día '+(cD+1)+'</div>'+
+      '<div class="hero-title">'+day.title+'</div>'+
+      '<div class="hero-pat">'+day.pattern+'</div>'+
+      '<div class="hero-pills">'+pillsH+'</div>'+
+    '</div>'+blocksH+'</div>';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderBlock(b,bi,wIdx,dIdx){
+  var exsH=b.exs.map(function(e,ei){
+    var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">▶ Ver video</a>':'';
+    var del=isCoach?'<button class="ex-del" onclick="delEx('+wIdx+','+dIdx+','+bi+','+ei+')">✕</button>':'';
+    return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div><div class="exright"><div class="exload l-'+b.t+'">'+e.l+'</div>'+del+'</div></div>';
+  }).join('');
+  var addBtn=isCoach?'<button class="add-ex-btn" onclick="openPickModal('+wIdx+','+dIdx+','+bi+')">＋ Agregar ejercicio</button>':'';
+  return '<div class="bcard open">'+
+    '<div class="bcard-hdr" onclick="this.closest(\'.bcard\').classList.toggle(\'open\')">'+
+      '<div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div>'+
+      '<div class="binfo"><div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div></div>'+
+      '<div class="btoggle">›</div>'+
+    '</div>'+
+    '<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div></div>'+
+  '</div>';
+}
+
+function setW(i){ cW=i; cD=0; renderPlan(); }
+function setD(j){ cD=j; renderPlan(); }
+function navigate(dir){
+  var d=cD+dir,w=cW;
+  if(d<0){w--;d=4;} if(d>4){w++;d=0;}
+  if(w<0||w>3) return;
+  cW=w; cD=d; renderPlan();
+}
+function delEx(w,d,b,e){
+  if(!isCoach||!currentPlayerId) return;
+  PLAN[w][d].blocks[b].exs.splice(e,1);
+  savePlanForPlayer(currentPlayerId,PLAN); renderPlan();
+}
+
+// ══════════════════════════════════════════════
+// PICK FROM LIBRARY
+// ══════════════════════════════════════════════
+function openPickModal(w,d,b){
+  pickTarget={wIdx:w,dIdx:d,bIdx:b};
+  var bType=PLAN[w][d].blocks[b].t;
+  var items=LIB.filter(function(e){ return e.type===bType; });
+  if(!items.length) items=LIB;
+  if(!items.length){ alert('La biblioteca está vacía. Agregá ejercicios primero desde la pestaña 📚 Biblioteca.'); return; }
+  document.getElementById('pick-list').innerHTML=items.map(function(e){
+    return '<div class="pick-item" onclick="addFromLib(\''+e.id+'\')">'+
+      '<div class="pick-dot" style="background:var(--'+e.type+')"></div>'+
+      '<div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div></div>'+
+      '<div class="pick-add">＋</div></div>';
+  }).join('');
+  document.getElementById('modal-pick').classList.add('open');
+}
+function closePickModal(){ document.getElementById('modal-pick').classList.remove('open'); pickTarget=null; }
+function addFromLib(id){
+  if(!pickTarget||!currentPlayerId) return;
+  var ex=LIB.find(function(e){ return e.id===id; }); if(!ex) return;
+  PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});
+  savePlanForPlayer(currentPlayerId,PLAN);
+  closePickModal(); renderPlan();
+}
+
+// ══════════════════════════════════════════════
+// LIBRARY
+// ══════════════════════════════════════════════
+function renderLib(){
+  var items=activeLibFilter==='all'?LIB:LIB.filter(function(e){ return e.type===activeLibFilter; });
+  var typeLabels={mob:'Movilidad',act:'Activación',fza:'Fuerza',exp:'Explosivos'};
+  if(!items.length){
+    document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">📭</div><p>'+(isCoach?'Sin ejercicios. ¡Agregá el primero!':'No hay ejercicios en esta categoría.')+'</p></div>';
+    return;
+  }
+  document.getElementById('lib-grid').innerHTML=items.map(function(e){
+    var imgH=e.img?'<img class="lib-card-img" src="'+e.img+'" onerror="this.style.display=\'none\'"/>':'<div class="lib-card-img-ph">'+BICONS[e.type]+'</div>';
+    var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">▶ Ver video</a>':'';
+    var actions=isCoach?'<div class="lib-card-actions"><button class="lca-btn lca-edit" onclick="editLibEx(\''+e.id+'\')">✏️ Editar</button><button class="lca-btn lca-del" onclick="delLibEx(\''+e.id+'\')">🗑 Eliminar</button></div>':'';
+    return '<div class="lib-card">'+imgH+'<div class="lib-card-body"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+BICONS[e.type]+' '+typeLabels[e.type]+'</span></div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+actions+'</div></div>';
+  }).join('');
+}
+function filterLib(f,el){
+  activeLibFilter=f;
+  document.querySelectorAll('.filter-chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active'); renderLib();
+}
+function openLibModal(id){
+  editingLibId=id||null;
+  var ex=id?LIB.find(function(e){ return e.id===id; }):null;
+  document.getElementById('modal-lib-title').textContent=ex?'Editar Ejercicio':'Nuevo Ejercicio';
+  document.getElementById('f-name').value=ex?ex.name:'';
+  document.getElementById('f-type').value=ex?ex.type:'mob';
+  document.getElementById('f-load').value=ex?ex.load:'';
+  document.getElementById('f-note').value=ex?ex.note:'';
+  document.getElementById('f-link').value=ex?ex.link:'';
+  document.getElementById('f-img').value=ex?ex.img:'';
+  document.getElementById('modal-lib').classList.add('open');
+}
+function closeLibModal(){ document.getElementById('modal-lib').classList.remove('open'); editingLibId=null; }
+function saveLibExercise(){
+  var name=document.getElementById('f-name').value.trim();
+  if(!name){ alert('El nombre es obligatorio.'); return; }
+  var obj={id:editingLibId||('lib_'+Date.now()),name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim()};
+  if(editingLibId){ var idx=LIB.findIndex(function(e){ return e.id===editingLibId; }); if(idx>=0) LIB[idx]=obj; }
+  else LIB.push(obj);
+  saveLib(); closeLibModal(); renderLib();
+}
+function editLibEx(id){ openLibModal(id); }
+function delLibEx(id){
+  if(!confirm('¿Eliminar este ejercicio?')) return;
+  LIB=LIB.filter(function(e){ return e.id!==id; });
+  saveLib(); renderLib();
+}
+
+// ══════════════════════════════════════════════
+// DEFAULT PLAN DATA
+// ══════════════════════════════════════════════
+function defaultData(){return [[{title:'Empuje Dominante de Rodillas',pattern:'Squat / Bilateral / Cuádriceps',pills:['RPE 5–6','3 bloques','~65 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Tobillo · Cadera · Columna torácica',exs:[{n:'Ankle Dorsiflexion (pared)',d:'ROM activo tobillo bilateral',l:'2×10 c/l',link:'https://www.youtube.com/watch?v=XyLTb8ZnlFE'},{n:'Hip 90/90 Rotación pasiva → activa',d:'Apertura rotatoria de cadera',l:'2×45s c/l'},{n:'Thoracic Rotation en cuadrupedia',d:'Extensión + rotación torácica segmental',l:'2×8 c/l'},{n:'World\'s Greatest Stretch',d:'Integración global cadena anterior',l:'2×5 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Rodillas / Cuádriceps',exs:[{n:'Monster Walk lateral (banda en tobillo)',d:'Activación abductores + control rodilla',l:'2×12 c/l'},{n:'Squat to box con banda en rodillas',d:'Control valgo, patrón sentadilla',l:'2×10'},{n:'Dead Bug con banda en pies',d:'Estabilización lumbo-pélvica activa',l:'3×8'},{n:'Copenhagen Adductor Hold isométrico',d:'Prevención aductora · sin inestabilidad',l:'3×20s c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 50–60% 1RM',exs:[{n:'Goblet Squat (pausa 2s en fondo)',d:'Bipodal · ROM completo · técnica',l:'3×8 @50%',link:'https://www.youtube.com/watch?v=MeIiIdhvXT4'},{n:'Split Squat con KB (pausa 2s)',d:'Unipodal · control pélvico en rango final',l:'3×6 c/l'},{n:'Leg Press unilateral (rango completo)',d:'Descarga espinal, volumen controlado',l:'3×10 c/l'}]}]},{title:'Tracción Miembros Superiores',pattern:'Pull / Horizontal y Vertical / Espalda',pills:['RPE 5–6','3 bloques','~65 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Hombro · Escápula · Columna torácica',exs:[{n:'Shoulder CARs',d:'ROM activo máximo glenohumeral',l:'3×5 c/l'},{n:'Wall Slides con foam roll en columna',d:'Movilidad escapular + extensión torácica',l:'2×10'},{n:'Doorway Pec Stretch activo',d:'Apertura anterior de hombro',l:'2×8'},{n:'Rotación torácica en banco',d:'Disociación columna torácica / lumbar',l:'2×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Manguito rotador · Escápula',exs:[{n:'External Rotation con banda (90/90)',d:'Manguito rotador externo · prevención',l:'3×12 c/l'},{n:'Band Pull Apart',d:'Retracción escapular activa',l:'3×15'},{n:'Face Pull con banda',d:'Deltoides posterior + manguito',l:'3×12'},{n:'Serratus Push-up con banda',d:'Activación serrato anterior',l:'2×10'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 50–60%',exs:[{n:'Remo con barra (pausa 1s)',d:'Bipodal · tracción horizontal',l:'3×8 @55%'},{n:'Single Arm DB Row',d:'Unilateral · antirotación de tronco',l:'3×10 c/l'},{n:'Chin-up asistido / con banda',d:'Tracción vertical, progresión suave',l:'3×6'}]}]},{title:'Empuje Dominante de Cadera',pattern:'Hip Hinge / Cadena Posterior / Isquios',pills:['RPE 5–6','3 bloques','~65 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Cadera · Isquiotibiales · Pelvis',exs:[{n:'Hip CARs en bipedestación',d:'Control articular activo máximo de cadera',l:'3×5 c/l'},{n:'Loaded stretch isquiotibiales (RDL BW)',d:'Elongación activa cadena posterior',l:'2×8 c/l'},{n:'Pigeon Pose activo',d:'Rotación externa cadera profunda',l:'2×45s c/l'},{n:'Quadruped Hip Extension',d:'Activación glútea + patrón motor cadera',l:'2×10 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Glúteos · Isquios · Aductores',exs:[{n:'Glute Bridge con banda en rodillas',d:'Activación glútea bilateral + control valgo',l:'3×15'},{n:'Clamshell con banda',d:'Glúteo medio · prevención cadera',l:'3×12 c/l'},{n:'Nordic Hamstring Curl (excéntrico suave)',d:'Isquiotibiales · prevención fundamental',l:'3×5',link:'https://www.youtube.com/watch?v=d1sAWEqQ8oI'},{n:'Copenhagen Adductor isométrico',d:'Aductores sin elementos inestables',l:'3×20s c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 50–60%',exs:[{n:'Romanian Deadlift con barra',d:'Bipodal · carga excéntrica isquios',l:'3×8 @55%'},{n:'Single Leg RDL con KB',d:'Unipodal · cadena posterior + equilibrio',l:'3×8 c/l'},{n:'Hip Thrust (barra ligera)',d:'Extensión de cadera · activación glútea',l:'3×10 @50%'}]}]},{title:'Empuje Miembros Superiores',pattern:'Push / Horizontal y Vertical / Pecho · Hombro',pills:['RPE 5–6','3 bloques','~65 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Hombro · Tórax · Muñeca',exs:[{n:'Shoulder CARs lentos',d:'ROM articular glenohumeral activo',l:'3×5 c/l'},{n:'Thoracic Extension sobre foam roll',d:'Extensión torácica segmental',l:'2×10 seg'},{n:'Wrist Circles + extensión activa',d:'Preparación muñeca para empuje',l:'2×8 c/l'},{n:'Quadruped Reach + Rotation',d:'Movilidad tórax en carga',l:'2×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Manguito · Pectoral · Serrato',exs:[{n:'Internal Rotation con banda (neutro)',d:'Equilibrio rotatorio glenohumeral',l:'3×12 c/l'},{n:'Lateral Raise con banda (plano escapular)',d:'Deltoides medio funcional',l:'3×12'},{n:'Push-up Plus',d:'Activación serrato anterior',l:'3×10'},{n:'Band Diagonals (PNF D2)',d:'Patrón diagonal funcional hombro',l:'2×10 c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 50–60%',exs:[{n:'Press Banca inclinado con barra',d:'Bipodal · empuje horizontal',l:'3×8 @50%'},{n:'Single Arm DB Press en banco plano',d:'Unilateral · antirotación tronco',l:'3×10 c/l'},{n:'Press Militar con mancuernas (sentado)',d:'Empuje vertical · control escapular',l:'3×8'}]}]},{title:'Explosivos & Técnica de Carrera',pattern:'Potencia · Primer Paso · Zancada',pills:['RPE 6','Sin pesas','~60 min'],blocks:[{t:'mob',title:'Movilidad Dinámica',sub:'Activación neurológica · Warm-up carrera',exs:[{n:'Leg Swings frontal + lateral',d:'Movilidad dinámica cadera pre-sprint',l:'2×10 c/l'},{n:'High Knees lentos + aceleración progresiva',d:'Activación flexores cadera + patrón',l:'2×20m'},{n:'Ankle Circles + Skip A lento',d:'Tobillo + cadencia de zancada',l:'2×15m'},{n:'Gluteal Stretch caminando',d:'Glúteo + rotación externa dinámica',l:'2×10 c/l'}]},{t:'act',title:'Activación & Control Motor',sub:'Bandas · Primer paso · Reactividad',exs:[{n:'Resisted Marching con banda (cadera)',d:'Patrón de carrera con resistencia proximal',l:'3×10m'},{n:'Mini-hurdle coordination drill',d:'Frecuencia de paso · coordinación',l:'3×10m'},{n:'Lateral Shuffle con banda (tobillo)',d:'Cambio de dirección + control rodilla',l:'3×10m'},{n:'Single Leg Hop (estabilización aterrizaje)',d:'Control excéntrico post-impulso',l:'3×5 c/l'}]},{t:'fza',title:'Técnica de Carrera',sub:'Primer paso · Aceleración · Zancada',exs:[{n:'Falling Starts (primer paso)',d:'Mecánica de aceleración · ángulo de salida',l:'6×10m'},{n:'A-Skip + B-Skip técnico',d:'Mecánica de zancada · frecuencia de paso',l:'4×20m'},{n:'Sprint progresivo 60%→80%',d:'Transición aceleración → velocidad máx.',l:'4×30m'}]}]}],[{title:'Empuje Dominante de Rodillas',pattern:'Squat — Carga Base · 60–70%',pills:['RPE 6–7','3 bloques','~75 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Tobillo · Cadera · Tórax',exs:[{n:'Ankle Mob KOT con pared',d:'Dorsiflexión activa progresiva',l:'3×10 c/l'},{n:'90/90 PAIL/RAIL',d:'Expansión ROM rotatorio activo cadera',l:'3×45s c/l'},{n:'Cossack Squat asistido',d:'Movilidad aductores + dorsiflexión lateral',l:'2×6 c/l'},{n:'Thoracic CARs en bipedestación',d:'Control articular columna torácica',l:'2×5 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Rodilla · Control de valgo',exs:[{n:'Lateral Band Walk (banda en rodillas)',d:'Activación glúteo medio · control valgo',l:'3×15 c/l'},{n:'Terminal Knee Extension con banda',d:'VMO y control extensor terminal',l:'3×15 c/l'},{n:'Bird Dog con banda en pie',d:'Control lumbo-pélvico + extensión',l:'3×8 c/l'},{n:'Adductor Squeeze isométrico',d:'Activación aductora · sin inestabilidad',l:'3×20s'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 60–70%',exs:[{n:'Back Squat (full ROM)',d:'Bipodal · progresión desde sem 1',l:'4×6 @65%'},{n:'Bulgarian Split Squat con mancuernas',d:'Unipodal · énfasis cuádriceps',l:'3×8 c/l'},{n:'Leg Press bilateral (4s excéntrico)',d:'Tempo excéntrico · trabajo cuádriceps',l:'3×10'}]}]},{title:'Tracción Miembros Superiores',pattern:'Pull / Escápula · Espalda media-alta',pills:['RPE 6–7','3 bloques','~75 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Hombro · Escápula · Columna dorsal',exs:[{n:'Shoulder CARS con KB 2kg',d:'ROM activo con resistencia leve',l:'3×5 c/l'},{n:'Prone Y-T-W (sin carga)',d:'Movilidad + activación escapular',l:'2×8 pos.'},{n:'Side-lying Windmill',d:'Apertura torácica + disociación escapular',l:'2×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Manguito · Escapular',exs:[{n:'External Rotation 90° con banda',d:'Manguito rotador externo en rango funcional',l:'3×12 c/l'},{n:'Band Pull Apart + pausa 2s',d:'Retracción escapular con control',l:'3×15'},{n:'Prone Band Row',d:'Activación romboides + deltoides posterior',l:'3×12'},{n:'YTWL con banda elástica',d:'Secuencia de activación escapular completa',l:'2×8 pos.'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 60–70%',exs:[{n:'Pendlay Row con barra',d:'Bipodal · tracción horizontal explosiva',l:'4×6 @65%'},{n:'Single Arm Cable/Band Row',d:'Unilateral · antirotación',l:'3×10 c/l'},{n:'Chin-up (lastre progresivo)',d:'Tracción vertical · fuerza relativa',l:'4×6'}]}]},{title:'Empuje Dominante de Cadera',pattern:'Hip Hinge — Cadena Posterior · Base',pills:['RPE 6–7','3 bloques','~75 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Cadera · Isquios · Aductores',exs:[{n:'Hip CARS con KB contralateral',d:'Control rotatorio con resistencia leve',l:'3×5 c/l'},{n:'Loaded Stretch Isquios (RDL @30%)',d:'Elongación activa bajo tensión',l:'3×6 c/l'},{n:'Deep Squat Hold + respiración',d:'Movilidad de fondo de rango global',l:'2×45s'},{n:'Adductor Rock',d:'Movilidad aductora activa progresiva',l:'2×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Glúteo · Isquios · Aductores',exs:[{n:'Hip Thrust isométrico con banda en rodillas',d:'Extensión máxima cadera + control valgo',l:'3×15s'},{n:'Nordic Hamstring (progresión sem 1)',d:'Excéntrico isquiotibial fundamental',l:'3×6'},{n:'Copenhagen Adductor (rodilla extendida)',d:'Aductor largo, mayor demanda',l:'3×20s c/l'},{n:'Terminal Knee Extension con banda',d:'VMO y control patelofemoral',l:'3×12 c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 60–70%',exs:[{n:'Romanian Deadlift progresado',d:'Bipodal · +5–10kg vs sem 1',l:'4×6 @65%'},{n:'Single Leg RDL con KB (pausa 1s)',d:'Unipodal · mayor control excéntrico',l:'3×8 c/l'},{n:'Hip Thrust con barra (carga media)',d:'Extensión terminal · glúteo máx.',l:'4×8 @60%'}]}]},{title:'Empuje Miembros Superiores',pattern:'Push Horizontal + Vertical — Base',pills:['RPE 6–7','3 bloques','~75 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Hombro · Escápula · Tórax',exs:[{n:'Shoulder CARS (velocidad controlada)',d:'ROM dinámico glenohumeral',l:'3×5 c/l'},{n:'Thoracic Rotation + Reach',d:'Disociación tórax/cadera',l:'2×8 c/l'},{n:'Lat Stretch en rack (activo)',d:'Apertura dorsal ancho + hombro',l:'2×30s c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Manguito · Serrato · Deltoides',exs:[{n:'External + Internal Rotation con banda',d:'Equilibrio rotatorio completo',l:'3×10 c/l'},{n:'Band Lateral Raise (plano escapular)',d:'Deltoides medio funcional',l:'3×12'},{n:'Push-up Plus progresado (pies elevados)',d:'Serrato + pectorales progresión',l:'3×10'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 60–70%',exs:[{n:'Press Banca con barra (full ROM)',d:'Bipodal · progresión desde sem 1',l:'4×6 @65%'},{n:'Single Arm Press + rotación de tronco',d:'Unilateral · integración tronco-empuje',l:'3×8 c/l'},{n:'Press Militar de pie con barra',d:'Empuje vertical estabilización total',l:'3×6 @60%'}]}]},{title:'Explosivos & Técnica de Carrera',pattern:'Potencia · Aceleración · Zancada',pills:['RPE 6–7','Cancha','~70 min'],blocks:[{t:'mob',title:'Movilidad Dinámica',sub:'Activación neurológica',exs:[{n:'Skipping A + B técnico',d:'Mecánica de zancada y frecuencia',l:'3×20m'},{n:'Cadera circles caminando',d:'ROM cadera dinámica pre-sprint',l:'2×10 c/l'},{n:'Lunge walking + rotación torácica',d:'Cadena anterior + tórax',l:'2×10m'}]},{t:'act',title:'Activación & Control Motor',sub:'Bandas · Potencia de cadera',exs:[{n:'Resisted Sprint start con banda',d:'Activación extensores cadera en aceleración',l:'4×10m'},{n:'Bounding lateral con banda (tobillo)',d:'Potencia abductora + control aterrizaje',l:'3×8 c/l'},{n:'Pogo Jumps reactivos',d:'Stiffness tobillo + reactividad',l:'3×10'}]},{t:'fza',title:'Técnica de Carrera + Potencia',sub:'Primer paso · Sprint · Potencia miembro inf.',exs:[{n:'Falling Start + Sprint 15m',d:'Primer paso + aceleración máxima',l:'6×15m'},{n:'Sprint resisted con sled (ligero)',d:'Potencia de aceleración horizontal',l:'4×20m'},{n:'Broad Jump + Sprint 10m',d:'Potencia explosiva → velocidad específica',l:'5×10m'}]}]}],[{title:'Empuje Dominante de Rodillas',pattern:'Squat — Alta Intensidad · PAP',pills:['RPE 7–8','4 bloques','~85 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Tobillo · Cadera · Tórax — Profundidad máxima',exs:[{n:'Ankle Mob KOT (sin apoyo)',d:'Dorsiflexión libre con control',l:'3×10 c/l'},{n:'PAIL/RAIL 90/90 (2 min c/pos.)',d:'Expansión máxima ROM cadera',l:'2 pos.'},{n:'Cossack Squat libre',d:'Aductores + tobillo en rango completo',l:'3×5 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Activación pre-carga alta',exs:[{n:'Lateral Band Walk + Squat (combo)',d:'Activación glúteo medio + patrón',l:'3×10+5'},{n:'Terminal Knee Extension explosiva con banda',d:'VMO reactivo pre-sentadilla pesada',l:'3×15'},{n:'Nordic Hamstring (activación)',d:'Isquios excéntrico como preparación',l:'2×5'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 75–85%',exs:[{n:'Back Squat pesado',d:'Bipodal · máxima expresión de fuerza',l:'5×4 @80%'},{n:'Bulgarian Split Squat (KB pesados)',d:'Unipodal · carga alta con control',l:'4×6 c/l'},{n:'Leg Press (excéntrico 3s)',d:'Volumen + tempo excéntrico',l:'4×8 @75%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP Post-Fuerza · Activación neurológica',exs:[{n:'Jump Squat con carga (20–30%)',d:'Post Back Squat · PAP neurológico',l:'4×4'},{n:'Broad Jump máximo',d:'Potencia horizontal bilateral máxima',l:'4×3'},{n:'Lateral Bound + estabilización',d:'Potencia lateral unipodal',l:'3×4 c/l'}]}]},{title:'Tracción Miembros Superiores',pattern:'Pull — Alta Intensidad · PAP',pills:['RPE 7–8','4 bloques','~85 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Hombro · Escápula — Pre-carga alta',exs:[{n:'Shoulder CARS con KB 4kg',d:'ROM bajo resistencia moderada',l:'3×5 c/l'},{n:'Prone T + Overhead Reach',d:'Activación posterior hombro + tórax',l:'2×10'},{n:'Side-lying Windmill activo',d:'Apertura torácica máxima',l:'3×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Alta especificidad',exs:[{n:'External Rotation 90° explosiva con banda',d:'Manguito rotador en velocidad',l:'3×12 c/l'},{n:'Band Pull Apart explosivo',d:'Retractores escapulares en velocidad',l:'3×15'},{n:'Face Pull + External Rotation (combo)',d:'Protocolo hombro completo',l:'3×10'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 75–85%',exs:[{n:'Weighted Pull-up',d:'Tracción vertical máxima',l:'4×5 @BW+'},{n:'Single Arm DB Row pesado',d:'Unilateral · máxima expresión',l:'4×6 c/l'},{n:'Pendlay Row pesado',d:'Potencia concéntrica · tracción horizontal',l:'4×5 @80%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP · Potencia miembros superiores',exs:[{n:'Plyo Push-up post-banca',d:'PAP tren superior · explosividad',l:'4×5'},{n:'Med Ball Chest Pass máximo',d:'Potencia horizontal tren superior',l:'4×4'},{n:'Med Ball Slam overhead',d:'Potencia vertical + deceleración',l:'3×5'}]}]},{title:'Empuje Dominante de Cadera',pattern:'Hip Hinge — Alta Intensidad · PAP',pills:['RPE 7–8','4 bloques','~85 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Cadera · Isquios — Máxima extensibilidad',exs:[{n:'Hip CARS con KB contralateral (medio)',d:'Control total bajo resistencia',l:'3×5 c/l'},{n:'Loaded stretch isquios (RDL @40%)',d:'Elongación activa máxima',l:'3×6 c/l'},{n:'Active Pigeon (contracciones isométricas)',d:'ROM rotatorio profundo activo',l:'2×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Isquios · Glúteo máximo',exs:[{n:'Nordic Hamstring pre-deadlift',d:'Isquios excéntrico como preparación',l:'3×5'},{n:'Hip Thrust explosivo BW con banda',d:'Activación glútea máxima pre-carga',l:'3×12'},{n:'Copenhagen Adductor dinámico',d:'Aductores en rango funcional',l:'3×8 c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 75–85%',exs:[{n:'Trap Bar Deadlift pesado',d:'Bipodal · carga alta · columna neutral',l:'5×4 @80%'},{n:'Single Leg RDL con barra',d:'Unipodal · cadena posterior máxima',l:'4×5 c/l'},{n:'Hip Thrust pesado',d:'Extensión terminal cadera máxima',l:'4×6 @80%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP · Potencia de cadera',exs:[{n:'Vertical Jump máximo post-deadlift',d:'PAP · potencia vertical máxima',l:'4×4'},{n:'KB Swing explosivo (heavy)',d:'Potencia de cadera horizontal-vertical',l:'4×8'},{n:'Single Leg Box Jump + estabilización',d:'Potencia unipodal + control aterrizaje',l:'3×4 c/l'}]}]},{title:'Empuje Miembros Superiores',pattern:'Push — Alta Intensidad · PAP',pills:['RPE 7–8','4 bloques','~85 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Hombro · Tórax — Pre-empuje pesado',exs:[{n:'Shoulder CARS (velocidad + carga leve)',d:'Preparación glenohumeral completa',l:'3×5 c/l'},{n:'Thoracic Extension + Rotation',d:'Disociación tórax máxima',l:'2×8 c/l'},{n:'Doorway PNF stretch activo',d:'Apertura pectoral anterior',l:'2×8'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Manguito · Alta especificidad',exs:[{n:'ER + IR con banda en velocidad',d:'Equilibrio rotatorio pre-empuje pesado',l:'3×12 c/l'},{n:'Band Lateral Raise explosivo',d:'Deltoides medio en velocidad',l:'3×12'},{n:'Push-up Plus explosivo',d:'Serrato activo en velocidad',l:'3×10'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 75–85%',exs:[{n:'Press Banca pesado',d:'Bipodal · máxima expresión empuje horizontal',l:'5×4 @82%'},{n:'Single Arm DB Press inclinado (pesado)',d:'Unilateral · estabilización activa',l:'4×5 c/l'},{n:'Press Militar con barra (de pie, pesado)',d:'Empuje vertical máximo',l:'4×5 @78%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP · Potencia tren superior',exs:[{n:'Plyo Push-up desde caja',d:'PAP post-banca · máxima explosividad',l:'4×5'},{n:'Med Ball Push Pass (distancia máxima)',d:'Potencia empuje horizontal máxima',l:'4×5'},{n:'Overhead Med Ball Throw',d:'Potencia empuje vertical',l:'3×5'}]}]},{title:'Explosivos & Técnica de Carrera',pattern:'Sprint máximo · Zancada · Potencia máxima',pills:['RPE 8','Cancha','~80 min'],blocks:[{t:'mob',title:'Movilidad Dinámica',sub:'Activación SNC · Warm-up sprint',exs:[{n:'Skipping A/B/C técnico',d:'Mecánica completa de carrera',l:'3×20m c/u'},{n:'Aceleraciones progresivas 40/60/80%',d:'SNC hacia velocidad máxima',l:'3×30m'},{n:'Hip Circles dinámicos caminando',d:'Cadera libre pre-sprint máximo',l:'2×10 c/l'}]},{t:'act',title:'Activación & Control Motor',sub:'Bandas · Máxima potencia',exs:[{n:'Resisted Sprint con banda explosivo',d:'Potencia primer paso máxima',l:'4×10m'},{n:'Altitude Drop + Sprint',d:'SSC tobillo + transición a velocidad',l:'4×15m'},{n:'Pogo Jumps bilaterales → unilaterales',d:'Stiffness máxima pre-sprint',l:'3×10'}]},{t:'fza',title:'Sprint Máximo + Técnica',sub:'Velocidad máxima · Primer paso',exs:[{n:'Sprint máximo 35m (salida 3 puntos)',d:'Velocidad máxima + mecánica aceleración',l:'6×35m'},{n:'Flying Sprint 20m (entrada 20m)',d:'Velocidad máxima pura',l:'4×20m'},{n:'Sprint curvo + cambio dirección 90°',d:'Velocidad + especificidad futbolística',l:'4×20m'}]}]}],[{title:'Empuje Dominante de Rodillas',pattern:'Squat — Taper · Calidad sobre cantidad',pills:['RPE 6–7','4 bloques','~70 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Consolidación autónoma',exs:[{n:'Secuencia tobillo + cadera (10 min)',d:'Rutina que el atleta lleva a pretemporada',l:'Diario'},{n:'Cossack Squat + pausa',d:'Mantenimiento ROM lateral',l:'2×5 c/l'},{n:'90/90 Hip Mob (PAIL/RAIL breve)',d:'ROM mantenido',l:'2×30s c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Mantenimiento',exs:[{n:'Lateral Band Walk + TKE (combo)',d:'Rutina de mantenimiento rodilla',l:'3×12'},{n:'Nordic Hamstring (mantenimiento)',d:'No discontinuar carga excéntrica',l:'3×5'},{n:'Copenhagen Adductor (mantenimiento)',d:'Aductor largo protección',l:'3×20s c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · –20% volumen vs sem 3',exs:[{n:'Back Squat (misma intensidad, –1 serie)',d:'Consolidar sin acumular fatiga',l:'4×4 @80%'},{n:'Bulgarian Split Squat (mantenimiento)',d:'Unipodal · calidad de ejecución',l:'3×6 c/l'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP mantenido — volumen reducido',exs:[{n:'Jump Squat (volumen reducido)',d:'Mantener expresión neuromuscular',l:'3×4'},{n:'Broad Jump máximo',d:'Potencia horizontal mantenida',l:'3×3'}]}]},{title:'Tracción Miembros Superiores',pattern:'Pull — Taper · Mantenimiento fuerza',pills:['RPE 6–7','4 bloques','~70 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Hombro · Escápula consolidada',exs:[{n:'Shoulder CARS (rutina autónoma 8 min)',d:'Protocolo para llevar a pretemporada',l:'Diario'},{n:'Prone Y-T-W ligero',d:'Mantenimiento escapular',l:'2×8 pos.'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Protocolo hombro',exs:[{n:'ER + Band Pull Apart + Face Pull (circuito)',d:'Protocolo hombro prevención completo',l:'3×10 c/u'},{n:'YTWL con banda (cierre)',d:'Cierre sesión escapular',l:'2×8 pos.'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · –20% volumen',exs:[{n:'Pull-up (lastre, misma carga sem 3)',d:'Mantenimiento fuerza relativa',l:'3×5'},{n:'Single Arm Row (calidad máxima)',d:'Técnica perfecta, no fatiga nueva',l:'3×8 c/l'},{n:'Pendlay Row moderado',d:'Tracción horizontal mantenida',l:'3×5 @70%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP liviano · Frescura neurológica',exs:[{n:'Plyo Push-up (volumen reducido)',d:'Explosividad mantenida sin fatiga',l:'3×4'},{n:'Med Ball Chest Pass',d:'Potencia horizontal tren superior',l:'3×4'}]}]},{title:'Empuje Dominante de Cadera',pattern:'Hip Hinge — Taper · Evaluación',pills:['RPE 6–7','4 bloques','~70 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Cadera · Isquios · Rutina autónoma',exs:[{n:'Hip CARS + Loaded stretch isquios',d:'Rutina consolidada',l:'10 min'},{n:'Active Pigeon breve',d:'Mantenimiento rotatorio profundo',l:'2×30s c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Cadena posterior',exs:[{n:'Nordic Hamstring (mantenimiento)',d:'No discontinuar nunca la carga excéntrica',l:'3×5'},{n:'Hip Thrust explosivo BW con banda',d:'Glúteo reactivo pre-carga',l:'3×12'},{n:'Copenhagen progresado (dinámico)',d:'Cierre del bloque aductor',l:'3×8 c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · –20% volumen',exs:[{n:'Trap Bar Deadlift (–1 serie vs sem 3)',d:'Consolidar ganancia sin nueva fatiga',l:'4×4 @80%'},{n:'Single Leg RDL + KB Swing (combo)',d:'Cadena posterior + potencia',l:'3×6+8 c/l'},{n:'Hip Thrust mantenimiento',d:'Extensión cadera consolidada',l:'3×6 @75%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP liviano · Taper neurológico',exs:[{n:'Vertical Jump + Single Leg Box Jump',d:'Expresión de potencia mantenida',l:'3×4'},{n:'KB Swing (volumen reducido)',d:'Potencia de cadera en calidad',l:'3×6'}]}]},{title:'Empuje Miembros Superiores',pattern:'Push — Taper · Evaluación de fuerza',pills:['RPE 6–7','4 bloques','~70 min'],blocks:[{t:'mob',title:'Movilidad',sub:'Hombro · Tórax · Rutina autónoma',exs:[{n:'Shoulder CARS + Thoracic Rotation',d:'Protocolo consolidado autónomo',l:'8 min'},{n:'Lat Stretch activo',d:'Apertura dorsal ancho pre-empuje',l:'2×30s c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Protocolo estabilización',exs:[{n:'ER + Band Lateral Raise + Push-up Plus',d:'Activación hombro completa',l:'3×10 c/u'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · –20% volumen',exs:[{n:'Press Banca (misma intensidad, –1 serie)',d:'Consolidar sin nueva fatiga',l:'4×4 @80%'},{n:'Single Arm Press + Row (superserie)',d:'Simetría empuje-tracción unilateral',l:'3×6 c/l'},{n:'Press Militar de pie (mantenimiento)',d:'Empuje vertical consolidado',l:'3×5 @72%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP liviano · Frescura neurológica',exs:[{n:'Plyo Push-up + Med Ball Chest Pass',d:'Potencia mantenida, bajo volumen',l:'3×4 c/u'}]}]},{title:'Explosivos & Técnica de Carrera',pattern:'Sprint calidad · Evaluación final',pills:['RPE 7','Cancha','~70 min'],blocks:[{t:'mob',title:'Movilidad Dinámica',sub:'Warm-up sprint calidad',exs:[{n:'Progresión carreras 40→60→80→100%',d:'SNC activo, economía de movimiento',l:'4×30m'},{n:'A/B Skip + aceleración',d:'Mecánica de zancada afinada',l:'3×20m c/u'}]},{t:'act',title:'Activación & Control Motor',sub:'Potencia · Evaluación calidad',exs:[{n:'Pogo + Altitude Drop + Sprint (secuencia)',d:'Cadena reactiva completa',l:'3×15m'},{n:'Resisted Sprint (banda) evaluación',d:'Verificar potencia primer paso',l:'3×10m'}]},{t:'fza',title:'Evaluación Final + Sprint',sub:'Test · Calidad · Transición pretemporada',exs:[{n:'Test Sprint 10m + 30m (cronómetro)',d:'Evaluación velocidad final off-season',l:'3×30m'},{n:'Juego libre 8v8 campo grande',d:'Transición a demanda real de pretemporada',l:'2×15min'},{n:'Test Broad Jump (marca final)',d:'Evaluación potencia horizontal cierre',l:'3 intentos'}]}]}]];}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+
+// Demo: precarga ejercicios de ejemplo con video si la biblioteca está vacía
+if(LIB.length === 0){
+  LIB = [
+    {
+      id:'demo_1',
+      name:'Hip 90/90 Rotación Activa',
+      type:'mob',
+      load:'3×45s c/lado',
+      note:'Expandí el rango activo de rotación interna y externa de cadera. Mantené la pelvis neutra y empujá activamente en cada dirección.',
+      link:'https://www.youtube.com/watch?v=b4NQVPNKR-I',
+      img:''
+    },
+    {
+      id:'demo_2',
+      name:'Nordic Hamstring Curl',
+      type:'act',
+      load:'3×5 reps excéntrico',
+      note:'Excéntrico isquiotibial fundamental para prevención. Bajá lo más lento posible controlando la caída. Usar compañero o anclaje fijo.',
+      link:'https://www.youtube.com/watch?v=d1sAWEqQ8oI',
+      img:''
+    },
+    {
+      id:'demo_3',
+      name:'Bulgarian Split Squat',
+      type:'fza',
+      load:'4×6 c/lado @70%',
+      note:'Unipodal · énfasis cuádriceps y glúteo. Pie trasero elevado en banco. Rodilla delantera no supera el pie. Tronco levemente inclinado.',
+      link:'https://www.youtube.com/watch?v=2C-uNgKwPLE',
+      img:''
+    },
+    {
+      id:'demo_4',
+      name:'Broad Jump + Estabilización',
+      type:'exp',
+      load:'4×4 reps',
+      note:'Potencia horizontal máxima. Salto bilateral, aterrizaje controlado absorbiendo el impacto. Foco en rigidez de tobillo y cadera.',
+      link:'https://www.youtube.com/watch?v=rHGnrFMHoYo',
+      img:''
+    }
+  ];
+  saveLib();
+}
+
+renderSelect();
+</script>
+</body>
+</html>
