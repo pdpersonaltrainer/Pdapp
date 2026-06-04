@@ -281,6 +281,17 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
 .week-selector-row::-webkit-scrollbar{display:none;}
 .week-chip{padding:6px 14px;border-radius:50px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border2);background:var(--s1);color:var(--muted);white-space:nowrap;flex-shrink:0;transition:all 0.2s;}
 .week-chip.active{border-color:var(--text);color:var(--text);background:var(--s2);}
+
+.msg-modal-card{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+.msg-player-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.03em;text-transform:uppercase;margin-bottom:8px;}
+.msg-day-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.msg-day-btn{padding:5px 10px;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border2);background:var(--s1);color:var(--muted);transition:all 0.2s;}
+.msg-day-btn.active{background:rgba(168,224,99,0.12);border-color:var(--mob);color:var(--mob);}
+.msg-preview{background:var(--s1);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;}
+.msg-actions{display:flex;gap:8px;}
+.msg-copy-btn{flex:1;padding:8px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;background:var(--s3);color:var(--text);}
+.msg-wa-btn{flex:1;padding:8px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;background:#25D366;color:#fff;}
+.msg-copied{color:var(--mob);font-size:11px;text-align:center;margin-top:4px;height:16px;}
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
 .empty-state .emi{font-size:36px;margin-bottom:8px;}
 .empty-state p{font-size:13px;}
@@ -358,6 +369,18 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
     <div id="week-day-cards"></div>
   </div>
 </div>
+
+<div id="screen-msg" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left">
+        <div><div class="hdr-name">Recordatorios</div><div class="hdr-sub">Mensajes para jugadores</div></div>
+      </div>
+      <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
+    </div>
+  </header>
+  <div style="max-width:540px;margin:0 auto;padding:16px 13px 20px;" id="msg-content"></div>
+</div>
 <div id="screen-lib">
   <header>
     <div class="hdr">
@@ -382,6 +405,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
     <div class="atab active" id="atab-plan" onclick="showTab('plan')"><div class="atab-icon">📋</div><div class="atab-lbl">Plan</div></div>
     <div class="atab" id="atab-week" onclick="showTab('week')"><div class="atab-icon">📅</div><div class="atab-lbl">Semana</div></div>
     <div class="atab" id="atab-lib" onclick="showTab('lib')" style="display:none"><div class="atab-icon">📚</div><div class="atab-lbl">Biblioteca</div></div>
+    <div class="atab" id="atab-msg" onclick="showTab('msg')" style="display:none"><div class="atab-icon">💬</div><div class="atab-lbl">Mensajes</div></div>
   </div>
 </div>
 
@@ -687,15 +711,18 @@ function showTab(name){
   document.getElementById('screen-lib').classList.toggle('active',name==='lib');
   var sw=document.getElementById('screen-week');
   if(sw) sw.style.display=(name==='week'?'block':'none');
+  var sm=document.getElementById('screen-msg');
+  if(sm) sm.style.display=(name==='msg'?'block':'none');
   document.querySelectorAll('.atab').forEach(function(t){t.classList.remove('active');});
   document.getElementById('atab-'+name).classList.add('active');
   if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);renderLib();}
   if(name==='week'){weekViewW=cW;renderWeekView();}
+  if(name==='msg'){renderMessages();}
 }
 
 function toggleMode(){if(isCoach){deactivateCoach();}else{openPinModal();}}
-function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Jugador';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');document.getElementById('atab-lib').style.display='none';if(currentTab==='lib')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
-function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');document.getElementById('atab-lib').style.display='';if(currentTab==='lib')document.getElementById('add-lib-btn').classList.remove('hidden');renderSelect();if(currentPlayerId)renderPlan();}
+function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Jugador';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');document.getElementById('atab-lib').style.display='none';document.getElementById('atab-msg').style.display='none';if(currentTab==='lib'||currentTab==='msg')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
+function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');document.getElementById('atab-lib').style.display='';document.getElementById('atab-msg').style.display='';if(currentTab==='lib')document.getElementById('add-lib-btn').classList.remove('hidden');renderSelect();if(currentPlayerId)renderPlan();}
 
 var pinBuffer='';
 function openPinModal(){pinBuffer='';updatePinDots();document.getElementById('pin-overlay').classList.add('open');}
@@ -919,6 +946,84 @@ function saveDayEdit(){
   closeDayEditModal();
   renderWeekView();
   renderPlan();
+}
+
+// ── MESSAGES / RECORDATORIOS ──
+var msgSelectedDays = {}; // pid -> dayIndex
+
+function renderMessages(){
+  if(!PLAYERS.length){
+    document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">💬</div><p>No hay jugadores cargados.</p></div>';
+    return;
+  }
+  var html = PLAYERS.map(function(p){
+    if(!msgSelectedDays[p.id]) msgSelectedDays[p.id]=0;
+    var selDay = msgSelectedDays[p.id];
+    // Day selector buttons
+    var dayBtns = DMETA.map(function(d,i){
+      return '<button class="msg-day-btn'+(i===selDay?' active':'')+'" data-pid="'+p.id+'" data-day="'+i+'" onclick="selectMsgDay(this.dataset.pid,+this.dataset.day)">D'+(i+1)+'</button>';
+    }).join('');
+    // Message preview
+    var dayName = PLAN&&PLAN[0]?PLAN[0][selDay].title:'Día '+(selDay+1);
+    // Use player's current plan week
+    var msg = buildMessage(p, selDay);
+    var encodedMsg = encodeURIComponent(msg);
+    return '<div class="msg-modal-card">'+
+      '<div class="msg-player-name">'+p.name+'</div>'+
+      '<div class="msg-day-selector">'+dayBtns+'</div>'+
+      '<div class="msg-preview" id="msg-preview-'+p.id+'">'+msg+'</div>'+
+      '<div class="msg-actions">'+
+        '<button class="msg-copy-btn" data-pid="'+p.id+'" onclick="copyMsg(this.dataset.pid)">📋 Copiar</button>'+
+        '<button class="msg-wa-btn" data-pid="'+p.id+'" onclick="openWhatsApp(this.dataset.pid)">💬 WhatsApp</button>'+
+      '</div>'+
+      '<div class="msg-copied" id="msg-copied-'+p.id+'"></div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('msg-content').innerHTML = html;
+}
+
+function buildMessage(p, dayIdx){
+  var weekName = WMETA[0].lbl;
+  var dayNames = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+  var dayLabel = DMETA[dayIdx]||('Día '+(dayIdx+1));
+  var msg = 'Hola '+p.name+' 👋\n\n';
+  msg += '🏋️ Hoy es día de entrenamiento!\n';
+  msg += '📋 '+dayLabel+'\n\n';
+  msg += 'Entrá a tu plan acá:\n';
+  msg += '👉 app.pdpersonaltrainer.com\n\n';
+  msg += 'Tu PIN: '+String(p.pin||'----')+'\n\n';
+  msg += '— Pablo PT 💪';
+  return msg;
+}
+
+function selectMsgDay(pid, day){
+  msgSelectedDays[pid]=day;
+  renderMessages();
+}
+
+function openWhatsApp(pid){
+  var p=PLAYERS.find(function(x){return x.id===pid;});
+  if(!p) return;
+  var msg=buildMessage(p, msgSelectedDays[pid]||0);
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+function copyMsg(pid){
+  var p=PLAYERS.find(function(x){return x.id===pid;});
+  if(!p) return;
+  var msg=buildMessage(p, msgSelectedDays[pid]||0);
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(msg).then(function(){
+      var el=document.getElementById('msg-copied-'+pid);
+      if(el){el.textContent='✅ Copiado!';setTimeout(function(){el.textContent='';},2000);}
+    });
+  } else {
+    // Fallback for older iOS
+    var ta=document.createElement('textarea');
+    ta.value=msg;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    var el=document.getElementById('msg-copied-'+pid);
+    if(el){el.textContent='✅ Copiado!';setTimeout(function(){el.textContent='';},2000);}
+  }
 }
 function updateLoad(input){
   var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;
