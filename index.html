@@ -578,8 +578,10 @@ var TSUBS={mob:'Tobillo \u00b7 Cadera \u00b7 Movilidad',act:'Bandas \u00b7 Activ
 var isCoach=false,cW=0,cD=0,currentTab='plan',currentPlayerId=null,activePid=null,PLAN=[],pendingPhotoData=null,editingLibId=null,editingPlayerId=null,pickTarget=null,activeLibFilter='all',weekViewW=0,editingDayCoords=null,pendingSelectPid=null,playerPinBuffer='',pinBuffer='',msgSelectedDays={};
 var checkState={},lastCheckedDay=null;
 
-// \u2500\u2500 JSONBIN ASYNC STORAGE \u2500\u2500
-async function loadPlayersRemote(){
+// ── JSONBIN CONFIG ──  bin guarda: { players:[...], checks:{"pid":{"w-d-b":{done,rpe,note}}} }
+var JB_CHECKS={};
+
+async function loadBinRemote(){
   var ctrl=new AbortController();
   var timer=setTimeout(function(){ctrl.abort();},3000);
   try{
@@ -590,8 +592,10 @@ async function loadPlayersRemote(){
     clearTimeout(timer);
     if(!res.ok)throw new Error('HTTP '+res.status);
     var data=await res.json();
-    var pl=(data.record||data).players||[];
+    var record=data.record||data;
+    var pl=record.players||[];
     pl.forEach(function(p){p.pin=String(p.pin||'');});
+    JB_CHECKS=record.checks||{};
     return pl;
   }catch(e){
     clearTimeout(timer);
@@ -599,17 +603,19 @@ async function loadPlayersRemote(){
   }
 }
 
-async function savePlayersRemote(){
+async function saveBinRemote(){
   try{
     await fetch(JB_URL,{
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({players:PLAYERS})
+      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS})
     });
     localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
+    localStorage.setItem('pablo_checks_cache',JSON.stringify(JB_CHECKS));
   }catch(e){
-    console.warn('JSONBin write failed, local cache updated',e);
+    console.warn('JSONBin write failed, caching locally',e);
     localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
+    localStorage.setItem('pablo_checks_cache',JSON.stringify(JB_CHECKS));
   }
 }
 
@@ -621,19 +627,33 @@ function loadPlayersCache(){
   return[];
 }
 
+function loadChecksCache(){
+  try{var s=localStorage.getItem('pablo_checks_cache');if(s)return JSON.parse(s);}catch(e){}
+  return{};
+}
+
 function loadPlayers(){return loadPlayersCache();}
 function savePlayers(){
   localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
-  savePlayersRemote();
+  saveBinRemote();
 }
 
-// \u2500\u2500 LOCAL STORAGE (plan / checks / lib) \u2500\u2500
+// ── LOCAL STORAGE (plan / lib) ──
 function loadLib(){try{var s=localStorage.getItem('pablo_lib');return s?JSON.parse(s):[];}catch(e){return[];}}
 function saveLib(){try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}}
 function loadPlan(pid){try{var s=localStorage.getItem('pablo_plan_'+pid);if(!s)return JSON.parse(JSON.stringify(defaultData()));var saved=JSON.parse(s);var hasCam=false;try{hasCam=saved[0][0].blocks.some(function(b){return b.t==='cam';});}catch(e){}if(!hasCam)return JSON.parse(JSON.stringify(defaultData()));return saved;}catch(e){return JSON.parse(JSON.stringify(defaultData()));}}
 function savePlan(pid,plan){try{localStorage.setItem('pablo_plan_'+pid,JSON.stringify(plan));}catch(e){}}
-function loadCheckState(){if(!currentPlayerId)return;try{var s=localStorage.getItem('pablo_checks_'+currentPlayerId);if(s)checkState=JSON.parse(s);}catch(e){}}
-function saveCheckState(){if(!currentPlayerId)return;try{localStorage.setItem('pablo_checks_'+currentPlayerId,JSON.stringify(checkState));}catch(e){}}
+
+function loadCheckState(){
+  if(!currentPlayerId)return;
+  checkState=JB_CHECKS[currentPlayerId]||{};
+}
+function saveCheckState(){
+  if(!currentPlayerId)return;
+  JB_CHECKS[currentPlayerId]=checkState;
+  localStorage.setItem('pablo_checks_cache',JSON.stringify(JB_CHECKS));
+  saveBinRemote();
+}
 
 // \u2500\u2500 INIT \u2500\u2500
 async function initApp(){
@@ -646,7 +666,8 @@ async function initApp(){
   title.style.display='block';
   errEl.style.display='none';
   try{
-    PLAYERS=await loadPlayersRemote();
+    PLAYERS=await loadBinRemote();
+    JB_CHECKS=JB_CHECKS||{};
     localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
     overlay.style.display='none';
     renderSelect();
@@ -655,6 +676,7 @@ async function initApp(){
     var cache=loadPlayersCache();
     if(cache.length>0){
       PLAYERS=cache;
+      JB_CHECKS=loadChecksCache();
       overlay.style.display='none';
       renderSelect();
       // Mostrar aviso sutil de que está en modo offline
@@ -855,7 +877,7 @@ function renderWeekView(){
   document.getElementById('week-chips').innerHTML=chips;
   var cards=PLAN[weekViewW].map(function(day,di){
     var allDone=false,someDay=false;
-    var savedChecks={};try{var sc=localStorage.getItem('pablo_checks_'+currentPlayerId);if(sc)savedChecks=JSON.parse(sc);}catch(e){}
+    var savedChecks=JB_CHECKS[currentPlayerId]||{};
     var total=day.blocks.length,done=0;
     for(var bi=0;bi<total;bi++){var key=weekViewW+'-'+di+'-'+bi;if(savedChecks[key]&&savedChecks[key].done)done++;}
     allDone=total>0&&done===total;someDay=done>0&&!allDone;
@@ -893,7 +915,7 @@ function renderSummary(){
     var pPlan=loadPlan(p.id);
     var avH=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">\ud83d\udc64</div>';
     var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'Off-Season 2025';
-    var savedChecks={};try{var sc=localStorage.getItem('pablo_checks_'+p.id);if(sc)savedChecks=JSON.parse(sc);}catch(e){}
+    var savedChecks=JB_CHECKS[p.id]||{};
     var rpeByDay=[];
     for(var d=0;d<5;d++){var dayRpes=[],dayNotes=[];var blocks=(pPlan&&pPlan[0]&&pPlan[0][d])?pPlan[0][d].blocks:[];for(var b=0;b<blocks.length;b++){var key='0-'+d+'-'+b;if(savedChecks[key]){if(savedChecks[key].rpe)dayRpes.push(savedChecks[key].rpe);if(savedChecks[key].note&&savedChecks[key].note.trim())dayNotes.push({day:d,note:savedChecks[key].note.trim(),block:blocks[b].title});}}var avg=dayRpes.length?Math.round(dayRpes.reduce(function(a,b){return a+b;},0)/dayRpes.length):0;rpeByDay.push({rpe:avg,notes:dayNotes});}
     var hasData=rpeByDay.some(function(rd){return rd.rpe>0;});
