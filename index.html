@@ -357,6 +357,9 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
     <div class="ncenter"><span class="nwlbl" id="nwlbl"></span><span class="ndlbl" id="ndlbl"></span></div>
     <button class="narrow" id="btn-next" onclick="navigate(1)">Sig</button>
   </div>
+  <div id="copy-day-btn" style="display:none;max-width:540px;margin:0 auto;padding:0 13px 8px;">
+    <button onclick="openCopyDayModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">&#x274F; Copiar este día a otro jugador</button>
+  </div>
 </div>
 
 <!-- LIBRARY -->
@@ -538,6 +541,45 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
       <div class="pin-key" onclick="playerPinPress(0)">0</div><div class="pin-key del" onclick="playerPinDel()">&#9003;</div>
     </div>
     <button class="mbtn mbtn-cancel" style="width:100%;margin-top:14px;" onclick="closePlayerPinModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: COPY DAY -->
+<div class="modal-overlay" id="modal-copy-day">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Copiar día a otro jugador</h3>
+    <div id="copy-day-info" style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
+    <div class="form-row">
+      <label>Jugador destino</label>
+      <select id="copy-target-player" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"></select>
+    </div>
+    <div class="form-row">
+      <label>Semana destino</label>
+      <select id="copy-target-week" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;">
+        <option value="0">Semana 1 · Reeducación</option>
+        <option value="1">Semana 2 · Base I/MA</option>
+        <option value="2">Semana 3 · Fuerza</option>
+        <option value="3">Semana 4 · Fza+F.Expl.</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Día destino</label>
+      <select id="copy-target-day" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;">
+        <option value="0">Día 1 · Empuje Rod.</option>
+        <option value="1">Día 2 · Trac. MMSS</option>
+        <option value="2">Día 3 · Empuje Cad.</option>
+        <option value="3">Día 4 · Empuje MMSS</option>
+        <option value="4">Día 5 · Explosivos</option>
+      </select>
+    </div>
+    <div style="background:rgba(249,200,70,0.08);border:1px solid rgba(249,200,70,0.20);border-radius:var(--rsm);padding:10px 12px;font-size:11px;color:var(--act);margin-bottom:14px;">
+      ⚠️ Reemplaza el contenido del día destino. Los checks y RPE no se copian.
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeCopyDayModal()">Cancelar</button>
+      <button class="mbtn mbtn-save" onclick="executeCopyDay()">Copiar</button>
+    </div>
   </div>
 </div>
 
@@ -938,6 +980,8 @@ function renderPlan(){
   document.getElementById('ndlbl').textContent='D\u00eda '+(cD+1)+' \u2014 '+DFULL[cD];
   document.getElementById('btn-prev').disabled=(cW===0&&cD===0);
   document.getElementById('btn-next').disabled=(cW===3&&cD===4);
+  var copyBtn=document.getElementById('copy-day-btn');
+  if(copyBtn)copyBtn.style.display=isCoach?'flex':'none';
   var day=PLAN[cW][cD];
   var pillsH=day.pills.map(function(p){return '<div class="pill">'+p+'</div>';}).join('');
   var blocksH=day.blocks.map(function(b,bi){return renderBlock(b,bi,cW,cD);}).join('');
@@ -998,6 +1042,45 @@ function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){r
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
 function saveLibExercise(){var name=document.getElementById('f-name').value.trim();if(!name){alert('El nombre es obligatorio.');return;}var obj={id:editingLibId||('lib_'+Date.now()),name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim()};if(editingLibId){var idx=LIB.findIndex(function(e){return e.id===editingLibId;});if(idx>=0)LIB[idx]=obj;}else LIB.push(obj);saveLib();closeLibModal();renderLib();}
 function editLibEx(id){openLibModal(id);}
+function openCopyDayModal(){
+  if(!isCoach||!currentPlayerId)return;
+  // Fill info label
+  var wm=['Reeducación','Base I/MA','Fuerza','Fza+F.Expl.'];
+  var info=document.getElementById('copy-day-info');
+  info.textContent='Copiando: Sem '+(cW+1)+' · '+wm[cW]+' — Día '+(cD+1)+' de '+PLAYERS.find(function(p){return p.id===currentPlayerId;}).name;
+  // Fill player selector (exclude current player)
+  var sel=document.getElementById('copy-target-player');
+  sel.innerHTML=PLAYERS.filter(function(p){return p.id!==currentPlayerId;}).map(function(p){
+    return '<option value="'+p.id+'">'+p.name+'</option>';
+  }).join('');
+  if(!sel.options.length){
+    alert('No hay otros jugadores para copiar.');
+    return;
+  }
+  document.getElementById('modal-copy-day').classList.add('open');
+}
+
+function closeCopyDayModal(){
+  document.getElementById('modal-copy-day').classList.remove('open');
+}
+
+function executeCopyDay(){
+  var targetPid=document.getElementById('copy-target-player').value;
+  var targetW=+document.getElementById('copy-target-week').value;
+  var targetD=+document.getElementById('copy-target-day').value;
+  if(!targetPid)return;
+  // Deep copy the source day blocks (no checks/RPE)
+  var sourceDay=PLAN[cW][cD];
+  var targetPlan=loadPlan(targetPid);
+  // Copy blocks deep
+  targetPlan[targetW][targetD].blocks=JSON.parse(JSON.stringify(sourceDay.blocks));
+  savePlan(targetPid,targetPlan);
+  closeCopyDayModal();
+  // Show confirmation
+  var btn=document.querySelector('#copy-day-btn button');
+  if(btn){var orig=btn.innerHTML;btn.innerHTML='✅ Copiado!';btn.style.color='var(--mob)';setTimeout(function(){btn.innerHTML=orig;btn.style.color='';},2500);}
+}
+
 function resetLib(){
   if(!isCoach)return;
   LIB=JSON.parse(JSON.stringify(DEFAULT_LIB));
