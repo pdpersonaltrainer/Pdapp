@@ -689,25 +689,24 @@ function loadLib(){try{var s=localStorage.getItem('pablo_lib');return s?JSON.par
 function saveLib(){try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}}
 function loadPlan(pid){
   try{
-    // First try JB_PLANS (synced)
+    // SOLO JB_PLANS (sincronizado con JSONBin)
     if(JB_PLANS&&JB_PLANS[pid]){
       var saved=JB_PLANS[pid];
       var hasCam=false;
       try{hasCam=saved[0][0].blocks.some(function(b){return b.t==='cam';});}catch(e){}
       if(hasCam)return saved;
     }
-    // Fallback: localStorage cache
+    // Fallback: cache unificado (nunca el legacy pablo_plan_<pid>)
     var s=localStorage.getItem('pablo_plans_cache');
-    if(s){var all=JSON.parse(s);if(all[pid])return all[pid];}
-    // Legacy individual key
-    var s2=localStorage.getItem('pablo_plan_'+pid);
-    if(s2){var saved2=JSON.parse(s2);return saved2;}
+    if(s){var all=JSON.parse(s);if(all[pid]){return all[pid];}}
   }catch(e){}
   return JSON.parse(JSON.stringify(defaultData()));
 }
 function savePlan(pid,plan){
   try{
     JB_PLANS[pid]=plan;
+    // Borrar key legacy para evitar conflictos
+    localStorage.removeItem('pablo_plan_'+pid);
     // Update local cache
     localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));
     // Sync to JSONBin in background
@@ -740,6 +739,8 @@ async function initApp(){
     PLAYERS=await loadBinRemote();
     JB_CHECKS=JB_CHECKS||{};
     JB_PLANS=JB_PLANS||{};
+    // Limpiar keys legacy de planes para evitar conflictos
+    try{Object.keys(localStorage).filter(function(k){return k.indexOf('pablo_plan_')===0;}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}
     localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
     overlay.style.display='none';
     renderSelect();
