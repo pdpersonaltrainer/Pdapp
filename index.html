@@ -371,7 +371,10 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
     </div>
   </header>
   <div class="lib-topbar"><div class="lib-topbar-inner"><h2>Ejercicios</h2><div style="display:flex;gap:6px;"><button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button><button class="add-lib-btn hidden" id="reset-lib-btn" onclick="resetLib()" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">&#x21BA; Restaurar</button></div></div></div>
-  <div class="lib-filters">
+  <div style="max-width:540px;margin:0 auto;padding:8px 13px 0;">
+  <input type="text" id="lib-search" placeholder="Buscar ejercicio..." oninput="filterLibSearch()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;" />
+</div>
+<div class="lib-filters">
     <div class="filter-chip active" onclick="filterLib('all',this)">Todos</div>
     <div class="filter-chip" onclick="filterLib('mob',this)">ED + Movilidad</div>
     <div class="filter-chip" onclick="filterLib('act',this)">Activación</div>
@@ -1029,19 +1032,59 @@ function navigate(dir){var d=cD+dir,w=cW;if(d<0){w--;d=4;}if(d>4){w++;d=0;}if(w<
 function toggleBlock(el){el.closest('.bcard').classList.toggle('open');}
 function renderBlock(b,bi,wIdx,dIdx){
   var isC=isCoach;
-  var delB=isC?'<div class="block-del-wrap"><button class="block-del-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="delBlock(+this.dataset.w,+this.dataset.d,+this.dataset.b)">Eliminar bloque</button></div>':'';
+  var delB=isC?'<div class="block-del-wrap" style="display:flex;gap:6px;"><button style="flex:1;padding:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:14px;cursor:pointer;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="moveBlock(+this.dataset.w,+this.dataset.d,+this.dataset.b,-1)">↑</button><button style="flex:1;padding:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:14px;cursor:pointer;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="moveBlock(+this.dataset.w,+this.dataset.d,+this.dataset.b,1)">↓</button><button class="block-del-btn" style="flex:2;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="delBlock(+this.dataset.w,+this.dataset.d,+this.dataset.b)">Eliminar bloque</button></div>':'';
   if(b.t==='cam'){
     var pasH='',intH='';
     if(b.campo){var pas=b.campo.pasadas||[];var inter=b.campo.intermitente||[];pasH=pas.length?'<div class="campo-lbl">Pasadas</div><div class="campo-chips">'+pas.map(function(p){return '<div class="campo-chip">'+p+'</div>';}).join('')+'</div>':'';intH=inter.length?'<div class="campo-lbl" style="margin-top:14px">Intermitente</div><div class="campo-chips">'+inter.map(function(x){return '<div class="campo-chip campo-chip-int">'+x+'</div>';}).join('')+'</div>':'';}
     var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=isC?'<input class="exload-edit" value="'+e.l+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onchange="updateLoad(this)" onclick="event.stopPropagation()"/>':'<div class="exload l-cam">'+e.l+'</div>';var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div></div><div class="exright">'+lEl+del+'</div></div>';}).join(''):'';
     var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
-    return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">\ud83c\udfc3</div><div class="binfo"><div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div></div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
+    return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">\ud83c\udfc3</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
   }
   var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var lEl=isC?'<input class="exload-edit" value="'+e.l+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onchange="updateLoad(this)" onclick="event.stopPropagation()"/>':'<div class="exload l-'+b.t+'">'+e.l+'</div>';var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div><div class="exright">'+lEl+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
-  return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo"><div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div></div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
+  return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
 function delBlock(w,d,b){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks.splice(b,1);savePlan(currentPlayerId,PLAN);renderPlan();}
+
+function moveBlock(w,d,b,dir){
+  if(!isCoach||!currentPlayerId)return;
+  var blocks=PLAN[w][d].blocks;
+  var newIdx=b+dir;
+  if(newIdx<0||newIdx>=blocks.length)return;
+  var tmp=blocks[b];
+  blocks[b]=blocks[newIdx];
+  blocks[newIdx]=tmp;
+  savePlan(currentPlayerId,PLAN);
+  renderPlan();
+}
+
+function editBlockField(el){
+  if(!isCoach||!currentPlayerId)return;
+  var w=+el.dataset.w, d=+el.dataset.d, b=+el.dataset.b, field=el.dataset.field;
+  var current=PLAN[w][d].blocks[b][field]||'';
+  var input=document.createElement('input');
+  input.value=current;
+  input.style.cssText='width:100%;background:var(--s2);border:1px solid var(--act);border-radius:4px;padding:2px 6px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;color:var(--text);outline:none;text-transform:uppercase;letter-spacing:0.03em;';
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+  function save(){
+    PLAN[w][d].blocks[b][field]=input.value.trim()||current;
+    savePlan(currentPlayerId,PLAN);
+    renderPlan();
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', function(e){if(e.key==='Enter')save();if(e.key==='Escape'){PLAN[w][d].blocks[b][field]=current;renderPlan();}});
+}
+
+function filterLibSearch(){
+  var q=document.getElementById('lib-search').value.toLowerCase().trim();
+  var labels={mob:'ED + Movilidad',act:'Activacion',fza:'Fuerza',exp:'Explosivos',cam:'Campo'};
+  var items=activeLibFilter==='all'?LIB:LIB.filter(function(e){return e.type===activeLibFilter;});
+  if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||e.note.toLowerCase().indexOf(q)>=0;});
+  if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">🔍</div><p>Sin resultados.</p></div>';return;}
+  document.getElementById('lib-grid').innerHTML=items.map(function(e){var imgH=e.img?'<img class="lib-card-img" src="'+e.img+'" />':'<div class="lib-card-img-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var actions=isCoach?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':'';return '<div class="lib-card">'+imgH+'<div class="lib-card-body"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span></div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+actions+'</div></div>';}).join('');
+}
 function delEx(w,d,b,e){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs.splice(e,1);savePlan(currentPlayerId,PLAN);renderPlan();}
 function updateLoad(input){var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs[e].l=input.value;savePlan(currentPlayerId,PLAN);}
 
@@ -1059,7 +1102,7 @@ function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState
 function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();renderPlan();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
-function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};var bType=PLAN[w][d].blocks[b].t;var items=LIB.filter(function(e){return e.type===bType;});if(!items.length)items=LIB;if(!items.length){alert('La biblioteca est\u00e1 vac\u00eda.');return;}document.getElementById('pick-list').innerHTML=items.map(function(e){return '<div class="pick-item" data-lid="'+e.id+'" onclick="addFromLib(this.dataset.lid)"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div></div><div class="pick-add">+</div></div>';}).join('');document.getElementById('modal-pick').classList.add('open');}
+function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};var items=LIB.slice();if(!items.length){alert('La biblioteca est\u00e1 vac\u00eda.');return;}document.getElementById('pick-list').innerHTML=items.map(function(e){return '<div class="pick-item" data-lid="'+e.id+'" onclick="addFromLib(this.dataset.lid)"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div></div><div class="pick-add">+</div></div>';}).join('');document.getElementById('modal-pick').classList.add('open');}
 function closePickModal(){document.getElementById('modal-pick').classList.remove('open');pickTarget=null;}
 function addFromLib(id){if(!pickTarget||!currentPlayerId)return;var ex=LIB.find(function(e){return e.id===id;});if(!ex)return;PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});savePlan(currentPlayerId,PLAN);closePickModal();renderPlan();}
 
@@ -1101,12 +1144,16 @@ function executeCopyDay(){
   var targetW=+document.getElementById('copy-target-week').value;
   var targetD=+document.getElementById('copy-target-day').value;
   if(!targetPid)return;
+  // Asegurar que el plan del jugador destino este en JB_PLANS
+  if(!JB_PLANS[targetPid]){
+    JB_PLANS[targetPid]=JSON.parse(JSON.stringify(defaultData()));
+  }
   // Deep copy the source day blocks (no checks/RPE)
   var sourceDay=PLAN[cW][cD];
-  var targetPlan=loadPlan(targetPid);
-  // Copy blocks deep
-  targetPlan[targetW][targetD].blocks=JSON.parse(JSON.stringify(sourceDay.blocks));
-  savePlan(targetPid,targetPlan);
+  JB_PLANS[targetPid][targetW][targetD].blocks=JSON.parse(JSON.stringify(sourceDay.blocks));
+  // Guardar localmente y sincronizar con JSONBin
+  localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));
+  saveBinRemote();
   closeCopyDayModal();
   // Show confirmation
   var btn=document.querySelector('#copy-day-btn button');
