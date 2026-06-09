@@ -635,9 +635,6 @@ async function loadBinRemote(){
   var timer=setTimeout(function(){ctrl.abort();},3000);
   try{
     var res=await fetch(JB_URL+'/latest',{
-      mode:'cors',
-      credentials:'omit',
-      cache:'no-store',
       headers:{'X-Master-Key':JB_KEY,'X-Bin-Meta':'false'},
       signal:ctrl.signal
     });
@@ -687,9 +684,6 @@ async function _doSaveBin(){
   try{
     var res=await fetch(JB_URL,{
       method:'PUT',
-      mode:'cors',
-      credentials:'omit',
-      cache:'no-store',
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
       body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS,plans:JB_PLANS,lib:JB_LIB})
     });
