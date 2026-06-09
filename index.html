@@ -633,6 +633,9 @@ async function loadBinRemote(){
   var timer=setTimeout(function(){ctrl.abort();},3000);
   try{
     var res=await fetch(JB_URL+'/latest',{
+      mode:'cors',
+      credentials:'omit',
+      cache:'no-store',
       headers:{'X-Master-Key':JB_KEY,'X-Bin-Meta':'false'},
       signal:ctrl.signal
     });
@@ -682,8 +685,11 @@ async function _doSaveBin(){
   try{
     var res=await fetch(JB_URL,{
       method:'PUT',
+      mode:'cors',
+      credentials:'omit',
+      cache:'no-store',
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({players:PLAYERS.map(function(p){var c={};for(var k in p){if(k!=='photo')c[k]=p[k];}return c;}),checks:JB_CHECKS,plans:JB_PLANS,lib:JB_LIB})
+      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS,plans:JB_PLANS,lib:JB_LIB})
     });
     if(res.status===429){
       // Rate limit: esperar mas y reintentar
@@ -1098,7 +1104,32 @@ function openPlayerModal(id){editingPlayerId=id||null;pendingPhotoData=null;var 
 function closePlayerModal(){document.getElementById('modal-player').classList.remove('open');editingPlayerId=null;pendingPhotoData=null;}
 function editPlayer(id){openPlayerModal(id);}
 function delPlayer(id){PLAYERS=PLAYERS.filter(function(p){return p.id!==id;});try{localStorage.removeItem('pablo_plan_'+id);localStorage.removeItem('pablo_checks_'+id);}catch(e){}savePlayers();renderSelect();}
-function handlePhotoUpload(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){pendingPhotoData=ev.target.result;document.getElementById('av-preview').innerHTML='<img src="'+ev.target.result+'"/>';};reader.readAsDataURL(file);}
+function handlePhotoUpload(e){
+  var file=e.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      // Comprimir: recortar cuadrado centrado y redimensionar a 160px
+      var size=160;
+      var canvas=document.createElement('canvas');
+      canvas.width=size;canvas.height=size;
+      var ctx=canvas.getContext('2d');
+      // Recorte cuadrado centrado
+      var min=Math.min(img.width,img.height);
+      var sx=(img.width-min)/2;
+      var sy=(img.height-min)/2;
+      ctx.drawImage(img,sx,sy,min,min,0,0,size,size);
+      // Exportar como JPEG calidad 0.7 (queda ~5-8KB)
+      var compressed=canvas.toDataURL('image/jpeg',0.7);
+      pendingPhotoData=compressed;
+      document.getElementById('av-preview').innerHTML='<img src="'+compressed+'"/>';
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 function savePlayer(){var name=document.getElementById('f-pname').value.trim();if(!name){alert('El nombre es obligatorio.');return;}var newPin=String(document.getElementById('f-ppin').value.trim()).slice(0,4);if(editingPlayerId){var idx=PLAYERS.findIndex(function(p){return p.id===editingPlayerId;});if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=document.getElementById('f-pclub').value.trim();PLAYERS[idx].pos=document.getElementById('f-ppos').value.trim();if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData){PLAYERS[idx].photo=pendingPhotoData;setPhoto(PLAYERS[idx].id,pendingPhotoData);}PLAYERS[idx].activeWeek=+document.getElementById('f-pweek').value;}}else{PLAYERS.push({id:'p_'+Date.now(),name:name,club:document.getElementById('f-pclub').value.trim(),pos:document.getElementById('f-ppos').value.trim(),photo:pendingPhotoData||'',pin:newPin||'',activeWeek:+document.getElementById('f-pweek').value});var _np=PLAYERS[PLAYERS.length-1];if(pendingPhotoData)setPhoto(_np.id,pendingPhotoData);}savePlayers();closePlayerModal();renderSelect();}
 
 // \u2500\u2500 TABS \u2500\u2500
