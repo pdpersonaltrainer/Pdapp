@@ -641,7 +641,8 @@ async function loadBinRemote(){
     var data=await res.json();
     var record=data.record||data;
     var pl=record.players||[];
-    pl.forEach(function(p){p.pin=String(p.pin||'');});
+    var localPhotos=loadPhotos();
+    pl.forEach(function(p){p.pin=String(p.pin||'');if(!p.photo&&localPhotos[p.id])p.photo=localPhotos[p.id];});
     JB_CHECKS=record.checks||{};
     JB_PLANS=record.plans||{};
     JB_LIB=record.lib||null;
@@ -680,7 +681,7 @@ async function _doSaveBin(){
     var res=await fetch(JB_URL,{
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS,plans:JB_PLANS,lib:JB_LIB})
+      body:JSON.stringify({players:PLAYERS.map(function(p){var c={};for(var k in p){if(k!=='photo')c[k]=p[k];}return c;}),checks:JB_CHECKS,plans:JB_PLANS,lib:JB_LIB})
     });
     if(!res.ok){
       throw new Error('HTTP '+res.status);
@@ -689,6 +690,11 @@ async function _doSaveBin(){
   }catch(e){
     console.error('JSONBin write FAILED:',e);
     showSyncStatus('error');
+    // Reintentar una vez despues de 3s
+    _saveInFlight=false;
+    if(_saveTimer)clearTimeout(_saveTimer);
+    _saveTimer=setTimeout(function(){_doSaveBin();},3000);
+    return;
   }finally{
     _saveInFlight=false;
   }
@@ -742,6 +748,12 @@ function savePlayers(){
 }
 
 // ── LOCAL STORAGE (plan / lib) ──
+// Fotos guardadas localmente (no en el bin, para no inflarlo)
+function loadPhotos(){try{var s=localStorage.getItem('pablo_photos');return s?JSON.parse(s):{};}catch(e){return{};}}
+function savePhotos(ph){try{localStorage.setItem('pablo_photos',JSON.stringify(ph));}catch(e){}}
+function getPhoto(pid){var ph=loadPhotos();return ph[pid]||'';}
+function setPhoto(pid,data){var ph=loadPhotos();if(data)ph[pid]=data;else delete ph[pid];savePhotos(ph);}
+
 function loadLib(){
   // Prioridad: JB_LIB (sincronizado). Si no, cache local. Si no, vacio.
   if(JB_LIB&&JB_LIB.length)return JB_LIB.slice();
@@ -1059,7 +1071,7 @@ function closePlayerModal(){document.getElementById('modal-player').classList.re
 function editPlayer(id){openPlayerModal(id);}
 function delPlayer(id){PLAYERS=PLAYERS.filter(function(p){return p.id!==id;});try{localStorage.removeItem('pablo_plan_'+id);localStorage.removeItem('pablo_checks_'+id);}catch(e){}savePlayers();renderSelect();}
 function handlePhotoUpload(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){pendingPhotoData=ev.target.result;document.getElementById('av-preview').innerHTML='<img src="'+ev.target.result+'"/>';};reader.readAsDataURL(file);}
-function savePlayer(){var name=document.getElementById('f-pname').value.trim();if(!name){alert('El nombre es obligatorio.');return;}var newPin=String(document.getElementById('f-ppin').value.trim()).slice(0,4);if(editingPlayerId){var idx=PLAYERS.findIndex(function(p){return p.id===editingPlayerId;});if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=document.getElementById('f-pclub').value.trim();PLAYERS[idx].pos=document.getElementById('f-ppos').value.trim();if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=pendingPhotoData;PLAYERS[idx].activeWeek=+document.getElementById('f-pweek').value;}}else{PLAYERS.push({id:'p_'+Date.now(),name:name,club:document.getElementById('f-pclub').value.trim(),pos:document.getElementById('f-ppos').value.trim(),photo:pendingPhotoData||'',pin:newPin||'',activeWeek:+document.getElementById('f-pweek').value});}savePlayers();closePlayerModal();renderSelect();}
+function savePlayer(){var name=document.getElementById('f-pname').value.trim();if(!name){alert('El nombre es obligatorio.');return;}var newPin=String(document.getElementById('f-ppin').value.trim()).slice(0,4);if(editingPlayerId){var idx=PLAYERS.findIndex(function(p){return p.id===editingPlayerId;});if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=document.getElementById('f-pclub').value.trim();PLAYERS[idx].pos=document.getElementById('f-ppos').value.trim();if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData){PLAYERS[idx].photo=pendingPhotoData;setPhoto(PLAYERS[idx].id,pendingPhotoData);}PLAYERS[idx].activeWeek=+document.getElementById('f-pweek').value;}}else{PLAYERS.push({id:'p_'+Date.now(),name:name,club:document.getElementById('f-pclub').value.trim(),pos:document.getElementById('f-ppos').value.trim(),photo:pendingPhotoData||'',pin:newPin||'',activeWeek:+document.getElementById('f-pweek').value});var _np=PLAYERS[PLAYERS.length-1];if(pendingPhotoData)setPhoto(_np.id,pendingPhotoData);}savePlayers();closePlayerModal();renderSelect();}
 
 // \u2500\u2500 TABS \u2500\u2500
 function showTab(name){
