@@ -655,6 +655,7 @@ async function loadBinRemote(){
 
 var _saveTimer=null;
 var _saveInFlight=false;
+var _saveRetries=0;
 function saveBinRemote(){
   // Siempre guardar en cache local primero (instantaneo)
   try{
@@ -665,7 +666,8 @@ function saveBinRemote(){
   }catch(e){}
   // Debounce: agrupar escrituras al bin (evita rate limit)
   if(_saveTimer)clearTimeout(_saveTimer);
-  _saveTimer=setTimeout(function(){_doSaveBin();},800);
+  _saveTimer=setTimeout(function(){_doSaveBin();},2000);
+  showSyncStatus('pending');
 }
 
 async function _doSaveBin(){
@@ -683,17 +685,38 @@ async function _doSaveBin(){
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
       body:JSON.stringify({players:PLAYERS.map(function(p){var c={};for(var k in p){if(k!=='photo')c[k]=p[k];}return c;}),checks:JB_CHECKS,plans:JB_PLANS,lib:JB_LIB})
     });
+    if(res.status===429){
+      // Rate limit: esperar mas y reintentar
+      _saveRetries=(_saveRetries||0)+1;
+      _saveInFlight=false;
+      if(_saveRetries<=5){
+        showSyncStatus('pending');
+        if(_saveTimer)clearTimeout(_saveTimer);
+        var wait=Math.min(2000*_saveRetries,10000);
+        _saveTimer=setTimeout(function(){_doSaveBin();},wait);
+      }else{
+        showSyncStatus('error');
+        _saveRetries=0;
+      }
+      return;
+    }
     if(!res.ok){
       throw new Error('HTTP '+res.status);
     }
+    _saveRetries=0;
     showSyncStatus('ok');
   }catch(e){
     console.error('JSONBin write FAILED:',e);
-    showSyncStatus('error');
-    // Reintentar una vez despues de 3s
     _saveInFlight=false;
-    if(_saveTimer)clearTimeout(_saveTimer);
-    _saveTimer=setTimeout(function(){_doSaveBin();},3000);
+    _saveRetries=(_saveRetries||0)+1;
+    if(_saveRetries<=3){
+      showSyncStatus('pending');
+      if(_saveTimer)clearTimeout(_saveTimer);
+      _saveTimer=setTimeout(function(){_doSaveBin();},3000);
+    }else{
+      showSyncStatus('error');
+      _saveRetries=0;
+    }
     return;
   }finally{
     _saveInFlight=false;
@@ -708,7 +731,12 @@ function showSyncStatus(state){
     el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:20px;font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;z-index:9999;transition:opacity 0.3s;pointer-events:none;';
     document.body.appendChild(el);
   }
-  if(state==='saving'){
+  if(state==='pending'){
+    el.textContent='Pendiente de guardar...';
+    el.style.background='rgba(140,140,140,0.15)';
+    el.style.color='#aaaaaa';
+    el.style.opacity='1';
+  }else if(state==='saving'){
     el.textContent='Guardando...';
     el.style.background='rgba(249,200,70,0.15)';
     el.style.color='#f9c846';
