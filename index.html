@@ -370,7 +370,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
-  <div class="lib-topbar"><div class="lib-topbar-inner"><h2>Ejercicios</h2><div style="display:flex;gap:6px;"><button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button><button class="add-lib-btn hidden" id="reset-lib-btn" onclick="resetLib()" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">&#x21BA; Restaurar</button></div></div></div>
+  <div class="lib-topbar"><div class="lib-topbar-inner"><h2>Ejercicios</h2><div style="display:flex;gap:6px;"><button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button><button class="add-lib-btn hidden" id="reset-lib-btn" onclick="resetLib()" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">&#x21BA; Restaurar</button><button class="add-lib-btn hidden" id="export-lib-btn" onclick="exportLib()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2193; Backup</button></div></div></div>
   <div style="max-width:540px;margin:0 auto;padding:8px 13px 0;">
   <input type="text" id="lib-search" placeholder="Buscar ejercicio..." oninput="filterLibSearch()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;" />
 </div>
@@ -626,6 +626,7 @@ var checkState={},lastCheckedDay=null;
 // ── JSONBIN CONFIG ──  bin guarda: { players:[...], checks:{"pid":{"w-d-b":{done,rpe,note}}} }
 var JB_CHECKS={};
 var JB_PLANS={};
+var JB_LIB=null;
 
 async function loadBinRemote(){
   var ctrl=new AbortController();
@@ -643,6 +644,7 @@ async function loadBinRemote(){
     pl.forEach(function(p){p.pin=String(p.pin||'');});
     JB_CHECKS=record.checks||{};
     JB_PLANS=record.plans||{};
+    JB_LIB=record.lib||null;
     return pl;
   }catch(e){
     clearTimeout(timer);
@@ -655,7 +657,7 @@ async function saveBinRemote(){
     await fetch(JB_URL,{
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS,plans:JB_PLANS})
+      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS,plans:JB_PLANS,lib:JB_LIB})
     });
     localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
     localStorage.setItem('pablo_checks_cache',JSON.stringify(JB_CHECKS));
@@ -688,8 +690,17 @@ function savePlayers(){
 }
 
 // ── LOCAL STORAGE (plan / lib) ──
-function loadLib(){try{var s=localStorage.getItem('pablo_lib');return s?JSON.parse(s):[];}catch(e){return[];}}
-function saveLib(){try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}}
+function loadLib(){
+  // Prioridad: JB_LIB (sincronizado). Si no, cache local. Si no, vacio.
+  if(JB_LIB&&JB_LIB.length)return JB_LIB.slice();
+  try{var s=localStorage.getItem('pablo_lib');if(s){var arr=JSON.parse(s);return arr;}}catch(e){}
+  return[];
+}
+function saveLib(){
+  JB_LIB=LIB.slice();
+  try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}
+  saveBinRemote();
+}
 function loadPlan(pid){
   try{
     // SOLO JB_PLANS (sincronizado con JSONBin)
@@ -742,6 +753,14 @@ async function initApp(){
     PLAYERS=await loadBinRemote();
     JB_CHECKS=JB_CHECKS||{};
     JB_PLANS=JB_PLANS||{};
+    // Recargar biblioteca desde el bin (si existe alla)
+    if(JB_LIB&&JB_LIB.length){
+      LIB=JB_LIB.slice();
+      try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}
+    }else{
+      // Primera vez: subir la biblioteca local actual al bin
+      if(LIB&&LIB.length){JB_LIB=LIB.slice();saveBinRemote();}
+    }
     // Limpiar keys legacy de planes para evitar conflictos
     try{Object.keys(localStorage).filter(function(k){return k.indexOf('pablo_plan_')===0;}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}
     localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
@@ -904,7 +923,9 @@ var DEFAULT_LIB=[
 ];
 
 var LIB=loadLib();
-if(LIB.length===0){LIB=JSON.parse(JSON.stringify(DEFAULT_LIB));saveLib();}
+// No auto-guardar DEFAULT al bin aqui; initApp sincroniza con JSONBin primero.
+// Si no hay nada local, usar DEFAULT solo en memoria (sin pushear al bin todavia).
+if(LIB.length===0){LIB=JSON.parse(JSON.stringify(DEFAULT_LIB));try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}}
 
 // \u2500\u2500 SELECT SCREEN \u2500\u2500
 function renderSelect(){
@@ -996,7 +1017,7 @@ function showTab(name){
   ['screen-week','screen-msg','screen-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=(id==='screen-'+name)?'block':'none';});
   document.querySelectorAll('.atab').forEach(function(t){t.classList.remove('active');});
   var tabEl=document.getElementById('atab-'+name);if(tabEl)tabEl.classList.add('active');
-  if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('reset-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);renderLib();}
+  if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('reset-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);renderLib();}
   if(name==='week'){weekViewW=cW;renderWeekView();}
   if(name==='msg')renderMessages();
   if(name==='summary')renderSummary();
@@ -1158,6 +1179,21 @@ function executeCopyDay(){
   // Show confirmation
   var btn=document.querySelector('#copy-day-btn button');
   if(btn){var orig=btn.innerHTML;btn.innerHTML='✅ Copiado!';btn.style.color='var(--mob)';setTimeout(function(){btn.innerHTML=orig;btn.style.color='';},2500);}
+}
+
+function exportLib(){
+  try{
+    var data=JSON.stringify(LIB,null,2);
+    var blob=new Blob([data],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='biblioteca-pdapp-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){alert('Error al exportar: '+e.message);}
 }
 
 function resetLib(){
