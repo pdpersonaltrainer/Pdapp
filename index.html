@@ -614,6 +614,8 @@ var COACH_PIN='2204';
 var JB_BIN='6a287256f5f4af5e29d42887';
 var JB_KEY='$2a$10$WbkZ0bZdQ6evxIEHz5pFwOuC3LBF7sPcdrofhb1vOlRBjebQqN.lG';
 var JB_URL='https://api.jsonbin.io/v3/b/'+JB_BIN;
+var JB_LIB_BIN='6a227f97f5f4af5e29bc84e5';
+var JB_LIB_URL='https://api.jsonbin.io/v3/b/'+JB_LIB_BIN;
 
 var WMETA=[{lbl:'Reeducaci\u00f3n',col:'w1',badge:'#a8e063'},{lbl:'Base I/MA',col:'w2',badge:'#38d9c0'},{lbl:'Fuerza',col:'w3',badge:'#ff7043'},{lbl:'Fza+F.Expl.',col:'w4',badge:'#5b9cf6'}];
 var DMETA=['Empuje Rod.','Trac. MMSS','Empuje Cad.','Empuje MMSS','Explosivos'];
@@ -647,7 +649,6 @@ async function loadBinRemote(){
     pl.forEach(function(p){p.pin=String(p.pin||'');if(!p.photo&&localPhotos[p.id])p.photo=localPhotos[p.id];});
     JB_CHECKS=record.checks||{};
     JB_PLANS=record.plans||{};
-    JB_LIB=record.lib||null;
     return pl;
   }catch(e){
     clearTimeout(timer);
@@ -685,7 +686,7 @@ async function _doSaveBin(){
     var res=await fetch(JB_URL,{
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS,plans:JB_PLANS,lib:JB_LIB})
+      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS,plans:JB_PLANS})
     });
     if(res.status===429){
       // Rate limit: esperar mas y reintentar
@@ -793,7 +794,65 @@ function loadLib(){
 function saveLib(){
   JB_LIB=LIB.slice();
   try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}
-  saveBinRemote();
+  saveLibRemote();
+}
+var _libSaveTimer=null;
+var _libSaveInFlight=false;
+var _libSaveRetries=0;
+function saveLibRemote(){
+  if(_libSaveTimer)clearTimeout(_libSaveTimer);
+  _libSaveTimer=setTimeout(function(){_doSaveLibBin();},800);
+  showSyncStatus('pending');
+}
+async function _doSaveLibBin(){
+  if(_libSaveInFlight){
+    if(_libSaveTimer)clearTimeout(_libSaveTimer);
+    _libSaveTimer=setTimeout(function(){_doSaveLibBin();},800);
+    return;
+  }
+  _libSaveInFlight=true;
+  showSyncStatus('saving');
+  try{
+    var res=await fetch(JB_LIB_URL,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
+      body:JSON.stringify({lib:JB_LIB})
+    });
+    if(res.status===429){
+      _libSaveRetries++;_libSaveInFlight=false;
+      if(_libSaveRetries<=5){showSyncStatus('pending');if(_libSaveTimer)clearTimeout(_libSaveTimer);var w=Math.min(2000*_libSaveRetries,10000);_libSaveTimer=setTimeout(function(){_doSaveLibBin();},w);}
+      else{showSyncStatus('error');_libSaveRetries=0;}
+      return;
+    }
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    _libSaveRetries=0;
+    showSyncStatus('ok');
+  }catch(e){
+    console.error('Lib bin write failed:',e);
+    _libSaveInFlight=false;_libSaveRetries++;
+    if(_libSaveRetries<=3){showSyncStatus('pending');if(_libSaveTimer)clearTimeout(_libSaveTimer);_libSaveTimer=setTimeout(function(){_doSaveLibBin();},3000);}
+    else{showSyncStatus('error');_libSaveRetries=0;}
+    return;
+  }finally{_libSaveInFlight=false;}
+}
+async function loadLibRemote(){
+  try{
+    var ctrl=new AbortController();
+    var timer=setTimeout(function(){ctrl.abort();},3000);
+    var res=await fetch(JB_LIB_URL+'/latest',{
+      headers:{'X-Master-Key':JB_KEY,'X-Bin-Meta':'false'},
+      signal:ctrl.signal
+    });
+    clearTimeout(timer);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var record=data.record||data;
+    JB_LIB=record.lib||null;
+    if(JB_LIB&&JB_LIB.length){
+      LIB=JB_LIB.slice();
+      try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}
+    }
+  }catch(e){console.warn('loadLibRemote failed, using cache',e);}
 }
 function loadPlan(pid){
   try{
@@ -847,13 +906,13 @@ async function initApp(){
     PLAYERS=await loadBinRemote();
     JB_CHECKS=JB_CHECKS||{};
     JB_PLANS=JB_PLANS||{};
-    // Recargar biblioteca desde el bin (si existe alla)
+    // Cargar biblioteca desde su bin dedicado
+    await loadLibRemote();
     if(JB_LIB&&JB_LIB.length){
       LIB=JB_LIB.slice();
-      try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}
-    }else{
-      // Primera vez: subir la biblioteca local actual al bin
-      if(LIB&&LIB.length){JB_LIB=LIB.slice();saveBinRemote();}
+    }else if(LIB&&LIB.length){
+      // Primera vez: subir la biblioteca local actual al bin de biblioteca
+      JB_LIB=LIB.slice();saveLibRemote();
     }
     // Limpiar keys legacy de planes para evitar conflictos
     try{Object.keys(localStorage).filter(function(k){return k.indexOf('pablo_plan_')===0;}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}
