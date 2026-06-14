@@ -616,6 +616,8 @@ var JB_KEY='$2a$10$WbkZ0bZdQ6evxIEHz5pFwOuC3LBF7sPcdrofhb1vOlRBjebQqN.lG';
 var JB_URL='https://api.jsonbin.io/v3/b/'+JB_BIN;
 var JB_LIB_BIN='6a227f97f5f4af5e29bc84e5';
 var JB_LIB_URL='https://api.jsonbin.io/v3/b/'+JB_LIB_BIN;
+var JB_PLANS_BIN='6a2ef106da38895dfebfb36e';
+var JB_PLANS_URL='https://api.jsonbin.io/v3/b/'+JB_PLANS_BIN;
 
 var WMETA=[{lbl:'Reeducaci\u00f3n',col:'w1',badge:'#a8e063'},{lbl:'Base I/MA',col:'w2',badge:'#38d9c0'},{lbl:'Fuerza',col:'w3',badge:'#ff7043'},{lbl:'Fza+F.Expl.',col:'w4',badge:'#5b9cf6'}];
 var DMETA=['Empuje Rod.','Trac. MMSS','Empuje Cad.','Empuje MMSS','Explosivos'];
@@ -686,7 +688,7 @@ async function _doSaveBin(){
     var res=await fetch(JB_URL,{
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS,plans:JB_PLANS})
+      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS})
     });
     if(res.status===429){
       // Rate limit: esperar mas y reintentar
@@ -872,13 +874,66 @@ function loadPlan(pid){
 function savePlan(pid,plan){
   try{
     JB_PLANS[pid]=plan;
-    // Borrar key legacy para evitar conflictos
     localStorage.removeItem('pablo_plan_'+pid);
-    // Update local cache
     localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));
-    // Sync to JSONBin in background
-    saveBinRemote();
+    savePlansRemote();
   }catch(e){console.warn('savePlan error',e);}
+}
+var _plansSaveTimer=null;
+var _plansSaveInFlight=false;
+var _plansSaveRetries=0;
+function savePlansRemote(){
+  try{localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));}catch(e){}
+  if(_plansSaveTimer)clearTimeout(_plansSaveTimer);
+  _plansSaveTimer=setTimeout(function(){_doSavePlansBin();},800);
+  showSyncStatus('pending');
+}
+async function _doSavePlansBin(){
+  if(_plansSaveInFlight){
+    if(_plansSaveTimer)clearTimeout(_plansSaveTimer);
+    _plansSaveTimer=setTimeout(function(){_doSavePlansBin();},800);
+    return;
+  }
+  _plansSaveInFlight=true;
+  showSyncStatus('saving');
+  try{
+    var res=await fetch(JB_PLANS_URL,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
+      body:JSON.stringify({plans:JB_PLANS})
+    });
+    if(res.status===429){
+      _plansSaveRetries++;_plansSaveInFlight=false;
+      if(_plansSaveRetries<=5){showSyncStatus('pending');if(_plansSaveTimer)clearTimeout(_plansSaveTimer);var w=Math.min(2000*_plansSaveRetries,10000);_plansSaveTimer=setTimeout(function(){_doSavePlansBin();},w);}
+      else{showSyncStatus('error');_plansSaveRetries=0;}
+      return;
+    }
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    _plansSaveRetries=0;
+    showSyncStatus('ok');
+  }catch(e){
+    console.error('Plans bin write failed:',e);
+    _plansSaveInFlight=false;_plansSaveRetries++;
+    if(_plansSaveRetries<=3){showSyncStatus('pending');if(_plansSaveTimer)clearTimeout(_plansSaveTimer);_plansSaveTimer=setTimeout(function(){_doSavePlansBin();},3000);}
+    else{showSyncStatus('error');_plansSaveRetries=0;}
+    return;
+  }finally{_plansSaveInFlight=false;}
+}
+async function loadPlansRemote(){
+  try{
+    var ctrl=new AbortController();
+    var timer=setTimeout(function(){ctrl.abort();},3000);
+    var res=await fetch(JB_PLANS_URL+'/latest',{
+      headers:{'X-Master-Key':JB_KEY,'X-Bin-Meta':'false'},
+      signal:ctrl.signal
+    });
+    clearTimeout(timer);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var record=data.record||data;
+    JB_PLANS=record.plans||{};
+    try{localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));}catch(e){}
+  }catch(e){console.warn('loadPlansRemote failed, using cache',e);}
 }
 
 function loadCheckState(){
@@ -905,6 +960,8 @@ async function initApp(){
   try{
     PLAYERS=await loadBinRemote();
     JB_CHECKS=JB_CHECKS||{};
+    // Cargar planes desde su bin dedicado
+    await loadPlansRemote();
     JB_PLANS=JB_PLANS||{};
     // Cargar biblioteca desde su bin dedicado
     await loadLibRemote();
@@ -1374,9 +1431,9 @@ function executeCopyDay(){
   // Deep copy the source day blocks (no checks/RPE)
   var sourceDay=PLAN[cW][cD];
   JB_PLANS[targetPid][targetW][targetD].blocks=JSON.parse(JSON.stringify(sourceDay.blocks));
-  // Guardar localmente y sincronizar con JSONBin
+  // Guardar localmente y sincronizar con el bin de planes
   localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));
-  saveBinRemote();
+  savePlansRemote();
   closeCopyDayModal();
   // Show confirmation
   var btn=document.querySelector('#copy-day-btn button');
