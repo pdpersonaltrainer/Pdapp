@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDapp · Test Supabase</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body{font-family:system-ui,sans-serif;background:#0a0b0e;color:#eef0f5;margin:0;padding:24px;max-width:560px;margin-inline:auto;}
+  h1{font-size:19px;}
+  input{display:block;width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #333;background:#181b22;color:#fff;font-size:16px;box-sizing:border-box;}
+  button{width:100%;padding:14px;border-radius:8px;border:none;background:#a8e063;color:#0a0b0e;font-weight:700;font-size:16px;}
+  #out{margin-top:20px;white-space:pre-wrap;font-size:14px;line-height:1.5;}
+  .ok{color:#a8e063;} .err{color:#ff4d4d;} li{margin:2px 0;}
+</style>
+</head>
+<body>
+<h1>PDapp · Test de conexión Supabase</h1>
+<input id="email" type="email" placeholder="Tu email de profe" autocomplete="username">
+<input id="pass" type="password" placeholder="Tu contraseña" autocomplete="current-password">
+<button onclick="probar()">Entrar y leer ejercicios</button>
+<div id="out"></div>
+<script>
+const SUPABASE_URL = 'https://yroinbaixsgdowhigfom.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_YuiKKtYILL-VlnDzXkwRMw_S1G4dCQi';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const out = document.getElementById('out');
+async function probar(){
+  out.innerHTML = 'Conectando...';
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('pass').value;
+  const { data: login, error: e1 } = await sb.auth.signInWithPassword({ email, password: pass });
+  if(e1){ out.innerHTML = '<span class="err">Error de login: '+e1.message+'</span>'; return; }
+  const { data: exs, error: e2 } = await sb.from('exercises').select('name,type').order('type');
+  if(e2){ out.innerHTML = '<span class="err">Login OK, pero error leyendo: '+e2.message+'</span>'; return; }
+  let html = '<span class="ok">✓ Conectado como '+login.user.email+'</span>\n';
+  html += '<span class="ok">✓ Encontré '+exs.length+' ejercicios</span>\n\n<ul>';
+  exs.slice(0,10).forEach(e => html += '<li>'+e.type+' · '+e.name+'</li>');
+  html += '</ul>' + (exs.length>10 ? '...y '+(exs.length-10)+' más' : '');
+  out.innerHTML = html;
+}
+</script>
+</body>
+</html>
