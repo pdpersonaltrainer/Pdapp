@@ -322,7 +322,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
 <div id="screen-select">
   <div class="select-header">
     <div><h1>PDapp</h1><p>Personal Trainer · Fútbol Élite</p></div>
-    <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Jugador</button> <button class="coach-toggle" onclick="logout()">Salir</button>
+    <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Jugador</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button>
   </div>
   <div class="select-body">
     <div class="select-title">Quién sos?</div>
@@ -626,6 +626,8 @@ var SUPABASE_URL='https://yroinbaixsgdowhigfom.supabase.co';
 var SUPABASE_KEY='sb_publishable_YuiKKtYILL-VlnDzXkwRMw_S1G4dCQi';
 var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 var MY_UID=null;
+var TRAINER_ID=null;
+var PLAYER_MODE=false;
 
 var WMETA=[{lbl:'Reeducaci\u00f3n',col:'w1',badge:'#a8e063'},{lbl:'Base I/MA',col:'w2',badge:'#38d9c0'},{lbl:'Fuerza',col:'w3',badge:'#ff7043'},{lbl:'Fza+F.Expl.',col:'w4',badge:'#5b9cf6'}];
 var DMETA=['Empuje Rod.','Trac. MMSS','Empuje Cad.','Empuje MMSS','Explosivos'];
@@ -690,7 +692,7 @@ function loadPlan(pid){
 function savePlan(pid,plan){
   JB_PLANS[pid]=plan;
   showSyncStatus('saving');
-  sb.from('plans').upsert({player_id:pid,trainer_id:MY_UID,weeks:plan,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('savePlan',r.error);});
+  sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,weeks:plan,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('savePlan',r.error);});
 }
 function loadCheckState(){
   if(!currentPlayerId)return;
@@ -700,7 +702,7 @@ function saveCheckState(){
   if(!currentPlayerId)return;
   JB_CHECKS[currentPlayerId]=checkState;
   showSyncStatus('saving');
-  sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:MY_UID,checks:checkState,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});
+  sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:checkState,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});
 }
 
 // \u2500\u2500 INIT \u2500\u2500
@@ -726,15 +728,54 @@ async function login(){
   var errEl=document.getElementById('login-err');errEl.textContent='Entrando...';
   var r=await sb.auth.signInWithPassword({email:email,password:pass});
   if(r.error){errEl.textContent='Error: '+r.error.message;return;}
-  MY_UID=r.data.user.id;
+  MY_UID=r.data.user.id;TRAINER_ID=MY_UID;
   document.getElementById('screen-login').style.display='none';
   await bootApp();
 }
 async function logout(){await sb.auth.signOut();location.reload();}
+async function loadPlayerData(tid){
+  var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
+  if(pr.error)throw pr.error;
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0};});
+  if(PLAYERS.length===0)throw new Error('Link sin jugadores o invalido.');
+  var plr=await sb.from('plans').select('player_id,weeks').eq('trainer_id',tid);
+  if(plr.error)throw plr.error;
+  JB_PLANS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;});
+  var pgr=await sb.from('progress').select('player_id,checks').eq('trainer_id',tid);
+  if(pgr.error)throw pgr.error;
+  JB_CHECKS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};});
+  LIB=[];
+}
+async function bootPlayer(){
+  var overlay=document.getElementById('loading-overlay');
+  overlay.style.display='flex';
+  document.getElementById('loading-spinner').style.display='block';
+  document.getElementById('loading-title').style.display='block';
+  document.getElementById('loading-error').style.display='none';
+  try{
+    await loadPlayerData(TRAINER_ID);
+    overlay.style.display='none';
+    renderSelect();
+  }catch(e){
+    document.getElementById('loading-spinner').style.display='none';
+    document.getElementById('loading-title').style.display='none';
+    var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML='Error cargando:<br>'+((e&&e.message)||e);
+  }
+}
 async function initApp(){
+  var params=new URLSearchParams(location.search);
+  var pf=params.get('profe');
+  if(pf){
+    PLAYER_MODE=true;TRAINER_ID=pf;isCoach=false;
+    document.getElementById('screen-login').style.display='none';
+    var ct=document.getElementById('coach-toggle');if(ct)ct.style.display='none';
+    var lo=document.getElementById('logout-btn');if(lo)lo.style.display='none';
+    await bootPlayer();
+    return;
+  }
   var sres=await sb.auth.getSession();
   if(sres.data&&sres.data.session){
-    MY_UID=sres.data.session.user.id;
+    MY_UID=sres.data.session.user.id;TRAINER_ID=MY_UID;
     document.getElementById('screen-login').style.display='none';
     await bootApp();
   }else{
@@ -1277,7 +1318,7 @@ function renderMessages(){
   }).join('');
   document.getElementById('msg-content').innerHTML=html;
 }
-function buildMsg(p,dayIdx){var lbl=DMETA[dayIdx]||('D\u00eda '+(dayIdx+1));return 'Hola '+p.name+' \ud83d\udc4b\n\n\ud83c\udfcb\ufe0f Hoy es d\u00eda de entrenamiento!\n\ud83d\udccb '+lbl+'\n\nEntr\u00e1 a tu plan ac\u00e1:\n\ud83d\udc49 app.pdpersonaltrainer.com\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 Pablo PT \ud83d\udcaa';}
+function buildMsg(p,dayIdx){var lbl=DMETA[dayIdx]||('D\u00eda '+(dayIdx+1));var link=location.origin+location.pathname+'?profe='+(TRAINER_ID||'');return 'Hola '+p.name+' \ud83d\udc4b\n\n\ud83c\udfcb\ufe0f Hoy es d\u00eda de entrenamiento!\n\ud83d\udccb '+lbl+'\n\nEntr\u00e1 a tu plan ac\u00e1:\n\ud83d\udc49 '+link+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 Pablo PT \ud83d\udcaa';}
 function selectMsgDay(pid,day){msgSelectedDays[pid]=day;renderMessages();}
 function copyMsg(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]||0);if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}});}else{var ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}}}
 function sendWA(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]||0);window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
