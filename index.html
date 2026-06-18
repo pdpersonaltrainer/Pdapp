@@ -295,6 +295,19 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
 </style>
 </head>
 <body>
+<!-- LOGIN PROFE -->
+<div id="screen-login" style="position:fixed;inset:0;z-index:700;background:#0a0b0e;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
+  <div style="width:100%;max-width:340px;text-align:center;">
+    <img src="logo-bg.png" alt="PDapp" style="width:130px;height:130px;object-fit:contain;display:block;margin:0 auto 16px;" onerror="this.style.display='none'">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">PDapp</div>
+    <div style="font-size:13px;color:#6b7280;margin-bottom:26px;">Ingreso de profe</div>
+    <input id="login-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+    <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+    <button onclick="login()" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
+    <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
+  </div>
+</div>
+
 <!-- LOADING OVERLAY -->
 <div id="loading-overlay">
   <div id="loading-spinner"></div>
@@ -309,7 +322,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
 <div id="screen-select">
   <div class="select-header">
     <div><h1>PDapp</h1><p>Personal Trainer · Fútbol Élite</p></div>
-    <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Jugador</button>
+    <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Jugador</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button>
   </div>
   <div class="select-body">
     <div class="select-title">Quién sos?</div>
@@ -371,7 +384,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
-  <div class="lib-topbar"><div class="lib-topbar-inner"><h2>Ejercicios</h2><div style="display:flex;gap:6px;"><button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button><button class="add-lib-btn hidden" id="reset-lib-btn" onclick="resetLib()" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">&#x21BA; Restaurar</button><button class="add-lib-btn hidden" id="export-lib-btn" onclick="exportLib()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2193; Backup</button></div></div></div>
+  <div class="lib-topbar"><div class="lib-topbar-inner"><h2>Ejercicios</h2><div style="display:flex;gap:6px;"><button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button><button class="add-lib-btn hidden" id="import-lib-btn" onclick="document.getElementById('lib-file-input').click()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2191; Importar</button><input type="file" id="lib-file-input" accept=".json,application/json" style="display:none" onchange="importLibFromFile(this)"/><button class="add-lib-btn hidden" id="export-lib-btn" onclick="exportLib()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2193; Backup</button></div></div></div>
   <div style="max-width:540px;margin:0 auto;padding:8px 13px 0;">
   <input type="text" id="lib-search" placeholder="Buscar ejercicio..." oninput="filterLibSearch()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;" />
 </div>
@@ -607,17 +620,14 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
     <button class="pin-cancel" onclick="closePinModal()">Cancelar</button>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-var COACH_PIN='2204';
-
-// ── JSONBIN CONFIG ──
-var JB_BIN='6a287256f5f4af5e29d42887';
-var JB_KEY='$2a$10$WbkZ0bZdQ6evxIEHz5pFwOuC3LBF7sPcdrofhb1vOlRBjebQqN.lG';
-var JB_URL='https://api.jsonbin.io/v3/b/'+JB_BIN;
-var JB_LIB_BIN='6a227f97f5f4af5e29bc84e5';
-var JB_LIB_URL='https://api.jsonbin.io/v3/b/'+JB_LIB_BIN;
-var JB_PLANS_BIN='6a2ef106da38895dfebfb36e';
-var JB_PLANS_URL='https://api.jsonbin.io/v3/b/'+JB_PLANS_BIN;
+var SUPABASE_URL='https://yroinbaixsgdowhigfom.supabase.co';
+var SUPABASE_KEY='sb_publishable_YuiKKtYILL-VlnDzXkwRMw_S1G4dCQi';
+var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+var MY_UID=null;
+var TRAINER_ID=null;
+var PLAYER_MODE=false;
 
 var WMETA=[{lbl:'Reeducaci\u00f3n',col:'w1',badge:'#a8e063'},{lbl:'Base I/MA',col:'w2',badge:'#38d9c0'},{lbl:'Fuerza',col:'w3',badge:'#ff7043'},{lbl:'Fza+F.Expl.',col:'w4',badge:'#5b9cf6'}];
 var DMETA=['Empuje Rod.','Trac. MMSS','Empuje Cad.','Empuje MMSS','Explosivos'];
@@ -634,308 +644,56 @@ var JB_CHECKS={};
 var JB_PLANS={};
 var JB_LIB=null;
 
-async function loadBinRemote(){
-  var ctrl=new AbortController();
-  var timer=setTimeout(function(){ctrl.abort();},3000);
-  try{
-    var res=await fetch(JB_URL+'/latest',{
-      headers:{'X-Master-Key':JB_KEY,'X-Bin-Meta':'false'},
-      signal:ctrl.signal
-    });
-    clearTimeout(timer);
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    var data=await res.json();
-    var record=data.record||data;
-    var pl=record.players||[];
-    var localPhotos=loadPhotos();
-    pl.forEach(function(p){p.pin=String(p.pin||'');if(!p.photo&&localPhotos[p.id])p.photo=localPhotos[p.id];});
-    JB_CHECKS=record.checks||{};
-    JB_PLANS=record.plans||{};
-    return pl;
-  }catch(e){
-    clearTimeout(timer);
-    throw e;
-  }
-}
-
-var _saveTimer=null;
-var _saveInFlight=false;
-var _saveRetries=0;
-function saveBinRemote(){
-  // Siempre guardar en cache local primero (instantaneo)
-  try{
-    localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
-    localStorage.setItem('pablo_checks_cache',JSON.stringify(JB_CHECKS));
-    localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));
-    if(JB_LIB)localStorage.setItem('pablo_lib',JSON.stringify(JB_LIB));
-  }catch(e){}
-  // Debounce: agrupar escrituras al bin (evita rate limit)
-  if(_saveTimer)clearTimeout(_saveTimer);
-  _saveTimer=setTimeout(function(){_doSaveBin();},2000);
-  showSyncStatus('pending');
-}
-
-async function _doSaveBin(){
-  if(_saveInFlight){
-    // Si hay una en curso, reprogramar
-    if(_saveTimer)clearTimeout(_saveTimer);
-    _saveTimer=setTimeout(function(){_doSaveBin();},800);
-    return;
-  }
-  _saveInFlight=true;
-  showSyncStatus('saving');
-  try{
-    var res=await fetch(JB_URL,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({players:PLAYERS,checks:JB_CHECKS})
-    });
-    if(res.status===429){
-      // Rate limit: esperar mas y reintentar
-      _saveRetries=(_saveRetries||0)+1;
-      _saveInFlight=false;
-      if(_saveRetries<=5){
-        showSyncStatus('pending');
-        if(_saveTimer)clearTimeout(_saveTimer);
-        var wait=Math.min(2000*_saveRetries,10000);
-        _saveTimer=setTimeout(function(){_doSaveBin();},wait);
-      }else{
-        showSyncStatus('error');
-        _saveRetries=0;
-      }
-      return;
-    }
-    if(!res.ok){
-      throw new Error('HTTP '+res.status);
-    }
-    _saveRetries=0;
-    showSyncStatus('ok');
-  }catch(e){
-    console.error('JSONBin write FAILED:',e);
-    _saveInFlight=false;
-    _saveRetries=(_saveRetries||0)+1;
-    if(_saveRetries<=3){
-      showSyncStatus('pending');
-      if(_saveTimer)clearTimeout(_saveTimer);
-      _saveTimer=setTimeout(function(){_doSaveBin();},3000);
-    }else{
-      showSyncStatus('error');
-      _saveRetries=0;
-    }
-    return;
-  }finally{
-    _saveInFlight=false;
-  }
-}
-
 function showSyncStatus(state){
   var el=document.getElementById('sync-status');
-  if(!el){
-    el=document.createElement('div');
-    el.id='sync-status';
-    el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:20px;font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;z-index:9999;transition:opacity 0.3s;pointer-events:none;';
-    document.body.appendChild(el);
-  }
-  if(state==='pending'){
-    el.textContent='Pendiente de guardar...';
-    el.style.background='rgba(140,140,140,0.15)';
-    el.style.color='#aaaaaa';
-    el.style.opacity='1';
-  }else if(state==='saving'){
-    el.textContent='Guardando...';
-    el.style.background='rgba(249,200,70,0.15)';
-    el.style.color='#f9c846';
-    el.style.opacity='1';
-  }else if(state==='ok'){
-    el.textContent='✓ Sincronizado';
-    el.style.background='rgba(168,224,99,0.15)';
-    el.style.color='#a8e063';
-    el.style.opacity='1';
-    setTimeout(function(){if(el)el.style.opacity='0';},1500);
-  }else if(state==='error'){
-    el.textContent='⚠ Error al sincronizar';
-    el.style.background='rgba(255,77,77,0.18)';
-    el.style.color='#ff4d4d';
-    el.style.opacity='1';
-    setTimeout(function(){if(el)el.style.opacity='0';},4000);
-  }
+  if(!el){el=document.createElement('div');el.id='sync-status';el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:20px;font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;z-index:9999;transition:opacity 0.3s;pointer-events:none;';document.body.appendChild(el);}
+  if(state==='saving'){el.textContent='Guardando...';el.style.background='rgba(249,200,70,0.15)';el.style.color='#f9c846';el.style.opacity='1';}
+  else if(state==='ok'){el.textContent='✓ Sincronizado';el.style.background='rgba(168,224,99,0.15)';el.style.color='#a8e063';el.style.opacity='1';setTimeout(function(){if(el)el.style.opacity='0';},1500);}
+  else if(state==='error'){el.textContent='⚠ Error al sincronizar';el.style.background='rgba(255,77,77,0.18)';el.style.color='#ff4d4d';el.style.opacity='1';setTimeout(function(){if(el)el.style.opacity='0';},4000);}
 }
 
-function loadPlayersCache(){
-  try{
-    var s=localStorage.getItem('pablo_players_cache');
-    if(s){var pl=JSON.parse(s);pl.forEach(function(p){p.pin=String(p.pin||'');});return pl;}
-  }catch(e){}
-  return[];
+async function loadAllFromSupabase(){
+  var pr=await sb.from('players').select('*').order('created_at');
+  if(pr.error)throw pr.error;
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0};});
+  var plr=await sb.from('plans').select('player_id,weeks');
+  if(plr.error)throw plr.error;
+  JB_PLANS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;});
+  var pgr=await sb.from('progress').select('player_id,checks');
+  if(pgr.error)throw pgr.error;
+  JB_CHECKS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};});
+  var exr=await sb.from('exercises').select('*').order('type');
+  if(exr.error)throw exr.error;
+  LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',is_base:e.is_base};});
 }
 
-function loadChecksCache(){
-  try{var s=localStorage.getItem('pablo_checks_cache');if(s)return JSON.parse(s);}catch(e){}
-  return{};
-}
+function loadPlayersCache(){return [];}
+function loadChecksCache(){return {};}
+function loadPlayers(){return [];}
+function savePlayers(){}
+function loadPhotos(){return {};}
+function savePhotos(){}
+function getPhoto(){return '';}
+function setPhoto(){}
+function loadLib(){return [];}
+function saveLib(){}
+function saveBinRemote(){}
+function savePlansRemote(){}
+function saveLibRemote(){}
 
-function loadPlayers(){return loadPlayersCache();}
-function savePlayers(){
-  localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
-  saveBinRemote();
-}
-
-// ── LOCAL STORAGE (plan / lib) ──
-// Fotos guardadas localmente (no en el bin, para no inflarlo)
-function loadPhotos(){try{var s=localStorage.getItem('pablo_photos');return s?JSON.parse(s):{};}catch(e){return{};}}
-function savePhotos(ph){try{localStorage.setItem('pablo_photos',JSON.stringify(ph));}catch(e){}}
-function getPhoto(pid){var ph=loadPhotos();return ph[pid]||'';}
-function setPhoto(pid,data){var ph=loadPhotos();if(data)ph[pid]=data;else delete ph[pid];savePhotos(ph);}
-
-function loadLib(){
-  // Prioridad: JB_LIB (sincronizado). Si no, cache local. Si no, vacio.
-  if(JB_LIB&&JB_LIB.length)return JB_LIB.slice();
-  try{var s=localStorage.getItem('pablo_lib');if(s){var arr=JSON.parse(s);return arr;}}catch(e){}
-  return[];
-}
-function saveLib(){
-  JB_LIB=LIB.slice();
-  try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}
-  saveLibRemote();
-}
-var _libSaveTimer=null;
-var _libSaveInFlight=false;
-var _libSaveRetries=0;
-function saveLibRemote(){
-  if(_libSaveTimer)clearTimeout(_libSaveTimer);
-  _libSaveTimer=setTimeout(function(){_doSaveLibBin();},800);
-  showSyncStatus('pending');
-}
-async function _doSaveLibBin(){
-  if(_libSaveInFlight){
-    if(_libSaveTimer)clearTimeout(_libSaveTimer);
-    _libSaveTimer=setTimeout(function(){_doSaveLibBin();},800);
-    return;
-  }
-  _libSaveInFlight=true;
-  showSyncStatus('saving');
-  try{
-    var res=await fetch(JB_LIB_URL,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({lib:JB_LIB})
-    });
-    if(res.status===429){
-      _libSaveRetries++;_libSaveInFlight=false;
-      if(_libSaveRetries<=5){showSyncStatus('pending');if(_libSaveTimer)clearTimeout(_libSaveTimer);var w=Math.min(2000*_libSaveRetries,10000);_libSaveTimer=setTimeout(function(){_doSaveLibBin();},w);}
-      else{showSyncStatus('error');_libSaveRetries=0;}
-      return;
-    }
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    _libSaveRetries=0;
-    showSyncStatus('ok');
-  }catch(e){
-    console.error('Lib bin write failed:',e);
-    _libSaveInFlight=false;_libSaveRetries++;
-    if(_libSaveRetries<=3){showSyncStatus('pending');if(_libSaveTimer)clearTimeout(_libSaveTimer);_libSaveTimer=setTimeout(function(){_doSaveLibBin();},3000);}
-    else{showSyncStatus('error');_libSaveRetries=0;}
-    return;
-  }finally{_libSaveInFlight=false;}
-}
-async function loadLibRemote(){
-  try{
-    var ctrl=new AbortController();
-    var timer=setTimeout(function(){ctrl.abort();},3000);
-    var res=await fetch(JB_LIB_URL+'/latest',{
-      headers:{'X-Master-Key':JB_KEY,'X-Bin-Meta':'false'},
-      signal:ctrl.signal
-    });
-    clearTimeout(timer);
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    var data=await res.json();
-    var record=data.record||data;
-    JB_LIB=record.lib||null;
-    if(JB_LIB&&JB_LIB.length){
-      LIB=JB_LIB.slice();
-      try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}
-    }
-  }catch(e){console.warn('loadLibRemote failed, using cache',e);}
-}
 function loadPlan(pid){
-  try{
-    // SOLO JB_PLANS (sincronizado con JSONBin)
-    if(JB_PLANS&&JB_PLANS[pid]){
-      var saved=JB_PLANS[pid];
-      var hasCam=false;
-      try{hasCam=saved[0][0].blocks.some(function(b){return b.t==='cam';});}catch(e){}
-      if(hasCam)return saved;
-    }
-    // Fallback: cache unificado (nunca el legacy pablo_plan_<pid>)
-    var s=localStorage.getItem('pablo_plans_cache');
-    if(s){var all=JSON.parse(s);if(all[pid]){return all[pid];}}
-  }catch(e){}
+  if(JB_PLANS&&JB_PLANS[pid]){
+    var saved=JB_PLANS[pid];var hasCam=false;
+    try{hasCam=saved[0][0].blocks.some(function(b){return b.t==='cam';});}catch(e){}
+    if(hasCam)return saved;
+  }
   return JSON.parse(JSON.stringify(defaultData()));
 }
 function savePlan(pid,plan){
-  try{
-    JB_PLANS[pid]=plan;
-    localStorage.removeItem('pablo_plan_'+pid);
-    localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));
-    savePlansRemote();
-  }catch(e){console.warn('savePlan error',e);}
-}
-var _plansSaveTimer=null;
-var _plansSaveInFlight=false;
-var _plansSaveRetries=0;
-function savePlansRemote(){
-  try{localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));}catch(e){}
-  if(_plansSaveTimer)clearTimeout(_plansSaveTimer);
-  _plansSaveTimer=setTimeout(function(){_doSavePlansBin();},800);
-  showSyncStatus('pending');
-}
-async function _doSavePlansBin(){
-  if(_plansSaveInFlight){
-    if(_plansSaveTimer)clearTimeout(_plansSaveTimer);
-    _plansSaveTimer=setTimeout(function(){_doSavePlansBin();},800);
-    return;
-  }
-  _plansSaveInFlight=true;
+  JB_PLANS[pid]=plan;
   showSyncStatus('saving');
-  try{
-    var res=await fetch(JB_PLANS_URL,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':JB_KEY},
-      body:JSON.stringify({plans:JB_PLANS})
-    });
-    if(res.status===429){
-      _plansSaveRetries++;_plansSaveInFlight=false;
-      if(_plansSaveRetries<=5){showSyncStatus('pending');if(_plansSaveTimer)clearTimeout(_plansSaveTimer);var w=Math.min(2000*_plansSaveRetries,10000);_plansSaveTimer=setTimeout(function(){_doSavePlansBin();},w);}
-      else{showSyncStatus('error');_plansSaveRetries=0;}
-      return;
-    }
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    _plansSaveRetries=0;
-    showSyncStatus('ok');
-  }catch(e){
-    console.error('Plans bin write failed:',e);
-    _plansSaveInFlight=false;_plansSaveRetries++;
-    if(_plansSaveRetries<=3){showSyncStatus('pending');if(_plansSaveTimer)clearTimeout(_plansSaveTimer);_plansSaveTimer=setTimeout(function(){_doSavePlansBin();},3000);}
-    else{showSyncStatus('error');_plansSaveRetries=0;}
-    return;
-  }finally{_plansSaveInFlight=false;}
+  sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,weeks:plan,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('savePlan',r.error);});
 }
-async function loadPlansRemote(){
-  try{
-    var ctrl=new AbortController();
-    var timer=setTimeout(function(){ctrl.abort();},3000);
-    var res=await fetch(JB_PLANS_URL+'/latest',{
-      headers:{'X-Master-Key':JB_KEY,'X-Bin-Meta':'false'},
-      signal:ctrl.signal
-    });
-    clearTimeout(timer);
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    var data=await res.json();
-    var record=data.record||data;
-    JB_PLANS=record.plans||{};
-    try{localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));}catch(e){}
-  }catch(e){console.warn('loadPlansRemote failed, using cache',e);}
-}
-
 function loadCheckState(){
   if(!currentPlayerId)return;
   checkState=JB_CHECKS[currentPlayerId]||{};
@@ -943,60 +701,86 @@ function loadCheckState(){
 function saveCheckState(){
   if(!currentPlayerId)return;
   JB_CHECKS[currentPlayerId]=checkState;
-  localStorage.setItem('pablo_checks_cache',JSON.stringify(JB_CHECKS));
-  saveBinRemote();
+  showSyncStatus('saving');
+  sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:checkState,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});
 }
 
 // \u2500\u2500 INIT \u2500\u2500
-async function initApp(){
+async function bootApp(){
   var overlay=document.getElementById('loading-overlay');
-  var spinner=document.getElementById('loading-spinner');
-  var title=document.getElementById('loading-title');
-  var errEl=document.getElementById('loading-error');
   overlay.style.display='flex';
-  spinner.style.display='block';
-  title.style.display='block';
-  errEl.style.display='none';
+  document.getElementById('loading-spinner').style.display='block';
+  document.getElementById('loading-title').style.display='block';
+  document.getElementById('loading-error').style.display='none';
   try{
-    PLAYERS=await loadBinRemote();
-    JB_CHECKS=JB_CHECKS||{};
-    // Cargar planes desde su bin dedicado
-    await loadPlansRemote();
-    JB_PLANS=JB_PLANS||{};
-    // Cargar biblioteca desde su bin dedicado
-    await loadLibRemote();
-    if(JB_LIB&&JB_LIB.length){
-      LIB=JB_LIB.slice();
-    }else if(LIB&&LIB.length){
-      // Primera vez: subir la biblioteca local actual al bin de biblioteca
-      JB_LIB=LIB.slice();saveLibRemote();
-    }
-    // Limpiar keys legacy de planes para evitar conflictos
-    try{Object.keys(localStorage).filter(function(k){return k.indexOf('pablo_plan_')===0;}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}
-    localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
+    await loadAllFromSupabase();
+    overlay.style.display='none';
+    activateCoach();
+  }catch(e){
+    document.getElementById('loading-spinner').style.display='none';
+    document.getElementById('loading-title').style.display='none';
+    var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML='Error cargando datos:<br>'+((e&&e.message)||e);
+  }
+}
+async function login(){
+  var email=document.getElementById('login-email').value.trim();
+  var pass=document.getElementById('login-pass').value;
+  var errEl=document.getElementById('login-err');errEl.textContent='Entrando...';
+  var r=await sb.auth.signInWithPassword({email:email,password:pass});
+  if(r.error){errEl.textContent='Error: '+r.error.message;return;}
+  MY_UID=r.data.user.id;TRAINER_ID=MY_UID;
+  document.getElementById('screen-login').style.display='none';
+  await bootApp();
+}
+async function logout(){await sb.auth.signOut();location.reload();}
+async function loadPlayerData(tid){
+  var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
+  if(pr.error)throw pr.error;
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0};});
+  if(PLAYERS.length===0)throw new Error('Link sin jugadores o invalido.');
+  var plr=await sb.from('plans').select('player_id,weeks').eq('trainer_id',tid);
+  if(plr.error)throw plr.error;
+  JB_PLANS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;});
+  var pgr=await sb.from('progress').select('player_id,checks').eq('trainer_id',tid);
+  if(pgr.error)throw pgr.error;
+  JB_CHECKS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};});
+  LIB=[];
+}
+async function bootPlayer(){
+  var overlay=document.getElementById('loading-overlay');
+  overlay.style.display='flex';
+  document.getElementById('loading-spinner').style.display='block';
+  document.getElementById('loading-title').style.display='block';
+  document.getElementById('loading-error').style.display='none';
+  try{
+    await loadPlayerData(TRAINER_ID);
     overlay.style.display='none';
     renderSelect();
   }catch(e){
-    // Si hay cache local, usarla silenciosamente en lugar de mostrar error
-    var cache=loadPlayersCache();
-    if(cache.length>0){
-      PLAYERS=cache;
-      JB_CHECKS=loadChecksCache();
-      try{var pc=localStorage.getItem('pablo_plans_cache');if(pc)JB_PLANS=JSON.parse(pc);}catch(e){}
-      overlay.style.display='none';
-      renderSelect();
-      // Mostrar aviso sutil de que está en modo offline
-      var warn=document.createElement('div');
-      warn.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(249,200,70,0.15);border:1px solid rgba(249,200,70,0.35);border-radius:8px;padding:6px 14px;font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#f9c846;z-index:900;pointer-events:none;';
-      warn.textContent='Sin conexión · Modo offline';
-      document.body.appendChild(warn);
-      setTimeout(function(){warn.remove();},3000);
-    }else{
-      // Sin cache Y sin red: mostrar error solo si no hay nada
-      spinner.style.display='none';
-      title.style.display='none';
-      errEl.style.display='block';
-    }
+    document.getElementById('loading-spinner').style.display='none';
+    document.getElementById('loading-title').style.display='none';
+    var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML='Error cargando:<br>'+((e&&e.message)||e);
+  }
+}
+async function initApp(){
+  var params=new URLSearchParams(location.search);
+  var pf=params.get('profe');
+  if(pf){
+    PLAYER_MODE=true;TRAINER_ID=pf;isCoach=false;
+    document.getElementById('screen-login').style.display='none';
+    var ct=document.getElementById('coach-toggle');if(ct)ct.style.display='none';
+    var lo=document.getElementById('logout-btn');if(lo)lo.style.display='none';
+    await bootPlayer();
+    return;
+  }
+  var sres=await sb.auth.getSession();
+  if(sres.data&&sres.data.session){
+    MY_UID=sres.data.session.user.id;TRAINER_ID=MY_UID;
+    document.getElementById('screen-login').style.display='none';
+    await bootApp();
+  }else{
+    document.getElementById('loading-overlay').style.display='none';
+    document.getElementById('screen-login').style.display='flex';
   }
 }
 
@@ -1132,10 +916,7 @@ var DEFAULT_LIB=[
 {"id":"c019","name":"Test de potencia horizontal (Broad Jump)","type":"cam","load":"3 intentos","note":"Evaluación de potencia horizontal. Registrar la mejor de 3. Comparar con inicio de off-season.","link":"","img":""}
 ];
 
-var LIB=loadLib();
-// No auto-guardar DEFAULT al bin aqui; initApp sincroniza con JSONBin primero.
-// Si no hay nada local, usar DEFAULT solo en memoria (sin pushear al bin todavia).
-if(LIB.length===0){LIB=JSON.parse(JSON.stringify(DEFAULT_LIB));try{localStorage.setItem('pablo_lib',JSON.stringify(LIB));}catch(e){}}
+var LIB=[];
 
 // \u2500\u2500 SELECT SCREEN \u2500\u2500
 function renderSelect(){
@@ -1159,7 +940,7 @@ function renderSelect(){
 function selectPlayer(pid){
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
   var ppin=String(p.pin||'').trim();
-  if(ppin.length===4){pendingSelectPid=pid;openPlayerPinModal(p);return;}
+  if(!isCoach&&ppin.length===4){pendingSelectPid=pid;openPlayerPinModal(p);return;}
   doSelectPlayer(pid);
 }
 function doSelectPlayer(pid){
@@ -1191,7 +972,7 @@ function goBack(){
 }
 
 // \u2500\u2500 COACH MODE \u2500\u2500
-function toggleMode(){if(isCoach)deactivateCoach();else openPinModal();}
+function toggleMode(){if(isCoach)deactivateCoach();else activateCoach();}
 function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});renderSelect();if(currentPlayerId)renderPlan();}
 function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Jugador';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
 
@@ -1215,7 +996,14 @@ function checkPlayerPin(){var p=PLAYERS.find(function(x){return x.id===pendingSe
 function openPlayerModal(id){editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Jugador':'Nuevo Jugador';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';document.getElementById('f-ppos').value=p?(p.pos||''):'';document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pweek').value=p?(p.activeWeek||0):0;var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
 function closePlayerModal(){document.getElementById('modal-player').classList.remove('open');editingPlayerId=null;pendingPhotoData=null;}
 function editPlayer(id){openPlayerModal(id);}
-function delPlayer(id){PLAYERS=PLAYERS.filter(function(p){return p.id!==id;});try{localStorage.removeItem('pablo_plan_'+id);localStorage.removeItem('pablo_checks_'+id);}catch(e){}savePlayers();renderSelect();}
+async function delPlayer(id){
+  if(!confirm('¿Eliminar este jugador? Se borran también su plan y progreso.'))return;
+  showSyncStatus('saving');
+  var r=await sb.from('players').delete().eq('id',id);
+  if(r.error){showSyncStatus('error');alert('Error al eliminar: '+r.error.message);return;}
+  PLAYERS=PLAYERS.filter(function(p){return p.id!==id;});
+  showSyncStatus('ok');renderSelect();
+}
 function handlePhotoUpload(e){
   var file=e.target.files[0];
   if(!file)return;
@@ -1243,22 +1031,7 @@ function handlePhotoUpload(e){
   reader.readAsDataURL(file);
 }
 function limpiarFotosPesadas(){
-  if(!isCoach)return;
-  if(!confirm('Esto quitara las fotos pesadas (base64) de los jugadores para destrabar la sincronizacion. Las fotos por URL se mantienen. Continuar?'))return;
-  var quitadas=0;
-  PLAYERS.forEach(function(p){
-    // Si la foto es base64 (empieza con data:) la quitamos. Si es URL (http) la dejamos.
-    if(p.photo&&p.photo.indexOf('data:')===0){
-      p.photo='';
-      quitadas++;
-    }
-  });
-  // Forzar guardado limpio
-  localStorage.setItem('pablo_players_cache',JSON.stringify(PLAYERS));
-  _saveRetries=0;
-  _doSaveBin();
-  renderSelect();
-  alert('Listo. Se quitaron '+quitadas+' fotos pesadas. Ahora carga las fotos por URL.');
+  alert('Esta herramienta ya no es necesaria con Supabase.');
 }
 function handlePhotoUrl(url){
   url=(url||'').trim();
@@ -1266,7 +1039,30 @@ function handlePhotoUrl(url){
   pendingPhotoData=url;
   document.getElementById('av-preview').innerHTML='<img src="'+url+'" onerror="this.parentNode.innerHTML=\'&#x26A0;\'"/>';
 }
-function savePlayer(){var name=document.getElementById('f-pname').value.trim();if(!name){alert('El nombre es obligatorio.');return;}var newPin=String(document.getElementById('f-ppin').value.trim()).slice(0,4);if(editingPlayerId){var idx=PLAYERS.findIndex(function(p){return p.id===editingPlayerId;});if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=document.getElementById('f-pclub').value.trim();PLAYERS[idx].pos=document.getElementById('f-ppos').value.trim();if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData){PLAYERS[idx].photo=pendingPhotoData;setPhoto(PLAYERS[idx].id,pendingPhotoData);}PLAYERS[idx].activeWeek=+document.getElementById('f-pweek').value;}}else{PLAYERS.push({id:'p_'+Date.now(),name:name,club:document.getElementById('f-pclub').value.trim(),pos:document.getElementById('f-ppos').value.trim(),photo:pendingPhotoData||'',pin:newPin||'',activeWeek:+document.getElementById('f-pweek').value});var _np=PLAYERS[PLAYERS.length-1];if(pendingPhotoData)setPhoto(_np.id,pendingPhotoData);}savePlayers();closePlayerModal();renderSelect();}
+async function savePlayer(){
+  var name=document.getElementById('f-pname').value.trim();
+  if(!name){alert('El nombre es obligatorio.');return;}
+  var newPin=String(document.getElementById('f-ppin').value.trim()).slice(0,4);
+  var club=document.getElementById('f-pclub').value.trim();
+  var pos=document.getElementById('f-ppos').value.trim();
+  var aw=+document.getElementById('f-pweek').value;
+  var photo=pendingPhotoData||'';
+  showSyncStatus('saving');
+  if(editingPlayerId){
+    var upd={name:name,club:club,pos:pos,active_week:aw};
+    if(newPin)upd.pin=newPin;
+    if(pendingPhotoData)upd.photo_url=photo;
+    var r=await sb.from('players').update(upd).eq('id',editingPlayerId);
+    if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
+    var idx=PLAYERS.findIndex(function(p){return p.id===editingPlayerId;});
+    if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=club;PLAYERS[idx].pos=pos;if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=photo;PLAYERS[idx].activeWeek=aw;}
+  }else{
+    var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw}).select('id').single();
+    if(ins.error){showSyncStatus('error');alert('Error al crear: '+ins.error.message);return;}
+    PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw});
+  }
+  showSyncStatus('ok');closePlayerModal();renderSelect();
+}
 
 // \u2500\u2500 TABS \u2500\u2500
 function showTab(name){
@@ -1276,7 +1072,7 @@ function showTab(name){
   ['screen-week','screen-msg','screen-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=(id==='screen-'+name)?'block':'none';});
   document.querySelectorAll('.atab').forEach(function(t){t.classList.remove('active');});
   var tabEl=document.getElementById('atab-'+name);if(tabEl)tabEl.classList.add('active');
-  if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('reset-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);renderLib();}
+  if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);renderLib();}
   if(name==='week'){weekViewW=cW;renderWeekView();}
   if(name==='msg')renderMessages();
   if(name==='summary')renderSummary();
@@ -1395,7 +1191,24 @@ function renderLib(){
 function filterLib(f,el){activeLibFilter=f;document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');renderLib();}
 function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=ex?'Editar Ejercicio':'Nuevo Ejercicio';document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';document.getElementById('modal-lib').classList.add('open');}
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
-function saveLibExercise(){var name=document.getElementById('f-name').value.trim();if(!name){alert('El nombre es obligatorio.');return;}var obj={id:editingLibId||('lib_'+Date.now()),name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim()};if(editingLibId){var idx=LIB.findIndex(function(e){return e.id===editingLibId;});if(idx>=0)LIB[idx]=obj;}else LIB.push(obj);saveLib();closeLibModal();renderLib();}
+async function saveLibExercise(){
+  var name=document.getElementById('f-name').value.trim();
+  if(!name){alert('El nombre es obligatorio.');return;}
+  var fields={name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim()};
+  showSyncStatus('saving');
+  if(editingLibId){
+    var r=await sb.from('exercises').update(fields).eq('id',editingLibId);
+    if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+    var idx=LIB.findIndex(function(e){return e.id===editingLibId;});
+    if(idx>=0){for(var k in fields)LIB[idx][k]=fields[k];}
+  }else{
+    var payload={trainer_id:MY_UID,is_base:false};for(var k in fields)payload[k]=fields[k];
+    var ins=await sb.from('exercises').insert(payload).select('*').single();
+    if(ins.error){showSyncStatus('error');alert('Error: '+ins.error.message);return;}
+    LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',is_base:false});
+  }
+  showSyncStatus('ok');closeLibModal();renderLib();
+}
 function editLibEx(id){openLibModal(id);}
 function openCopyDayModal(){
   if(!isCoach||!currentPlayerId)return;
@@ -1432,14 +1245,39 @@ function executeCopyDay(){
   var sourceDay=PLAN[cW][cD];
   JB_PLANS[targetPid][targetW][targetD].blocks=JSON.parse(JSON.stringify(sourceDay.blocks));
   // Guardar localmente y sincronizar con el bin de planes
-  localStorage.setItem('pablo_plans_cache',JSON.stringify(JB_PLANS));
-  savePlansRemote();
+  savePlan(targetPid,JB_PLANS[targetPid]);
   closeCopyDayModal();
   // Show confirmation
   var btn=document.querySelector('#copy-day-btn button');
   if(btn){var orig=btn.innerHTML;btn.innerHTML='✅ Copiado!';btn.style.color='var(--mob)';setTimeout(function(){btn.innerHTML=orig;btn.style.color='';},2500);}
 }
 
+function importLibFromFile(input){
+  var file=input.files&&input.files[0];
+  input.value='';
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    var arr;
+    try{arr=JSON.parse(reader.result);}catch(e){alert('El archivo no es un JSON valido.');return;}
+    if(!Array.isArray(arr)||!arr.length){alert('El archivo no tiene ejercicios.');return;}
+    if(!confirm('Esto reemplaza TODA tu biblioteca por el archivo ('+arr.length+' ejercicios). Tus planes NO se tocan. Continuar?'))return;
+    doImportLib(arr);
+  };
+  reader.readAsText(file);
+}
+async function doImportLib(arr){
+  showSyncStatus('saving');
+  var del=await sb.from('exercises').delete().eq('is_base',true).eq('trainer_id',MY_UID);
+  if(del.error){showSyncStatus('error');alert('Error al limpiar la biblioteca: '+del.error.message);return;}
+  var payload=arr.map(function(x){return {trainer_id:MY_UID,is_base:true,name:String(x.name||'').trim(),type:x.type||'mob',load:x.load||'',note:x.note||'',link:x.link||'',img:x.img||''};}).filter(function(x){return x.name;});
+  var ins=await sb.from('exercises').insert(payload).select('id');
+  if(ins.error){showSyncStatus('error');alert('Error al importar: '+ins.error.message);return;}
+  var exr=await sb.from('exercises').select('*').order('type');
+  if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',is_base:e.is_base};});
+  showSyncStatus('ok');renderLib();
+  alert('Listo! Biblioteca actualizada: '+payload.length+' ejercicios.');
+}
 function exportLib(){
   try{
     var data=JSON.stringify(LIB,null,2);
@@ -1457,13 +1295,17 @@ function exportLib(){
 
 function resetLib(){
   if(!isCoach)return;
-  LIB=JSON.parse(JSON.stringify(DEFAULT_LIB));
-  saveLib();
-  renderLib();
+  alert('La restauración no está disponible en esta versión.');return;
   var btn=document.getElementById('reset-lib-btn');
   if(btn){var orig=btn.textContent;btn.textContent='✓ Restaurada';setTimeout(function(){btn.textContent='↺ Restaurar';},2000);}
 }
-function delLibEx(id){LIB=LIB.filter(function(e){return e.id!==id;});saveLib();renderLib();}
+async function delLibEx(id){
+  showSyncStatus('saving');
+  var r=await sb.from('exercises').delete().eq('id',id);
+  if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+  LIB=LIB.filter(function(e){return e.id!==id;});
+  showSyncStatus('ok');renderLib();
+}
 
 function renderWeekView(){
   if(!currentPlayerId||!PLAN||!PLAN.length)return;
@@ -1502,7 +1344,7 @@ function renderMessages(){
   }).join('');
   document.getElementById('msg-content').innerHTML=html;
 }
-function buildMsg(p,dayIdx){var lbl=DMETA[dayIdx]||('D\u00eda '+(dayIdx+1));return 'Hola '+p.name+' \ud83d\udc4b\n\n\ud83c\udfcb\ufe0f Hoy es d\u00eda de entrenamiento!\n\ud83d\udccb '+lbl+'\n\nEntr\u00e1 a tu plan ac\u00e1:\n\ud83d\udc49 app.pdpersonaltrainer.com\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 Pablo PT \ud83d\udcaa';}
+function buildMsg(p,dayIdx){var lbl=DMETA[dayIdx]||('D\u00eda '+(dayIdx+1));var link=location.origin+location.pathname+'?profe='+(TRAINER_ID||'');return 'Hola '+p.name+' \ud83d\udc4b\n\n\ud83c\udfcb\ufe0f Hoy es d\u00eda de entrenamiento!\n\ud83d\udccb '+lbl+'\n\nEntr\u00e1 a tu plan ac\u00e1:\n\ud83d\udc49 '+link+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 Pablo PT \ud83d\udcaa';}
 function selectMsgDay(pid,day){msgSelectedDays[pid]=day;renderMessages();}
 function copyMsg(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]||0);if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}});}else{var ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}}}
 function sendWA(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]||0);window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
