@@ -405,7 +405,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
     <div class="hdr">
       <div class="hdr-left">
         <div id="hdr-av-wrap-week"></div>
-        <div><div class="hdr-name" id="hdr-name-week">Jugador</div><div class="hdr-sub">Vista Semanal</div></div>
+        <div><div class="hdr-name" id="hdr-name-week">Jugador</div><div class="hdr-sub">Calendario</div></div>
       </div>
       <div class="hdr-right">
         <div id="hdr-badge-week" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;padding:4px 10px;border-radius:4px;background:var(--w1);color:#0a0b0e;">SEM 1</div>
@@ -414,8 +414,15 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
     </div>
   </header>
   <div class="week-view-content">
-    <div class="week-selector-row" id="week-chips"></div>
-    <div id="week-day-cards"></div>
+    <div style="display:flex;gap:8px;max-width:540px;margin:0 auto 12px;padding:0 13px;">
+      <button id="vm-month" onclick="setWeekMode('month')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--mob);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">&#x1F4C5; Mes</button>
+      <button id="vm-week" onclick="setWeekMode('week')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">&#x1F4CB; Semana</button>
+    </div>
+    <div id="month-view" style="max-width:1100px;margin:0 auto;padding:0 10px 24px;"></div>
+    <div id="week-classic" style="display:none;">
+      <div class="week-selector-row" id="week-chips"></div>
+      <div id="week-day-cards"></div>
+    </div>
   </div>
 </div>
 
@@ -445,7 +452,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
 <div class="app-tabs hidden" id="app-tabs">
   <div class="tabs-row">
     <div class="atab active" id="atab-plan" onclick="showTab('plan')"><div class="atab-icon">&#x1F4CB;</div><div class="atab-lbl">Plan</div></div>
-    <div class="atab" id="atab-week" onclick="showTab('week')"><div class="atab-icon">&#x1F4C5;</div><div class="atab-lbl">Semana</div></div>
+    <div class="atab" id="atab-week" onclick="showTab('week')"><div class="atab-icon">&#x1F4C5;</div><div class="atab-lbl">Calendario</div></div>
     <div class="atab" id="atab-lib" onclick="showTab('lib')" style="display:none"><div class="atab-icon">&#x1F4DA;</div><div class="atab-lbl">Biblioteca</div></div>
     <div class="atab" id="atab-msg" onclick="showTab('msg')" style="display:none"><div class="atab-icon">&#x1F4AC;</div><div class="atab-lbl">Mensajes</div></div>
     <div class="atab" id="atab-summary" onclick="showTab('summary')" style="display:none"><div class="atab-icon">&#x1F4CA;</div><div class="atab-lbl">Resumen</div></div>
@@ -1107,7 +1114,7 @@ function renderPlan(){
   var pillsH=day.pills.map(function(p){return '<div class="pill">'+p+'</div>';}).join('');
   var blocksH=day.blocks.map(function(b,bi){return renderBlock(b,bi,cW,cD);}).join('');
   var addBBtn=isCoach?'<button class="add-block-btn" onclick="openAddBlockModal()">+ Agregar bloque</button>':'';
-  document.getElementById('plan-content').innerHTML='<div class="fadein"><div class="hero hero-'+wm.col+'"><div class="hero-over" style="color:'+wm.badge+'">Semana '+(cW+1)+' \u00b7 '+wm.lbl+' \u2014 D\u00eda '+(cD+1)+'</div><div class="hero-title">'+day.title+'</div><div class="hero-pat">'+day.pattern+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn+'</div>';
+  document.getElementById('plan-content').innerHTML='<div class="fadein"><div class="hero hero-'+wm.col+'"><div class="hero-over" style="color:'+wm.badge+'">Semana '+(cW+1)+' \u00b7 '+wm.lbl+' \u2014 D\u00eda '+(cD+1)+_fch+'</div><div class="hero-title">'+day.title+'</div><div class="hero-pat">'+day.pattern+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn+'</div>';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function setW(i){cW=i;cD=0;renderPlan();}
@@ -1317,25 +1324,65 @@ async function delLibEx(id){
   showSyncStatus('ok');renderLib();
 }
 
+var weekViewMode='month',monthCursor=null,_monthPid=null;
 function renderWeekView(){
   if(!currentPlayerId||!PLAN||!PLAN.length)return;
-  var wm=WMETA[weekViewW];
-  var badge=document.getElementById('hdr-badge-week');if(badge){badge.textContent='SEM '+(weekViewW+1);badge.style.background=wm.badge;}
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
   if(p){document.getElementById('hdr-name-week').textContent=p.name;var avw=document.getElementById('hdr-av-wrap-week');if(avw)avw.innerHTML=p.photo?'<img class="hdr-avatar" src="'+p.photo+'"/>':'<div class="hdr-avatar-ph">\ud83d\udc64</div>';}
+  var mb=document.getElementById('vm-month'),wb=document.getElementById('vm-week');
+  if(mb&&wb){mb.style.background=(weekViewMode==='month')?'var(--mob)':'var(--s2)';mb.style.color=(weekViewMode==='month')?'#0a0b0e':'var(--muted)';wb.style.background=(weekViewMode==='week')?'var(--mob)':'var(--s2)';wb.style.color=(weekViewMode==='week')?'#0a0b0e':'var(--muted)';}
+  var mvEl=document.getElementById('month-view'),wcEl=document.getElementById('week-classic');
+  if(mvEl)mvEl.style.display=(weekViewMode==='month')?'block':'none';
+  if(wcEl)wcEl.style.display=(weekViewMode==='month')?'none':'block';
+  if(weekViewMode==='month'){renderMonthView(p);return;}
+  var wm=WMETA[weekViewW];
+  var badge=document.getElementById('hdr-badge-week');if(badge){badge.textContent='SEM '+(weekViewW+1);badge.style.background=wm.badge;}
   var chips=WMETA.map(function(wm2,i){return '<div class="week-chip'+(i===weekViewW?' active':'')+'" data-w="'+i+'" onclick="setWeekView(+this.dataset.w)">'+('0'+(i+1)).slice(-2)+' '+wm2.lbl+'</div>';}).join('');
   document.getElementById('week-chips').innerHTML=chips;
   var cards=PLAN[weekViewW].map(function(day,di){
-    var allDone=false,someDay=false;
     var savedChecks=JB_CHECKS[currentPlayerId]||{};
     var total=day.blocks.length,done=0;
     for(var bi=0;bi<total;bi++){var key=weekViewW+'-'+di+'-'+bi;if(savedChecks[key]&&savedChecks[key].done)done++;}
-    allDone=total>0&&done===total;someDay=done>0&&!allDone;
+    var allDone=total>0&&done===total,someDay=done>0&&!allDone;
     var dCls=allDone?' completed':'';var sIcon=allDone?'\u2713':(someDay?'~':'');
     var editBtn=isCoach?'<button class="day-edit-btn" data-w="'+weekViewW+'" data-d="'+di+'" onclick="event.stopPropagation();openDayEditModal(+this.dataset.w,+this.dataset.d)">\u270f\ufe0f</button>':'';
     return '<div class="day-card'+dCls+'" data-w="'+weekViewW+'" data-d="'+di+'" onclick="goToDayFromWeek(+this.dataset.w,+this.dataset.d)"><div class="day-card-num">D'+(di+1)+'</div><div class="day-card-info"><div class="day-card-lbl">'+DMETA[di]+'</div><div class="day-card-name">'+day.title+'</div><div class="day-card-pat">'+day.pattern+'</div>'+(p&&p.startDate?'<div class="day-card-pat" style="color:var(--mob);margin-top:2px;">\ud83d\udcc5 '+fmtWD(p.startDate,weekViewW,di)+'</div>':'')+'</div><div class="day-card-status">'+sIcon+'</div>'+editBtn+'</div>';
   }).join('');
   document.getElementById('week-day-cards').innerHTML=cards;
+}
+function setWeekMode(m){weekViewMode=m;renderWeekView();}
+function moveMonth(delta){if(!monthCursor)monthCursor=new Date();monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+delta,1);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
+function openDayFromCalendar(w,d){goToDayFromWeek(w,d);}
+function renderMonthView(p){
+  var cont=document.getElementById('month-view');if(!cont)return;
+  if(!p||!p.startDate){cont.innerHTML='<div style="text-align:center;color:var(--muted2);padding:34px 16px;font-size:13px;line-height:1.6;">Asign\u00e1 una <b>fecha de inicio</b> a este jugador (bot\u00f3n <b>Editar</b> en la lista de jugadores) para ver su calendario.</div>';return;}
+  var sp=String(p.startDate).split('-');var start=new Date(+sp[0],+sp[1]-1,+sp[2]);
+  if(!monthCursor||_monthPid!==currentPlayerId){monthCursor=new Date(start.getFullYear(),start.getMonth(),1);_monthPid=currentPlayerId;}
+  var y=monthCursor.getFullYear(),mo=monthCursor.getMonth();
+  var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var startWd=(new Date(y,mo,1).getDay()+6)%7;
+  var dim=new Date(y,mo+1,0).getDate();
+  var header='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px;"><button onclick="moveMonth(-1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u2039</button><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;letter-spacing:0.04em;text-transform:uppercase;">'+meses[mo]+' '+y+'</div><button onclick="moveMonth(1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u203a</button></div>';
+  var dows=['Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b','Dom'];
+  var dowH='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">'+dows.map(function(dn){return '<div style="text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);font-weight:700;">'+dn+'</div>';}).join('')+'</div>';
+  var cells='';
+  for(var i=0;i<startWd;i++)cells+='<div></div>';
+  for(var dnum=1;dnum<=dim;dnum++){
+    var cellDate=new Date(y,mo,dnum);
+    var diff=Math.round((cellDate-start)/86400000);
+    var head='<div style="font-weight:700;font-size:13px;margin-bottom:3px;">'+dnum+'</div>';
+    if(diff>=0&&diff<28&&(diff%7)<=4){
+      var w=Math.floor(diff/7),d=diff%7;var day=PLAN[w][d];var wm=WMETA[w];
+      var bl=day.blocks.slice(0,4).map(function(b){return '<div style="font-size:10px;color:var(--muted);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(b.title||'')+'</div>';}).join('');
+      var more=day.blocks.length>4?'<div style="font-size:9px;color:var(--muted2);">+'+(day.blocks.length-4)+' m\u00e1s</div>':'';
+      cells+='<div onclick="openDayFromCalendar('+w+','+d+')" style="cursor:pointer;background:var(--s2);border-left:3px solid '+wm.badge+';border-radius:8px;padding:6px 7px;min-height:96px;overflow:hidden;">'+head+'<div style="font-size:11px;font-weight:700;color:'+wm.badge+';line-height:1.25;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+day.title+'</div>'+bl+more+'</div>';
+    } else if(diff>=0&&diff<28){
+      cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;">'+head+'<div style="font-size:11px;color:var(--muted2);">Libre</div></div>';
+    } else {
+      cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;opacity:0.45;">'+head+'</div>';
+    }
+  }
+  cont.innerHTML=header+dowH+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
 }
 function setWeekView(w){weekViewW=w;renderWeekView();}
 function goToDayFromWeek(w,d){cW=w;cD=d;showTab('plan');renderPlan();}
