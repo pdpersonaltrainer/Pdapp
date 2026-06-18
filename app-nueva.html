@@ -384,7 +384,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
-  <div class="lib-topbar"><div class="lib-topbar-inner"><h2>Ejercicios</h2><div style="display:flex;gap:6px;"><button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button><button class="add-lib-btn hidden" id="reset-lib-btn" onclick="resetLib()" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">&#x21BA; Restaurar</button><button class="add-lib-btn hidden" id="export-lib-btn" onclick="exportLib()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2193; Backup</button></div></div></div>
+  <div class="lib-topbar"><div class="lib-topbar-inner"><h2>Ejercicios</h2><div style="display:flex;gap:6px;"><button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button><button class="add-lib-btn hidden" id="import-lib-btn" onclick="document.getElementById('lib-file-input').click()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2191; Importar</button><input type="file" id="lib-file-input" accept=".json,application/json" style="display:none" onchange="importLibFromFile(this)"/><button class="add-lib-btn hidden" id="export-lib-btn" onclick="exportLib()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2193; Backup</button></div></div></div>
   <div style="max-width:540px;margin:0 auto;padding:8px 13px 0;">
   <input type="text" id="lib-search" placeholder="Buscar ejercicio..." oninput="filterLibSearch()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;" />
 </div>
@@ -1072,7 +1072,7 @@ function showTab(name){
   ['screen-week','screen-msg','screen-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=(id==='screen-'+name)?'block':'none';});
   document.querySelectorAll('.atab').forEach(function(t){t.classList.remove('active');});
   var tabEl=document.getElementById('atab-'+name);if(tabEl)tabEl.classList.add('active');
-  if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('reset-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);renderLib();}
+  if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);renderLib();}
   if(name==='week'){weekViewW=cW;renderWeekView();}
   if(name==='msg')renderMessages();
   if(name==='summary')renderSummary();
@@ -1252,6 +1252,32 @@ function executeCopyDay(){
   if(btn){var orig=btn.innerHTML;btn.innerHTML='✅ Copiado!';btn.style.color='var(--mob)';setTimeout(function(){btn.innerHTML=orig;btn.style.color='';},2500);}
 }
 
+function importLibFromFile(input){
+  var file=input.files&&input.files[0];
+  input.value='';
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    var arr;
+    try{arr=JSON.parse(reader.result);}catch(e){alert('El archivo no es un JSON valido.');return;}
+    if(!Array.isArray(arr)||!arr.length){alert('El archivo no tiene ejercicios.');return;}
+    if(!confirm('Esto reemplaza TODA tu biblioteca por el archivo ('+arr.length+' ejercicios). Tus planes NO se tocan. Continuar?'))return;
+    doImportLib(arr);
+  };
+  reader.readAsText(file);
+}
+async function doImportLib(arr){
+  showSyncStatus('saving');
+  var del=await sb.from('exercises').delete().eq('is_base',true).eq('trainer_id',MY_UID);
+  if(del.error){showSyncStatus('error');alert('Error al limpiar la biblioteca: '+del.error.message);return;}
+  var payload=arr.map(function(x){return {trainer_id:MY_UID,is_base:true,name:String(x.name||'').trim(),type:x.type||'mob',load:x.load||'',note:x.note||'',link:x.link||'',img:x.img||''};}).filter(function(x){return x.name;});
+  var ins=await sb.from('exercises').insert(payload).select('id');
+  if(ins.error){showSyncStatus('error');alert('Error al importar: '+ins.error.message);return;}
+  var exr=await sb.from('exercises').select('*').order('type');
+  if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',is_base:e.is_base};});
+  showSyncStatus('ok');renderLib();
+  alert('Listo! Biblioteca actualizada: '+payload.length+' ejercicios.');
+}
 function exportLib(){
   try{
     var data=JSON.stringify(LIB,null,2);
