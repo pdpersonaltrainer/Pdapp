@@ -466,7 +466,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
     <div class="form-row"><label>Nombre</label><input type="text" id="f-pname" placeholder="Ej: Lionel Messi"/></div>
     <div class="form-row"><label>Club</label><input type="text" id="f-pclub" placeholder="Ej: Inter Miami"/></div>
     <div class="form-row"><label>Posición</label><input type="text" id="f-ppos" placeholder="Ej: Delantero · N10"/></div>
-    <div class="form-row"><label>Semana activa</label><select id="f-pweek" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="0">Semana 1 · Reeducación</option><option value="1">Semana 2 · Base I/MA</option><option value="2">Semana 3 · Fuerza</option><option value="3">Semana 4 · Fza+F.Expl.</option></select></div><div class="form-row"><label>PIN del jugador (4 dígitos)</label><input type="tel" id="f-ppin" placeholder="Ej: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:0.2em;font-size:18px;text-align:center;"/></div>
+    <div class="form-row"><label>Semana activa</label><select id="f-pweek" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="0">Semana 1 · Reeducación</option><option value="1">Semana 2 · Base I/MA</option><option value="2">Semana 3 · Fuerza</option><option value="3">Semana 4 · Fza+F.Expl.</option></select></div><div class="form-row"><label>Fecha de inicio (Semana 1, D&iacute;a 1)</label><input type="date" id="f-pstart" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/></div><div class="form-row"><label>PIN del jugador (4 dígitos)</label><input type="tel" id="f-ppin" placeholder="Ej: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:0.2em;font-size:18px;text-align:center;"/></div>
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closePlayerModal()">Cancelar</button>
       <button class="mbtn mbtn-save" onclick="savePlayer()">Guardar</button>
@@ -655,7 +655,7 @@ function showSyncStatus(state){
 async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0};});
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||''};});
   var plr=await sb.from('plans').select('player_id,weeks');
   if(plr.error)throw plr.error;
   JB_PLANS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;});
@@ -736,7 +736,7 @@ async function logout(){await sb.auth.signOut();location.reload();}
 async function loadPlayerData(tid){
   var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0};});
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||''};});
   if(PLAYERS.length===0)throw new Error('Link sin jugadores o invalido.');
   var plr=await sb.from('plans').select('player_id,weeks').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
@@ -993,7 +993,7 @@ function updatePlayerPinDots(){for(var i=0;i<4;i++){var d=document.getElementByI
 function checkPlayerPin(){var p=PLAYERS.find(function(x){return x.id===pendingSelectPid;});var stored=p?String(p.pin||'').trim():'';var entered=String(playerPinBuffer).trim();if(p&&stored===entered&&entered.length===4){var pid=pendingSelectPid;closePlayerPinModal();doSelectPlayer(pid);}else{for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}}
 
 // \u2500\u2500 PLAYER MODAL \u2500\u2500
-function openPlayerModal(id){editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Jugador':'Nuevo Jugador';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';document.getElementById('f-ppos').value=p?(p.pos||''):'';document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pweek').value=p?(p.activeWeek||0):0;var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
+function openPlayerModal(id){editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Jugador':'Nuevo Jugador';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';document.getElementById('f-ppos').value=p?(p.pos||''):'';document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pweek').value=p?(p.activeWeek||0):0;document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
 function closePlayerModal(){document.getElementById('modal-player').classList.remove('open');editingPlayerId=null;pendingPhotoData=null;}
 function editPlayer(id){openPlayerModal(id);}
 async function delPlayer(id){
@@ -1046,20 +1046,21 @@ async function savePlayer(){
   var club=document.getElementById('f-pclub').value.trim();
   var pos=document.getElementById('f-ppos').value.trim();
   var aw=+document.getElementById('f-pweek').value;
+  var startDate=document.getElementById('f-pstart').value||null;
   var photo=pendingPhotoData||'';
   showSyncStatus('saving');
   if(editingPlayerId){
-    var upd={name:name,club:club,pos:pos,active_week:aw};
+    var upd={name:name,club:club,pos:pos,active_week:aw,start_date:startDate};
     if(newPin)upd.pin=newPin;
     if(pendingPhotoData)upd.photo_url=photo;
     var r=await sb.from('players').update(upd).eq('id',editingPlayerId);
     if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
     var idx=PLAYERS.findIndex(function(p){return p.id===editingPlayerId;});
-    if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=club;PLAYERS[idx].pos=pos;if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=photo;PLAYERS[idx].activeWeek=aw;}
+    if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=club;PLAYERS[idx].pos=pos;if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=photo;PLAYERS[idx].activeWeek=aw;PLAYERS[idx].startDate=startDate;}
   }else{
-    var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw}).select('id').single();
+    var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw,start_date:startDate}).select('id').single();
     if(ins.error){showSyncStatus('error');alert('Error al crear: '+ins.error.message);return;}
-    PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw});
+    PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw,startDate:startDate});
   }
   showSyncStatus('ok');closePlayerModal();renderSelect();
 }
@@ -1079,6 +1080,15 @@ function showTab(name){
 }
 
 // \u2500\u2500 PLAN \u2500\u2500
+function fmtWD(startISO,w,d){
+  if(!startISO)return '';
+  var pr=String(startISO).split('-');if(pr.length<3)return '';
+  var dt=new Date(+pr[0],+pr[1]-1,+pr[2]);
+  dt.setDate(dt.getDate()+w*7+d);
+  var dias=['Dom','Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b'];
+  var mes=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return dias[dt.getDay()]+' '+dt.getDate()+' '+mes[dt.getMonth()];
+}
 function renderPlan(){
   var dayKey=cW+'-'+cD;if(lastCheckedDay!==dayKey){checkState={};lastCheckedDay=dayKey;loadCheckState();}
   var wm=WMETA[cW];
@@ -1088,7 +1098,7 @@ function renderPlan(){
   var dt='';for(var j=0;j<5;j++){var dac=(j===cD)?'act-day':'';dt+='<div class="dtab '+dac+'" onclick="setD('+j+')"><span class="dtab-n">D'+(j+1)+'</span><span class="dtab-l">'+DMETA[j]+'</span></div>';}
   document.getElementById('day-tabs').innerHTML=dt;
   document.getElementById('nwlbl').textContent='Semana '+(cW+1)+' \u00b7 '+wm.lbl;
-  document.getElementById('ndlbl').textContent='D\u00eda '+(cD+1)+' \u2014 '+DFULL[cD];
+  var _plp=PLAYERS.find(function(x){return x.id===currentPlayerId;});var _fch=(_plp&&_plp.startDate)?(' \u00b7 '+fmtWD(_plp.startDate,cW,cD)):'';document.getElementById('ndlbl').textContent='D\u00eda '+(cD+1)+' \u2014 '+DFULL[cD]+_fch;
   document.getElementById('btn-prev').disabled=(cW===0&&cD===0);
   document.getElementById('btn-next').disabled=(cW===3&&cD===4);
   var copyBtn=document.getElementById('copy-day-btn');
@@ -1323,7 +1333,7 @@ function renderWeekView(){
     allDone=total>0&&done===total;someDay=done>0&&!allDone;
     var dCls=allDone?' completed':'';var sIcon=allDone?'\u2713':(someDay?'~':'');
     var editBtn=isCoach?'<button class="day-edit-btn" data-w="'+weekViewW+'" data-d="'+di+'" onclick="event.stopPropagation();openDayEditModal(+this.dataset.w,+this.dataset.d)">\u270f\ufe0f</button>':'';
-    return '<div class="day-card'+dCls+'" data-w="'+weekViewW+'" data-d="'+di+'" onclick="goToDayFromWeek(+this.dataset.w,+this.dataset.d)"><div class="day-card-num">D'+(di+1)+'</div><div class="day-card-info"><div class="day-card-lbl">'+DMETA[di]+'</div><div class="day-card-name">'+day.title+'</div><div class="day-card-pat">'+day.pattern+'</div></div><div class="day-card-status">'+sIcon+'</div>'+editBtn+'</div>';
+    return '<div class="day-card'+dCls+'" data-w="'+weekViewW+'" data-d="'+di+'" onclick="goToDayFromWeek(+this.dataset.w,+this.dataset.d)"><div class="day-card-num">D'+(di+1)+'</div><div class="day-card-info"><div class="day-card-lbl">'+DMETA[di]+'</div><div class="day-card-name">'+day.title+'</div><div class="day-card-pat">'+day.pattern+'</div>'+(p&&p.startDate?'<div class="day-card-pat" style="color:var(--mob);margin-top:2px;">\ud83d\udcc5 '+fmtWD(p.startDate,weekViewW,di)+'</div>':'')+'</div><div class="day-card-status">'+sIcon+'</div>'+editBtn+'</div>';
   }).join('');
   document.getElementById('week-day-cards').innerHTML=cards;
 }
