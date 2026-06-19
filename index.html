@@ -1545,19 +1545,23 @@ function saveDayEdit(){if(!editingDayCoords||!currentPlayerId)return;var w=editi
 
 function renderMessages(){
   if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay jugadores.</p></div>';return;}
+  var todayISO=isoToday();
   var html=PLAYERS.map(function(p){
-    if(!msgSelectedDays[p.id])msgSelectedDays[p.id]=0;
+    var ss=JB_SESSIONS[p.id]||{};
+    var dates=Object.keys(ss).filter(function(k){return ss[k]&&ss[k].blocks&&ss[k].blocks.length;}).sort();
     var sel=msgSelectedDays[p.id];
-    var dayBtns=DMETA.map(function(d,i){return '<button class="msg-day-btn'+(i===sel?' active':'')+'" data-pid="'+p.id+'" data-day="'+i+'" onclick="selectMsgDay(this.dataset.pid,+this.dataset.day)">D'+(i+1)+'</button>';}).join('');
+    if(!sel||dates.indexOf(sel)<0){var up=dates.filter(function(d){return d>=todayISO;});sel=up.length?up[0]:(dates.length?dates[dates.length-1]:'');msgSelectedDays[p.id]=sel;}
+    if(!dates.length){return '<div class="msg-card"><div class="msg-pname">'+p.name+'</div><div style="font-size:12px;color:var(--muted2);padding:8px 0;">Sin entrenamientos cargados</div></div>';}
+    var selH='<select data-pid="'+p.id+'" onchange="selectMsgDay(this.dataset.pid,this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:10px;font-family:Barlow,sans-serif;font-size:13px;color:var(--text);outline:none;">'+dates.map(function(d){return '<option value="'+d+'"'+(d===sel?' selected':'')+'>'+fmtDateLong(d)+'</option>';}).join('')+'</select>';
     var msg=buildMsg(p,sel);
-    return '<div class="msg-card"><div class="msg-pname">'+p.name+'</div><div class="msg-days">'+dayBtns+'</div><div class="msg-preview" id="msg-prev-'+p.id+'">'+msg+'</div><div class="msg-btns"><button class="msg-copy" data-pid="'+p.id+'" onclick="copyMsg(this.dataset.pid)">\ud83d\udccb Copiar</button><button class="msg-wa" data-pid="'+p.id+'" onclick="sendWA(this.dataset.pid)">\ud83d\udcac WhatsApp</button></div><div class="msg-copied" id="msg-cop-'+p.id+'"></div></div>';
+    return '<div class="msg-card"><div class="msg-pname">'+p.name+'</div>'+selH+'<div class="msg-preview" id="msg-prev-'+p.id+'">'+msg+'</div><div class="msg-btns"><button class="msg-copy" data-pid="'+p.id+'" onclick="copyMsg(this.dataset.pid)">\ud83d\udccb Copiar</button><button class="msg-wa" data-pid="'+p.id+'" onclick="sendWA(this.dataset.pid)">\ud83d\udcac WhatsApp</button></div><div class="msg-copied" id="msg-cop-'+p.id+'"></div></div>';
   }).join('');
   document.getElementById('msg-content').innerHTML=html;
 }
-function buildMsg(p,dayIdx){var lbl=DMETA[dayIdx]||('D\u00eda '+(dayIdx+1));var link=location.origin+location.pathname+'?profe='+(TRAINER_ID||'');return 'Hola '+p.name+' \ud83d\udc4b\n\n\ud83c\udfcb\ufe0f Hoy es d\u00eda de entrenamiento!\n\ud83d\udccb '+lbl+'\n\nEntr\u00e1 a tu plan ac\u00e1:\n\ud83d\udc49 '+link+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 Pablo PT \ud83d\udcaa';}
+function buildMsg(p,iso){var ss=JB_SESSIONS[p.id]||{};var sess=ss[iso];var link=location.origin+location.pathname+'?profe='+(TRAINER_ID||'');var fecha=iso?fmtDateLong(iso):'';var titulo=(sess&&sess.title)?sess.title:'Entrenamiento';var bloques=(sess&&sess.blocks&&sess.blocks.length)?('\n'+sess.blocks.map(function(b){return '\u2022 '+(b.title||'');}).join('\n')+'\n'):'';return 'Hola '+p.name+' \ud83d\udc4b\n\n\ud83c\udfcb\ufe0f '+titulo+'\n\ud83d\udcc5 '+fecha+'\n'+bloques+'\nEntr\u00e1 a tu plan ac\u00e1:\n\ud83d\udc49 '+link+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 Pablo PT \ud83d\udcaa';}
 function selectMsgDay(pid,day){msgSelectedDays[pid]=day;renderMessages();}
-function copyMsg(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]||0);if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}});}else{var ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}}}
-function sendWA(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]||0);window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
+function copyMsg(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]);if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}});}else{var ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}}}
+function sendWA(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]);window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
 
 var summaryWeek={};
 function cycleSummaryWeek(pid){summaryWeek[pid]=(((summaryWeek[pid]||0)+1)%4);renderSummary();}
