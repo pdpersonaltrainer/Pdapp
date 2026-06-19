@@ -389,6 +389,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
   <div style="max-width:var(--cw);margin:0 auto;padding:8px 13px 0;">
   <input type="text" id="lib-search" placeholder="Buscar ejercicio..." oninput="filterLibSearch()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;" />
 </div>
+<div style="max-width:var(--cw);margin:0 auto;padding:8px 13px 0;"><select id="lib-pat-filter" onchange="setLibPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select></div>
 <div class="lib-filters">
     <div class="filter-chip active" onclick="filterLib('all',this)">Todos</div>
     <div class="filter-chip" onclick="filterLib('mob',this)">ED + Movilidad</div>
@@ -497,6 +498,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
         <option value="cam">Trabajo de Campo</option>
       </select>
     </div>
+    <div class="form-row"><label>Acción / Patrón de movimiento</label><select id="f-pattern"><option value="">Sin categoría</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select></div>
     <div class="form-row"><label>Series / Reps / Carga</label><input type="text" id="f-load" placeholder="Ej: 4x6 @80kg"/></div>
     <div class="form-row"><label>Nota técnica</label><textarea id="f-note" placeholder="Descripción, cues técnicos..."></textarea></div>
     <div class="form-row"><label>Video / Link</label><input type="url" id="f-link" placeholder="https://..."/></div>
@@ -513,6 +515,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
   <div class="modal">
     <div class="modal-handle"></div>
     <h3>Agregar desde Biblioteca</h3>
+    <select id="pick-pat-filter" onchange="setPickPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select>
     <div class="pick-list" id="pick-list"></div>
     <button class="mbtn mbtn-cancel" style="width:100%;margin-top:4px;" onclick="closePickModal()">Cerrar</button>
   </div>
@@ -672,7 +675,7 @@ async function loadAllFromSupabase(){
   JB_CHECKS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};});
   var exr=await sb.from('exercises').select('*').order('type');
   if(exr.error)throw exr.error;
-  LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',is_base:e.is_base};});
+  LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base};});
 }
 
 function loadPlayersCache(){return [];}
@@ -1171,14 +1174,12 @@ function editBlockField(el){
   input.addEventListener('keydown', function(e){if(e.key==='Enter')save();if(e.key==='Escape'){PLAN[w][d].blocks[b][field]=current;renderPlan();}});
 }
 
-function filterLibSearch(){
-  var q=document.getElementById('lib-search').value.toLowerCase().trim();
-  var labels={mob:'ED + Movilidad',act:'Activacion',fza:'Fuerza',exp:'Explosivos',cam:'Campo'};
-  var items=activeLibFilter==='all'?LIB:LIB.filter(function(e){return e.type===activeLibFilter;});
-  if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||e.note.toLowerCase().indexOf(q)>=0;});
-  if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">🔍</div><p>Sin resultados.</p></div>';return;}
-  document.getElementById('lib-grid').innerHTML=items.map(function(e){var imgH=e.img?'<img class="lib-card-img" src="'+e.img+'" />':'<div class="lib-card-img-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var actions=isCoach?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':'';return '<div class="lib-card">'+imgH+'<div class="lib-card-body"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span></div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+actions+'</div></div>';}).join('');
-}
+var PATTERNS=[['dr_bi','Dominante rodilla · Bi'],['dr_uni','Dominante rodilla · Uni'],['dc_bi','Dominante cadera · Bi'],['dc_uni','Dominante cadera · Uni'],['eh_bi','Empuje horizontal · Bi'],['eh_uni','Empuje horizontal · Uni'],['ev_bi','Empuje vertical · Bi'],['ev_uni','Empuje vertical · Uni'],['th','Tracción horizontal'],['tv','Tracción vertical'],['s2','Salto 2 piernas'],['s1','Salto 1 pierna']];
+var PATLABEL={};PATTERNS.forEach(function(x){PATLABEL[x[0]]=x[1];});
+var activePattern='',pickPattern='';
+function filterLibSearch(){renderLib();}
+function setLibPattern(v){activePattern=v;renderLib();}
+
 function delEx(w,d,b,e){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs.splice(e,1);savePlan(currentPlayerId,PLAN);renderPlan();}
 function updateLoad(input){var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs[e].l=input.value;savePlan(currentPlayerId,PLAN);}
 
@@ -1196,23 +1197,31 @@ function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState
 function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();renderPlan();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
-function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};var items=LIB.slice();if(!items.length){alert('La biblioteca est\u00e1 vac\u00eda.');return;}document.getElementById('pick-list').innerHTML=items.map(function(e){return '<div class="pick-item" data-lid="'+e.id+'" onclick="addFromLib(this.dataset.lid)"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div></div><div class="pick-add">+</div></div>';}).join('');document.getElementById('modal-pick').classList.add('open');}
+function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};if(!LIB.length){alert('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
+function setPickPattern(v){pickPattern=v;renderPickList();}
+function renderPickList(){var items=LIB.slice();if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';return '<div class="pick-item" data-lid="'+e.id+'" onclick="addFromLib(this.dataset.lid)"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div><div class="pick-add">+</div></div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">Sin ejercicios en esta acci\u00f3n.</div>';}
+
 function closePickModal(){document.getElementById('modal-pick').classList.remove('open');pickTarget=null;}
 function addFromLib(id){if(!pickTarget||!currentPlayerId)return;var ex=LIB.find(function(e){return e.id===id;});if(!ex)return;PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});savePlan(currentPlayerId,PLAN);closePickModal();renderPlan();}
 
 function renderLib(){
   var labels={mob:'ED + Movilidad',act:'Activaci\u00f3n',fza:'Fuerza',exp:'Explosivos',cam:'Campo'};
-  var items=activeLibFilter==='all'?LIB:LIB.filter(function(e){return e.type===activeLibFilter;});
-  if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcad</div><p>Sin ejercicios.</p></div>';return;}
-  document.getElementById('lib-grid').innerHTML=items.map(function(e){var imgH=e.img?'<img class="lib-card-img" src="'+e.img+'" />':'<div class="lib-card-img-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var actions=isCoach?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':'';return '<div class="lib-card">'+imgH+'<div class="lib-card-body"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span></div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+actions+'</div></div>';}).join('');
+  var qEl=document.getElementById('lib-search');var q=qEl?qEl.value.toLowerCase().trim():'';
+  var items=LIB.slice();
+  if(activeLibFilter!=='all')items=items.filter(function(e){return e.type===activeLibFilter;});
+  if(activePattern)items=items.filter(function(e){return e.pattern===activePattern;});
+  if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.note||'').toLowerCase().indexOf(q)>=0;});
+  if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udd0d</div><p>Sin resultados.</p></div>';return;}
+  document.getElementById('lib-grid').innerHTML=items.map(function(e){var imgH=e.img?'<img class="lib-card-img" src="'+e.img+'" />':'<div class="lib-card-img-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var actions=isCoach?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':'';return '<div class="lib-card">'+imgH+'<div class="lib-card-body"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+actions+'</div></div>';}).join('');
 }
+
 function filterLib(f,el){activeLibFilter=f;document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');renderLib();}
-function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=ex?'Editar Ejercicio':'Nuevo Ejercicio';document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';document.getElementById('modal-lib').classList.add('open');}
+function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=ex?'Editar Ejercicio':'Nuevo Ejercicio';document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';document.getElementById('f-pattern').value=ex&&ex.pattern?ex.pattern:'';document.getElementById('modal-lib').classList.add('open');}
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
 async function saveLibExercise(){
   var name=document.getElementById('f-name').value.trim();
   if(!name){alert('El nombre es obligatorio.');return;}
-  var fields={name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim()};
+  var fields={name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim(),pattern:document.getElementById('f-pattern').value||null};
   showSyncStatus('saving');
   if(editingLibId){
     var r=await sb.from('exercises').update(fields).eq('id',editingLibId);
@@ -1223,7 +1232,7 @@ async function saveLibExercise(){
     var payload={trainer_id:MY_UID,is_base:false};for(var k in fields)payload[k]=fields[k];
     var ins=await sb.from('exercises').insert(payload).select('*').single();
     if(ins.error){showSyncStatus('error');alert('Error: '+ins.error.message);return;}
-    LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',is_base:false});
+    LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',pattern:ins.data.pattern||null,is_base:false});
   }
   showSyncStatus('ok');closeLibModal();renderLib();
 }
@@ -1288,11 +1297,11 @@ async function doImportLib(arr){
   showSyncStatus('saving');
   var del=await sb.from('exercises').delete().eq('is_base',true).eq('trainer_id',MY_UID);
   if(del.error){showSyncStatus('error');alert('Error al limpiar la biblioteca: '+del.error.message);return;}
-  var payload=arr.map(function(x){return {trainer_id:MY_UID,is_base:true,name:String(x.name||'').trim(),type:x.type||'mob',load:x.load||'',note:x.note||'',link:x.link||'',img:x.img||''};}).filter(function(x){return x.name;});
+  var payload=arr.map(function(x){return {trainer_id:MY_UID,is_base:true,name:String(x.name||'').trim(),type:x.type||'mob',load:x.load||'',note:x.note||'',link:x.link||'',img:x.img||'',pattern:x.pattern||null};}).filter(function(x){return x.name;});
   var ins=await sb.from('exercises').insert(payload).select('id');
   if(ins.error){showSyncStatus('error');alert('Error al importar: '+ins.error.message);return;}
   var exr=await sb.from('exercises').select('*').order('type');
-  if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',is_base:e.is_base};});
+  if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base};});
   showSyncStatus('ok');renderLib();
   alert('Listo! Biblioteca actualizada: '+payload.length+' ejercicios.');
 }
