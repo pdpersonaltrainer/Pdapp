@@ -329,13 +329,13 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <div id="screen-select">
   <div class="select-header">
     <div class="select-brand"><img src="logo-bg.png" class="select-logo" alt="PDapp" onerror="this.style.display='none'"><div><h1>PDapp</h1><p>Personal Trainer · Fútbol Élite</p></div></div>
-    <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Jugador</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button>
+    <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Alumno</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button>
   </div>
   <div class="select-body">
     <div class="select-title">Quién sos?</div>
     <div class="select-sub">Seleccióná tu nombre para ver tu plan.</div>
     <div class="players-grid" id="players-grid"></div>
-    <button class="add-player-btn hidden" id="add-player-btn" onclick="openPlayerModal()">+ Agregar jugador</button>
+    <button class="add-player-btn hidden" id="add-player-btn" onclick="openPlayerModal()">+ Agregar alumno</button>
     <button class="add-player-btn hidden" id="cleanup-btn" onclick="limpiarFotosPesadas()" style="border-color:rgba(255,77,77,0.3);color:#ff7043;margin-top:8px;">&#x1F9F9; Limpiar fotos pesadas (destrabar sync)</button>
   </div>
 </div>
@@ -349,7 +349,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <div class="welcome-ring"></div>
     </div>
     <div class="welcome-tag">Off-Season 2025</div>
-    <div class="welcome-name" id="welcome-name">Jugador</div>
+    <div class="welcome-name" id="welcome-name">Alumno</div>
     <div class="welcome-sub" id="welcome-sub">Plan personalizado · Pablo PT</div>
     <button class="welcome-btn" onclick="enterPlan()">Ver mi plan</button>
   </div>
@@ -362,7 +362,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="hdr">
       <div class="hdr-left">
         <div id="hdr-av-wrap"></div>
-        <div><div class="hdr-name" id="hdr-name">Jugador</div><div class="hdr-sub">Off-Season 2025</div></div>
+        <div><div class="hdr-name" id="hdr-name">Alumno</div><div class="hdr-sub">Off-Season 2025</div></div>
       </div>
       <div class="hdr-right">
         <div id="hdr-badge">SEM 1</div>
@@ -379,7 +379,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <button class="narrow" id="btn-next" onclick="navigate(1)">Sig</button>
   </div>
   <div id="copy-day-btn" style="display:none;max-width:var(--cw);margin:0 auto;padding:0 13px 8px;">
-    <button onclick="openCopyDayModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">&#x274F; Copiar este día a otro jugador</button>
+    <button onclick="openCopyDayModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">&#x274F; Copiar este día a otro alumno</button>
   </div>
   <div id="copy-date-btn" style="display:none;max-width:var(--cw);margin:0 auto;padding:0 13px 8px;">
     <button onclick="openCopyDateModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">&#x1F4C5; Copiar este día a otra fecha</button>
@@ -416,7 +416,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="hdr">
       <div class="hdr-left">
         <div id="hdr-av-wrap-week"></div>
-        <div><div class="hdr-name" id="hdr-name-week">Jugador</div><div class="hdr-sub">Calendario</div></div>
+        <div><div class="hdr-name" id="hdr-name-week">Alumno</div><div class="hdr-sub">Calendario</div></div>
       </div>
       <div class="hdr-right">
         <div id="hdr-badge-week" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;padding:4px 10px;border-radius:4px;background:var(--w1);color:#0a0b0e;">SEM 1</div>
@@ -441,7 +441,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <div id="screen-msg" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
-      <div class="hdr-left"><div><div class="hdr-name">Recordatorios</div><div class="hdr-sub">Mensajes para jugadores</div></div></div>
+      <div class="hdr-left"><div><div class="hdr-name">Recordatorios</div><div class="hdr-sub">Mensajes para alumnos</div></div></div>
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
@@ -452,7 +452,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <div id="screen-summary" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
-      <div class="hdr-left"><div><div class="hdr-name">Resumen Coach</div><div class="hdr-sub">Estado de todos los jugadores</div></div></div>
+      <div class="hdr-left"><div><div class="hdr-name">Resumen Coach</div><div class="hdr-sub">Estado de todos los alumnos</div></div></div>
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
@@ -474,7 +474,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <div class="modal-overlay" id="modal-player">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h3 id="modal-player-title">Nuevo Jugador</h3>
+    <h3 id="modal-player-title">Nuevo Alumno</h3>
     <div class="avatar-upload-row">
       <div class="av-preview" id="av-preview">&#x1F464;</div>
       <label class="av-upload-btn" for="photo-input">&#x1F4F7; Subir foto</label>
@@ -484,7 +484,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="form-row"><label>Nombre</label><input type="text" id="f-pname" placeholder="Ej: Lionel Messi"/></div>
     <div class="form-row"><label>Club</label><input type="text" id="f-pclub" placeholder="Ej: Inter Miami"/></div>
     <div class="form-row"><label>Posición</label><input type="text" id="f-ppos" placeholder="Ej: Delantero · N10"/></div>
-    <div class="form-row"><label>Semana activa</label><select id="f-pweek" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="0">Semana 1 · Reeducación</option><option value="1">Semana 2 · Base I/MA</option><option value="2">Semana 3 · Fuerza</option><option value="3">Semana 4 · Fza+F.Expl.</option></select></div><div class="form-row"><label>Fecha de inicio (Semana 1, D&iacute;a 1)</label><input type="date" id="f-pstart" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/></div><div class="form-row"><label>PIN del jugador (4 dígitos)</label><input type="tel" id="f-ppin" placeholder="Ej: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:0.2em;font-size:18px;text-align:center;"/></div>
+    <div class="form-row"><label>Semana activa</label><select id="f-pweek" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="0">Semana 1 · Reeducación</option><option value="1">Semana 2 · Base I/MA</option><option value="2">Semana 3 · Fuerza</option><option value="3">Semana 4 · Fza+F.Expl.</option></select></div><div class="form-row"><label>Fecha de inicio (Semana 1, D&iacute;a 1)</label><input type="date" id="f-pstart" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/></div><div class="form-row"><label>PIN del alumno (4 dígitos)</label><input type="tel" id="f-ppin" placeholder="Ej: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:0.2em;font-size:18px;text-align:center;"/></div>
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closePlayerModal()">Cancelar</button>
       <button class="mbtn mbtn-save" onclick="savePlayer()">Guardar</button>
@@ -586,10 +586,10 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <div class="modal-overlay" id="modal-copy-day">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h3>Copiar día a otro jugador</h3>
+    <h3>Copiar día a otro alumno</h3>
     <div id="copy-day-info" style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
     <div class="form-row">
-      <label>Jugador destino</label>
+      <label>Alumno destino</label>
       <select id="copy-target-player" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"></select>
     </div>
     <div class="form-row">
@@ -645,7 +645,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div id="day-actions-info" style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
     <button class="da-opt" onclick="dayActionOpen()">📋 Abrir / editar este día</button>
     <button class="da-opt" onclick="dayActionCopyDate()">📅 Copiar a otra fecha</button>
-    <button class="da-opt" onclick="dayActionCopyPlayer()">👥 Copiar a otro jugador</button>
+    <button class="da-opt" onclick="dayActionCopyPlayer()">👥 Copiar a otro alumno</button>
     <div class="modal-btns" style="margin-top:4px;">
       <button class="mbtn mbtn-cancel" onclick="closeDayActions()">Cancelar</button>
     </div>
@@ -837,7 +837,7 @@ async function loadPlayerData(tid){
   var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
   if(pr.error)throw pr.error;
   PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||''};});
-  if(PLAYERS.length===0)throw new Error('Link sin jugadores o invalido.');
+  if(PLAYERS.length===0)throw new Error('Link sin alumnos o invalido.');
   var plr=await sb.from('plans').select('player_id,weeks').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
   JB_PLANS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;});
@@ -1021,7 +1021,7 @@ var LIB=[];
 // \u2500\u2500 SELECT SCREEN \u2500\u2500
 function renderSelect(){
   var g=document.getElementById('players-grid');
-  if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><div class="emi">\u26bd</div><p>'+(isCoach?'Sin jugadores. Agrega\u0301 el primero.':'Sin jugadores cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);var cb=document.getElementById('cleanup-btn');if(cb)cb.classList.toggle('hidden',!isCoach);return;}
+  if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><div class="emi">\u26bd</div><p>'+(isCoach?'Sin alumnos. Agrega\u0301 el primero.':'Sin alumnos cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);var cb=document.getElementById('cleanup-btn');if(cb)cb.classList.toggle('hidden',!isCoach);return;}
   g.innerHTML=PLAYERS.map(function(p){
     var av=p.photo?'<div class="player-photo"><img src="'+p.photo+'"/></div>':'<div class="player-photo">\ud83d\udc64</div>';
     var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'Off-Season 2025';
@@ -1074,7 +1074,7 @@ function goBack(){
 // \u2500\u2500 COACH MODE \u2500\u2500
 function toggleMode(){if(isCoach)deactivateCoach();else activateCoach();}
 function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});renderSelect();if(currentPlayerId)renderPlan();}
-function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Jugador';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
+function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
 
 // \u2500\u2500 COACH PIN \u2500\u2500
 function openPinModal(){pinBuffer='';updatePinDots();document.getElementById('pin-overlay').classList.add('open');}
@@ -1093,11 +1093,11 @@ function updatePlayerPinDots(){for(var i=0;i<4;i++){var d=document.getElementByI
 function checkPlayerPin(){var p=PLAYERS.find(function(x){return x.id===pendingSelectPid;});var stored=p?String(p.pin||'').trim():'';var entered=String(playerPinBuffer).trim();if(p&&stored===entered&&entered.length===4){var pid=pendingSelectPid;closePlayerPinModal();doSelectPlayer(pid);}else{for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}}
 
 // \u2500\u2500 PLAYER MODAL \u2500\u2500
-function openPlayerModal(id){editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Jugador':'Nuevo Jugador';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';document.getElementById('f-ppos').value=p?(p.pos||''):'';document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pweek').value=p?(p.activeWeek||0):0;document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
+function openPlayerModal(id){editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Alumno':'Nuevo Alumno';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';document.getElementById('f-ppos').value=p?(p.pos||''):'';document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pweek').value=p?(p.activeWeek||0):0;document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
 function closePlayerModal(){document.getElementById('modal-player').classList.remove('open');editingPlayerId=null;pendingPhotoData=null;}
 function editPlayer(id){openPlayerModal(id);}
 async function delPlayer(id){
-  if(!confirm('¿Eliminar este jugador? Se borran también su plan y progreso.'))return;
+  if(!confirm('¿Eliminar este alumno? Se borran también su plan y progreso.'))return;
   showSyncStatus('saving');
   var r=await sb.from('players').delete().eq('id',id);
   if(r.error){showSyncStatus('error');alert('Error al eliminar: '+r.error.message);return;}
@@ -1213,7 +1213,7 @@ function renderPlan(){
   } else {
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn;
-    if(isCoach){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px 8px;"><button onclick="openDuplicateModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">\ud83d\udcc5 Duplicar a otra fecha / jugador</button></div>';}
+    if(isCoach){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px 8px;"><button onclick="openDuplicateModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">\ud83d\udcc5 Duplicar a otra fecha / alumno</button></div>';}
   }
   document.getElementById('plan-content').innerHTML='<div class="fadein">'+body+'</div>';
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1348,7 +1348,7 @@ function openCopyDayModal(){
     return '<option value="'+p.id+'">'+p.name+'</option>';
   }).join('');
   if(!sel.options.length){
-    alert('No hay otros jugadores para copiar.');
+    alert('No hay otros alumnos para copiar.');
     return;
   }
   document.getElementById('modal-copy-day').classList.add('open');
@@ -1363,7 +1363,7 @@ function executeCopyDay(){
   var targetW=+document.getElementById('copy-target-week').value;
   var targetD=+document.getElementById('copy-target-day').value;
   if(!targetPid)return;
-  // Asegurar que el plan del jugador destino este en JB_PLANS
+  // Asegurar que el plan del alumno destino este en JB_PLANS
   if(!JB_PLANS[targetPid]){
     JB_PLANS[targetPid]=JSON.parse(JSON.stringify(defaultData()));
   }
@@ -1409,7 +1409,7 @@ function openDuplicateModal(){
   var sObj=getCurSession(false);
   if(!sObj||!sObj.blocks||!sObj.blocks.length){alert('Este día no tiene entrenamiento para duplicar.');return;}
   document.getElementById('dup-info').textContent='Duplicando: '+fmtDateLong(curDate)+' \u2014 '+(sObj.title||'Entrenamiento');
-  var opts=PLAYERS.map(function(pp){return '<option value="'+pp.id+'"'+(pp.id===currentPlayerId?' selected':'')+'>'+pp.name+(pp.id===currentPlayerId?' (este jugador)':'')+'</option>';}).join('');
+  var opts=PLAYERS.map(function(pp){return '<option value="'+pp.id+'"'+(pp.id===currentPlayerId?' selected':'')+'>'+pp.name+(pp.id===currentPlayerId?' (este alumno)':'')+'</option>';}).join('');
   document.getElementById('dup-player').innerHTML=opts;
   document.getElementById('dup-date').value=addDaysISO(curDate,7);
   document.getElementById('modal-duplicate').classList.add('open');
@@ -1418,7 +1418,7 @@ function closeDuplicateModal(){document.getElementById('modal-duplicate').classL
 function executeDuplicate(){
   var tgtPid=document.getElementById('dup-player').value;
   var tgtDate=document.getElementById('dup-date').value;
-  if(!tgtPid||!tgtDate){alert('Eleg\u00ed jugador y fecha destino.');return;}
+  if(!tgtPid||!tgtDate){alert('Eleg\u00ed alumno y fecha destino.');return;}
   var sObj=getCurSession(false);if(!sObj)return;
   var ss=sessionsOf(tgtPid);
   ss[tgtDate]=JSON.parse(JSON.stringify(sObj));
@@ -1544,7 +1544,7 @@ function closeDayEditModal(){document.getElementById('modal-edit-day').classList
 function saveDayEdit(){if(!editingDayCoords||!currentPlayerId)return;var w=editingDayCoords.w,d=editingDayCoords.d;var n=document.getElementById('f-day-name').value.trim();var pat=document.getElementById('f-day-pattern').value.trim();var lbl=document.getElementById('f-day-label').value.trim();if(n)PLAN[w][d].title=n;if(pat)PLAN[w][d].pattern=pat;if(lbl)DMETA[d]=lbl;commitSession();closeDayEditModal();renderWeekView();renderPlan();}
 
 function renderMessages(){
-  if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay jugadores.</p></div>';return;}
+  if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
   var todayISO=isoToday();
   var html=PLAYERS.map(function(p){
     var ss=JB_SESSIONS[p.id]||{};
@@ -1566,7 +1566,7 @@ function sendWA(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)r
 var summaryWeek={};
 function cycleSummaryWeek(pid){summaryWeek[pid]=(((summaryWeek[pid]||0)+1)%4);renderSummary();}
 function renderSummary(){
-  if(!PLAYERS.length){document.getElementById('summary-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcca</div><p>No hay jugadores.</p></div>';return;}
+  if(!PLAYERS.length){document.getElementById('summary-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcca</div><p>No hay alumnos.</p></div>';return;}
   var html=PLAYERS.map(function(p){
     var avH=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">\ud83d\udc64</div>';
     var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'Off-Season 2025';
