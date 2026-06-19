@@ -553,7 +553,8 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <h3>Editar Día</h3>
     <div class="form-row"><label>Nombre del día</label><input type="text" id="f-day-name" placeholder="Ej: Empuje Dominante de Rodillas"/></div>
     <div class="form-row"><label>Patrón / Descripción</label><input type="text" id="f-day-pattern" placeholder="Ej: Squat / Bilateral / Cuádriceps"/></div>
-    <div class="form-row"><label>Etiqueta corta (tab)</label><input type="text" id="f-day-label" placeholder="Ej: Empuje Rod." maxlength="12"/></div>
+    <div class="form-row"><label>Datos del día (RPE, bloques, duración — separá con coma)</label><input type="text" id="f-day-pills" placeholder="Ej: RPE 6-7, 3 bloques, ~75 min"/></div>
+    <button onclick="deleteSession()" style="width:100%;padding:11px;border-radius:var(--rsm);border:1px solid rgba(255,77,77,0.35);background:rgba(255,77,77,0.08);color:#ff6b6b;font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;margin-bottom:10px;">🗑️ Borrar entrenamiento de este día</button>
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closeDayEditModal()">Cancelar</button>
       <button class="mbtn mbtn-save" onclick="saveDayEdit()">Guardar</button>
@@ -1213,7 +1214,7 @@ function renderPlan(){
   } else {
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn;
-    if(isCoach){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px 8px;"><button onclick="openDuplicateModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">\ud83d\udcc5 Duplicar a otra fecha / alumno</button></div>';}
+    if(isCoach&&sess){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;"><button onclick="openDayEditModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;">✏️ Editar día</button></div><div style="max-width:var(--cw);margin:0 auto;padding:0 13px 8px;"><button onclick="openDuplicateModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">\ud83d\udcc5 Duplicar a otra fecha / alumno</button></div>';}
   }
   document.getElementById('plan-content').innerHTML='<div class="fadein">'+body+'</div>';
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1222,7 +1223,7 @@ function setW(i){}
 function setD(j){}
 function navigate(dir){curDate=addDaysISO(curDate||isoToday(),dir);lastCheckedDay=null;renderPlan();}
 function openDate(iso){curDate=iso;lastCheckedDay=null;showTab('plan');renderPlan();}
-function editSessionTitle(){if(!isCoach)return;var sObj=getCurSession(true);var v=prompt('Nombre del entrenamiento:',sObj.title||'');if(v!==null){sObj.title=v.trim()||'Entrenamiento';PLAN[0][0]=sObj;commitSession();renderPlan();}}
+function editSessionTitle(){openDayEditModal();}
 
 // ── BLOCKS ──
 function toggleBlock(el){el.closest('.bcard').classList.toggle('open');}
@@ -1519,6 +1520,7 @@ function renderMonthView(p){
   var header='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px;"><button onclick="moveMonth(-1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u2039</button><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;letter-spacing:0.04em;text-transform:uppercase;">'+meses[mo]+' '+y+'</div><button onclick="moveMonth(1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u203a</button></div>';
   var dows=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   var dowH='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">'+dows.map(function(dn){return '<div style="text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);font-weight:700;">'+dn+'</div>';}).join('')+'</div>';
+  var todayBtn='<div style="text-align:center;margin-bottom:10px;"><button onclick="goToToday()" style="padding:5px 16px;border-radius:14px;border:1px solid var(--border2);background:var(--s2);color:var(--mob);cursor:pointer;font-size:11px;font-family:Barlow Condensed,sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Hoy</button></div>';
   var cells='';
   for(var i=0;i<startWd;i++)cells+='<div></div>';
   for(var dnum=1;dnum<=dim;dnum++){
@@ -1529,19 +1531,22 @@ function renderMonthView(p){
     if(day&&day.blocks&&day.blocks.length){
       var bl=day.blocks.slice(0,4).map(function(b){return '<div style="font-size:10px;color:var(--muted);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(b.title||'')+'</div>';}).join('');
       var more=day.blocks.length>4?'<div style="font-size:9px;color:var(--muted2);">+'+(day.blocks.length-4)+' más</div>':'';
-      cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'overflow:hidden;">'+head+'<div style="font-size:11px;font-weight:700;color:var(--mob);line-height:1.25;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(day.title||'Entrenamiento')+'</div>'+bl+more+'</div>';
+      var _ch=JB_CHECKS[p.id]||{};var _tot=day.blocks.length,_dn=0;for(var _bi=0;_bi<_tot;_bi++){if(_ch[iso+'-'+_bi]&&_ch[iso+'-'+_bi].done)_dn++;}var st=(_tot>0&&_dn===_tot)?'<span style="float:right;color:var(--mob);font-weight:800;">✓</span>':(_dn>0?'<span style="float:right;color:var(--act);font-weight:800;">~</span>':'');
+      cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'overflow:hidden;"><div style="font-weight:700;font-size:13px;margin-bottom:3px;">'+dnum+st+'</div><div style="font-size:11px;font-weight:700;color:var(--mob);line-height:1.25;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(day.title||'Entrenamiento')+'</div>'+bl+more+'</div>';
     } else if(isCoach){
       cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'display:flex;flex-direction:column;">'+head+'<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:20px;opacity:0.45;">+</div></div>';
     } else {
       cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'">'+head+'</div>';
     }
   }
-  cont.innerHTML=header+dowH+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
+  cont.innerHTML=header+todayBtn+dowH+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
 }
 function goToDayFromWeek(iso){openDate(iso);}
-function openDayEditModal(w,d){if(!isCoach)return;editingDayCoords={w:w,d:d};var day=PLAN[w][d];document.getElementById('f-day-name').value=day.title||'';document.getElementById('f-day-pattern').value=day.pattern||'';document.getElementById('f-day-label').value=DMETA[d]||'';document.getElementById('modal-edit-day').classList.add('open');}
-function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');editingDayCoords=null;}
-function saveDayEdit(){if(!editingDayCoords||!currentPlayerId)return;var w=editingDayCoords.w,d=editingDayCoords.d;var n=document.getElementById('f-day-name').value.trim();var pat=document.getElementById('f-day-pattern').value.trim();var lbl=document.getElementById('f-day-label').value.trim();if(n)PLAN[w][d].title=n;if(pat)PLAN[w][d].pattern=pat;if(lbl)DMETA[d]=lbl;commitSession();closeDayEditModal();renderWeekView();renderPlan();}
+function openDayEditModal(){if(!isCoach||!currentPlayerId)return;var sObj=getCurSession(false)||{title:'',pattern:'',pills:[]};document.getElementById('f-day-name').value=sObj.title||'';document.getElementById('f-day-pattern').value=sObj.pattern||'';document.getElementById('f-day-pills').value=(sObj.pills||[]).join(', ');document.getElementById('modal-edit-day').classList.add('open');}
+function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');}
+function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);sObj.title=document.getElementById('f-day-name').value.trim()||'Entrenamiento';sObj.pattern=document.getElementById('f-day-pattern').value.trim();var pr=document.getElementById('f-day-pills').value.trim();sObj.pills=pr?pr.split(',').map(function(x){return x.trim();}).filter(Boolean):[];PLAN[0][0]=sObj;commitSession();closeDayEditModal();renderPlan();}
+function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;if(!confirm('¿Borrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.'))return;var ss=sessionsOf(currentPlayerId);delete ss[curDate];var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();renderPlan();}
+function goToToday(){var d=new Date();calCursor=new Date(d.getFullYear(),d.getMonth(),1);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
 
 function renderMessages(){
   if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
