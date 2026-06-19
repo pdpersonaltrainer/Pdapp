@@ -652,6 +652,21 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-duplicate">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Duplicar entrenamiento</h3>
+    <div id="dup-info" style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
+    <div class="form-row"><label>Copiar a</label><select id="dup-player" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"></select></div>
+    <div class="form-row"><label>Fecha destino</label><input type="date" id="dup-date" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div style="background:rgba(249,200,70,0.08);border:1px solid rgba(249,200,70,0.20);border-radius:var(--rsm);padding:10px 12px;font-size:11px;color:var(--act);margin-bottom:14px;">⚠️ Reemplaza lo que haya en la fecha destino. Los checks y RPE no se copian.</div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeDuplicateModal()">Cancelar</button>
+      <button class="mbtn mbtn-save" onclick="executeDuplicate()">Duplicar</button>
+    </div>
+  </div>
+</div>
+
 <!-- COACH PIN -->
 <div class="pin-overlay" id="pin-overlay">
   <div class="pin-box" id="pin-box">
@@ -689,6 +704,7 @@ var TSUBS={mob:'Tobillo \u00b7 Cadera \u00b7 Movilidad',act:'Bandas \u00b7 Activ
 
 var isCoach=false,cW=0,cD=0,currentTab='plan',currentPlayerId=null,activePid=null,PLAN=[],pendingPhotoData=null,editingLibId=null,editingPlayerId=null,pickTarget=null,activeLibFilter='all',weekViewW=0,editingDayCoords=null,pendingSelectPid=null,playerPinBuffer='',pinBuffer='',msgSelectedDays={};
 var checkState={},lastCheckedDay=null;
+var curDate=null,calCursor=null;
 
 // ── JSONBIN CONFIG ──  bin guarda: { players:[...], checks:{"pid":{"w-d-b":{done,rpe,note}}} }
 var JB_CHECKS={};
@@ -751,15 +767,40 @@ function addDaysISO(iso,n){var p=String(iso).split('-');var dt=new Date(+p[0],+p
 function buildSessionsFromWeeks(weeks,startISO){var out={};if(!startISO||!weeks)return out;for(var w=0;w<weeks.length;w++){for(var d=0;d<weeks[w].length;d++){var iso=addDaysISO(startISO,w*7+d);out[iso]=JSON.parse(JSON.stringify(weeks[w][d]));}}return out;}
 function saveSessions(pid){showSyncStatus('saving');sb.from('plans').update({sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()}).eq('player_id',pid).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);});}
 async function migrateAllSessions(){for(var i=0;i<PLAYERS.length;i++){var pp=PLAYERS[i];var ex=JB_SESSIONS[pp.id];if(ex&&Object.keys(ex).length)continue;if(!pp.startDate)continue;var weeks=JB_PLANS[pp.id];if(!weeks)continue;var sess=buildSessionsFromWeeks(weeks,pp.startDate);JB_SESSIONS[pp.id]=sess;try{await sb.from('plans').update({sessions:sess,updated_at:new Date().toISOString()}).eq('player_id',pp.id);}catch(e){console.error('migrate',e);}}}
+var MES_ES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var DOW_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+function isoToday(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function isoToDate(iso){var pp=String(iso).split('-');return new Date(+pp[0],+pp[1]-1,+pp[2]);}
+function fmtDateLong(iso){var dt=isoToDate(iso);return DOW_ES[dt.getDay()]+' '+dt.getDate()+' '+MES_ES_L[dt.getMonth()]+' '+dt.getFullYear();}
+function fmtDateShort(iso){var dt=isoToDate(iso);return (DOW_ES[dt.getDay()]+' '+dt.getDate()).toUpperCase();}
+function sessionsOf(pid){if(!JB_SESSIONS[pid])JB_SESSIONS[pid]={};return JB_SESSIONS[pid];}
+function getCurSession(create){var ss=sessionsOf(currentPlayerId);var sObj=ss[curDate];if(!sObj&&create){sObj={title:'Entrenamiento',pattern:'',pills:[],blocks:[]};ss[curDate]=sObj;}return sObj;}
+function commitSession(){if(!currentPlayerId||!curDate)return;var ss=sessionsOf(currentPlayerId);ss[curDate]=PLAN[0][0];saveSessions(currentPlayerId);}
+function firstSessionDate(pid){var ss=JB_SESSIONS[pid];if(!ss)return null;var ks=Object.keys(ss).filter(function(k){return ss[k]&&ss[k].blocks&&ss[k].blocks.length;}).sort();return ks.length?ks[0]:null;}
+function migrateAllChecks(){
+  Object.keys(JB_CHECKS).forEach(function(pid){
+    var ch=JB_CHECKS[pid]||{};var keys=Object.keys(ch);if(!keys.length)return;
+    if(/^\d{4}-/.test(keys[0]))return;
+    var pl=PLAYERS.find(function(x){return x.id===pid;});if(!pl||!pl.startDate)return;
+    var out={};keys.forEach(function(k){var m=k.split('-');if(m.length<3)return;var w=+m[0],d=+m[1],b=m.slice(2).join('-');var iso=addDaysISO(pl.startDate,w*7+d);out[iso+'-'+b]=ch[k];});
+    JB_CHECKS[pid]=out;
+    sb.from('progress').update({checks:out,updated_at:new Date().toISOString()}).eq('player_id',pid).then(function(){});
+  });
+}
 function loadCheckState(){
-  if(!currentPlayerId)return;
-  checkState=JB_CHECKS[currentPlayerId]||{};
+  checkState={};
+  if(!currentPlayerId||!curDate)return;
+  var ch=JB_CHECKS[currentPlayerId]||{};
+  Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0){checkState['0-0-'+k.slice(curDate.length+1)]=ch[k];}});
 }
 function saveCheckState(){
-  if(!currentPlayerId)return;
-  JB_CHECKS[currentPlayerId]=checkState;
+  if(!currentPlayerId||!curDate)return;
+  if(!JB_CHECKS[currentPlayerId])JB_CHECKS[currentPlayerId]={};
+  var ch=JB_CHECKS[currentPlayerId];
+  Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});
+  Object.keys(checkState).forEach(function(k){ch[curDate+'-'+k.split('-')[2]]=checkState[k];});
   showSyncStatus('saving');
-  sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:checkState,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});
+  sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});
 }
 
 // \u2500\u2500 INIT \u2500\u2500
@@ -772,6 +813,7 @@ async function bootApp(){
   try{
     await loadAllFromSupabase();
     await migrateAllSessions();
+    migrateAllChecks();
     overlay.style.display='none';
     activateCoach();
   }catch(e){
@@ -1019,14 +1061,14 @@ function enterPlan(){
   document.getElementById('app-tabs').classList.remove('hidden');
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
   if(p){document.getElementById('hdr-name').textContent=p.name;var avw=document.getElementById('hdr-av-wrap');avw.innerHTML=p.photo?'<img class="hdr-avatar" src="'+p.photo+'"/>':'<div class="hdr-avatar-ph">\ud83d\udc64</div>';}
-  cW=0;cD=0;weekViewW=0;renderPlan();
+  curDate=firstSessionDate(currentPlayerId)||(p&&p.startDate)||isoToday();lastCheckedDay=null;cW=0;cD=0;weekViewW=0;renderPlan();
 }
 function goBack(){
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
   ['screen-week','screen-msg','screen-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   document.getElementById('screen-select').style.display='';
-  currentPlayerId=null;activePid=null;PLAN=[];checkState={};currentTab='plan';renderSelect();
+  currentPlayerId=null;activePid=null;PLAN=[];checkState={};curDate=null;calCursor=null;currentTab='plan';renderSelect();
 }
 
 // \u2500\u2500 COACH MODE \u2500\u2500
@@ -1148,33 +1190,41 @@ function fmtWD(startISO,w,d){
   return dias[dt.getDay()]+' '+dt.getDate()+' '+mes[dt.getMonth()];
 }
 function renderPlan(){
-  var dayKey=cW+'-'+cD;if(lastCheckedDay!==dayKey){checkState={};lastCheckedDay=dayKey;loadCheckState();}
-  var wm=WMETA[cW];
-  var badge=document.getElementById('hdr-badge');badge.textContent='SEM '+(cW+1);badge.style.background=wm.badge;
-  var wt='';for(var i=0;i<4;i++){var ac=(i===cW)?'border-bottom-color:'+WMETA[i].badge:'';var nc=(i===cW)?'color:'+WMETA[i].badge:'color:var(--muted2)';wt+='<div class="wtab" onclick="setW('+i+')" style="'+ac+'"><span class="wtab-n" style="'+nc+'">0'+(i+1)+'</span><span class="wtab-l" style="'+nc+'">'+WMETA[i].lbl+'</span></div>';}
-  document.getElementById('week-tabs').innerHTML=wt;
-  var dt='';for(var j=0;j<5;j++){var dac=(j===cD)?'act-day':'';dt+='<div class="dtab '+dac+'" onclick="setD('+j+')"><span class="dtab-n">D'+(j+1)+'</span><span class="dtab-l">'+DMETA[j]+'</span></div>';}
-  document.getElementById('day-tabs').innerHTML=dt;
-  document.getElementById('nwlbl').textContent='Semana '+(cW+1)+' \u00b7 '+wm.lbl;
-  var _plp=PLAYERS.find(function(x){return x.id===currentPlayerId;});var _fch=(_plp&&_plp.startDate)?(' \u00b7 '+fmtWD(_plp.startDate,cW,cD)):'';document.getElementById('ndlbl').textContent='D\u00eda '+(cD+1)+' \u2014 '+DFULL[cD]+_fch;
-  document.getElementById('btn-prev').disabled=(cW===0&&cD===0);
-  document.getElementById('btn-next').disabled=(cW===3&&cD===4);
-  var copyBtn=document.getElementById('copy-day-btn');
-  if(copyBtn)copyBtn.style.display=isCoach?'flex':'none';
-  var copyDateBtn=document.getElementById('copy-date-btn');
-  if(copyDateBtn)copyDateBtn.style.display=isCoach?'flex':'none';
-  var day=PLAN[cW][cD];
-  var pillsH=day.pills.map(function(p){return '<div class="pill">'+p+'</div>';}).join('');
-  var blocksH=day.blocks.map(function(b,bi){return renderBlock(b,bi,cW,cD);}).join('');
+  if(!curDate)curDate=isoToday();
+  if(lastCheckedDay!==curDate){checkState={};lastCheckedDay=curDate;loadCheckState();}
+  var wbar=document.querySelector('#screen-plan .week-bar');if(wbar)wbar.style.display='none';
+  var dbar=document.querySelector('#screen-plan .day-bar');if(dbar)dbar.style.display='none';
+  var cdb=document.getElementById('copy-day-btn');if(cdb)cdb.style.display='none';
+  var cdb2=document.getElementById('copy-date-btn');if(cdb2)cdb2.style.display='none';
+  var badge=document.getElementById('hdr-badge');if(badge){badge.textContent=fmtDateShort(curDate);badge.style.background='var(--mob)';badge.style.color='#0a0b0e';}
+  var sess=getCurSession(false);
+  var day=sess||{title:'Entrenamiento',pattern:'',pills:[],blocks:[]};
+  PLAN=[[day]];cW=0;cD=0;
+  var nw=document.getElementById('nwlbl');if(nw)nw.textContent=fmtDateLong(curDate);
+  var nd=document.getElementById('ndlbl');if(nd)nd.textContent=sess?(day.title||''):'Sin entrenamiento';
+  var bp=document.getElementById('btn-prev');if(bp)bp.disabled=false;
+  var bn=document.getElementById('btn-next');if(bn)bn.disabled=false;
+  var pillsH=(day.pills||[]).map(function(x){return '<div class="pill">'+x+'</div>';}).join('');
+  var blocksH=(day.blocks||[]).map(function(b,bi){return renderBlock(b,bi,0,0);}).join('');
   var addBBtn=isCoach?'<button class="add-block-btn" onclick="openAddBlockModal()">+ Agregar bloque</button>':'';
-  document.getElementById('plan-content').innerHTML='<div class="fadein"><div class="hero hero-'+wm.col+'"><div class="hero-over" style="color:'+wm.badge+'">Semana '+(cW+1)+' \u00b7 '+wm.lbl+' \u2014 D\u00eda '+(cD+1)+_fch+'</div><div class="hero-title">'+day.title+'</div><div class="hero-pat">'+day.pattern+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn+'</div>';
+  var body;
+  if(!sess&&!isCoach){
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">Día libre</div><div class="hero-pat">Sin entrenamiento asignado</div></div>';
+  } else {
+    var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn;
+    if(isCoach){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px 8px;"><button onclick="openDuplicateModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">\ud83d\udcc5 Duplicar a otra fecha / jugador</button></div>';}
+  }
+  document.getElementById('plan-content').innerHTML='<div class="fadein">'+body+'</div>';
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function setW(i){cW=i;cD=0;renderPlan();}
-function setD(j){cD=j;renderPlan();}
-function navigate(dir){var d=cD+dir,w=cW;if(d<0){w--;d=4;}if(d>4){w++;d=0;}if(w<0||w>3)return;cW=w;cD=d;renderPlan();}
+function setW(i){}
+function setD(j){}
+function navigate(dir){curDate=addDaysISO(curDate||isoToday(),dir);lastCheckedDay=null;renderPlan();}
+function openDate(iso){curDate=iso;lastCheckedDay=null;showTab('plan');renderPlan();}
+function editSessionTitle(){if(!isCoach)return;var sObj=getCurSession(true);var v=prompt('Nombre del entrenamiento:',sObj.title||'');if(v!==null){sObj.title=v.trim()||'Entrenamiento';PLAN[0][0]=sObj;commitSession();renderPlan();}}
 
-// \u2500\u2500 BLOCKS \u2500\u2500
+// ── BLOCKS ──
 function toggleBlock(el){el.closest('.bcard').classList.toggle('open');}
 function renderBlock(b,bi,wIdx,dIdx){
   var isC=isCoach;
@@ -1190,7 +1240,7 @@ function renderBlock(b,bi,wIdx,dIdx){
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
-function delBlock(w,d,b){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks.splice(b,1);savePlan(currentPlayerId,PLAN);renderPlan();}
+function delBlock(w,d,b){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks.splice(b,1);commitSession();renderPlan();}
 
 function moveBlock(w,d,b,dir){
   if(!isCoach||!currentPlayerId)return;
@@ -1200,7 +1250,7 @@ function moveBlock(w,d,b,dir){
   var tmp=blocks[b];
   blocks[b]=blocks[newIdx];
   blocks[newIdx]=tmp;
-  savePlan(currentPlayerId,PLAN);
+  commitSession();
   renderPlan();
 }
 
@@ -1216,7 +1266,7 @@ function editBlockField(el){
   input.select();
   function save(){
     PLAN[w][d].blocks[b][field]=input.value.trim()||current;
-    savePlan(currentPlayerId,PLAN);
+    commitSession();
     renderPlan();
   }
   input.addEventListener('blur', save);
@@ -1229,12 +1279,12 @@ var activePattern='',pickPattern='';
 function filterLibSearch(){renderLib();}
 function setLibPattern(v){activePattern=v;renderLib();}
 
-function delEx(w,d,b,e){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs.splice(e,1);savePlan(currentPlayerId,PLAN);renderPlan();}
-function updateLoad(input){var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs[e].l=input.value;savePlan(currentPlayerId,PLAN);}
+function delEx(w,d,b,e){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs.splice(e,1);commitSession();renderPlan();}
+function updateLoad(input){var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs[e].l=input.value;commitSession();}
 
 function openAddBlockModal(){document.getElementById('modal-add-block').classList.add('open');}
 function closeAddBlockModal(){document.getElementById('modal-add-block').classList.remove('open');}
-function addBlock(type){if(!isCoach||!currentPlayerId)return;var nb={t:type,title:TNAMES[type],sub:TSUBS[type],exs:[]};if(type==='cam')nb.campo=null;PLAN[cW][cD].blocks.push(nb);savePlan(currentPlayerId,PLAN);closeAddBlockModal();renderPlan();}
+function addBlock(type){if(!isCoach||!currentPlayerId)return;var nb={t:type,title:TNAMES[type],sub:TSUBS[type],exs:[]};if(type==='cam')nb.campo=null;PLAN[cW][cD].blocks.push(nb);commitSession();closeAddBlockModal();renderPlan();}
 
 function buildCheckArea(w,d,bi){
   var key=w+'-'+d+'-'+bi;var state=checkState[key]||{done:false,note:'',rpe:0};
@@ -1251,7 +1301,7 @@ function setPickPattern(v){pickPattern=v;renderPickList();}
 function renderPickList(){var items=LIB.slice();if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';return '<div class="pick-item" data-lid="'+e.id+'" onclick="addFromLib(this.dataset.lid)"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div><div class="pick-add">+</div></div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">Sin ejercicios en esta acci\u00f3n.</div>';}
 
 function closePickModal(){document.getElementById('modal-pick').classList.remove('open');pickTarget=null;}
-function addFromLib(id){if(!pickTarget||!currentPlayerId)return;var ex=LIB.find(function(e){return e.id===id;});if(!ex)return;PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});savePlan(currentPlayerId,PLAN);closePickModal();renderPlan();}
+function addFromLib(id){if(!pickTarget||!currentPlayerId)return;var ex=LIB.find(function(e){return e.id===id;});if(!ex)return;PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});commitSession();closePickModal();renderPlan();}
 
 function renderLib(){
   var labels={mob:'ED + Movilidad',act:'Activaci\u00f3n',fza:'Fuerza',exp:'Explosivos',cam:'Campo'};
@@ -1348,11 +1398,35 @@ function executeCopyDate(){
   var v=document.getElementById('copy-date-target').value;if(!v)return;
   var pr=v.split('-');var tw=+pr[0],td=+pr[1];
   PLAN[tw][td]=JSON.parse(JSON.stringify(PLAN[cW][cD]));
-  savePlan(currentPlayerId,PLAN);
+  commitSession();
   closeCopyDateModal();
   var btn=document.querySelector('#copy-date-btn button');
   if(btn){var orig=btn.innerHTML;btn.innerHTML='✅ Copiado a Sem '+(tw+1)+' D'+(td+1)+'!';btn.style.color='var(--mob)';setTimeout(function(){btn.innerHTML=orig;btn.style.color='';},2600);}
   if(currentTab==='week')renderWeekView();
+}
+function openDuplicateModal(){
+  if(!isCoach||!currentPlayerId)return;
+  var sObj=getCurSession(false);
+  if(!sObj||!sObj.blocks||!sObj.blocks.length){alert('Este día no tiene entrenamiento para duplicar.');return;}
+  document.getElementById('dup-info').textContent='Duplicando: '+fmtDateLong(curDate)+' \u2014 '+(sObj.title||'Entrenamiento');
+  var opts=PLAYERS.map(function(pp){return '<option value="'+pp.id+'"'+(pp.id===currentPlayerId?' selected':'')+'>'+pp.name+(pp.id===currentPlayerId?' (este jugador)':'')+'</option>';}).join('');
+  document.getElementById('dup-player').innerHTML=opts;
+  document.getElementById('dup-date').value=addDaysISO(curDate,7);
+  document.getElementById('modal-duplicate').classList.add('open');
+}
+function closeDuplicateModal(){document.getElementById('modal-duplicate').classList.remove('open');}
+function executeDuplicate(){
+  var tgtPid=document.getElementById('dup-player').value;
+  var tgtDate=document.getElementById('dup-date').value;
+  if(!tgtPid||!tgtDate){alert('Eleg\u00ed jugador y fecha destino.');return;}
+  var sObj=getCurSession(false);if(!sObj)return;
+  var ss=sessionsOf(tgtPid);
+  ss[tgtDate]=JSON.parse(JSON.stringify(sObj));
+  saveSessions(tgtPid);
+  closeDuplicateModal();
+  var pname=(PLAYERS.find(function(x){return x.id===tgtPid;})||{}).name||'';
+  alert('\u2705 Duplicado a '+pname+' \u00b7 '+fmtDateLong(tgtDate));
+  if(tgtPid===currentPlayerId){if(currentTab==='week')renderWeekView();else renderPlan();}
 }
 function importLibFromFile(input){
   var file=input.files&&input.files[0];
@@ -1411,87 +1485,63 @@ async function delLibEx(id){
 
 var weekViewMode='month',monthCursor=null,_monthPid=null;
 function renderWeekView(){
-  if(!currentPlayerId||!PLAN||!PLAN.length)return;
+  if(!currentPlayerId)return;
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
-  if(p){document.getElementById('hdr-name-week').textContent=p.name;var avw=document.getElementById('hdr-av-wrap-week');if(avw)avw.innerHTML=p.photo?'<img class="hdr-avatar" src="'+p.photo+'"/>':'<div class="hdr-avatar-ph">\ud83d\udc64</div>';}
+  if(p){var hn=document.getElementById('hdr-name-week');if(hn)hn.textContent=p.name;var avw=document.getElementById('hdr-av-wrap-week');if(avw)avw.innerHTML=p.photo?'<img class="hdr-avatar" src="'+p.photo+'"/>':'<div class="hdr-avatar-ph">\ud83d\udc64</div>';}
   var mb=document.getElementById('vm-month'),wb=document.getElementById('vm-week');
-  if(mb&&wb){mb.style.background=(weekViewMode==='month')?'var(--mob)':'var(--s2)';mb.style.color=(weekViewMode==='month')?'#0a0b0e':'var(--muted)';wb.style.background=(weekViewMode==='week')?'var(--mob)':'var(--s2)';wb.style.color=(weekViewMode==='week')?'#0a0b0e':'var(--muted)';}
+  if(mb)mb.style.display='none';
+  if(wb)wb.style.display='none';
   var mvEl=document.getElementById('month-view'),wcEl=document.getElementById('week-classic');
-  if(mvEl)mvEl.style.display=(weekViewMode==='month')?'block':'none';
-  if(wcEl)wcEl.style.display=(weekViewMode==='month')?'none':'block';
-  if(weekViewMode==='month'){renderMonthView(p);return;}
-  var wm=WMETA[weekViewW];
-  var badge=document.getElementById('hdr-badge-week');if(badge){badge.textContent='SEM '+(weekViewW+1);badge.style.background=wm.badge;}
-  var chips=WMETA.map(function(wm2,i){return '<div class="week-chip'+(i===weekViewW?' active':'')+'" data-w="'+i+'" onclick="setWeekView(+this.dataset.w)">'+('0'+(i+1)).slice(-2)+' '+wm2.lbl+'</div>';}).join('');
-  document.getElementById('week-chips').innerHTML=chips;
-  var cards=PLAN[weekViewW].map(function(day,di){
-    var savedChecks=JB_CHECKS[currentPlayerId]||{};
-    var total=day.blocks.length,done=0;
-    for(var bi=0;bi<total;bi++){var key=weekViewW+'-'+di+'-'+bi;if(savedChecks[key]&&savedChecks[key].done)done++;}
-    var allDone=total>0&&done===total,someDay=done>0&&!allDone;
-    var dCls=allDone?' completed':'';var sIcon=allDone?'\u2713':(someDay?'~':'');
-    var editBtn=isCoach?'<button class="day-edit-btn" data-w="'+weekViewW+'" data-d="'+di+'" onclick="event.stopPropagation();openDayEditModal(+this.dataset.w,+this.dataset.d)">\u270f\ufe0f</button>':'';
-    return '<div class="day-card'+dCls+'" data-w="'+weekViewW+'" data-d="'+di+'" onclick="goToDayFromWeek(+this.dataset.w,+this.dataset.d)"><div class="day-card-num">D'+(di+1)+'</div><div class="day-card-info"><div class="day-card-lbl">'+DMETA[di]+'</div><div class="day-card-name">'+day.title+'</div><div class="day-card-pat">'+day.pattern+'</div>'+(p&&p.startDate?'<div class="day-card-pat" style="color:var(--mob);margin-top:2px;">\ud83d\udcc5 '+fmtWD(p.startDate,weekViewW,di)+'</div>':'')+'</div><div class="day-card-status">'+sIcon+'</div>'+editBtn+'</div>';
-  }).join('');
-  document.getElementById('week-day-cards').innerHTML=cards;
+  if(mvEl)mvEl.style.display='block';
+  if(wcEl)wcEl.style.display='none';
+  var badge=document.getElementById('hdr-badge-week');if(badge){badge.textContent='CALENDARIO';badge.style.background='var(--mob)';badge.style.color='#0a0b0e';}
+  renderMonthView(p);
 }
-function setWeekMode(m){weekViewMode=m;renderWeekView();}
-function moveMonth(delta){if(!monthCursor)monthCursor=new Date();monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+delta,1);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
-var calCopyMode=null,dayActionsCoords=null;
-function openDayFromCalendar(w,d){
-  if(calCopyMode){var sw=calCopyMode.w,sd=calCopyMode.d;if(sw===w&&sd===d){calCopyMode=null;renderWeekView();return;}PLAN[w][d]=JSON.parse(JSON.stringify(PLAN[sw][sd]));savePlan(currentPlayerId,PLAN);calCopyMode=null;renderWeekView();var pl0=PLAYERS.find(function(x){return x.id===currentPlayerId;});var dd=(pl0&&pl0.startDate)?fmtWD(pl0.startDate,w,d):('Sem '+(w+1)+' D'+(d+1));alert('✅ Copiado a '+dd);return;}
-  if(!isCoach){goToDayFromWeek(w,d);return;}
-  openDayActions(w,d);
-}
-function openDayActions(w,d){
-  dayActionsCoords={w:w,d:d};
-  var pl=PLAYERS.find(function(x){return x.id===currentPlayerId;});
-  var dt=(pl&&pl.startDate)?(' \u00b7 '+fmtWD(pl.startDate,w,d)):'';
-  document.getElementById('day-actions-info').textContent='Sem '+(w+1)+' D'+(d+1)+dt+' \u2014 '+PLAN[w][d].title;
-  document.getElementById('modal-day-actions').classList.add('open');
-}
-function closeDayActions(){document.getElementById('modal-day-actions').classList.remove('open');}
-function dayActionOpen(){var c=dayActionsCoords;if(!c)return;closeDayActions();goToDayFromWeek(c.w,c.d);}
-function dayActionCopyDate(){var c=dayActionsCoords;if(!c)return;calCopyMode={w:c.w,d:c.d};closeDayActions();renderWeekView();}
-function dayActionCopyPlayer(){var c=dayActionsCoords;if(!c)return;cW=c.w;cD=c.d;closeDayActions();openCopyDayModal();}
-function cancelCalCopy(){calCopyMode=null;renderWeekView();}
+function setWeekMode(m){renderWeekView();}
+function setWeekView(w){}
+function moveMonth(delta){if(!calCursor)calCursor=new Date();calCursor=new Date(calCursor.getFullYear(),calCursor.getMonth()+delta,1);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
+function openDayFromCalendar(iso){openDate(iso);}
+function dayActionOpen(){}
+function dayActionCopyDate(){}
+function dayActionCopyPlayer(){}
+function cancelCalCopy(){}
+function closeDayActions(){var m=document.getElementById('modal-day-actions');if(m)m.classList.remove('open');}
 function renderMonthView(p){
   var cont=document.getElementById('month-view');if(!cont)return;
-  if(!p||!p.startDate){cont.innerHTML='<div style="text-align:center;color:var(--muted2);padding:34px 16px;font-size:13px;line-height:1.6;">Asign\u00e1 una <b>fecha de inicio</b> a este jugador (bot\u00f3n <b>Editar</b> en la lista de jugadores) para ver su calendario.</div>';return;}
-  var sp=String(p.startDate).split('-');var start=new Date(+sp[0],+sp[1]-1,+sp[2]);
-  if(!monthCursor||_monthPid!==currentPlayerId){monthCursor=new Date(start.getFullYear(),start.getMonth(),1);_monthPid=currentPlayerId;}
-  var y=monthCursor.getFullYear(),mo=monthCursor.getMonth();
+  if(!p){cont.innerHTML='';return;}
+  var ss=sessionsOf(p.id);
+  if(!calCursor||_monthPid!==currentPlayerId){var base=firstSessionDate(p.id)||p.startDate||isoToday();var bd=isoToDate(base);calCursor=new Date(bd.getFullYear(),bd.getMonth(),1);_monthPid=currentPlayerId;}
+  var y=calCursor.getFullYear(),mo=calCursor.getMonth();
   var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var startWd=(new Date(y,mo,1).getDay()+6)%7;
   var dim=new Date(y,mo+1,0).getDate();
+  var todayISO=isoToday();
   var header='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px;"><button onclick="moveMonth(-1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u2039</button><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;letter-spacing:0.04em;text-transform:uppercase;">'+meses[mo]+' '+y+'</div><button onclick="moveMonth(1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u203a</button></div>';
-  var dows=['Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b','Dom'];
+  var dows=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   var dowH='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">'+dows.map(function(dn){return '<div style="text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);font-weight:700;">'+dn+'</div>';}).join('')+'</div>';
   var cells='';
   for(var i=0;i<startWd;i++)cells+='<div></div>';
   for(var dnum=1;dnum<=dim;dnum++){
-    var cellDate=new Date(y,mo,dnum);
-    var diff=Math.round((cellDate-start)/86400000);
+    var iso=y+'-'+('0'+(mo+1)).slice(-2)+'-'+('0'+dnum).slice(-2);
+    var tHi=(iso===todayISO)?'outline:2px solid var(--mob);outline-offset:-2px;':'';
     var head='<div style="font-weight:700;font-size:13px;margin-bottom:3px;">'+dnum+'</div>';
-    if(diff>=0&&diff<28&&(diff%7)<=4){
-      var w=Math.floor(diff/7),d=diff%7;var day=PLAN[w][d];var wm=WMETA[w];var srcHi=(calCopyMode&&calCopyMode.w===w&&calCopyMode.d===d)?'box-shadow:0 0 0 2px var(--mob);':'';
+    var day=ss[iso];
+    if(day&&day.blocks&&day.blocks.length){
       var bl=day.blocks.slice(0,4).map(function(b){return '<div style="font-size:10px;color:var(--muted);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(b.title||'')+'</div>';}).join('');
-      var more=day.blocks.length>4?'<div style="font-size:9px;color:var(--muted2);">+'+(day.blocks.length-4)+' m\u00e1s</div>':'';
-      cells+='<div onclick="openDayFromCalendar('+w+','+d+')" style="cursor:pointer;background:var(--s2);border-left:3px solid '+wm.badge+';border-radius:8px;padding:6px 7px;min-height:96px;'+srcHi+'overflow:hidden;">'+head+'<div style="font-size:11px;font-weight:700;color:'+wm.badge+';line-height:1.25;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+day.title+'</div>'+bl+more+'</div>';
-    } else if(diff>=0&&diff<28){
-      cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;">'+head+'<div style="font-size:11px;color:var(--muted2);">Libre</div></div>';
+      var more=day.blocks.length>4?'<div style="font-size:9px;color:var(--muted2);">+'+(day.blocks.length-4)+' más</div>':'';
+      cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'overflow:hidden;">'+head+'<div style="font-size:11px;font-weight:700;color:var(--mob);line-height:1.25;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(day.title||'Entrenamiento')+'</div>'+bl+more+'</div>';
+    } else if(isCoach){
+      cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'display:flex;flex-direction:column;">'+head+'<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:20px;opacity:0.45;">+</div></div>';
     } else {
-      cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;opacity:0.45;">'+head+'</div>';
+      cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'">'+head+'</div>';
     }
   }
-  var banner='';if(calCopyMode){var bt=PLAN[calCopyMode.w][calCopyMode.d].title;banner='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;"><div style="font-size:12px;color:var(--mob);font-weight:600;line-height:1.3;">📋 Copiando \u00ab'+bt+'\u00bb \u00b7 toc\u00e1 el d\u00eda destino</div><button onclick="cancelCalCopy()" style="flex:none;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);cursor:pointer;font-size:11px;font-family:Barlow Condensed,sans-serif;font-weight:700;text-transform:uppercase;">Cancelar</button></div>';}
-  cont.innerHTML=banner+header+dowH+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
+  cont.innerHTML=header+dowH+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
 }
-function setWeekView(w){weekViewW=w;renderWeekView();}
-function goToDayFromWeek(w,d){cW=w;cD=d;showTab('plan');renderPlan();}
+function goToDayFromWeek(iso){openDate(iso);}
 function openDayEditModal(w,d){if(!isCoach)return;editingDayCoords={w:w,d:d};var day=PLAN[w][d];document.getElementById('f-day-name').value=day.title||'';document.getElementById('f-day-pattern').value=day.pattern||'';document.getElementById('f-day-label').value=DMETA[d]||'';document.getElementById('modal-edit-day').classList.add('open');}
 function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');editingDayCoords=null;}
-function saveDayEdit(){if(!editingDayCoords||!currentPlayerId)return;var w=editingDayCoords.w,d=editingDayCoords.d;var n=document.getElementById('f-day-name').value.trim();var pat=document.getElementById('f-day-pattern').value.trim();var lbl=document.getElementById('f-day-label').value.trim();if(n)PLAN[w][d].title=n;if(pat)PLAN[w][d].pattern=pat;if(lbl)DMETA[d]=lbl;savePlan(currentPlayerId,PLAN);closeDayEditModal();renderWeekView();renderPlan();}
+function saveDayEdit(){if(!editingDayCoords||!currentPlayerId)return;var w=editingDayCoords.w,d=editingDayCoords.d;var n=document.getElementById('f-day-name').value.trim();var pat=document.getElementById('f-day-pattern').value.trim();var lbl=document.getElementById('f-day-label').value.trim();if(n)PLAN[w][d].title=n;if(pat)PLAN[w][d].pattern=pat;if(lbl)DMETA[d]=lbl;commitSession();closeDayEditModal();renderWeekView();renderPlan();}
 
 function renderMessages(){
   if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay jugadores.</p></div>';return;}
@@ -1514,22 +1564,29 @@ function cycleSummaryWeek(pid){summaryWeek[pid]=(((summaryWeek[pid]||0)+1)%4);re
 function renderSummary(){
   if(!PLAYERS.length){document.getElementById('summary-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcca</div><p>No hay jugadores.</p></div>';return;}
   var html=PLAYERS.map(function(p){
-    var pPlan=loadPlan(p.id);
     var avH=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">\ud83d\udc64</div>';
     var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'Off-Season 2025';
-    var savedChecks=JB_CHECKS[p.id]||{};
-    var rpeByDay=[];
-    var aw=p.activeWeek||0,bestW=aw,bestCount=0;for(var w=0;w<4;w++){var cnt=0;for(var dd=0;dd<5;dd++){var bl=(pPlan&&pPlan[w]&&pPlan[w][dd])?pPlan[w][dd].blocks:[];for(var bb=0;bb<bl.length;bb++){var k=w+'-'+dd+'-'+bb;if(savedChecks[k]&&(savedChecks[k].rpe||(savedChecks[k].note&&savedChecks[k].note.trim())))cnt++;}}if(cnt>0&&cnt>=bestCount){bestCount=cnt;bestW=w;}}var dispW=(p.id in summaryWeek)?summaryWeek[p.id]:bestW;summaryWeek[p.id]=dispW;aw=dispW;for(var d=0;d<5;d++){var dayRpes=[],dayNotes=[];var blocks=(pPlan&&pPlan[aw]&&pPlan[aw][d])?pPlan[aw][d].blocks:[];for(var b=0;b<blocks.length;b++){var key=aw+'-'+d+'-'+b;if(savedChecks[key]){if(savedChecks[key].rpe)dayRpes.push(savedChecks[key].rpe);if(savedChecks[key].note&&savedChecks[key].note.trim())dayNotes.push({day:d,note:savedChecks[key].note.trim(),block:blocks[b].title});}}var avg=dayRpes.length?Math.round(dayRpes.reduce(function(a,b){return a+b;},0)/dayRpes.length):0;rpeByDay.push({rpe:avg,notes:dayNotes});}
-    var hasData=rpeByDay.some(function(rd){return rd.rpe>0;});
-    var bars=rpeByDay.map(function(rd,i){var h=rd.rpe?Math.round((rd.rpe/10)*50):3;var col=rd.rpe===0?'var(--s3)':rd.rpe<=4?'var(--mob)':rd.rpe<=6?'var(--act)':rd.rpe<=8?'var(--fza)':'var(--danger)';return '<div class="rpe-bar-wrap"><div class="rpe-bar-val">'+(rd.rpe||'')+'</div><div class="rpe-bar" style="height:'+h+'px;background:'+col+'"></div><div class="rpe-bar-lbl">D'+(i+1)+'</div></div>';}).join('');
-    var allNotes=[];rpeByDay.forEach(function(rd){allNotes=allNotes.concat(rd.notes);});
-    var notesH=allNotes.length?allNotes.map(function(n){return '<div class="sum-note"><div class="sum-note-day">D\u00eda '+(n.day+1)+' \u00b7 '+n.block+'</div>'+n.note+'</div>';}).join(''):'<div class="sum-empty">Sin notas esta semana</div>';
-    return '<div class="sum-card"><div class="sum-hdr">'+avH+'<div class="sum-info"><div class="sum-name">'+p.name+'</div><div class="sum-meta">'+meta+'</div></div><div onclick="cycleSummaryWeek(\''+p.id+'\')" style="font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.05em;padding:3px 9px;border-radius:4px;background:rgba(168,224,99,0.12);color:var(--mob);cursor:pointer;border:1px solid rgba(168,224,99,0.35);user-select:none">SEM '+(aw+1)+' \u21c4</div></div><div class="sum-body"><div class="sum-lbl">RPE por d\u00eda</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">Sin datos de RPE a\u00fan</div>')+'<div class="sum-lbl">Notas</div>'+notesH+'</div></div>';
+    var ss=JB_SESSIONS[p.id]||{};
+    var checks=JB_CHECKS[p.id]||{};
+    var byDate={};
+    Object.keys(checks).forEach(function(k){
+      if(!/^\d{4}-/.test(k))return;
+      var iso=k.slice(0,10),b=k.slice(11),c=checks[k];
+      if(!byDate[iso])byDate[iso]={rpes:[],notes:[]};
+      if(c.rpe)byDate[iso].rpes.push(c.rpe);
+      if(c.note&&c.note.trim()){var bt=(ss[iso]&&ss[iso].blocks&&ss[iso].blocks[+b])?ss[iso].blocks[+b].title:'';byDate[iso].notes.push({iso:iso,note:c.note.trim(),block:bt});}
+    });
+    var dates=Object.keys(byDate).filter(function(iso){return byDate[iso].rpes.length||byDate[iso].notes.length;}).sort();
+    var recent=dates.slice(-6);
+    var hasData=recent.some(function(iso){return byDate[iso].rpes.length;});
+    var bars=recent.map(function(iso){var r=byDate[iso].rpes;var avg=r.length?Math.round(r.reduce(function(a,b){return a+b;},0)/r.length):0;var h=avg?Math.round((avg/10)*50):3;var col=avg===0?'var(--s3)':avg<=4?'var(--mob)':avg<=6?'var(--act)':avg<=8?'var(--fza)':'var(--danger)';var dt=isoToDate(iso);var lbl=DOW_ES[dt.getDay()].charAt(0)+dt.getDate();return '<div class="rpe-bar-wrap"><div class="rpe-bar-val">'+(avg||'')+'</div><div class="rpe-bar" style="height:'+h+'px;background:'+col+'"></div><div class="rpe-bar-lbl">'+lbl+'</div></div>';}).join('');
+    var allNotes=[];dates.slice().reverse().forEach(function(iso){byDate[iso].notes.forEach(function(n){allNotes.push(n);});});
+    allNotes=allNotes.slice(0,8);
+    var notesH=allNotes.length?allNotes.map(function(n){return '<div class="sum-note"><div class="sum-note-day">'+fmtDateShort(n.iso)+(n.block?(' \u00b7 '+n.block):'')+'</div>'+n.note+'</div>';}).join(''):'<div class="sum-empty">Sin notas registradas</div>';
+    return '<div class="sum-card"><div class="sum-hdr">'+avH+'<div class="sum-info"><div class="sum-name">'+p.name+'</div><div class="sum-meta">'+meta+'</div></div></div><div class="sum-body"><div class="sum-lbl">RPE \u00faltimas sesiones</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">Sin datos de RPE a\u00fan</div>')+'<div class="sum-lbl">Notas recientes</div>'+notesH+'</div></div>';
   }).join('');
   document.getElementById('summary-content').innerHTML=html;
 }
-
-function defaultData(){return [[{title:'Empuje Dominante de Rodillas',pattern:'Squat / Bilateral / Cu\u00e1driceps',pills:['RPE 5-6','3 bloques','~65 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Tobillo \u00b7 Cadera \u00b7 Columna tor\u00e1cica',exs:[{n:'Ankle Dorsiflexion (pared)',d:'ROM activo tobillo bilateral',l:'2\u00d710 c/l',link:'https://www.youtube.com/watch?v=XyLTb8ZnlFE'},{n:'Hip 90/90 Rotaci\u00f3n pasiva-activa',d:'Apertura rotatoria de cadera',l:'2\u00d745s c/l'},{n:'Thoracic Rotation en cuadrupedia',d:'Extensi\u00f3n + rotaci\u00f3n tor\u00e1cica segmental',l:'2\u00d78 c/l'},{n:'World Greatest Stretch',d:'Integraci\u00f3n global cadena anterior',l:'2\u00d75 c/l'}]},{t:'act',title:'Activaci\u00f3n & Prevenci\u00f3n',sub:'Bandas \u00b7 Rodillas / Cu\u00e1driceps',exs:[{n:'Monster Walk lateral (banda en tobillo)',d:'Activaci\u00f3n abductores + control rodilla',l:'2\u00d712 c/l'},{n:'Squat to box con banda en rodillas',d:'Control valgo, patr\u00f3n sentadilla',l:'2\u00d710'},{n:'Dead Bug con banda en pies',d:'Estabilizaci\u00f3n lumbo-p\u00e9lvica activa',l:'3\u00d78'},{n:'Copenhagen Adductor Hold isom\u00e9trico',d:'Prevenci\u00f3n aductora \u00b7 sin inestabilidad',l:'3\u00d720s c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal \u00b7 Unipodal \u00b7 50-60% 1RM',exs:[{n:'Goblet Squat (pausa 2s en fondo)',d:'Bipodal \u00b7 ROM completo \u00b7 t\u00e9cnica',l:'3\u00d78 @50%',link:'https://www.youtube.com/watch?v=MeIiIdhvXT4'},{n:'Split Squat con KB (pausa 2s)',d:'Unipodal \u00b7 control p\u00e9lvico en rango final',l:'3\u00d76 c/l'},{n:'Leg Press unilateral (rango completo)',d:'Descarga espinal, volumen controlado',l:'3\u00d710 c/l'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas \u00b7 Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Tracci\u00f3n Miembros Superiores',pattern:'Pull / Horizontal y Vertical / Espalda',pills:['RPE 5-6','3 bloques','~65 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Hombro \u00b7 Esc\u00e1pula \u00b7 Columna tor\u00e1cica',exs:[{n:'Shoulder CARs',d:'ROM activo m\u00e1ximo glenohumeral',l:'3\u00d75 c/l'},{n:'Wall Slides con foam roll en columna',d:'Movilidad escapular + extensi\u00f3n tor\u00e1cica',l:'2\u00d710'},{n:'Doorway Pec Stretch activo',d:'Apertura anterior de hombro',l:'2\u00d78'},{n:'Rotaci\u00f3n tor\u00e1cica en banco',d:'Disociaci\u00f3n columna tor\u00e1cica / lumbar',l:'2\u00d78 c/l'}]},{t:'act',title:'Activaci\u00f3n & Prevenci\u00f3n',sub:'Bandas \u00b7 Manguito rotador \u00b7 Esc\u00e1pula',exs:[{n:'External Rotation con banda (90/90)',d:'Manguito rotador externo \u00b7 prevenci\u00f3n',l:'3\u00d712 c/l'},{n:'Band Pull Apart',d:'Retracci\u00f3n escapular activa',l:'3\u00d715'},{n:'Face Pull con banda',d:'Deltoides posterior + manguito',l:'3\u00d712'},{n:'Serratus Push-up con banda',d:'Activaci\u00f3n serrato anterior',l:'2\u00d710'}]},{t:'fza',title:'Fuerza',sub:'Bipodal \u00b7 Unilateral \u00b7 50-60%',exs:[{n:'Remo con barra (pausa 1s)',d:'Bipodal \u00b7 tracci\u00f3n horizontal',l:'3\u00d78 @55%'},{n:'Single Arm DB Row',d:'Unilateral \u00b7 antirrotaci\u00f3n de tronco',l:'3\u00d710 c/l'},{n:'Chin-up asistido / con banda',d:'Tracci\u00f3n vertical, progresi\u00f3n suave',l:'3\u00d76'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas \u00b7 Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Empuje Dominante de Cadera',pattern:'Hip Hinge / Cadena Posterior / Isquios',pills:['RPE 5-6','3 bloques','~65 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Cadera \u00b7 Isquiotibiales \u00b7 Pelvis',exs:[{n:'Hip CARs en bipedestaci\u00f3n',d:'Control articular activo m\u00e1ximo de cadera',l:'3\u00d75 c/l'},{n:'Loaded stretch isquiotibiales (RDL BW)',d:'Elongaci\u00f3n activa cadena posterior',l:'2\u00d78 c/l'},{n:'Pigeon Pose activo',d:'Rotaci\u00f3n externa cadera profunda',l:'2\u00d745s c/l'},{n:'Quadruped Hip Extension',d:'Activaci\u00f3n gl\u00fatea + patr\u00f3n motor cadera',l:'2\u00d710 c/l'}]},{t:'act',title:'Activaci\u00f3n & Prevenci\u00f3n',sub:'Bandas \u00b7 Gl\u00fateos \u00b7 Isquios \u00b7 Aductores',exs:[{n:'Glute Bridge con banda en rodillas',d:'Activaci\u00f3n gl\u00fatea bilateral + control valgo',l:'3\u00d715'},{n:'Clamshell con banda',d:'Gl\u00fateo medio \u00b7 prevenci\u00f3n cadera',l:'3\u00d712 c/l'},{n:'Nordic Hamstring Curl (exc\u00e9ntrico suave)',d:'Isquiotibiales \u00b7 prevenci\u00f3n fundamental',l:'3\u00d75',link:'https://www.youtube.com/watch?v=d1sAWEqQ8oI'},{n:'Copenhagen Adductor isom\u00e9trico',d:'Aductores sin elementos inestables',l:'3\u00d720s c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal \u00b7 Unipodal \u00b7 50-60%',exs:[{n:'Romanian Deadlift con barra',d:'Bipodal \u00b7 carga exc\u00e9ntrica isquios',l:'3\u00d78 @55%'},{n:'Single Leg RDL con KB',d:'Unipodal \u00b7 cadena posterior + equilibrio',l:'3\u00d78 c/l'},{n:'Hip Thrust (barra ligera)',d:'Extensi\u00f3n de cadera \u00b7 activaci\u00f3n gl\u00fatea',l:'3\u00d710 @50%'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas \u00b7 Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Empuje Miembros Superiores',pattern:'Push / Horizontal y Vertical / Pecho y Hombro',pills:['RPE 5-6','3 bloques','~65 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Hombro \u00b7 T\u00f3rax \u00b7 Mu\u00f1eca',exs:[{n:'Shoulder CARs lentos',d:'ROM articular glenohumeral activo',l:'3\u00d75 c/l'},{n:'Thoracic Extension sobre foam roll',d:'Extensi\u00f3n tor\u00e1cica segmental',l:'2\u00d710 seg'},{n:'Wrist Circles + extensi\u00f3n activa',d:'Preparaci\u00f3n mu\u00f1eca para empuje',l:'2\u00d78 c/l'},{n:'Quadruped Reach + Rotation',d:'Movilidad t\u00f3rax en carga',l:'2\u00d78 c/l'}]},{t:'act',title:'Activaci\u00f3n & Prevenci\u00f3n',sub:'Bandas \u00b7 Manguito \u00b7 Pectoral \u00b7 Serrato',exs:[{n:'Internal Rotation con banda (neutro)',d:'Equilibrio rotatorio glenohumeral',l:'3\u00d712 c/l'},{n:'Lateral Raise con banda (plano escapular)',d:'Deltoides medio funcional',l:'3\u00d712'},{n:'Push-up Plus',d:'Activaci\u00f3n serrato anterior',l:'3\u00d710'},{n:'Band Diagonals (PNF D2)',d:'Patr\u00f3n diagonal funcional hombro',l:'2\u00d710 c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal \u00b7 Unilateral \u00b7 50-60%',exs:[{n:'Press Banca inclinado con barra',d:'Bipodal \u00b7 empuje horizontal',l:'3\u00d78 @50%'},{n:'Single Arm DB Press en banco plano',d:'Unilateral \u00b7 antirrotaci\u00f3n tronco',l:'3\u00d710 c/l'},{n:'Press Militar con mancuernas (sentado)',d:'Empuje vertical \u00b7 control escapular',l:'3\u00d78'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas \u00b7 Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Explosivos y T\u00e9cnica de Carrera',pattern:'Potencia \u00b7 Primer Paso \u00b7 Zancada',pills:['RPE 6','Sin pesas','~60 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Activaci\u00f3n neurol\u00f3gica \u00b7 Warm-up carrera',exs:[{n:'Leg Swings frontal + lateral',d:'Movilidad din\u00e1mica cadera pre-sprint',l:'2\u00d710 c/l'},{n:'High Knees lentos + aceleraci\u00f3n progresiva',d:'Activaci\u00f3n flexores cadera + patr\u00f3n',l:'2\u00d720m'},{n:'Ankle Circles + Skip A lento',d:'Tobillo + cadencia de zancada',l:'2\u00d715m'},{n:'Gluteal Stretch caminando',d:'Gl\u00fateo + rotaci\u00f3n externa din\u00e1mica',l:'2\u00d710 c/l'}]},{t:'act',title:'Activaci\u00f3n & Prevenci\u00f3n',sub:'Bandas \u00b7 Primer paso \u00b7 Reactividad',exs:[{n:'Resisted Marching con banda (cadera)',d:'Patr\u00f3n de carrera con resistencia proximal',l:'3\u00d710m'},{n:'Mini-hurdle coordination drill',d:'Frecuencia de paso \u00b7 coordinaci\u00f3n',l:'3\u00d710m'},{n:'Lateral Shuffle con banda (tobillo)',d:'Cambio de direcci\u00f3n + control rodilla',l:'3\u00d710m'},{n:'Single Leg Hop (estabilizaci\u00f3n aterrizaje)',d:'Control exc\u00e9ntrico post-impulso',l:'3\u00d75 c/l'}]},{t:'fza',title:'Fuerza',sub:'Primer paso \u00b7 Aceleraci\u00f3n \u00b7 Zancada',exs:[{n:'Falling Starts (primer paso)',d:'Mec\u00e1nica de aceleraci\u00f3n \u00b7 \u00e1ngulo de salida',l:'6\u00d710m'},{n:'A-Skip + B-Skip t\u00e9cnico',d:'Mec\u00e1nica de zancada \u00b7 frecuencia de paso',l:'4\u00d720m'},{n:'Sprint progresivo 60-80%',d:'Transici\u00f3n aceleraci\u00f3n - velocidad m\u00e1x.',l:'4\u00d730m'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas \u00b7 Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]}],[{title:'Empuje Dominante de Rodillas',pattern:'Squat - Carga Base 60-70%',pills:['RPE 6-7','3 bloques','~75 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Tobillo \u00b7 Cadera \u00b7 T\u00f3rax',exs:[{n:'Ankle Mob KOT con pared',d:'Dorsiflexión activa progresiva',l:'3×10 c/l'},{n:'90/90 PAIL/RAIL',d:'Expansión ROM rotatorio activo cadera',l:'3×45s c/l'},{n:'Cossack Squat asistido',d:'Movilidad aductores + dorsiflexión lateral',l:'2×6 c/l'},{n:'Thoracic CARs en bipedestación',d:'Control articular columna torácica',l:'2×5 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Rodilla · Control de valgo',exs:[{n:'Lateral Band Walk (banda en rodillas)',d:'Activación glúteo medio · control valgo',l:'3×15 c/l'},{n:'Terminal Knee Extension con banda',d:'VMO y control extensor terminal',l:'3×15 c/l'},{n:'Bird Dog con banda en pie',d:'Control lumbo-pélvico + extensión',l:'3×8 c/l'},{n:'Adductor Squeeze isométrico',d:'Activación aductora · sin inestabilidad',l:'3×20s'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 60-70%',exs:[{n:'Back Squat (full ROM)',d:'Bipodal · progresión desde sem 1',l:'4×6 @65%'},{n:'Bulgarian Split Squat con mancuernas',d:'Unipodal · énfasis cuádriceps',l:'3×8 c/l'},{n:'Leg Press bilateral (4s excéntrico)',d:'Tempo excéntrico · trabajo cuádriceps',l:'3×10'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Tracción Miembros Superiores',pattern:'Pull / Escápula - Espalda media-alta',pills:['RPE 6-7','3 bloques','~75 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Hombro · Escápula · Columna dorsal',exs:[{n:'Shoulder CARS con KB 2kg',d:'ROM activo con resistencia leve',l:'3×5 c/l'},{n:'Prone Y-T-W (sin carga)',d:'Movilidad + activación escapular',l:'2×8 pos.'},{n:'Side-lying Windmill',d:'Apertura torácica + disociación escapular',l:'2×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Manguito · Escapular',exs:[{n:'External Rotation 90° con banda',d:'Manguito rotador externo en rango funcional',l:'3×12 c/l'},{n:'Band Pull Apart + pausa 2s',d:'Retracción escapular con control',l:'3×15'},{n:'Prone Band Row',d:'Activación romboides + deltoides posterior',l:'3×12'},{n:'YTWL con banda elástica',d:'Secuencia de activación escapular completa',l:'2×8 pos.'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 60-70%',exs:[{n:'Pendlay Row con barra',d:'Bipodal · tracción horizontal explosiva',l:'4×6 @65%'},{n:'Single Arm Cable/Band Row',d:'Unilateral · antirotación',l:'3×10 c/l'},{n:'Chin-up (lastre progresivo)',d:'Tracción vertical · fuerza relativa',l:'4×6'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Empuje Dominante de Cadera',pattern:'Hip Hinge - Cadena Posterior Base',pills:['RPE 6-7','3 bloques','~75 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Cadera · Isquios · Aductores',exs:[{n:'Hip CARS con KB contralateral',d:'Control rotatorio con resistencia leve',l:'3×5 c/l'},{n:'Loaded Stretch Isquios (RDL @30%)',d:'Elongación activa bajo tensión',l:'3×6 c/l'},{n:'Deep Squat Hold + respiración',d:'Movilidad de fondo de rango global',l:'2×45s'},{n:'Adductor Rock',d:'Movilidad aductora activa progresiva',l:'2×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Glúteo · Isquios · Aductores',exs:[{n:'Hip Thrust isométrico con banda en rodillas',d:'Extensión máxima cadera + control valgo',l:'3×15s'},{n:'Nordic Hamstring (progresión sem 1)',d:'Excéntrico isquiotibial fundamental',l:'3×6'},{n:'Copenhagen Adductor (rodilla extendida)',d:'Aductor largo, mayor demanda',l:'3×20s c/l'},{n:'Terminal Knee Extension con banda',d:'VMO y control patelofemoral',l:'3×12 c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 60-70%',exs:[{n:'Romanian Deadlift progresado',d:'Bipodal · +5-10kg vs sem 1',l:'4×6 @65%'},{n:'Single Leg RDL con KB (pausa 1s)',d:'Unipodal · mayor control excéntrico',l:'3×8 c/l'},{n:'Hip Thrust con barra (carga media)',d:'Extensión terminal · glúteo máx.',l:'4×8 @60%'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Empuje Miembros Superiores',pattern:'Push Horizontal + Vertical - Base',pills:['RPE 6-7','3 bloques','~75 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Hombro · Escápula · Tórax',exs:[{n:'Shoulder CARS (velocidad controlada)',d:'ROM dinámico glenohumeral',l:'3×5 c/l'},{n:'Thoracic Rotation + Reach',d:'Disociación tórax/cadera',l:'2×8 c/l'},{n:'Lat Stretch en rack (activo)',d:'Apertura dorsal ancho + hombro',l:'2×30s c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Manguito · Serrato · Deltoides',exs:[{n:'External + Internal Rotation con banda',d:'Equilibrio rotatorio completo',l:'3×10 c/l'},{n:'Band Lateral Raise (plano escapular)',d:'Deltoides medio funcional',l:'3×12'},{n:'Push-up Plus progresado (pies elevados)',d:'Serrato + pectorales progresión',l:'3×10'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 60-70%',exs:[{n:'Press Banca con barra (full ROM)',d:'Bipodal · progresión desde sem 1',l:'4×6 @65%'},{n:'Single Arm Press + rotación de tronco',d:'Unilateral · integración tronco-empuje',l:'3×8 c/l'},{n:'Press Militar de pie con barra',d:'Empuje vertical estabilización total',l:'3×6 @60%'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Explosivos y Técnica de Carrera',pattern:'Potencia · Aceleración · Zancada',pills:['RPE 6-7','Cancha','~70 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Activación neurológica',exs:[{n:'Skipping A + B técnico',d:'Mecánica de zancada y frecuencia',l:'3×20m'},{n:'Cadera circles caminando',d:'ROM cadera dinámica pre-sprint',l:'2×10 c/l'},{n:'Lunge walking + rotación torácica',d:'Cadena anterior + tórax',l:'2×10m'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Potencia de cadera',exs:[{n:'Resisted Sprint start con banda',d:'Activación extensores cadera en aceleración',l:'4×10m'},{n:'Bounding lateral con banda (tobillo)',d:'Potencia abductora + control aterrizaje',l:'3×8 c/l'},{n:'Pogo Jumps reactivos',d:'Stiffness tobillo + reactividad',l:'3×10'}]},{t:'fza',title:'Fuerza',sub:'Primer paso · Sprint · Potencia miembro inf.',exs:[{n:'Falling Start + Sprint 15m',d:'Primer paso + aceleración máxima',l:'6×15m'},{n:'Sprint resisted con sled (ligero)',d:'Potencia de aceleración horizontal',l:'4×20m'},{n:'Broad Jump + Sprint 10m',d:'Potencia explosiva - velocidad específica',l:'5×10m'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]}],[{title:'Empuje Dominante de Rodillas',pattern:'Squat - Alta Intensidad · PAP',pills:['RPE 7-8','4 bloques','~85 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Tobillo · Cadera · Tórax máxima profundidad',exs:[{n:'Ankle Mob KOT (sin apoyo)',d:'Dorsiflexión libre con control',l:'3×10 c/l'},{n:'PAIL/RAIL 90/90 (2 min c/pos.)',d:'Expansión máxima ROM cadera',l:'2 pos.'},{n:'Cossack Squat libre',d:'Aductores + tobillo en rango completo',l:'3×5 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Activación pre-carga alta',exs:[{n:'Lateral Band Walk + Squat (combo)',d:'Activación glúteo medio + patrón',l:'3×10+5'},{n:'Terminal Knee Extension explosiva con banda',d:'VMO reactivo pre-sentadilla pesada',l:'3×15'},{n:'Nordic Hamstring (activación)',d:'Isquios excéntrico como preparación',l:'2×5'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 75-85%',exs:[{n:'Back Squat pesado',d:'Bipodal · máxima expresión de fuerza',l:'5×4 @80%'},{n:'Bulgarian Split Squat (KB pesados)',d:'Unipodal · carga alta con control',l:'4×6 c/l'},{n:'Leg Press (excéntrico 3s)',d:'Volumen + tempo excéntrico',l:'4×8 @75%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP Post-Fuerza · Activación neurológica',exs:[{n:'Jump Squat con carga (20-30%)',d:'Post Back Squat · PAP neurológico',l:'4×4'},{n:'Broad Jump máximo',d:'Potencia horizontal bilateral máxima',l:'4×3'},{n:'Lateral Bound + estabilización',d:'Potencia lateral unipodal',l:'3×4 c/l'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Tracción Miembros Superiores',pattern:'Pull - Alta Intensidad · PAP',pills:['RPE 7-8','4 bloques','~85 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Hombro · Escápula pre-carga alta',exs:[{n:'Shoulder CARS con KB 4kg',d:'ROM bajo resistencia moderada',l:'3×5 c/l'},{n:'Prone T + Overhead Reach',d:'Activación posterior hombro + tórax',l:'2×10'},{n:'Side-lying Windmill activo',d:'Apertura torácica máxima',l:'3×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Alta especificidad',exs:[{n:'External Rotation 90° explosiva con banda',d:'Manguito rotador en velocidad',l:'3×12 c/l'},{n:'Band Pull Apart explosivo',d:'Retractores escapulares en velocidad',l:'3×15'},{n:'Face Pull + External Rotation (combo)',d:'Protocolo hombro completo',l:'3×10'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 75-85%',exs:[{n:'Weighted Pull-up',d:'Tracción vertical máxima',l:'4×5 @BW+'},{n:'Single Arm DB Row pesado',d:'Unilateral · máxima expresión',l:'4×6 c/l'},{n:'Pendlay Row pesado',d:'Potencia concéntrica · tracción horizontal',l:'4×5 @80%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP · Potencia miembros superiores',exs:[{n:'Plyo Push-up post-banca',d:'PAP tren superior · explosividad',l:'4×5'},{n:'Med Ball Chest Pass máximo',d:'Potencia horizontal tren superior',l:'4×4'},{n:'Med Ball Slam overhead',d:'Potencia vertical + deceleración',l:'3×5'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Empuje Dominante de Cadera',pattern:'Hip Hinge - Alta Intensidad · PAP',pills:['RPE 7-8','4 bloques','~85 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Cadera · Isquios máxima extensibilidad',exs:[{n:'Hip CARS con KB contralateral (medio)',d:'Control total bajo resistencia',l:'3×5 c/l'},{n:'Loaded stretch isquios (RDL @40%)',d:'Elongación activa máxima',l:'3×6 c/l'},{n:'Active Pigeon (contracciones isométricas)',d:'ROM rotatorio profundo activo',l:'2×8 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Isquios · Glúteo máximo',exs:[{n:'Nordic Hamstring pre-deadlift',d:'Isquios excéntrico como preparación',l:'3×5'},{n:'Hip Thrust explosivo BW con banda',d:'Activación glútea máxima pre-carga',l:'3×12'},{n:'Copenhagen Adductor dinámico',d:'Aductores en rango funcional',l:'3×8 c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · 75-85%',exs:[{n:'Trap Bar Deadlift pesado',d:'Bipodal · carga alta · columna neutral',l:'5×4 @80%'},{n:'Single Leg RDL con barra',d:'Unipodal · cadena posterior máxima',l:'4×5 c/l'},{n:'Hip Thrust pesado',d:'Extensión terminal cadera máxima',l:'4×6 @80%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP · Potencia de cadera',exs:[{n:'Vertical Jump máximo post-deadlift',d:'PAP · potencia vertical máxima',l:'4×4'},{n:'KB Swing explosivo (heavy)',d:'Potencia de cadera horizontal-vertical',l:'4×8'},{n:'Single Leg Box Jump + estabilización',d:'Potencia unipodal + control aterrizaje',l:'3×4 c/l'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Empuje Miembros Superiores',pattern:'Push - Alta Intensidad · PAP',pills:['RPE 7-8','4 bloques','~85 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Hombro · Tórax pre-empuje pesado',exs:[{n:'Shoulder CARS (velocidad + carga leve)',d:'Preparación glenohumeral completa',l:'3×5 c/l'},{n:'Thoracic Extension + Rotation',d:'Disociación tórax máxima',l:'2×8 c/l'},{n:'Doorway PNF stretch activo',d:'Apertura pectoral anterior',l:'2×8'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Manguito alta especificidad',exs:[{n:'ER + IR con banda en velocidad',d:'Equilibrio rotatorio pre-empuje pesado',l:'3×12 c/l'},{n:'Band Lateral Raise explosivo',d:'Deltoides medio en velocidad',l:'3×12'},{n:'Push-up Plus explosivo',d:'Serrato activo en velocidad',l:'3×10'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · 75-85%',exs:[{n:'Press Banca pesado',d:'Bipodal · máxima expresión empuje horizontal',l:'5×4 @82%'},{n:'Single Arm DB Press inclinado (pesado)',d:'Unilateral · estabilización activa',l:'4×5 c/l'},{n:'Press Militar con barra (de pie, pesado)',d:'Empuje vertical máximo',l:'4×5 @78%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP · Potencia tren superior',exs:[{n:'Plyo Push-up desde caja',d:'PAP post-banca · máxima explosividad',l:'4×5'},{n:'Med Ball Push Pass (distancia máxima)',d:'Potencia empuje horizontal máxima',l:'4×5'},{n:'Overhead Med Ball Throw',d:'Potencia empuje vertical',l:'3×5'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Explosivos y Técnica de Carrera',pattern:'Sprint máximo · Zancada · Potencia máxima',pills:['RPE 8','Cancha','~80 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Activación SNC · Warm-up sprint',exs:[{n:'Skipping A/B/C técnico',d:'Mecánica completa de carrera',l:'3×20m c/u'},{n:'Aceleraciones progresivas 40/60/80%',d:'SNC hacia velocidad máxima',l:'3×30m'},{n:'Hip Circles dinámicos caminando',d:'Cadera libre pre-sprint máximo',l:'2×10 c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Máxima potencia',exs:[{n:'Resisted Sprint con banda explosivo',d:'Potencia primer paso máxima',l:'4×10m'},{n:'Altitude Drop + Sprint',d:'SSC tobillo + transición a velocidad',l:'4×15m'},{n:'Pogo Jumps bilaterales - unilaterales',d:'Stiffness máxima pre-sprint',l:'3×10'}]},{t:'fza',title:'Fuerza',sub:'Velocidad máxima · Primer paso',exs:[{n:'Sprint máximo 35m (salida 3 puntos)',d:'Velocidad máxima + mecánica aceleración',l:'6×35m'},{n:'Flying Sprint 20m (entrada 20m)',d:'Velocidad máxima pura',l:'4×20m'},{n:'Sprint curvo + cambio dirección 90°',d:'Velocidad + especificidad futbolística',l:'4×20m'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]}],[{title:'Empuje Dominante de Rodillas',pattern:'Squat - Taper · Calidad sobre cantidad',pills:['RPE 6-7','4 bloques','~70 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Consolidación autónoma',exs:[{n:'Secuencia tobillo + cadera (10 min)',d:'Rutina que el atleta lleva a pretemporada',l:'Diario'},{n:'Cossack Squat + pausa',d:'Mantenimiento ROM lateral',l:'2×5 c/l'},{n:'90/90 Hip Mob (PAIL/RAIL breve)',d:'ROM mantenido',l:'2×30s c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Mantenimiento',exs:[{n:'Lateral Band Walk + TKE (combo)',d:'Rutina de mantenimiento rodilla',l:'3×12'},{n:'Nordic Hamstring (mantenimiento)',d:'No discontinuar carga excéntrica',l:'3×5'},{n:'Copenhagen Adductor (mantenimiento)',d:'Aductor largo protección',l:'3×20s c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · -20% volumen vs sem 3',exs:[{n:'Back Squat (misma intensidad, -1 serie)',d:'Consolidar sin acumular fatiga',l:'4×4 @80%'},{n:'Bulgarian Split Squat (mantenimiento)',d:'Unipodal · calidad de ejecución',l:'3×6 c/l'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP mantenido - volumen reducido',exs:[{n:'Jump Squat (volumen reducido)',d:'Mantener expresión neuromuscular',l:'3×4'},{n:'Broad Jump máximo',d:'Potencia horizontal mantenida',l:'3×3'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Tracción Miembros Superiores',pattern:'Pull - Taper · Mantenimiento fuerza',pills:['RPE 6-7','4 bloques','~70 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Hombro · Escápula consolidada',exs:[{n:'Shoulder CARS (rutina autónoma 8 min)',d:'Protocolo para llevar a pretemporada',l:'Diario'},{n:'Prone Y-T-W ligero',d:'Mantenimiento escapular',l:'2×8 pos.'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Protocolo hombro',exs:[{n:'ER + Band Pull Apart + Face Pull (circuito)',d:'Protocolo hombro prevención completo',l:'3×10 c/u'},{n:'YTWL con banda (cierre)',d:'Cierre sesión escapular',l:'2×8 pos.'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · -20% volumen',exs:[{n:'Pull-up (lastre, misma carga sem 3)',d:'Mantenimiento fuerza relativa',l:'3×5'},{n:'Single Arm Row (calidad máxima)',d:'Técnica perfecta, no fatiga nueva',l:'3×8 c/l'},{n:'Pendlay Row moderado',d:'Tracción horizontal mantenida',l:'3×5 @70%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP liviano · Frescura neurológica',exs:[{n:'Plyo Push-up (volumen reducido)',d:'Explosividad mantenida sin fatiga',l:'3×4'},{n:'Med Ball Chest Pass',d:'Potencia horizontal tren superior',l:'3×4'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Empuje Dominante de Cadera',pattern:'Hip Hinge - Taper · Evaluación',pills:['RPE 6-7','4 bloques','~70 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Cadera · Isquios · Rutina autónoma',exs:[{n:'Hip CARS + Loaded stretch isquios',d:'Rutina consolidada',l:'10 min'},{n:'Active Pigeon breve',d:'Mantenimiento rotatorio profundo',l:'2×30s c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Cadena posterior',exs:[{n:'Nordic Hamstring (mantenimiento)',d:'No discontinuar nunca la carga excéntrica',l:'3×5'},{n:'Hip Thrust explosivo BW con banda',d:'Glúteo reactivo pre-carga',l:'3×12'},{n:'Copenhagen progresado (dinámico)',d:'Cierre del bloque aductor',l:'3×8 c/l'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unipodal · -20% volumen',exs:[{n:'Trap Bar Deadlift (-1 serie vs sem 3)',d:'Consolidar ganancia sin nueva fatiga',l:'4×4 @80%'},{n:'Single Leg RDL + KB Swing (combo)',d:'Cadena posterior + potencia',l:'3×6+8 c/l'},{n:'Hip Thrust mantenimiento',d:'Extensión cadera consolidada',l:'3×6 @75%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP liviano · Taper neurológico',exs:[{n:'Vertical Jump + Single Leg Box Jump',d:'Expresión de potencia mantenida',l:'3×4'},{n:'KB Swing (volumen reducido)',d:'Potencia de cadera en calidad',l:'3×6'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Empuje Miembros Superiores',pattern:'Push - Taper · Evaluación de fuerza',pills:['RPE 6-7','4 bloques','~70 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Hombro · Tórax · Rutina autónoma',exs:[{n:'Shoulder CARS + Thoracic Rotation',d:'Protocolo consolidado autónomo',l:'8 min'},{n:'Lat Stretch activo',d:'Apertura dorsal ancho pre-empuje',l:'2×30s c/l'}]},{t:'act',title:'Activación & Prevención',sub:'Bandas · Protocolo estabilización',exs:[{n:'ER + Band Lateral Raise + Push-up Plus',d:'Activación hombro completa',l:'3×10 c/u'}]},{t:'fza',title:'Fuerza',sub:'Bipodal · Unilateral · -20% volumen',exs:[{n:'Press Banca (misma intensidad, -1 serie)',d:'Consolidar sin nueva fatiga',l:'4×4 @80%'},{n:'Single Arm Press + Row (superserie)',d:'Simetría empuje-tracción unilateral',l:'3×6 c/l'},{n:'Press Militar de pie (mantenimiento)',d:'Empuje vertical consolidado',l:'3×5 @72%'}]},{t:'exp',title:'Contraste Explosivo',sub:'PAP liviano · Frescura neurológica',exs:[{n:'Plyo Push-up + Med Ball Chest Pass',d:'Potencia mantenida, bajo volumen',l:'3×4 c/u'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]},{title:'Explosivos y Técnica de Carrera',pattern:'Sprint calidad · Evaluación final',pills:['RPE 7','Cancha','~70 min'],blocks:[{t:'mob',title:'ED + Movilidad',sub:'Warm-up sprint calidad',exs:[{n:'Progresión carreras 40-60-80-100%',d:'SNC activo, economía de movimiento',l:'4×30m'},{n:'A/B Skip + aceleración',d:'Mecánica de zancada afinada',l:'3×20m c/u'}]},{t:'act',title:'Activación & Prevención',sub:'Potencia · Evaluación calidad',exs:[{n:'Pogo + Altitude Drop + Sprint (secuencia)',d:'Cadena reactiva completa',l:'3×15m'},{n:'Resisted Sprint (banda) evaluación',d:'Verificar potencia primer paso',l:'3×10m'}]},{t:'fza',title:'Fuerza',sub:'Test · Calidad · Transición pretemporada',exs:[{n:'Test Sprint 10m + 30m (cronómetro)',d:'Evaluación velocidad final off-season',l:'3×30m'},{n:'Juego libre 8v8 campo grande',d:'Transición a demanda real de pretemporada',l:'2×15min'},{n:'Test Broad Jump (marca final)',d:'Evaluación potencia horizontal cierre',l:'3 intentos'}]},{t:'cam',title:'Trabajo de Campo',sub:'Pasadas · Intermitente',exs:[],campo:{pasadas:['100m','150m','200m','300m','400m','500m','1000m'],intermitente:['10s-10s','10s-15s','15s-10s','15s-15s','15s-20s','20s-15s','20s-20s']}}]}]];}
 
 initApp();
 </script>
