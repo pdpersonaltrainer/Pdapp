@@ -693,6 +693,7 @@ var checkState={},lastCheckedDay=null;
 // ── JSONBIN CONFIG ──  bin guarda: { players:[...], checks:{"pid":{"w-d-b":{done,rpe,note}}} }
 var JB_CHECKS={};
 var JB_PLANS={};
+var JB_SESSIONS={};
 var JB_LIB=null;
 
 function showSyncStatus(state){
@@ -707,9 +708,9 @@ async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
   if(pr.error)throw pr.error;
   PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||''};});
-  var plr=await sb.from('plans').select('player_id,weeks');
+  var plr=await sb.from('plans').select('player_id,weeks,sessions');
   if(plr.error)throw plr.error;
-  JB_PLANS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;});
+  JB_PLANS={};JB_SESSIONS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;});
   var pgr=await sb.from('progress').select('player_id,checks');
   if(pgr.error)throw pgr.error;
   JB_CHECKS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};});
@@ -745,6 +746,11 @@ function savePlan(pid,plan){
   showSyncStatus('saving');
   sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,weeks:plan,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('savePlan',r.error);});
 }
+// \u2500\u2500 CALENDARIO REAL: sesiones por fecha (Fase 1: fundaci\u00f3n) \u2500\u2500
+function addDaysISO(iso,n){var p=String(iso).split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);dt.setDate(dt.getDate()+n);var y=dt.getFullYear(),m=('0'+(dt.getMonth()+1)).slice(-2),d=('0'+dt.getDate()).slice(-2);return y+'-'+m+'-'+d;}
+function buildSessionsFromWeeks(weeks,startISO){var out={};if(!startISO||!weeks)return out;for(var w=0;w<weeks.length;w++){for(var d=0;d<weeks[w].length;d++){var iso=addDaysISO(startISO,w*7+d);out[iso]=JSON.parse(JSON.stringify(weeks[w][d]));}}return out;}
+function saveSessions(pid){showSyncStatus('saving');sb.from('plans').update({sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()}).eq('player_id',pid).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);});}
+async function migrateAllSessions(){for(var i=0;i<PLAYERS.length;i++){var pp=PLAYERS[i];var ex=JB_SESSIONS[pp.id];if(ex&&Object.keys(ex).length)continue;if(!pp.startDate)continue;var weeks=JB_PLANS[pp.id];if(!weeks)continue;var sess=buildSessionsFromWeeks(weeks,pp.startDate);JB_SESSIONS[pp.id]=sess;try{await sb.from('plans').update({sessions:sess,updated_at:new Date().toISOString()}).eq('player_id',pp.id);}catch(e){console.error('migrate',e);}}}
 function loadCheckState(){
   if(!currentPlayerId)return;
   checkState=JB_CHECKS[currentPlayerId]||{};
@@ -765,6 +771,7 @@ async function bootApp(){
   document.getElementById('loading-error').style.display='none';
   try{
     await loadAllFromSupabase();
+    await migrateAllSessions();
     overlay.style.display='none';
     activateCoach();
   }catch(e){
