@@ -26,7 +26,10 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 #screen-select{min-height:100vh;display:flex;flex-direction:column;}
 #screen-select::before{content:'';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;height:320px;background-image:url("https://raw.githubusercontent.com/pdpersonaltrainer/Pdapp/main/logo-bg.png");background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.06;pointer-events:none;z-index:0;}
 .select-header{padding:calc(20px + env(safe-area-inset-top)) 18px 0;display:flex;align-items:center;justify-content:space-between;max-width:var(--cw);margin:0 auto;width:100%;position:relative;z-index:1;}
-.select-header h1{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;}
+.select-header h1{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;background:linear-gradient(90deg,var(--mob),#d4f59a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.select-brand{display:flex;align-items:center;gap:11px;}
+.select-logo{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 0 13px rgba(168,224,99,0.28));}
+.select-header::after{content:'';position:absolute;left:18px;right:18px;bottom:0;height:2px;background:linear-gradient(90deg,var(--mob),transparent);border-radius:2px;opacity:0.85;}
 .select-header p{font-size:10px;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-top:1px;}
 .coach-toggle{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);cursor:pointer;}
 .coach-toggle.active{background:rgba(249,200,70,0.12);border-color:var(--act);color:var(--act);}
@@ -322,7 +325,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop
 <!-- SELECT -->
 <div id="screen-select">
   <div class="select-header">
-    <div><h1>PDapp</h1><p>Personal Trainer · Fútbol Élite</p></div>
+    <div class="select-brand"><img src="logo-bg.png" class="select-logo" alt="PDapp" onerror="this.style.display='none'"><div><h1>PDapp</h1><p>Personal Trainer · Fútbol Élite</p></div></div>
     <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Jugador</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button>
   </div>
   <div class="select-body">
