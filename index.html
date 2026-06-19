@@ -27,7 +27,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 #screen-select::before{content:'';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:320px;height:320px;background-image:url("https://raw.githubusercontent.com/pdpersonaltrainer/Pdapp/main/logo-bg.png");background-size:contain;background-repeat:no-repeat;background-position:center;opacity:0.06;pointer-events:none;z-index:0;}
 .select-header{padding:calc(20px + env(safe-area-inset-top)) 18px 0;display:flex;align-items:center;justify-content:space-between;max-width:var(--cw);margin:0 auto;width:100%;position:relative;z-index:1;}
 .select-header h1{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;background:linear-gradient(90deg,var(--mob),#d4f59a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.select-brand{display:flex;align-items:center;gap:11px;}
+.select-brand{display:flex;align-items:center;gap:18px;}
 .select-logo{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 0 13px rgba(168,224,99,0.28));}
 .select-header::after{content:'';position:absolute;left:18px;right:18px;bottom:0;height:2px;background:linear-gradient(90deg,var(--mob),transparent);border-radius:2px;opacity:0.85;}
 .select-header p{font-size:10px;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-top:1px;}
@@ -70,6 +70,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .welcome-btn{width:100%;padding:14px;background:var(--w1);color:#0a0b0e;border:none;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
 .welcome-footer{position:relative;z-index:1;margin-top:20px;font-size:11px;color:var(--muted2);}
 header{position:sticky;top:0;z-index:200;background:rgba(10,11,14,0.94);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:calc(12px + env(safe-area-inset-top)) 16px 10px;}
+header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:-1px;width:min(var(--cw),calc(100% - 32px));height:2px;background:linear-gradient(90deg,var(--mob),transparent);border-radius:2px;opacity:0.7;}
 .hdr{max-width:var(--cw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .hdr-left{display:flex;align-items:center;gap:10px;min-width:0;}
 .hdr-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--w1);flex-shrink:0;}
