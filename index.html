@@ -30,6 +30,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .select-brand{display:flex;align-items:center;gap:18px;}
 .select-logo{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 0 13px rgba(168,224,99,0.28));}
 .select-header::after{content:'';position:absolute;left:18px;right:18px;bottom:0;height:2px;background:linear-gradient(90deg,var(--mob),transparent);border-radius:2px;opacity:0.85;}
+.da-opt{width:100%;padding:13px 14px;margin-bottom:9px;border-radius:var(--rsm);border:1px solid var(--border2);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;}
+.da-opt:active{border-color:var(--mob);color:var(--mob);}
 .select-header p{font-size:10px;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-top:1px;}
 .coach-toggle{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);cursor:pointer;}
 .coach-toggle.active{background:rgba(249,200,70,0.12);border-color:var(--act);color:var(--act);}
@@ -632,6 +634,20 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closeCopyDateModal()">Cancelar</button>
       <button class="mbtn mbtn-save" onclick="executeCopyDate()">Copiar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-day-actions">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Día del calendario</h3>
+    <div id="day-actions-info" style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
+    <button class="da-opt" onclick="dayActionOpen()">📋 Abrir / editar este día</button>
+    <button class="da-opt" onclick="dayActionCopyDate()">📅 Copiar a otra fecha</button>
+    <button class="da-opt" onclick="dayActionCopyPlayer()">👥 Copiar a otro jugador</button>
+    <div class="modal-btns" style="margin-top:4px;">
+      <button class="mbtn mbtn-cancel" onclick="closeDayActions()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1414,7 +1430,24 @@ function renderWeekView(){
 }
 function setWeekMode(m){weekViewMode=m;renderWeekView();}
 function moveMonth(delta){if(!monthCursor)monthCursor=new Date();monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+delta,1);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
-function openDayFromCalendar(w,d){goToDayFromWeek(w,d);}
+var calCopyMode=null,dayActionsCoords=null;
+function openDayFromCalendar(w,d){
+  if(calCopyMode){var sw=calCopyMode.w,sd=calCopyMode.d;if(sw===w&&sd===d){calCopyMode=null;renderWeekView();return;}PLAN[w][d]=JSON.parse(JSON.stringify(PLAN[sw][sd]));savePlan(currentPlayerId,PLAN);calCopyMode=null;renderWeekView();var pl0=PLAYERS.find(function(x){return x.id===currentPlayerId;});var dd=(pl0&&pl0.startDate)?fmtWD(pl0.startDate,w,d):('Sem '+(w+1)+' D'+(d+1));alert('✅ Copiado a '+dd);return;}
+  if(!isCoach){goToDayFromWeek(w,d);return;}
+  openDayActions(w,d);
+}
+function openDayActions(w,d){
+  dayActionsCoords={w:w,d:d};
+  var pl=PLAYERS.find(function(x){return x.id===currentPlayerId;});
+  var dt=(pl&&pl.startDate)?(' \u00b7 '+fmtWD(pl.startDate,w,d)):'';
+  document.getElementById('day-actions-info').textContent='Sem '+(w+1)+' D'+(d+1)+dt+' \u2014 '+PLAN[w][d].title;
+  document.getElementById('modal-day-actions').classList.add('open');
+}
+function closeDayActions(){document.getElementById('modal-day-actions').classList.remove('open');}
+function dayActionOpen(){var c=dayActionsCoords;if(!c)return;closeDayActions();goToDayFromWeek(c.w,c.d);}
+function dayActionCopyDate(){var c=dayActionsCoords;if(!c)return;calCopyMode={w:c.w,d:c.d};closeDayActions();renderWeekView();}
+function dayActionCopyPlayer(){var c=dayActionsCoords;if(!c)return;cW=c.w;cD=c.d;closeDayActions();openCopyDayModal();}
+function cancelCalCopy(){calCopyMode=null;renderWeekView();}
 function renderMonthView(p){
   var cont=document.getElementById('month-view');if(!cont)return;
   if(!p||!p.startDate){cont.innerHTML='<div style="text-align:center;color:var(--muted2);padding:34px 16px;font-size:13px;line-height:1.6;">Asign\u00e1 una <b>fecha de inicio</b> a este jugador (bot\u00f3n <b>Editar</b> en la lista de jugadores) para ver su calendario.</div>';return;}
@@ -1434,17 +1467,18 @@ function renderMonthView(p){
     var diff=Math.round((cellDate-start)/86400000);
     var head='<div style="font-weight:700;font-size:13px;margin-bottom:3px;">'+dnum+'</div>';
     if(diff>=0&&diff<28&&(diff%7)<=4){
-      var w=Math.floor(diff/7),d=diff%7;var day=PLAN[w][d];var wm=WMETA[w];
+      var w=Math.floor(diff/7),d=diff%7;var day=PLAN[w][d];var wm=WMETA[w];var srcHi=(calCopyMode&&calCopyMode.w===w&&calCopyMode.d===d)?'box-shadow:0 0 0 2px var(--mob);':'';
       var bl=day.blocks.slice(0,4).map(function(b){return '<div style="font-size:10px;color:var(--muted);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(b.title||'')+'</div>';}).join('');
       var more=day.blocks.length>4?'<div style="font-size:9px;color:var(--muted2);">+'+(day.blocks.length-4)+' m\u00e1s</div>':'';
-      cells+='<div onclick="openDayFromCalendar('+w+','+d+')" style="cursor:pointer;background:var(--s2);border-left:3px solid '+wm.badge+';border-radius:8px;padding:6px 7px;min-height:96px;overflow:hidden;">'+head+'<div style="font-size:11px;font-weight:700;color:'+wm.badge+';line-height:1.25;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+day.title+'</div>'+bl+more+'</div>';
+      cells+='<div onclick="openDayFromCalendar('+w+','+d+')" style="cursor:pointer;background:var(--s2);border-left:3px solid '+wm.badge+';border-radius:8px;padding:6px 7px;min-height:96px;'+srcHi+'overflow:hidden;">'+head+'<div style="font-size:11px;font-weight:700;color:'+wm.badge+';line-height:1.25;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+day.title+'</div>'+bl+more+'</div>';
     } else if(diff>=0&&diff<28){
       cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;">'+head+'<div style="font-size:11px;color:var(--muted2);">Libre</div></div>';
     } else {
       cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;opacity:0.45;">'+head+'</div>';
     }
   }
-  cont.innerHTML=header+dowH+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
+  var banner='';if(calCopyMode){var bt=PLAN[calCopyMode.w][calCopyMode.d].title;banner='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;"><div style="font-size:12px;color:var(--mob);font-weight:600;line-height:1.3;">📋 Copiando \u00ab'+bt+'\u00bb \u00b7 toc\u00e1 el d\u00eda destino</div><button onclick="cancelCalCopy()" style="flex:none;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);cursor:pointer;font-size:11px;font-family:Barlow Condensed,sans-serif;font-weight:700;text-transform:uppercase;">Cancelar</button></div>';}
+  cont.innerHTML=banner+header+dowH+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
 }
 function setWeekView(w){weekViewW=w;renderWeekView();}
 function goToDayFromWeek(w,d){cW=w;cD=d;showTab('plan');renderPlan();}
