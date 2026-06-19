@@ -379,6 +379,9 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   <div id="copy-day-btn" style="display:none;max-width:var(--cw);margin:0 auto;padding:0 13px 8px;">
     <button onclick="openCopyDayModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">&#x274F; Copiar este día a otro jugador</button>
   </div>
+  <div id="copy-date-btn" style="display:none;max-width:var(--cw);margin:0 auto;padding:0 13px 8px;">
+    <button onclick="openCopyDateModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">&#x1F4C5; Copiar este día a otra fecha</button>
+  </div>
 </div>
 
 <!-- LIBRARY -->
@@ -612,6 +615,23 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closeCopyDayModal()">Cancelar</button>
       <button class="mbtn mbtn-save" onclick="executeCopyDay()">Copiar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-copy-date">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Copiar día a otra fecha</h3>
+    <div id="copy-date-info" style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
+    <div class="form-row">
+      <label>Destino (semana · día · fecha)</label>
+      <select id="copy-date-target" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"></select>
+    </div>
+    <div style="background:rgba(249,200,70,0.08);border:1px solid rgba(249,200,70,0.20);border-radius:var(--rsm);padding:10px 12px;font-size:11px;color:var(--act);margin-bottom:14px;">⚠️ Reemplaza el contenido del día destino. Los checks y RPE no se copian.</div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeCopyDateModal()">Cancelar</button>
+      <button class="mbtn mbtn-save" onclick="executeCopyDate()">Copiar</button>
     </div>
   </div>
 </div>
@@ -1118,6 +1138,8 @@ function renderPlan(){
   document.getElementById('btn-next').disabled=(cW===3&&cD===4);
   var copyBtn=document.getElementById('copy-day-btn');
   if(copyBtn)copyBtn.style.display=isCoach?'flex':'none';
+  var copyDateBtn=document.getElementById('copy-date-btn');
+  if(copyDateBtn)copyDateBtn.style.display=isCoach?'flex':'none';
   var day=PLAN[cW][cD];
   var pillsH=day.pills.map(function(p){return '<div class="pill">'+p+'</div>';}).join('');
   var blocksH=day.blocks.map(function(b,bi){return renderBlock(b,bi,cW,cD);}).join('');
@@ -1283,6 +1305,32 @@ function executeCopyDay(){
   if(btn){var orig=btn.innerHTML;btn.innerHTML='✅ Copiado!';btn.style.color='var(--mob)';setTimeout(function(){btn.innerHTML=orig;btn.style.color='';},2500);}
 }
 
+function openCopyDateModal(){
+  if(!isCoach||!currentPlayerId)return;
+  var pl=PLAYERS.find(function(x){return x.id===currentPlayerId;});
+  var sd=(pl&&pl.startDate)?pl.startDate:null;
+  var srcDate=sd?(' · '+fmtWD(sd,cW,cD)):'';
+  document.getElementById('copy-date-info').textContent='Copiando: Sem '+(cW+1)+' D'+(cD+1)+srcDate+' — '+PLAN[cW][cD].title;
+  var opts='';
+  for(var w=0;w<4;w++){for(var d=0;d<5;d++){
+    if(w===cW&&d===cD)continue;
+    var dt=sd?(' · '+fmtWD(sd,w,d)):'';
+    opts+='<option value="'+w+'-'+d+'">Sem '+(w+1)+' D'+(d+1)+' · '+DMETA[d]+dt+'</option>';
+  }}
+  document.getElementById('copy-date-target').innerHTML=opts;
+  document.getElementById('modal-copy-date').classList.add('open');
+}
+function closeCopyDateModal(){document.getElementById('modal-copy-date').classList.remove('open');}
+function executeCopyDate(){
+  var v=document.getElementById('copy-date-target').value;if(!v)return;
+  var pr=v.split('-');var tw=+pr[0],td=+pr[1];
+  PLAN[tw][td]=JSON.parse(JSON.stringify(PLAN[cW][cD]));
+  savePlan(currentPlayerId,PLAN);
+  closeCopyDateModal();
+  var btn=document.querySelector('#copy-date-btn button');
+  if(btn){var orig=btn.innerHTML;btn.innerHTML='✅ Copiado a Sem '+(tw+1)+' D'+(td+1)+'!';btn.style.color='var(--mob)';setTimeout(function(){btn.innerHTML=orig;btn.style.color='';},2600);}
+  if(currentTab==='week')renderWeekView();
+}
 function importLibFromFile(input){
   var file=input.files&&input.files[0];
   input.value='';
