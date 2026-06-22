@@ -305,13 +305,31 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <!-- LOGIN PROFE -->
 <div id="screen-login" style="position:fixed;inset:0;z-index:700;background:#0a0b0e;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
   <div style="width:100%;max-width:340px;text-align:center;">
-    <img src="logo-bg.png" alt="PDapp" style="width:130px;height:130px;object-fit:contain;display:block;margin:0 auto 16px;" onerror="this.style.display='none'">
+    <img src="logo-bg.png" alt="PDapp" style="width:110px;height:110px;object-fit:contain;display:block;margin:0 auto 14px;" onerror="this.style.display='none'">
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">PDapp</div>
-    <div style="font-size:13px;color:#6b7280;margin-bottom:26px;">Ingreso de profe</div>
-    <input id="login-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-    <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-    <button onclick="login()" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
-    <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
+
+    <!-- PANEL LOGIN -->
+    <div id="panel-login">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:22px;margin-top:2px;">Ingreso de profe</div>
+      <input id="login-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <input id="login-pass" type="password" placeholder="Contrase&#241;a" autocomplete="current-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <button onclick="login()" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
+      <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
+      <button onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Ten&#233;s c&#243;digo de invitaci&#243;n? Registrate &#8594;</button>
+    </div>
+
+    <!-- PANEL REGISTRO -->
+    <div id="panel-register" style="display:none;">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:22px;margin-top:2px;">Registro de profe</div>
+      <input id="reg-name" type="text" placeholder="Nombre completo" autocomplete="name" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <input id="reg-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <input id="reg-pass" type="password" placeholder="Contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <input id="reg-pass2" type="password" placeholder="Confirmar contrase&#241;a" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <input id="reg-code" type="text" placeholder="C&#243;digo de invitaci&#243;n" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;font-family:monospace;letter-spacing:0.1em;">
+      <button onclick="registerCoach()" id="btn-register" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Crear cuenta</button>
+      <div id="reg-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
+      <button onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Ya ten&#233;s cuenta? Ingres&#225;</button>
+    </div>
   </div>
 </div>
 
@@ -766,6 +784,41 @@ async function login(){
   await bootApp();
 }
 async function logout(){await sb.auth.signOut();location.reload();}
+function showRegister(){
+  document.getElementById('panel-login').style.display='none';
+  document.getElementById('panel-register').style.display='';
+  document.getElementById('reg-msg').textContent='';
+}
+function showLogin(){
+  document.getElementById('panel-register').style.display='none';
+  document.getElementById('panel-login').style.display='';
+  document.getElementById('login-err').textContent='';
+}
+async function registerCoach(){
+  var name=document.getElementById('reg-name').value.trim();
+  var email=document.getElementById('reg-email').value.trim();
+  var pass=document.getElementById('reg-pass').value;
+  var pass2=document.getElementById('reg-pass2').value;
+  var code=document.getElementById('reg-code').value.trim().toUpperCase();
+  var msgEl=document.getElementById('reg-msg');
+  var btn=document.getElementById('btn-register');
+  msgEl.style.color='#6b7280';
+  if(!name||!email||!pass||!pass2||!code){msgEl.style.color='#ff4d4d';msgEl.textContent='Complet\u00e1 todos los campos.';return;}
+  if(pass!==pass2){msgEl.style.color='#ff4d4d';msgEl.textContent='Las contrase\u00f1as no coinciden.';return;}
+  if(pass.length<6){msgEl.style.color='#ff4d4d';msgEl.textContent='La contrase\u00f1a debe tener al menos 6 caracteres.';return;}
+  btn.disabled=true;btn.textContent='Creando cuenta...';
+  msgEl.textContent='';
+  var r=await sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name,invite_code:code}}});
+  btn.disabled=false;btn.textContent='Crear cuenta';
+  if(r.error){msgEl.style.color='#ff4d4d';msgEl.textContent='Error: '+r.error.message;return;}
+  msgEl.style.color='#a8e063';
+  msgEl.textContent='\u00a1Cuenta creada! Revis\u00e1 tu email para confirmar y despu\u00e9s ingres\u00e1.';
+  document.getElementById('reg-name').value='';
+  document.getElementById('reg-email').value='';
+  document.getElementById('reg-pass').value='';
+  document.getElementById('reg-pass2').value='';
+  document.getElementById('reg-code').value='';
+}
 async function loadPlayerData(tid){
   var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
   if(pr.error)throw pr.error;
