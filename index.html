@@ -39,6 +39,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .select-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;margin-bottom:4px;}
 .select-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
 .players-grid{display:flex;flex-direction:column;gap:12px;}
+.cv-btn{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+.cv-btn.cv-active{background:var(--mob);color:#0a0b0e;border-color:var(--mob);}
 .player-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.15s;}
 .player-card:active{transform:scale(0.985);}
 .player-card-inner{display:flex;align-items:center;gap:14px;padding:16px;}
@@ -352,7 +354,12 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   <div class="select-body">
     <div class="select-title" id="select-title">Qui&#233;n sos?</div>
     <div class="select-sub" id="select-sub">Selecci&#243;n&#225; tu nombre para ver tu plan.</div>
+    <div id="coach-view-toggle" style="display:none;gap:8px;margin-bottom:16px;">
+      <button id="cv-lista" class="cv-btn cv-active" onclick="setCoachView('lista')">Lista</button>
+      <button id="cv-semana" class="cv-btn" onclick="setCoachView('semana')">Semana</button>
+    </div>
     <div class="players-grid" id="players-grid"></div>
+    <div id="week-overview" style="display:none;"></div>
     <button class="add-player-btn hidden" id="add-player-btn" onclick="openPlayerModal()">+ Agregar alumno</button>
 
   </div>
@@ -1142,6 +1149,47 @@ function getTodaySession(pid){
   var s=(JB_SESSIONS[pid]||{})[isoToday()];
   return(s&&s.title)?s.title:null;
 }
+var coachView='lista',weekOvStart=null;
+function weekMondayISO(iso){var d=isoToDate(iso);var dow=d.getDay();var m=new Date(d);m.setDate(d.getDate()-(dow===0?6:dow-1));return m.getFullYear()+'-'+('0'+(m.getMonth()+1)).slice(-2)+'-'+('0'+m.getDate()).slice(-2);}
+function shiftWeekOv(n){if(!weekOvStart)weekOvStart=weekMondayISO(isoToday());weekOvStart=addDaysISO(weekOvStart,n*7);renderWeekOverview();}
+function openPlayerAtDate(pid,iso){doSelectPlayer(pid);enterPlan();curDate=iso;lastCheckedDay=null;renderPlan();}
+function setCoachView(v){
+  coachView=v;
+  document.getElementById('cv-lista').classList.toggle('cv-active',v==='lista');
+  document.getElementById('cv-semana').classList.toggle('cv-active',v==='semana');
+  var pg=document.getElementById('players-grid'),apb=document.getElementById('add-player-btn'),wo=document.getElementById('week-overview');
+  if(v==='semana'){pg.style.display='none';if(apb)apb.style.display='none';wo.style.display='block';renderWeekOverview();}
+  else{pg.style.display='';if(apb){apb.style.display='';apb.classList.toggle('hidden',!isCoach);}wo.style.display='none';}
+}
+function renderWeekOverview(){
+  var wo=document.getElementById('week-overview');
+  if(!weekOvStart)weekOvStart=weekMondayISO(isoToday());
+  var days=[];for(var i=0;i<7;i++)days.push(addDaysISO(weekOvStart,i));
+  var today=isoToday();
+  var labels=['Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b','Dom'];
+  var btnS='width:38px;height:38px;border-radius:9px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:18px;cursor:pointer;flex:none;';
+  var head='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><button onclick="shiftWeekOv(-1)" style="'+btnS+'">\u2039</button><div style="font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;">'+fmtDateShort(days[0])+' \u2013 '+fmtDateShort(days[6])+'</div><button onclick="shiftWeekOv(1)" style="'+btnS+'">\u203a</button></div>';
+  var colHead='<div style="display:flex;gap:4px;min-width:max-content;"><div style="width:104px;flex:none;"></div>'+days.map(function(iso,i){var isT=iso===today;return '<div style="width:88px;flex:none;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.04em;color:'+(isT?'var(--act)':'var(--muted2)')+';">'+labels[i]+'<br><span style="font-size:13px;">'+(+iso.slice(8,10))+'</span></div>';}).join('')+'</div>';
+  if(!PLAYERS.length){wo.innerHTML=head+'<div style="text-align:center;color:var(--muted2);font-size:13px;padding:20px 0;">Sin alumnos.</div>';return;}
+  var rows=PLAYERS.map(function(p){
+    var sess=JB_SESSIONS[p.id]||{};var ch=JB_CHECKS[p.id]||{};
+    var cells=days.map(function(iso){
+      var s=sess[iso];var has=s&&s.blocks&&s.blocks.length>0;
+      if(!has)return '<div style="width:88px;flex:none;height:48px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;"><span style="color:var(--muted2);font-size:15px;">\u00b7</span></div>';
+      var done=Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+      var bg,fg,bd;
+      if(done){bg='rgba(168,224,99,0.15)';fg='var(--mob)';bd='var(--mob)';}
+      else if(iso>today){bg='rgba(77,171,247,0.12)';fg='#4dabf7';bd='rgba(77,171,247,0.45)';}
+      else if(iso===today){bg='rgba(249,200,70,0.15)';fg='var(--act)';bd='var(--act)';}
+      else{bg='rgba(255,112,67,0.12)';fg='#ff7043';bd='rgba(255,112,67,0.45)';}
+      var title=(s.title||'Sesi\u00f3n').replace(/"/g,'');
+      return '<div onclick="openPlayerAtDate(\''+p.id+'\',\''+iso+'\')" style="width:88px;flex:none;height:48px;border-radius:8px;background:'+bg+';border:1px solid '+bd+';padding:4px 5px;cursor:pointer;overflow:hidden;display:flex;align-items:center;"><span style="font-size:9px;font-weight:700;color:'+fg+';line-height:1.15;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">'+title+'</span></div>';
+    }).join('');
+    var av=p.photo?'<img src="'+p.photo+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;"/>':'<div style="width:28px;height:28px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:13px;flex:none;">\ud83d\udc64</div>';
+    return '<div style="display:flex;gap:4px;align-items:center;min-width:max-content;margin-bottom:6px;"><div style="width:104px;flex:none;display:flex;align-items:center;gap:6px;">'+av+'<span style="font-size:11px;font-weight:600;color:var(--text);line-height:1.1;overflow:hidden;">'+p.name+'</span></div>'+cells+'</div>';
+  }).join('');
+  wo.innerHTML=head+'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;">'+colHead+'<div style="margin-top:6px;">'+rows+'</div></div>';
+}
 function renderSelect(){
   var g=document.getElementById('players-grid');
   if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><img src="logo-bg.png" style="width:60px;height:60px;object-fit:contain;opacity:0.18;display:block;margin:0 auto 10px;" onerror="this.style.display=\'none\'"><p>'+(isCoach?'Sin alumnos. Agrega\u0301 el primero.':'Sin alumnos cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);return;}
@@ -1203,8 +1251,8 @@ function goBack(){
 
 // \u2500\u2500 COACH MODE \u2500\u2500
 function toggleMode(){if(isCoach)deactivateCoach();else activateCoach();}
-function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Tus alumnos';if(ss)ss.textContent='Toc\u00e1 un nombre para abrir el plan, o sum\u00e1 uno nuevo.';renderSelect();if(currentPlayerId)renderPlan();}
-function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
+function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Tus alumnos';if(ss)ss.textContent='Toc\u00e1 un nombre para abrir el plan, o sum\u00e1 uno nuevo.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='flex';renderSelect();setCoachView(coachView);if(currentPlayerId)renderPlan();}
+function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='none';coachView='lista';var pg=document.getElementById('players-grid');if(pg)pg.style.display='';var wo=document.getElementById('week-overview');if(wo)wo.style.display='none';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
 
 // \u2500\u2500 COACH PIN \u2500\u2500
 function openPinModal(){pinBuffer='';updatePinDots();document.getElementById('pin-overlay').classList.add('open');}
