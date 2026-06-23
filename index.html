@@ -18,7 +18,7 @@
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
   --text:#eef0f5;--muted:#6b7280;--muted2:#3d4350;
   --w1:#a8e063;--w2:#38d9c0;--w3:#ff7043;--w4:#5b9cf6;
-  --mob:#a8e063;--act:#f9c846;--fza:#ff7043;--exp:#c77dff;--cam:#38d9c0;
+  --mob:#a8e063;--act:#f9c846;--fza:#ff7043;--exp:#c77dff;--cam:#38d9c0;--cm:#4dabf7;--est:#f06595;
   --danger:#ff4d4d;--r:16px;--rsm:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -110,7 +110,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 .bcard{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;}
 .bcard-hdr{display:flex;align-items:center;gap:8px;padding:12px 14px 10px;cursor:pointer;user-select:none;}
 .bstripe{width:3px;border-radius:2px;align-self:stretch;min-height:24px;flex-shrink:0;}
-.bs-mob{background:var(--mob);}.bs-act{background:var(--act);}.bs-fza{background:var(--fza);}.bs-exp{background:var(--exp);}.bs-cam{background:var(--cam);}
+.bs-mob{background:var(--mob);}.bs-act{background:var(--act);}.bs-fza{background:var(--fza);}.bs-exp{background:var(--exp);}.bs-cam{background:var(--cam);}.bs-cm{background:var(--cm);}.bs-est{background:var(--est);}
 .bicon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
 .bi-mob{background:rgba(168,224,99,0.10);color:#a8e063;}.bi-act{background:rgba(249,200,70,0.10);color:#f9c846;}.bi-fza{background:rgba(255,112,67,0.10);color:#ff7043;}.bi-exp{background:rgba(199,125,255,0.10);color:#c77dff;}.bi-cam{background:rgba(56,217,192,0.10);color:#38d9c0;}.bicon svg{width:17px;height:17px;}.lib-card-img-ph svg{width:34px;height:34px;}
 .binfo{flex:1;min-width:0;}
@@ -125,14 +125,14 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 .exrow{display:grid;grid-template-columns:8px 1fr auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .exrow:last-child{border-bottom:none;}
 .exdot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
-.d-mob{background:var(--mob);}.d-act{background:var(--act);}.d-fza{background:var(--fza);}.d-exp{background:var(--exp);}.d-cam{background:var(--cam);}
+.d-mob{background:var(--mob);}.d-act{background:var(--act);}.d-fza{background:var(--fza);}.d-exp{background:var(--exp);}.d-cam{background:var(--cam);}.d-cm{background:var(--cm);}.d-est{background:var(--est);}
 .exbody{min-width:0;}
 .exname{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
 .exnote{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
 .exlink{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:5px 10px;background:rgba(60,156,240,0.10);border:1px solid rgba(60,156,240,0.20);border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--w4);text-decoration:none;}
 .exright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
 .exload{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;}
-.l-mob{background:rgba(168,224,99,0.10);color:var(--mob);}.l-act{background:rgba(249,200,70,0.10);color:var(--act);}.l-fza{background:rgba(255,112,67,0.10);color:var(--fza);}.l-exp{background:rgba(199,125,255,0.10);color:var(--exp);}.l-cam{background:rgba(56,217,192,0.10);color:var(--cam);}
+.l-mob{background:rgba(168,224,99,0.10);color:var(--mob);}.l-act{background:rgba(249,200,70,0.10);color:var(--act);}.l-fza{background:rgba(255,112,67,0.10);color:var(--fza);}.l-exp{background:rgba(199,125,255,0.10);color:var(--exp);}.l-cam{background:rgba(56,217,192,0.10);color:var(--cam);}.l-cm{background:rgba(77,171,247,0.10);color:var(--cm);}.l-est{background:rgba(240,101,149,0.10);color:var(--est);}
 .exload-edit{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid var(--act);background:var(--s2);color:var(--text);outline:none;width:90px;text-align:center;}
 .ex-del{background:rgba(255,77,77,0.10);color:var(--danger);border:none;border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
 .add-ex-btn{width:100%;margin-top:6px;padding:9px;border-radius:var(--rsm);border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
@@ -417,7 +417,9 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="filter-chip" onclick="filterLib('act',this)">Activación</div>
     <div class="filter-chip" onclick="filterLib('fza',this)">Fuerza</div>
     <div class="filter-chip" onclick="filterLib('exp',this)">Explosivos</div>
-    <div class="filter-chip" onclick="filterLib('cam',this)">Campo</div>
+    <div class="filter-chip" onclick="filterLib('cam',this)">Carrera</div>
+    <div class="filter-chip" onclick="filterLib('cm',this)">Control Motor</div>
+    <div class="filter-chip" onclick="filterLib('est',this)">Estiramientos</div>
   </div>
   <div class="lib-grid" id="lib-grid"></div>
 </div>
@@ -504,11 +506,13 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="form-row"><label>Nombre</label><input type="text" id="f-name" placeholder="Ej: Hip CARs"/></div>
     <div class="form-row"><label>Categoría</label>
       <select id="f-type">
-        <option value="mob">ED + Movilidad</option>
-        <option value="act">Activación y Prevención</option>
+        <option value="mob">Movilidad</option>
+        <option value="act">Activaci&#243;n y Prevenci&#243;n</option>
         <option value="fza">Fuerza</option>
-        <option value="exp">Explosivos</option>
-        <option value="cam">Trabajo de Campo</option>
+        <option value="cm">Control Motor</option>
+        <option value="exp">Explosivos / Velocidad</option>
+        <option value="cam">Carrera</option>
+        <option value="est">Estiramientos din&#225;micos</option>
       </select>
     </div>
     <div class="form-row"><label>Acción / Patrón de movimiento</label><select id="f-pattern"><option value="">Sin categoría</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select></div>
@@ -528,7 +532,8 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   <div class="modal">
     <div class="modal-handle"></div>
     <h3>Agregar desde Biblioteca</h3>
-    <select id="pick-pat-filter" onchange="setPickPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select>
+    <select id="pick-type-filter" onchange="setPickType(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:8px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todos los tipos</option><option value="mob">Movilidad</option><option value="act">Activaci&#243;n y Prevenci&#243;n</option><option value="fza">Fuerza</option><option value="cm">Control Motor</option><option value="exp">Explosivos / Velocidad</option><option value="cam">Carrera</option><option value="est">Estiramientos din&#225;micos</option></select>
+    <select id="pick-pat-filter" onchange="setPickPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla &middot; Bi</option><option value="dr_uni">Dominante rodilla &middot; Uni</option><option value="dc_bi">Dominante cadera &middot; Bi</option><option value="dc_uni">Dominante cadera &middot; Uni</option><option value="eh_bi">Empuje horizontal &middot; Bi</option><option value="eh_uni">Empuje horizontal &middot; Uni</option><option value="ev_bi">Empuje vertical &middot; Bi</option><option value="ev_uni">Empuje vertical &middot; Uni</option><option value="th">Tracci&#243;n horizontal</option><option value="tv">Tracci&#243;n vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select>
     <div class="pick-list" id="pick-list"></div>
     <button class="mbtn mbtn-cancel" style="width:100%;margin-top:4px;" onclick="closePickModal()">Cerrar</button>
   </div>
@@ -1248,9 +1253,10 @@ function editBlockField(el){
 
 var PATTERNS=[['dr_bi','Dominante rodilla · Bi'],['dr_uni','Dominante rodilla · Uni'],['dc_bi','Dominante cadera · Bi'],['dc_uni','Dominante cadera · Uni'],['eh_bi','Empuje horizontal · Bi'],['eh_uni','Empuje horizontal · Uni'],['ev_bi','Empuje vertical · Bi'],['ev_uni','Empuje vertical · Uni'],['th','Tracción horizontal'],['tv','Tracción vertical'],['s2','Salto 2 piernas'],['s1','Salto 1 pierna']];
 var PATLABEL={};PATTERNS.forEach(function(x){PATLABEL[x[0]]=x[1];});
-var activePattern='',pickPattern='';
+var activePattern='',pickPattern='',pickTypeFilter='';
 function filterLibSearch(){renderLib();}
 function setLibPattern(v){activePattern=v;renderLib();}
+function setPickType(v){pickTypeFilter=v;renderPickList();}
 
 function delEx(w,d,b,e){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs.splice(e,1);commitSession();renderPlan();}
 function updateLoad(input){var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs[e].l=input.value;commitSession();}
@@ -1269,9 +1275,9 @@ function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState
 function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();renderPlan();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
-function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};if(!LIB.length){alert('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
+function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};if(!LIB.length){alert('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
 function setPickPattern(v){pickPattern=v;renderPickList();}
-function renderPickList(){var items=LIB.slice();if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';return '<div class="pick-item" data-lid="'+e.id+'" onclick="addFromLib(this.dataset.lid)"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div><div class="pick-add">+</div></div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">Sin ejercicios en esta acci\u00f3n.</div>';}
+function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';return '<div class="pick-item" data-lid="'+e.id+'" onclick="addFromLib(this.dataset.lid)"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div><div class="pick-add">+</div></div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">Sin ejercicios en esta acci\u00f3n.</div>';}
 
 function closePickModal(){document.getElementById('modal-pick').classList.remove('open');pickTarget=null;}
 function addFromLib(id){if(!pickTarget||!currentPlayerId)return;var ex=LIB.find(function(e){return e.id===id;});if(!ex)return;PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});commitSession();closePickModal();renderPlan();}
