@@ -725,6 +725,7 @@ async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
   if(pr.error)throw pr.error;
   PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null};});
+  var plr=await sb.from('plans').select('player_id,weeks,sessions');
   if(plr.error)throw plr.error;
   JB_PLANS={};JB_SESSIONS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;});
   var pgr=await sb.from('progress').select('player_id,checks');
