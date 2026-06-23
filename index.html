@@ -765,6 +765,8 @@ function showSyncStatus(state){
 
 async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
+  var dbgU=await sb.auth.getUser();
+  alert('DEBUG\nemail: '+((dbgU.data&&dbgU.data.user&&dbgU.data.user.email)||'SIN SESION')+'\nuid: '+((dbgU.data&&dbgU.data.user&&dbgU.data.user.id)||'-')+'\nplayers error: '+(pr.error?pr.error.message:'ninguno')+'\nplayers count: '+((pr.data||[]).length));
   if(pr.error)throw pr.error;
   PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{}};});
   var plr=await sb.from('plans').select('player_id,weeks,sessions');
