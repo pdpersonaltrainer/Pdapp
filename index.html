@@ -430,7 +430,6 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <div class="welcome-avatar-inner" id="welcome-av"></div>
       <div class="welcome-ring"></div>
     </div>
-    <div class="welcome-tag">Off-Season 2025</div>
     <div class="welcome-name" id="welcome-name">Alumno</div>
     <div class="welcome-sub" id="welcome-sub">Plan personalizado · Pablo PT</div>
     <button class="welcome-btn" onclick="enterPlan()">Ver mi plan</button>
@@ -444,7 +443,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="hdr">
       <div class="hdr-left">
         <div id="hdr-av-wrap"></div>
-        <div><div class="hdr-name" id="hdr-name">Alumno</div><div class="hdr-sub">Off-Season 2025</div></div>
+        <div><div class="hdr-name" id="hdr-name">Alumno</div><div class="hdr-sub" id="hdr-sub"></div></div>
       </div>
       <div class="hdr-right">
         <div id="hdr-badge">SEM 1</div>
@@ -751,6 +750,7 @@ var curDate=null,calCursor=null;
 
 // ── JSONBIN CONFIG ──  bin guarda: { players:[...], checks:{"pid":{"w-d-b":{done,rpe,note}}} }
 var JB_CHECKS={};
+var JB_LOADS={};
 var JB_PLANS={};
 var JB_SESSIONS={};
 var JB_LIB=null;
@@ -770,9 +770,9 @@ async function loadAllFromSupabase(){
   var plr=await sb.from('plans').select('player_id,weeks,sessions');
   if(plr.error)throw plr.error;
   JB_PLANS={};JB_SESSIONS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;});
-  var pgr=await sb.from('progress').select('player_id,checks');
+  var pgr=await sb.from('progress').select('player_id,checks,loads');
   if(pgr.error)throw pgr.error;
-  JB_CHECKS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};});
+  JB_CHECKS={};JB_LOADS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};});
   var exr=await sb.from('exercises').select('*').order('type');
   if(exr.error)throw exr.error;
   LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base};});
@@ -831,6 +831,20 @@ function migrateAllChecks(){
     sb.from('progress').update({checks:out,updated_at:new Date().toISOString()}).eq('player_id',pid).then(function(){});
   });
 }
+function aLoadKey(bi,ei){return curDate+'-'+bi+'-'+ei;}
+function getALoad(bi,ei){if(!currentPlayerId)return '';var m=JB_LOADS[currentPlayerId]||{};return m[aLoadKey(bi,ei)]||'';}
+function saveLoad(input){
+  var bi=+input.dataset.b,ei=+input.dataset.e;
+  if(!currentPlayerId||!curDate)return;
+  if(!JB_LOADS[currentPlayerId])JB_LOADS[currentPlayerId]={};
+  var ld=JB_LOADS[currentPlayerId];
+  var v=input.value.trim();
+  var key=aLoadKey(bi,ei);
+  if(v)ld[key]=v;else delete ld[key];
+  showSyncStatus('saving');
+  sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:JB_CHECKS[currentPlayerId]||{},loads:ld,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveLoad',r.error);});
+}
+
 function loadCheckState(){
   checkState={};
   if(!currentPlayerId||!curDate)return;
@@ -844,7 +858,7 @@ function saveCheckState(){
   Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});
   Object.keys(checkState).forEach(function(k){ch[curDate+'-'+k.split('-')[2]]=checkState[k];});
   showSyncStatus('saving');
-  sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});
+  sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,loads:JB_LOADS[currentPlayerId]||{},updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});
 }
 
 // \u2500\u2500 INIT \u2500\u2500
@@ -922,9 +936,9 @@ async function loadPlayerData(tid){
   var plr=await sb.from('plans').select('player_id,weeks').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
   JB_PLANS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;});
-  var pgr=await sb.from('progress').select('player_id,checks').eq('trainer_id',tid);
+  var pgr=await sb.from('progress').select('player_id,checks,loads').eq('trainer_id',tid);
   if(pgr.error)throw pgr.error;
-  JB_CHECKS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};});
+  JB_CHECKS={};JB_LOADS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};});
   LIB=[];
 }
 async function bootPlayer(){
@@ -1133,7 +1147,7 @@ function renderSelect(){
   if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><img src="logo-bg.png" style="width:60px;height:60px;object-fit:contain;opacity:0.18;display:block;margin:0 auto 10px;" onerror="this.style.display=\'none\'"><p>'+(isCoach?'Sin alumnos. Agrega\u0301 el primero.':'Sin alumnos cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);return;}
   g.innerHTML=PLAYERS.map(function(p){
     var av=p.photo?'<div class="player-photo"><img src="'+p.photo+'"/></div>':'<div class="player-photo">\ud83d\udc64</div>';
-    var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'Off-Season 2025';
+    var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
     if(activePid&&activePid!==p.id&&!isCoach){return '<div class="player-card-locked"><div class="player-card-inner">'+av+'<div style="flex:1"><div class="player-name">'+p.name+'</div><div class="player-meta">'+meta+'</div></div><span style="font-size:16px">\ud83d\udd12</span></div></div>';}
     var pinBadge=isCoach&&p.pin?'<div class="player-pin-badge">PIN: '+p.pin.replace(/./g,'\u25cf')+'</div>':'';
     var aw=p.activeWeek||0;
@@ -1165,7 +1179,7 @@ function doSelectPlayer(pid){
   var av=document.getElementById('welcome-av');
   av.innerHTML=p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';
   document.getElementById('welcome-name').textContent=p.name;
-  var sub=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'Off-Season 2025';
+  var sub=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
   document.getElementById('welcome-sub').textContent=sub;
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');
   document.getElementById('screen-select').style.display='none';
@@ -1329,17 +1343,24 @@ function editSessionTitle(){openDayEditModal();}
 
 // ── BLOCKS ──
 function toggleBlock(el){el.closest('.bcard').classList.toggle('open');}
+function loadCell(t,wIdx,dIdx,bi,ei,objetivo){
+  var aL=getALoad(bi,ei);
+  if(isCoach){
+    return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><input class="exload-edit" value="'+objetivo+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onchange="updateLoad(this)" onclick="event.stopPropagation()"/>'+(aL?'<div style="font-size:10px;font-weight:700;color:var(--cm);white-space:nowrap;">Hizo: '+aL+'</div>':'')+'</div>';
+  }
+  return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="exload l-'+t+'">'+objetivo+'</div><input value="'+aL+'" placeholder="\u00bfQu\u00e9 hiciste?" data-b="'+bi+'" data-e="'+ei+'" onchange="saveLoad(this)" onclick="event.stopPropagation()" style="width:96px;box-sizing:border-box;background:var(--s2);border:1px solid var(--cm);border-radius:6px;color:var(--text);padding:5px 6px;font-size:11px;text-align:center;outline:none;"/></div>';
+}
 function renderBlock(b,bi,wIdx,dIdx){
   var isC=isCoach;
   var delB=isC?'<div class="block-del-wrap" style="display:flex;gap:6px;"><button style="flex:1;padding:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:14px;cursor:pointer;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="moveBlock(+this.dataset.w,+this.dataset.d,+this.dataset.b,-1)">↑</button><button style="flex:1;padding:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-size:14px;cursor:pointer;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="moveBlock(+this.dataset.w,+this.dataset.d,+this.dataset.b,1)">↓</button><button class="block-del-btn" style="flex:2;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="delBlock(+this.dataset.w,+this.dataset.d,+this.dataset.b)">Eliminar bloque</button></div>':'';
   if(b.t==='cam'){
     var pasH='',intH='';
     if(b.campo){var pas=b.campo.pasadas||[];var inter=b.campo.intermitente||[];pasH=pas.length?'<div class="campo-lbl">Pasadas</div><div class="campo-chips">'+pas.map(function(p){return '<div class="campo-chip">'+p+'</div>';}).join('')+'</div>':'';intH=inter.length?'<div class="campo-lbl" style="margin-top:14px">Intermitente</div><div class="campo-chips">'+inter.map(function(x){return '<div class="campo-chip campo-chip-int">'+x+'</div>';}).join('')+'</div>':'';}
-    var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=isC?'<input class="exload-edit" value="'+e.l+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onchange="updateLoad(this)" onclick="event.stopPropagation()"/>':'<div class="exload l-cam">'+e.l+'</div>';var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div></div><div class="exright">'+lEl+del+'</div></div>';}).join(''):'';
+    var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=loadCell('cam',wIdx,dIdx,bi,ei,e.l);var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div></div><div class="exright">'+lEl+del+'</div></div>';}).join(''):'';
     var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
     return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">'+BICONS.cam+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
   }
-  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var lEl=isC?'<input class="exload-edit" value="'+e.l+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onchange="updateLoad(this)" onclick="event.stopPropagation()"/>':'<div class="exload l-'+b.t+'">'+e.l+'</div>';var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div><div class="exright">'+lEl+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l);var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div><div class="exright">'+lEl+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -1593,7 +1614,7 @@ function renderSummary(){
   if(!PLAYERS.length){document.getElementById('summary-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcca</div><p>No hay alumnos.</p></div>';return;}
   var html=PLAYERS.map(function(p){
     var avH=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">\ud83d\udc64</div>';
-    var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'Off-Season 2025';
+    var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
     var ss=JB_SESSIONS[p.id]||{};
     var checks=JB_CHECKS[p.id]||{};
     var byDate={};
