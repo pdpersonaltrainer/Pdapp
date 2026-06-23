@@ -354,7 +354,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="select-sub">Seleccióná tu nombre para ver tu plan.</div>
     <div class="players-grid" id="players-grid"></div>
     <button class="add-player-btn hidden" id="add-player-btn" onclick="openPlayerModal()">+ Agregar alumno</button>
-    <button class="add-player-btn hidden" id="cleanup-btn" onclick="limpiarFotosPesadas()" style="border-color:rgba(255,77,77,0.3);color:#ff7043;margin-top:8px;">&#x1F9F9; Limpiar fotos pesadas (destrabar sync)</button>
+
   </div>
 </div>
 
@@ -1007,7 +1007,7 @@ var LIB=[];
 // \u2500\u2500 SELECT SCREEN \u2500\u2500
 function renderSelect(){
   var g=document.getElementById('players-grid');
-  if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><div class="emi">\u26bd</div><p>'+(isCoach?'Sin alumnos. Agrega\u0301 el primero.':'Sin alumnos cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);var cb=document.getElementById('cleanup-btn');if(cb)cb.classList.toggle('hidden',!isCoach);return;}
+  if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><img src="logo-bg.png" style="width:60px;height:60px;object-fit:contain;opacity:0.18;display:block;margin:0 auto 10px;" onerror="this.style.display=\'none\'"><p>'+(isCoach?'Sin alumnos. Agrega\u0301 el primero.':'Sin alumnos cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);return;}
   g.innerHTML=PLAYERS.map(function(p){
     var av=p.photo?'<div class="player-photo"><img src="'+p.photo+'"/></div>':'<div class="player-photo">\ud83d\udc64</div>';
     var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'Off-Season 2025';
@@ -1020,7 +1020,7 @@ function renderSelect(){
     var actions=isCoach?'<div class="player-card-actions"><button class="pca-btn pca-edit" data-pid="'+p.id+'" onclick="editPlayer(this.dataset.pid)">Editar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="delPlayer(this.dataset.pid)">Eliminar</button></div>':'';
     return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1"><div class="player-name">'+p.name+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+weekBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
   }).join('');
-  document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);var cb=document.getElementById('cleanup-btn');if(cb)cb.classList.toggle('hidden',!isCoach);
+  document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);
 }
 
 function selectPlayer(pid){
@@ -1116,9 +1116,7 @@ function handlePhotoUpload(e){
   };
   reader.readAsDataURL(file);
 }
-function limpiarFotosPesadas(){
-  alert('Esta herramienta ya no es necesaria con Supabase.');
-}
+
 function handlePhotoUrl(url){
   url=(url||'').trim();
   if(!url)return;
