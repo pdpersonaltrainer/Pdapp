@@ -346,7 +346,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <!-- SELECT -->
 <div id="screen-select">
   <div class="select-header">
-    <div class="select-brand"><img src="logo-bg.png" class="select-logo" alt="PDapp" onerror="this.style.display='none'"><div><h1>PDapp</h1><p>Personal Trainer · Fútbol Élite</p></div></div>
+    <div class="select-brand"><img src="logo-bg.png" class="select-logo" alt="PDapp" onerror="this.style.display='none'"><div><h1>PDapp</h1><p>Personal Trainer · Fútbol Élite <span style="color:var(--mob);font-weight:700;">· BUILD 2</span></p></div></div>
     <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Alumno</button> <button class="coach-toggle" id="invites-btn" onclick="openInvitesModal()" style="display:none">&#x1F39F; Invitar</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button>
   </div>
   <div class="select-body">
@@ -765,8 +765,6 @@ function showSyncStatus(state){
 
 async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
-  var dbgU=await sb.auth.getUser();
-  alert('DEBUG\nemail: '+((dbgU.data&&dbgU.data.user&&dbgU.data.user.email)||'SIN SESION')+'\nuid: '+((dbgU.data&&dbgU.data.user&&dbgU.data.user.id)||'-')+'\nplayers error: '+(pr.error?pr.error.message:'ninguno')+'\nplayers count: '+((pr.data||[]).length));
   if(pr.error)throw pr.error;
   PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{}};});
   var plr=await sb.from('plans').select('player_id,weeks,sessions');
@@ -864,6 +862,7 @@ async function bootApp(){
     activateCoach();
     var ib=document.getElementById('invites-btn');if(ib)ib.style.display=isAdmin?'':'none';
   }catch(e){
+    overlay.style.display='flex';
     document.getElementById('loading-spinner').style.display='none';
     document.getElementById('loading-title').style.display='none';
     var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML='Error cargando datos:<br>'+((e&&e.message)||e);
@@ -1141,6 +1140,7 @@ function renderSelect(){
     var wmNames=['Reeducaci\u00f3n','Base I/MA','Fuerza','Fza+F.Expl.'];
     var wmColors=['#a8e063','#38d9c0','#ff7043','#5b9cf6'];
     var weekBadge='<div style="display:flex;gap:5px;margin-top:5px;"><span style="font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:rgba(168,224,99,0.10);border:1px solid '+wmColors[aw]+';color:'+wmColors[aw]+'">SEM '+(aw+1)+'</span><span style="font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;padding:2px 0">'+wmNames[aw]+'</span></div>';
+    var strip=isCoach?getWeekStrip(p.id):'';
     var todayW=isCoach?(p.wellness||{})[isoToday()]:null;
     var wDot=todayW?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+(todayW.pain?'#ff7043':'var(--mob)')+';margin-left:6px;vertical-align:middle;" title="Check-in hoy"></span>':'';
     var todaySess=isCoach?getTodaySession(p.id):null;
