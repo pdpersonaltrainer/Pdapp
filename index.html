@@ -667,8 +667,12 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="modal-handle"></div>
     <h3>Duplicar entrenamiento</h3>
     <div id="dup-info" style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button id="dup-mode-dia" class="cv-btn cv-active" onclick="setDupMode('dia')">D&#237;a</button>
+      <button id="dup-mode-semana" class="cv-btn" onclick="setDupMode('semana')">Semana</button>
+    </div>
     <div class="form-row"><label>Copiar a</label><select id="dup-player" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"></select></div>
-    <div class="form-row"><label>Fecha destino</label><input type="date" id="dup-date" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div class="form-row"><label id="dup-date-label">Fecha destino</label><input type="date" id="dup-date" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
     <div style="background:rgba(249,200,70,0.08);border:1px solid rgba(249,200,70,0.20);border-radius:var(--rsm);padding:10px 12px;font-size:11px;color:var(--act);margin-bottom:14px;">⚠️ Reemplaza lo que haya en la fecha destino. Los checks y RPE no se copian.</div>
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closeDuplicateModal()">Cancelar</button>
@@ -1149,7 +1153,7 @@ function getTodaySession(pid){
   var s=(JB_SESSIONS[pid]||{})[isoToday()];
   return(s&&s.title)?s.title:null;
 }
-var coachView='lista',weekOvStart=null;
+var coachView='lista',weekOvStart=null,dupMode='dia';
 function weekMondayISO(iso){var d=isoToDate(iso);var dow=d.getDay();var m=new Date(d);m.setDate(d.getDate()-(dow===0?6:dow-1));return m.getFullYear()+'-'+('0'+(m.getMonth()+1)).slice(-2)+'-'+('0'+m.getDate()).slice(-2);}
 function shiftWeekOv(n){if(!weekOvStart)weekOvStart=weekMondayISO(isoToday());weekOvStart=addDaysISO(weekOvStart,n*7);renderWeekOverview();}
 function openPlayerAtDate(pid,iso){doSelectPlayer(pid);enterPlan();curDate=iso;lastCheckedDay=null;renderPlan();}
@@ -1511,26 +1515,56 @@ async function saveLibExercise(){
 function editLibEx(id){openLibModal(id);}
 function openDuplicateModal(){
   if(!isCoach||!currentPlayerId)return;
-  var sObj=getCurSession(false);
-  if(!sObj||!sObj.blocks||!sObj.blocks.length){alert('Este día no tiene entrenamiento para duplicar.');return;}
-  document.getElementById('dup-info').textContent='Duplicando: '+fmtDateLong(curDate)+' \u2014 '+(sObj.title||'Entrenamiento');
+  dupMode='dia';
+  document.getElementById('dup-mode-dia').classList.add('cv-active');
+  document.getElementById('dup-mode-semana').classList.remove('cv-active');
   var opts=PLAYERS.map(function(pp){return '<option value="'+pp.id+'"'+(pp.id===currentPlayerId?' selected':'')+'>'+pp.name+(pp.id===currentPlayerId?' (este alumno)':'')+'</option>';}).join('');
   document.getElementById('dup-player').innerHTML=opts;
   document.getElementById('dup-date').value=addDaysISO(curDate,7);
+  updateDupInfo();
   document.getElementById('modal-duplicate').classList.add('open');
+}
+function setDupMode(m){
+  dupMode=m;
+  document.getElementById('dup-mode-dia').classList.toggle('cv-active',m==='dia');
+  document.getElementById('dup-mode-semana').classList.toggle('cv-active',m==='semana');
+  updateDupInfo();
+}
+function updateDupInfo(){
+  var el=document.getElementById('dup-info');var lbl=document.getElementById('dup-date-label');
+  if(dupMode==='semana'){
+    var ms=weekMondayISO(curDate),me=addDaysISO(ms,6);
+    el.textContent='Copiando la semana '+fmtDateShort(ms)+' \u2013 '+fmtDateShort(me)+' (solo los d\u00edas con entreno).';
+    if(lbl)lbl.textContent='Semana destino (eleg\u00ed cualquier d\u00eda de esa semana)';
+  }else{
+    var sObj=getCurSession(false);
+    el.textContent='Copiando: '+fmtDateLong(curDate)+' \u2014 '+((sObj&&sObj.title)||'(d\u00eda vac\u00edo)');
+    if(lbl)lbl.textContent='Fecha destino';
+  }
 }
 function closeDuplicateModal(){document.getElementById('modal-duplicate').classList.remove('open');}
 function executeDuplicate(){
   var tgtPid=document.getElementById('dup-player').value;
   var tgtDate=document.getElementById('dup-date').value;
   if(!tgtPid||!tgtDate){alert('Eleg\u00ed alumno y fecha destino.');return;}
-  var sObj=getCurSession(false);if(!sObj)return;
-  var ss=sessionsOf(tgtPid);
-  ss[tgtDate]=JSON.parse(JSON.stringify(sObj));
-  saveSessions(tgtPid);
-  closeDuplicateModal();
+  var srcSs=sessionsOf(currentPlayerId);var ss=sessionsOf(tgtPid);
   var pname=(PLAYERS.find(function(x){return x.id===tgtPid;})||{}).name||'';
-  alert('\u2705 Duplicado a '+pname+' \u00b7 '+fmtDateLong(tgtDate));
+  if(dupMode==='semana'){
+    var srcMon=weekMondayISO(curDate),tgtMon=weekMondayISO(tgtDate),copied=0;
+    for(var i=0;i<7;i++){
+      var sObj=srcSs[addDaysISO(srcMon,i)];
+      if(sObj&&sObj.blocks&&sObj.blocks.length){ss[addDaysISO(tgtMon,i)]=JSON.parse(JSON.stringify(sObj));copied++;}
+    }
+    if(!copied){alert('Esta semana no tiene entrenamientos para copiar.');return;}
+    saveSessions(tgtPid);closeDuplicateModal();
+    alert('\u2705 Semana copiada a '+pname+' ('+copied+' d\u00eda'+(copied>1?'s':'')+') \u00b7 semana del '+fmtDateShort(tgtMon));
+  }else{
+    var d=srcSs[curDate];
+    if(!d||!d.blocks||!d.blocks.length){alert('Este d\u00eda no tiene entrenamiento para duplicar.');return;}
+    ss[tgtDate]=JSON.parse(JSON.stringify(d));
+    saveSessions(tgtPid);closeDuplicateModal();
+    alert('\u2705 Duplicado a '+pname+' \u00b7 '+fmtDateLong(tgtDate));
+  }
   if(tgtPid===currentPlayerId){if(currentTab==='week')renderWeekView();else renderPlan();}
 }
 function importLibFromFile(input){
