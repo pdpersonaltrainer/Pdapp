@@ -368,10 +368,11 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg><span>Biblioteca</span></button>
     </div>
     <button class="pd-nav-item" id="side-perfil" onclick="sideNav('perfil')" style="border-top:1px solid var(--border2);padding-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Mi perfil</span></button>
+    <button class="pd-nav-item" id="side-ajustes" onclick="sideNav('ajustes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Ajustes</span></button>
   </nav>
   <div class="select-header">
     <div></div>
-    <div style="display:flex;align-items:center;gap:8px;"><button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Alumno</button> <button class="coach-toggle" id="invites-btn" onclick="openInvitesModal()" style="display:none">&#x1F39F; Invitar</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button></div>
+    <div style="display:flex;align-items:center;gap:8px;"><button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Alumno</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button></div>
   </div>
   <div class="select-body">
     <div class="select-title" id="select-title">Qui&#233;n sos?</div>
@@ -538,6 +539,33 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="form-row"><label>Tu link p&#250;blico (para alumnos)</label><div style="display:flex;gap:8px;"><input type="text" id="prof-link" readonly style="flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:12px;color:var(--muted);outline:none;"/><button onclick="copyProfileLink()" style="flex:none;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:0 16px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Copiar</button></div></div>
     <div id="prof-msg" style="min-height:18px;font-size:13px;margin:4px 0 10px;"></div>
     <button onclick="saveProfile()" id="prof-save-btn" style="width:100%;padding:14px;border-radius:var(--rsm);border:none;background:var(--mob);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Guardar perfil</button>
+  </div>
+</div>
+
+<!-- AJUSTES -->
+<div id="screen-ajustes" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left"><div><div class="hdr-name">Ajustes</div><div class="hdr-sub">Cuenta y seguridad</div></div></div>
+      <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
+    </div>
+  </header>
+  <div style="max-width:560px;margin:0 auto;width:100%;padding:24px 16px;box-sizing:border-box;">
+    <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Cambiar contrase&#241;a</div>
+    <div class="form-row"><label>Nueva contrase&#241;a</label><input type="password" id="set-pass1" placeholder="M&#237;nimo 6 caracteres" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div class="form-row"><label>Repetir contrase&#241;a</label><input type="password" id="set-pass2" placeholder="Repet&#237; la nueva contrase&#241;a" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div id="set-msg" style="min-height:18px;font-size:13px;margin:2px 0 10px;"></div>
+    <button onclick="changePassword()" id="set-pass-btn" style="width:100%;padding:13px;border-radius:var(--rsm);border:none;background:var(--mob);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;">Actualizar contrase&#241;a</button>
+
+    <div id="set-invites-sec" style="display:none;margin-top:32px;">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Invitaciones</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5;">Gener&#225; c&#243;digos para que otros profes se registren en la app.</div>
+      <button onclick="openInvitesModal()" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid var(--border);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;">&#x1F39F; Generar / ver invitaciones</button>
+    </div>
+
+    <div style="margin-top:32px;border-top:1px solid var(--border2);padding-top:24px;">
+      <button onclick="logout()" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);color:#ff6b6b;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;">Cerrar sesi&#243;n</button>
+    </div>
   </div>
 </div>
 
@@ -1183,6 +1211,28 @@ function sideNav(section){
   var s=document.getElementById('pd-sidebar');if(s)s.classList.remove('expanded');
   if(section==='lib'){openLibFromHome();}
   else if(section==='perfil'){openProfileFromHome();}
+  else if(section==='ajustes'){openSettingsFromHome();}
+}
+function openSettingsFromHome(){
+  document.getElementById('screen-select').style.display='none';
+  hideSidebar();
+  document.getElementById('set-pass1').value='';
+  document.getElementById('set-pass2').value='';
+  document.getElementById('set-msg').textContent='';
+  document.getElementById('set-invites-sec').style.display=isAdmin?'block':'none';
+  document.getElementById('screen-ajustes').style.display='block';
+}
+async function changePassword(){
+  var p1=document.getElementById('set-pass1').value,p2=document.getElementById('set-pass2').value;
+  var msg=document.getElementById('set-msg');var btn=document.getElementById('set-pass-btn');
+  if(p1.length<6){msg.style.color='#ff6b6b';msg.textContent='La contrase\u00f1a debe tener al menos 6 caracteres.';return;}
+  if(p1!==p2){msg.style.color='#ff6b6b';msg.textContent='Las contrase\u00f1as no coinciden.';return;}
+  btn.disabled=true;btn.textContent='Actualizando...';msg.textContent='';
+  var r=await sb.auth.updateUser({password:p1});
+  btn.disabled=false;btn.textContent='Actualizar contrase\u00f1a';
+  if(r.error){msg.style.color='#ff6b6b';msg.textContent='Error: '+r.error.message;return;}
+  document.getElementById('set-pass1').value='';document.getElementById('set-pass2').value='';
+  msg.style.color='var(--mob)';msg.textContent='\u2705 Contrase\u00f1a actualizada.';
 }
 function openProfileFromHome(){
   document.getElementById('screen-select').style.display='none';
@@ -1356,7 +1406,7 @@ function enterPlan(){
 }
 function goBack(){
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  ['screen-week','screen-msg','screen-summary','screen-profile'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   document.getElementById('screen-select').style.display='';
   currentPlayerId=null;activePid=null;PLAN=[];checkState={};curDate=null;calCursor=null;currentTab='plan';renderSelect();if(isCoach){showSidebar();setSideActive('alumnos');}
