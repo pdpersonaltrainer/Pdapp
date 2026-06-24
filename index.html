@@ -37,10 +37,12 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .coach-toggle.active{background:rgba(249,200,70,0.12);border-color:var(--act);color:var(--act);}
 .select-body{flex:1;max-width:var(--cw);margin:0 auto;width:100%;padding:24px 16px 100px;position:relative;z-index:1;}
 #screen-select.with-side .select-header,#screen-select.with-side .select-body{padding-left:80px;}
-.pd-side{position:fixed;top:0;left:0;bottom:0;width:64px;background:rgba(10,11,14,0.98);border-right:1px solid var(--border);z-index:400;display:none;flex-direction:column;padding:14px 0 16px;transition:width .22s ease;overflow:hidden;}
+.pd-side{position:fixed;top:0;left:0;bottom:0;width:64px;background:rgba(10,11,14,0.98);border-right:1px solid var(--border);z-index:400;display:none;flex-direction:column;padding:calc(16px + env(safe-area-inset-top)) 0 16px;transition:width .22s ease;overflow:hidden;}
 .pd-side:hover,.pd-side.expanded{width:210px;box-shadow:8px 0 30px rgba(0,0,0,0.45);}
 .pd-side-logo{display:flex;align-items:center;gap:11px;padding:2px 17px 16px;min-width:210px;cursor:pointer;}
 .pd-side-logo img{width:34px;height:34px;object-fit:contain;flex:none;}
+.pd-side-logo span,.pd-nav-item span{opacity:0;transition:opacity .18s ease;}
+.pd-side:hover .pd-side-logo span,.pd-side:hover .pd-nav-item span,.pd-side.expanded .pd-side-logo span,.pd-side.expanded .pd-nav-item span{opacity:1;}
 .pd-side-logo span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:0.05em;text-transform:uppercase;background:linear-gradient(90deg,var(--mob),#d4f59a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
 .pd-nav{display:flex;flex-direction:column;gap:3px;flex:1;}
 .pd-nav-item{position:relative;display:flex;align-items:center;gap:15px;padding:12px 21px;min-width:210px;cursor:pointer;color:var(--muted2);border:none;background:none;text-align:left;font-family:'Barlow Condensed',sans-serif;}
@@ -497,7 +499,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   </header>
   <div class="lib-topbar"><div class="lib-topbar-inner"><h2>Ejercicios</h2><div style="display:flex;gap:6px;"><button class="add-lib-btn hidden" id="add-lib-btn" onclick="openLibModal()">+ Agregar</button><button class="add-lib-btn hidden" id="import-lib-btn" onclick="document.getElementById('lib-file-input').click()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2191; Importar</button><input type="file" id="lib-file-input" accept=".json,application/json" style="display:none" onchange="importLibFromFile(this)"/><button class="add-lib-btn hidden" id="export-lib-btn" onclick="exportLib()" style="background:var(--s2);color:var(--mob);border:1px solid var(--border2);">&#x2193; Backup</button></div></div></div>
   <div style="max-width:var(--cw);margin:0 auto;padding:8px 13px 0;">
-  <input type="text" id="lib-search" placeholder="Buscar ejercicio..." oninput="filterLibSearch()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 14px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;" />
+  <input type="text" id="lib-search" placeholder="Buscar ejercicio..." oninput="filterLibSearch()" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);padding:11px 14px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;" />
 </div>
 <div style="max-width:var(--cw);margin:0 auto;padding:8px 13px 0;"><select id="lib-pat-filter" onchange="setLibPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select></div>
 <div class="lib-filters">
