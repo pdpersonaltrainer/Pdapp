@@ -367,10 +367,11 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Alumnos</span></button>
       <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg><span>Biblioteca</span></button>
     </div>
+    <button class="pd-nav-item" id="side-perfil" onclick="sideNav('perfil')" style="border-top:1px solid var(--border2);padding-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Mi perfil</span></button>
   </nav>
   <div class="select-header">
-    <div class="select-brand"><img src="logo-bg.png" class="select-logo" alt="PDapp" onerror="this.style.display='none'"><div><h1>PDapp</h1><p>Personal Trainer · Fútbol Élite</p></div></div>
-    <button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Alumno</button> <button class="coach-toggle" id="invites-btn" onclick="openInvitesModal()" style="display:none">&#x1F39F; Invitar</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button>
+    <div></div>
+    <div style="display:flex;align-items:center;gap:8px;"><button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Alumno</button> <button class="coach-toggle" id="invites-btn" onclick="openInvitesModal()" style="display:none">&#x1F39F; Invitar</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button></div>
   </div>
   <div class="select-body">
     <div class="select-title" id="select-title">Qui&#233;n sos?</div>
@@ -513,6 +514,31 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="filter-chip" onclick="filterLib('est',this)">Estiramientos</div>
   </div>
   <div class="lib-grid" id="lib-grid"></div>
+</div>
+
+<!-- PROFILE -->
+<div id="screen-profile" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left"><div><div class="hdr-name">Mi Perfil</div><div class="hdr-sub">Tu informaci&#243;n p&#250;blica</div></div></div>
+      <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
+    </div>
+  </header>
+  <div style="max-width:640px;margin:0 auto;width:100%;padding:24px 16px;box-sizing:border-box;">
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px;">
+      <div id="prof-av" style="width:104px;height:104px;border-radius:50%;background:var(--s2);border:2px solid var(--border2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:40px;"></div>
+      <label for="prof-photo-input" style="margin-top:12px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);cursor:pointer;">&#x1F4F7; Cambiar foto</label>
+      <input type="file" id="prof-photo-input" accept="image/*" style="display:none;" onchange="handleProfilePhoto(event)"/>
+    </div>
+    <div class="form-row"><label>Nombre p&#250;blico</label><input type="text" id="prof-name" placeholder="Ej: Pablo PT" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div class="form-row"><label>Especialidad</label><input type="text" id="prof-specialty" placeholder="Ej: Preparador f&#237;sico &#183; F&#250;tbol de &#233;lite" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div class="form-row"><label>Bio</label><textarea id="prof-bio" placeholder="Cont&#225; en pocas l&#237;neas tu m&#233;todo y experiencia." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;resize:vertical;min-height:80px;"></textarea></div>
+    <div class="form-row"><label>WhatsApp</label><input type="text" id="prof-wpp" placeholder="Ej: +54 9 11 ..." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div class="form-row"><label>Instagram</label><input type="text" id="prof-ig" placeholder="Ej: @pablo.pt" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div class="form-row"><label>Tu link p&#250;blico (para alumnos)</label><div style="display:flex;gap:8px;"><input type="text" id="prof-link" readonly style="flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;font-family:'Barlow',sans-serif;font-size:12px;color:var(--muted);outline:none;"/><button onclick="copyProfileLink()" style="flex:none;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:0 16px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Copiar</button></div></div>
+    <div id="prof-msg" style="min-height:18px;font-size:13px;margin:4px 0 10px;"></div>
+    <button onclick="saveProfile()" id="prof-save-btn" style="width:100%;padding:14px;border-radius:var(--rsm);border:none;background:var(--mob);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Guardar perfil</button>
+  </div>
 </div>
 
 <!-- WEEK VIEW -->
@@ -769,6 +795,8 @@ var SUPABASE_URL='https://yroinbaixsgdowhigfom.supabase.co';
 var SUPABASE_KEY='sb_publishable_YuiKKtYILL-VlnDzXkwRMw_S1G4dCQi';
 var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 var MY_UID=null;
+var MY_PROFILE={};
+var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 
@@ -808,7 +836,7 @@ async function loadAllFromSupabase(){
   var exr=await sb.from('exercises').select('*').order('type');
   if(exr.error)throw exr.error;
   LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base};});
-  if(MY_UID){var tr=await sb.from('trainers').select('is_template').eq('id',MY_UID).single();if(!tr.error&&tr.data)isAdmin=!!tr.data.is_template;}
+  if(MY_UID){var tr=await sb.from('trainers').select('*').eq('id',MY_UID).single();if(!tr.error&&tr.data){isAdmin=!!tr.data.is_template;MY_PROFILE=tr.data;}}
 }
 
 function loadPlayersCache(){return [];}
@@ -1154,6 +1182,47 @@ function sideNav(section){
   setSideActive(section);
   var s=document.getElementById('pd-sidebar');if(s)s.classList.remove('expanded');
   if(section==='lib'){openLibFromHome();}
+  else if(section==='perfil'){openProfileFromHome();}
+}
+function openProfileFromHome(){
+  document.getElementById('screen-select').style.display='none';
+  hideSidebar();
+  document.getElementById('screen-profile').style.display='block';
+  renderProfile();
+}
+function renderProfile(){
+  var p=MY_PROFILE||{};profilePhotoData=null;
+  document.getElementById('prof-name').value=p.display_name||'';
+  document.getElementById('prof-specialty').value=p.specialty||'';
+  document.getElementById('prof-bio').value=p.bio||'';
+  document.getElementById('prof-wpp').value=p.contact_wpp||'';
+  document.getElementById('prof-ig').value=p.contact_ig||'';
+  document.getElementById('prof-link').value=location.origin+location.pathname+'?profe='+(MY_UID||'');
+  var av=document.getElementById('prof-av');
+  av.innerHTML=p.photo_url?'<img src="'+p.photo_url+'" style="width:100%;height:100%;object-fit:cover;"/>':'\ud83d\udc64';
+  document.getElementById('prof-msg').textContent='';
+}
+function handleProfilePhoto(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){var img=new Image();img.onload=function(){var size=200;var c=document.createElement('canvas');c.width=size;c.height=size;var ctx=c.getContext('2d');var min=Math.min(img.width,img.height);ctx.drawImage(img,(img.width-min)/2,(img.height-min)/2,min,min,0,0,size,size);var comp=c.toDataURL('image/jpeg',0.75);profilePhotoData=comp;document.getElementById('prof-av').innerHTML='<img src="'+comp+'" style="width:100%;height:100%;object-fit:cover;"/>';};img.src=ev.target.result;};
+  reader.readAsDataURL(file);
+}
+async function saveProfile(){
+  var btn=document.getElementById('prof-save-btn');var msg=document.getElementById('prof-msg');
+  btn.disabled=true;btn.textContent='Guardando...';msg.style.color='var(--muted)';msg.textContent='';
+  var upd={display_name:document.getElementById('prof-name').value.trim()||null,specialty:document.getElementById('prof-specialty').value.trim()||null,bio:document.getElementById('prof-bio').value.trim()||null,contact_wpp:document.getElementById('prof-wpp').value.trim()||null,contact_ig:document.getElementById('prof-ig').value.trim()||null};
+  if(profilePhotoData)upd.photo_url=profilePhotoData;
+  var r=await sb.from('trainers').update(upd).eq('id',MY_UID);
+  btn.disabled=false;btn.textContent='Guardar perfil';
+  if(r.error){msg.style.color='#ff6b6b';msg.textContent='Error: '+r.error.message;return;}
+  Object.keys(upd).forEach(function(k){MY_PROFILE[k]=upd[k];});
+  msg.style.color='var(--mob)';msg.textContent='\u2705 Perfil guardado.';
+}
+function copyProfileLink(){
+  var inp=document.getElementById('prof-link');var m=document.getElementById('prof-msg');
+  if(navigator.clipboard){navigator.clipboard.writeText(inp.value).then(function(){m.style.color='var(--mob)';m.textContent='\u2705 Link copiado.';},function(){inp.select();document.execCommand('copy');m.style.color='var(--mob)';m.textContent='\u2705 Link copiado.';});}
+  else{inp.select();document.execCommand('copy');m.style.color='var(--mob)';m.textContent='\u2705 Link copiado.';}
 }
 function openLibFromHome(){
   document.getElementById('screen-select').style.display='none';
@@ -1287,7 +1356,7 @@ function enterPlan(){
 }
 function goBack(){
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  ['screen-week','screen-msg','screen-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-week','screen-msg','screen-summary','screen-profile'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   document.getElementById('screen-select').style.display='';
   currentPlayerId=null;activePid=null;PLAN=[];checkState={};curDate=null;calCursor=null;currentTab='plan';renderSelect();if(isCoach){showSidebar();setSideActive('alumnos');}
