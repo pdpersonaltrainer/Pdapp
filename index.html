@@ -842,6 +842,7 @@ var JB_CHECKS={};
 var JB_LOADS={};
 var JB_PLANS={};
 var JB_SESSIONS={};
+var JB_NOTRACK={};
 var JB_LIB=null;
 
 function showSyncStatus(state){
@@ -856,9 +857,9 @@ async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
   if(pr.error)throw pr.error;
   PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{}};});
-  var plr=await sb.from('plans').select('player_id,weeks,sessions');
+  var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track');
   if(plr.error)throw plr.error;
-  JB_PLANS={};JB_SESSIONS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;});
+  JB_PLANS={};JB_SESSIONS={};JB_NOTRACK={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;JB_NOTRACK[r.player_id]=r.no_track||[];});
   var pgr=await sb.from('progress').select('player_id,checks,loads');
   if(pgr.error)throw pgr.error;
   JB_CHECKS={};JB_LOADS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};});
@@ -1022,9 +1023,9 @@ async function loadPlayerData(tid){
   if(pr.error)throw pr.error;
   PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{}};});
   if(PLAYERS.length===0)throw new Error('Link sin alumnos o invalido.');
-  var plr=await sb.from('plans').select('player_id,weeks').eq('trainer_id',tid);
+  var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
-  JB_PLANS={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;});
+  JB_PLANS={};JB_SESSIONS={};JB_NOTRACK={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;JB_NOTRACK[r.player_id]=r.no_track||[];});
   var pgr=await sb.from('progress').select('player_id,checks,loads').eq('trainer_id',tid);
   if(pgr.error)throw pgr.error;
   JB_CHECKS={};JB_LOADS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};});
@@ -1580,11 +1581,26 @@ function editSessionTitle(){openDayEditModal();}
 
 // ── BLOCKS ──
 function toggleBlock(el){el.closest('.bcard').classList.toggle('open');}
-function loadCell(t,wIdx,dIdx,bi,ei,objetivo){
+function isTracked(name){if(!name)return true;return (JB_NOTRACK[currentPlayerId]||[]).indexOf(name)===-1;}
+function toggleTrack(name){
+  if(!currentPlayerId||!name)return;
+  if(!JB_NOTRACK[currentPlayerId])JB_NOTRACK[currentPlayerId]=[];
+  var arr=JB_NOTRACK[currentPlayerId];
+  var i=arr.indexOf(name);
+  if(i>=0)arr.splice(i,1);else arr.push(name);
+  showSyncStatus('saving');
+  sb.from('plans').update({no_track:arr,updated_at:new Date().toISOString()}).eq('player_id',currentPlayerId).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('toggleTrack',r.error);});
+  renderPlan();
+}
+function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
+  var tracked=isTracked(exName);
   var aL=getALoad(bi,ei);
+  var nEsc=String(exName||'').replace(/"/g,'&quot;');
   if(isCoach){
-    return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><input class="exload-edit" value="'+objetivo+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onchange="updateLoad(this)" onclick="event.stopPropagation()"/>'+(aL?'<div style="font-size:10px;font-weight:700;color:var(--cm);white-space:nowrap;">Hizo: '+aL+'</div>':'')+'</div>';
+    var tBtn='<button onclick="event.stopPropagation();toggleTrack(this.dataset.n)" data-n="'+nEsc+'" title="'+(tracked?'Registro de carga: activado':'Registro de carga: desactivado')+'" style="width:26px;height:26px;flex:none;border-radius:7px;border:1px solid '+(tracked?'var(--mob)':'var(--border2)')+';background:'+(tracked?'rgba(168,224,99,0.10)':'transparent')+';color:'+(tracked?'var(--mob)':'var(--muted2)')+';display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></button>';
+    return '<div style="display:flex;align-items:flex-start;gap:6px;"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><input class="exload-edit" value="'+objetivo+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onchange="updateLoad(this)" onclick="event.stopPropagation()"/>'+(tracked&&aL?'<div style="font-size:10px;font-weight:700;color:var(--cm);white-space:nowrap;">Hizo: '+aL+'</div>':'')+'</div>'+tBtn+'</div>';
   }
+  if(!tracked)return '<div class="exload l-'+t+'">'+objetivo+'</div>';
   return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="exload l-'+t+'">'+objetivo+'</div><input value="'+aL+'" placeholder="\u00bfQu\u00e9 hiciste?" data-b="'+bi+'" data-e="'+ei+'" onchange="saveLoad(this)" onclick="event.stopPropagation()" style="width:96px;box-sizing:border-box;background:var(--s2);border:1px solid var(--cm);border-radius:6px;color:var(--text);padding:5px 6px;font-size:11px;text-align:center;outline:none;"/></div>';
 }
 function renderBlock(b,bi,wIdx,dIdx){
@@ -1593,11 +1609,11 @@ function renderBlock(b,bi,wIdx,dIdx){
   if(b.t==='cam'){
     var pasH='',intH='';
     if(b.campo){var pas=b.campo.pasadas||[];var inter=b.campo.intermitente||[];pasH=pas.length?'<div class="campo-lbl">Pasadas</div><div class="campo-chips">'+pas.map(function(p){return '<div class="campo-chip">'+p+'</div>';}).join('')+'</div>':'';intH=inter.length?'<div class="campo-lbl" style="margin-top:14px">Intermitente</div><div class="campo-chips">'+inter.map(function(x){return '<div class="campo-chip campo-chip-int">'+x+'</div>';}).join('')+'</div>':'';}
-    var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=loadCell('cam',wIdx,dIdx,bi,ei,e.l);var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div></div><div class="exright">'+lEl+del+'</div></div>';}).join(''):'';
+    var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=loadCell('cam',wIdx,dIdx,bi,ei,e.l,e.n);var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div></div><div class="exright">'+lEl+del+'</div></div>';}).join(''):'';
     var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
     return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">'+BICONS.cam+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
   }
-  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l);var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div><div class="exright">'+lEl+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div><div class="exright">'+lEl+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -1886,6 +1902,7 @@ function getLoadHistory(pid){
     var v=String(loads[k]||'').trim();if(!v)return;
     var s=sess[iso];if(!s||!s.blocks||!s.blocks[bi])return;
     var e=s.blocks[bi].exs&&s.blocks[bi].exs[ei];if(!e||!e.n)return;
+    if((JB_NOTRACK[pid]||[]).indexOf(e.n)>=0)return;
     if(!byEx[e.n])byEx[e.n]=[];
     byEx[e.n].push({iso:iso,val:v});
   });
