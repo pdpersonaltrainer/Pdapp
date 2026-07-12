@@ -1284,6 +1284,19 @@ function openLibFromHome(){
   var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);
   currentTab='lib';renderLib();
 }
+function getAdherence(pid){
+  var today=isoToday();var start=addDaysISO(today,-29);
+  var sess=JB_SESSIONS[pid]||{};var ch=JB_CHECKS[pid]||{};
+  var total=0,done=0;
+  Object.keys(sess).forEach(function(iso){
+    if(iso<start||iso>today)return;
+    var s=sess[iso];if(!s||!s.blocks||!s.blocks.length)return;
+    total++;
+    if(Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;}))done++;
+  });
+  if(!total)return null;
+  return {pct:Math.round(done/total*100),done:done,total:total};
+}
 function getWeekStrip(pid){
   var today=isoToday();
   var d=isoToDate(today);
@@ -1378,9 +1391,12 @@ function renderSelect(){
     var todayW=isCoach?(p.wellness||{})[isoToday()]:null;
     var wDot=todayW?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+(todayW.pain?'#ff7043':'var(--mob)')+';margin-left:6px;vertical-align:middle;" title="Check-in hoy"></span>':'';
     var todaySess=isCoach?getTodaySession(p.id):null;
+    var adh=isCoach?getAdherence(p.id):null;
+    var adhColor=adh?(adh.pct>=80?'var(--mob)':(adh.pct>=50?'var(--act)':'#ff7043')):'';
+    var adhBadge=adh?'<div style="font-size:10px;font-weight:700;letter-spacing:0.03em;margin-top:4px;color:'+adhColor+';">Adherencia 30d: '+adh.pct+'% <span style="color:var(--muted2);font-weight:600;">('+adh.done+'/'+adh.total+' sesiones)</span></div>':'';
     var todayBadge=todaySess?'<div style="font-size:11px;color:var(--act);font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hoy: '+todaySess+'</div>':'';
     var actions=isCoach?'<div class="player-card-actions"><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openFicha(this.dataset.pid)" style="color:var(--cm);">Ficha'+(p.questionnaire?'':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff7043;margin-left:4px;vertical-align:middle;"></span>')+'</button><div class="pca-sep"></div><button class="pca-btn pca-edit" data-pid="'+p.id+'" onclick="editPlayer(this.dataset.pid)">Editar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="delPlayer(this.dataset.pid)">Eliminar</button></div>':'';
-    return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+weekBadge+strip+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
+    return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+weekBadge+strip+adhBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
   }).join('');
   document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);updatePlayerCount();
 }
