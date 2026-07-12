@@ -604,7 +604,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <div id="screen-summary" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
-      <div class="hdr-left"><div><div class="hdr-name">Resumen Coach</div><div class="hdr-sub">Estado de todos los alumnos</div></div></div>
+      <div class="hdr-left"><div><div class="hdr-name" id="sum-title">Resumen Coach</div><div class="hdr-sub" id="sum-sub">Estado de todos los alumnos</div></div></div>
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
@@ -1441,7 +1441,7 @@ function goBack(){
 // \u2500\u2500 COACH MODE \u2500\u2500
 function toggleMode(){if(isCoach)deactivateCoach();else activateCoach();}
 function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Tus alumnos';if(ss)ss.textContent='Toc\u00e1 un nombre para abrir el plan, o sum\u00e1 uno nuevo.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='flex';showSidebar();setSideActive('alumnos');renderSelect();setCoachView(coachView);if(currentPlayerId)renderPlan();}
-function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='none';hideSidebar();coachView='lista';var pg=document.getElementById('players-grid');if(pg)pg.style.display='';var wo=document.getElementById('week-overview');if(wo)wo.style.display='none';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
+function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib','atab-msg'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var ats=document.getElementById('atab-summary');if(ats)ats.style.display='';var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='none';hideSidebar();coachView='lista';var pg=document.getElementById('players-grid');if(pg)pg.style.display='';var wo=document.getElementById('week-overview');if(wo)wo.style.display='none';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
 
 // \u2500\u2500 COACH PIN \u2500\u2500
 function openPinModal(){pinBuffer='';updatePinDots();document.getElementById('pin-overlay').classList.add('open');}
@@ -1877,9 +1877,29 @@ function selectMsgDay(pid,day){msgSelectedDays[pid]=day;renderMessages();}
 function copyMsg(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]);if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}});}else{var ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}}}
 function sendWA(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]);window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
 
+function getLoadHistory(pid){
+  var loads=JB_LOADS[pid]||{};var sess=JB_SESSIONS[pid]||{};
+  var byEx={};
+  Object.keys(loads).forEach(function(k){
+    var m=/^(\d{4}-\d{2}-\d{2})-(\d+)-(\d+)$/.exec(k);if(!m)return;
+    var iso=m[1],bi=+m[2],ei=+m[3];
+    var v=String(loads[k]||'').trim();if(!v)return;
+    var s=sess[iso];if(!s||!s.blocks||!s.blocks[bi])return;
+    var e=s.blocks[bi].exs&&s.blocks[bi].exs[ei];if(!e||!e.n)return;
+    if(!byEx[e.n])byEx[e.n]=[];
+    byEx[e.n].push({iso:iso,val:v});
+  });
+  return Object.keys(byEx).sort().map(function(n){
+    return {name:n,entries:byEx[n].sort(function(a,b){return a.iso<b.iso?-1:1;})};
+  });
+}
 function renderSummary(){
-  if(!PLAYERS.length){document.getElementById('summary-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcca</div><p>No hay alumnos.</p></div>';return;}
-  var html=PLAYERS.map(function(p){
+  var tEl=document.getElementById('sum-title');var sEl=document.getElementById('sum-sub');
+  if(tEl)tEl.textContent=isCoach?'Resumen Coach':'Mi Progreso';
+  if(sEl)sEl.textContent=isCoach?'Estado de todos los alumnos':'Tu evoluci\u00f3n y registro';
+  var LIST=isCoach?PLAYERS:PLAYERS.filter(function(p){return p.id===currentPlayerId;});
+  if(!LIST.length){document.getElementById('summary-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcca</div><p>No hay alumnos.</p></div>';return;}
+  var html=LIST.map(function(p){
     var avH=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">\ud83d\udc64</div>';
     var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
     var ss=JB_SESSIONS[p.id]||{};
@@ -1899,7 +1919,13 @@ function renderSummary(){
     var allNotes=[];dates.slice().reverse().forEach(function(iso){byDate[iso].notes.forEach(function(n){allNotes.push(n);});});
     allNotes=allNotes.slice(0,8);
     var notesH=allNotes.length?allNotes.map(function(n){return '<div class="sum-note"><div class="sum-note-day">'+fmtDateShort(n.iso)+(n.block?(' \u00b7 '+n.block):'')+'</div>'+n.note+'</div>';}).join(''):'<div class="sum-empty">Sin notas registradas</div>';
-    return '<div class="sum-card"><div class="sum-hdr">'+avH+'<div class="sum-info"><div class="sum-name">'+p.name+'</div><div class="sum-meta">'+meta+'</div></div></div><div class="sum-body"><div class="sum-lbl">RPE \u00faltimas sesiones</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">Sin datos de RPE a\u00fan</div>')+'<div class="sum-lbl">Notas recientes</div>'+notesH+'</div></div>';
+    var lh=getLoadHistory(p.id);
+    var loadsH=lh.length?lh.map(function(ex){
+      var ent=ex.entries.slice(-5);
+      var chain=ent.map(function(en){return '<span style="white-space:nowrap;"><span style="color:var(--muted2);">'+fmtDateShort(en.iso)+':</span> <b style="color:var(--text);">'+en.val+'</b></span>';}).join(' <span style="color:var(--mob);">\u2192</span> ');
+      return '<div style="padding:7px 0;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--cm);margin-bottom:3px;">'+ex.name+'</div><div style="font-size:12px;line-height:1.7;">'+chain+'</div></div>';
+    }).join(''):'<div class="sum-empty">Sin cargas registradas a\u00fan</div>';
+    return '<div class="sum-card"><div class="sum-hdr">'+avH+'<div class="sum-info"><div class="sum-name">'+p.name+'</div><div class="sum-meta">'+meta+'</div></div></div><div class="sum-body"><div class="sum-lbl">RPE \u00faltimas sesiones</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">Sin datos de RPE a\u00fan</div>')+'<div class="sum-lbl">Notas recientes</div>'+notesH+'<div class="sum-lbl" style="margin-top:12px;">Evoluci\u00f3n de cargas</div>'+loadsH+'</div></div>';
   }).join('');
   document.getElementById('summary-content').innerHTML=html;
 }
