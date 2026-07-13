@@ -441,7 +441,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <div id="q-pname" style="font-size:16px;font-weight:700;color:var(--mob);margin:3px 0;"></div>
       <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;">Complet&#225; esta ficha antes de ver tu plan.<br>Tu profe la usa para adaptar tu entrenamiento.</div>
     </div>
-    <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Deporte</label><select id="q-sport" onchange="updateSportPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225; tu deporte...</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="wellness">Wellness / Sin deporte</option></select></div>
+    <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Deporte</label><select id="q-sport" onchange="updateSportPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225; tu deporte...</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="voley">V&#243;ley</option><option value="handball">Handball</option><option value="tenis">Tenis</option><option value="padel">P&#225;del</option><option value="running">Running / Atletismo</option><option value="wellness">Wellness / Sin deporte</option></select></div>
     <div id="q-pos-wrap" style="display:none;margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Posici&#243;n</label><select id="q-position" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225;...</option></select></div>
     <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Lesiones actuales <span style="font-weight:400;color:var(--muted2);">(opcional)</span></label><textarea id="q-inj-current" placeholder="Describ&#237; si ten&#233;s alguna molestia o lesi&#243;n activa..." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;resize:none;height:68px;font-family:'Barlow',sans-serif;"></textarea></div>
     <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Lesiones pasadas relevantes <span style="font-weight:400;color:var(--muted2);">(opcional)</span></label><textarea id="q-inj-past" placeholder="Cirug&#237;as, rupturas, fracturas u otras lesiones importantes..." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;resize:none;height:68px;font-family:'Barlow',sans-serif;"></textarea></div>
@@ -636,7 +636,8 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="form-row"><label>O pegar URL de foto (GitHub, etc.)</label><input type="text" id="f-pphotourl" placeholder="https://..." oninput="handlePhotoUrl(this.value)" style="font-size:12px;"/></div>
     <div class="form-row"><label>Nombre</label><input type="text" id="f-pname" placeholder="Ej: Lionel Messi"/></div>
     <div class="form-row"><label>Club</label><input type="text" id="f-pclub" placeholder="Ej: Inter Miami"/></div>
-    <div class="form-row"><label>Posición</label><input type="text" id="f-ppos" placeholder="Ej: Delantero · N10"/></div>
+    <div class="form-row"><label>Deporte</label><select id="f-psport" onchange="updatePSportPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225; el deporte...</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="voley">V&#243;ley</option><option value="handball">Handball</option><option value="tenis">Tenis</option><option value="padel">P&#225;del</option><option value="running">Running / Atletismo</option><option value="wellness">Wellness / Sin deporte</option></select></div>
+    <div class="form-row" id="f-ppos-wrap" style="display:none;"><label>Posici&#243;n</label><select id="f-pposition" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225;...</option></select></div>
     <div class="form-row"><label>Semana activa</label><select id="f-pweek" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="0">Semana 1 · Reeducación</option><option value="1">Semana 2 · Base I/MA</option><option value="2">Semana 3 · Fuerza</option><option value="3">Semana 4 · Fza+F.Expl.</option></select></div><div class="form-row"><label>Fecha de inicio (Semana 1, D&iacute;a 1)</label><input type="date" id="f-pstart" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/></div><div class="form-row"><label>PIN del alumno (4 dígitos)</label><input type="tel" id="f-ppin" placeholder="Ej: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:0.2em;font-size:18px;text-align:center;"/></div>
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closePlayerModal()">Cancelar</button>
@@ -772,7 +773,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div id="ficha-player-name" style="font-size:13px;color:var(--muted);margin-bottom:16px;"></div>
     <div id="ficha-empty" style="display:none;text-align:center;padding:16px 0 20px;font-size:13px;color:var(--muted2);line-height:1.6;">Este alumno a&#250;n no complet&#243; su ficha.<br>Aparecer&#225; autom&#225;ticamente la pr&#243;xima vez que ingrese.</div>
     <div id="ficha-form">
-      <div style="margin-bottom:12px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Deporte</label><select id="f-q-sport" onchange="updateFichaPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Sin especificar</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="wellness">Wellness / Sin deporte</option></select></div>
+      <div style="margin-bottom:12px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Deporte</label><select id="f-q-sport" onchange="updateFichaPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Sin especificar</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="voley">V&#243;ley</option><option value="handball">Handball</option><option value="tenis">Tenis</option><option value="padel">P&#225;del</option><option value="running">Running / Atletismo</option><option value="wellness">Wellness / Sin deporte</option></select></div>
       <div id="f-q-pos-wrap" style="display:none;margin-bottom:12px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Posici&#243;n</label><select id="f-q-position" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Sin posici&#243;n</option></select></div>
       <div style="margin-bottom:12px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Lesiones actuales</label><textarea id="f-q-inj-current" placeholder="Ninguna" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-size:14px;color:var(--text);outline:none;resize:none;height:60px;font-family:'Barlow',sans-serif;"></textarea></div>
       <div style="margin-bottom:12px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Lesiones pasadas</label><textarea id="f-q-inj-past" placeholder="Ninguna" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-size:14px;color:var(--text);outline:none;resize:none;height:60px;font-family:'Barlow',sans-serif;"></textarea></div>
@@ -1493,7 +1494,7 @@ function updatePlayerPinDots(){for(var i=0;i<4;i++){var d=document.getElementByI
 function checkPlayerPin(){var p=PLAYERS.find(function(x){return x.id===pendingSelectPid;});var stored=p?String(p.pin||'').trim():'';var entered=String(playerPinBuffer).trim();if(p&&stored===entered&&entered.length===4){var pid=pendingSelectPid;closePlayerPinModal();doSelectPlayer(pid);}else{for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}}
 
 // \u2500\u2500 PLAYER MODAL \u2500\u2500
-function openPlayerModal(id){if(!id&&!isAdmin){var _max=(MY_PROFILE&&MY_PROFILE.max_players)||5;if(PLAYERS.length>=_max){alert('Llegaste al l\u00edmite de tu plan ('+_max+' alumno'+(_max>1?'s':'')+').\n\nMejor\u00e1 tu plan para sumar m\u00e1s alumnos.');return;}}editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Alumno':'Nuevo Alumno';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';document.getElementById('f-ppos').value=p?(p.pos||''):'';document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pweek').value=p?(p.activeWeek||0):0;document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
+function openPlayerModal(id){if(!id&&!isAdmin){var _max=(MY_PROFILE&&MY_PROFILE.max_players)||5;if(PLAYERS.length>=_max){alert('Llegaste al l\u00edmite de tu plan ('+_max+' alumno'+(_max>1?'s':'')+').\n\nMejor\u00e1 tu plan para sumar m\u00e1s alumnos.');return;}}editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Alumno':'Nuevo Alumno';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';var _q=p&&p.questionnaire?p.questionnaire:null;document.getElementById('f-psport').value=_q&&_q.sport?_q.sport:'';updatePSportPositions();if(_q&&_q.position)document.getElementById('f-pposition').value=_q.position;document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pweek').value=p?(p.activeWeek||0):0;document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
 function closePlayerModal(){document.getElementById('modal-player').classList.remove('open');editingPlayerId=null;pendingPhotoData=null;}
 function editPlayer(id){openPlayerModal(id);}
 async function delPlayer(id){
@@ -1537,28 +1538,44 @@ function handlePhotoUrl(url){
   pendingPhotoData=url;
   document.getElementById('av-preview').innerHTML='<img src="'+url+'" onerror="this.parentNode.innerHTML=\'&#x26A0;\'"/>';
 }
+function updatePSportPositions(){
+  var sport=document.getElementById('f-psport').value;
+  var wrap=document.getElementById('f-ppos-wrap');
+  var sel=document.getElementById('f-pposition');
+  if(sport&&sport!=='wellness'&&SPORT_POSITIONS[sport]){
+    sel.innerHTML='<option value="">Seleccion\u00e1...</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+pos+'</option>';}).join('');
+    wrap.style.display='';
+  }else{sel.innerHTML='<option value="">Seleccion\u00e1...</option>';wrap.style.display='none';}
+}
 async function savePlayer(){
   var name=document.getElementById('f-pname').value.trim();
   if(!name){alert('El nombre es obligatorio.');return;}
   var newPin=String(document.getElementById('f-ppin').value.trim()).slice(0,4);
   var club=document.getElementById('f-pclub').value.trim();
-  var pos=document.getElementById('f-ppos').value.trim();
+  var pSport=document.getElementById('f-psport').value;
+  var pPosition=document.getElementById('f-pposition').value;
+  var pos=pPosition||(pSport?(SPORT_LABELS[pSport]||''):'');
   var aw=+document.getElementById('f-pweek').value;
   var startDate=document.getElementById('f-pstart').value||null;
   var photo=pendingPhotoData||'';
   showSyncStatus('saving');
   if(editingPlayerId){
+    var exP=PLAYERS.find(function(x){return x.id===editingPlayerId;});
+    var q=JSON.parse(JSON.stringify((exP&&exP.questionnaire)||{}));
+    if(pSport){q.sport=pSport;q.position=pPosition||null;}
     var upd={name:name,club:club,pos:pos,active_week:aw,start_date:startDate};
+    if(pSport)upd.questionnaire=q;
     if(newPin)upd.pin=newPin;
     if(pendingPhotoData)upd.photo_url=photo;
     var r=await sb.from('players').update(upd).eq('id',editingPlayerId);
     if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
     var idx=PLAYERS.findIndex(function(p){return p.id===editingPlayerId;});
-    if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=club;PLAYERS[idx].pos=pos;if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=photo;PLAYERS[idx].activeWeek=aw;PLAYERS[idx].startDate=startDate;}
+    if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=club;PLAYERS[idx].pos=pos;if(pSport)PLAYERS[idx].questionnaire=q;if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=photo;PLAYERS[idx].activeWeek=aw;PLAYERS[idx].startDate=startDate;}
   }else{
-    var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw,start_date:startDate}).select('id').single();
+    var qNew=pSport?{sport:pSport,position:pPosition||null}:null;
+    var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw,start_date:startDate,questionnaire:qNew}).select('id').single();
     if(ins.error){showSyncStatus('error');alert('Error al crear: '+ins.error.message);return;}
-    PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw,startDate:startDate});
+    PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw,startDate:startDate,questionnaire:qNew,wellness:{}});
   }
   showSyncStatus('ok');closePlayerModal();renderSelect();
 }
@@ -2062,8 +2079,11 @@ var SPORT_POSITIONS={
   basquetbol:['Base','Escolta','Alero','Ala-P\u00edvot','P\u00edvot'],
   hockey:['Arquero','Defensor','Volante','Mediocampista','Delantero'],
   natacion:['Libre','Pecho','Espalda','Mariposa','Combinado'],
+  voley:['Armador','Punta','Opuesto','Central','L\u00edbero'],
+  handball:['Arquero','Central','Lateral izquierdo','Lateral derecho','Extremo izquierdo','Extremo derecho','Pivote'],
   rugby:['Pilar izquierdo','Hooker','Pilar derecho','Segunda l\u00ednea','Flanker ciego','Flanker abierto','N\u00b08','Medio scrum','Apertura','Centro','Wing','Fullback']
 };
+var SPORT_LABELS={futbol:'F\u00fatbol',basquetbol:'B\u00e1squetbol',hockey:'Hockey',natacion:'Nataci\u00f3n',voley:'V\u00f3ley',handball:'Handball',rugby:'Rugby',tenis:'Tenis',padel:'P\u00e1del',running:'Running / Atletismo',wellness:'Wellness'};
 function showQuestionnaire(pid){
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
   document.getElementById('screen-select').style.display='none';
