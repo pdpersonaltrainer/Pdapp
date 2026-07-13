@@ -664,7 +664,13 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="form-row"><label>Acción / Patrón de movimiento</label><select id="f-pattern"><option value="">Sin categoría</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select></div>
     <div class="form-row"><label>Series / Reps / Carga</label><input type="text" id="f-load" placeholder="Ej: 4x6 @80kg"/></div>
     <div class="form-row"><label>Nota técnica</label><textarea id="f-note" placeholder="Descripción, cues técnicos..."></textarea></div>
-    <div class="form-row"><label>Video / Link</label><input type="url" id="f-link" placeholder="https://..."/></div>
+    <div class="form-row"><label>Video / Link</label><input type="url" id="f-link" placeholder="https://... o sub&#237; un video"/>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+        <label for="f-video-file" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rsm);border:1px solid var(--border);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir video</label>
+        <input type="file" id="f-video-file" accept="video/*" style="display:none;" onchange="handleVideoUpload(event)"/>
+        <span id="f-video-status" style="font-size:12px;color:var(--muted);"></span>
+      </div>
+    </div>
     <div class="form-row"><label>Imagen (URL)</label><input type="url" id="f-img" placeholder="https://..."/></div>
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closeLibModal()">Cancelar</button>
@@ -1715,7 +1721,26 @@ function renderLib(){
 }
 
 function filterLib(f,el){activeLibFilter=f;document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');renderLib();}
-function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=ex?'Editar Ejercicio':'Nuevo Ejercicio';document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';document.getElementById('f-pattern').value=ex&&ex.pattern?ex.pattern:'';document.getElementById('modal-lib').classList.add('open');}
+async function handleVideoUpload(e){
+  var file=e.target.files[0];if(!file)return;
+  var st=document.getElementById('f-video-status');
+  if(!MY_UID){st.style.color='#ff6b6b';st.textContent='Ten\u00e9s que estar logueado como profe.';e.target.value='';return;}
+  if(file.size>50*1024*1024){st.style.color='#ff6b6b';st.textContent='M\u00e1ximo 50MB \u00b7 grab\u00e1 un clip m\u00e1s corto.';e.target.value='';return;}
+  st.style.color='var(--muted)';st.textContent='Subiendo video... (no cierres)';
+  var ext=(file.name.split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'')||'mp4';
+  var path=MY_UID+'/'+Date.now()+'.'+ext;
+  try{
+    var up=await sb.storage.from('videos').upload(path,file,{contentType:file.type||'video/mp4'});
+    if(up.error){st.style.color='#ff6b6b';st.textContent='Error: '+up.error.message;e.target.value='';return;}
+    var pub=sb.storage.from('videos').getPublicUrl(path);
+    var url=pub&&pub.data&&pub.data.publicUrl?pub.data.publicUrl:'';
+    if(!url){st.style.color='#ff6b6b';st.textContent='No se pudo obtener el link.';e.target.value='';return;}
+    document.getElementById('f-link').value=url;
+    st.style.color='var(--mob)';st.textContent='\u2705 Video subido y vinculado.';
+  }catch(err){st.style.color='#ff6b6b';st.textContent='Error de conexi\u00f3n al subir.';}
+  e.target.value='';
+}
+function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=ex?'Editar Ejercicio':'Nuevo Ejercicio';document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';document.getElementById('f-pattern').value=ex&&ex.pattern?ex.pattern:'';var vst=document.getElementById('f-video-status');if(vst)vst.textContent='';document.getElementById('modal-lib').classList.add('open');}
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
 async function saveLibExercise(){
   var name=document.getElementById('f-name').value.trim();
