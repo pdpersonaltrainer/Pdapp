@@ -1285,6 +1285,26 @@ function openLibFromHome(){
   var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);
   currentTab='lib';renderLib();
 }
+function getInactiveDays(pid){
+  var today=isoToday();var sess=JB_SESSIONS[pid]||{};var ch=JB_CHECKS[pid]||{};
+  var lastDone=null;
+  Object.keys(ch).forEach(function(k){
+    var m=/^(\d{4}-\d{2}-\d{2})-/.exec(k);if(!m)return;
+    if(ch[k]&&ch[k].done&&m[1]<=today&&(!lastDone||m[1]>lastDone))lastDone=m[1];
+  });
+  var missed=0,firstMissed=null;
+  Object.keys(sess).forEach(function(iso){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))return;
+    if(iso>=today)return;
+    if(lastDone&&iso<=lastDone)return;
+    var s=sess[iso];if(!s||!s.blocks||!s.blocks.length)return;
+    missed++;if(!firstMissed||iso<firstMissed)firstMissed=iso;
+  });
+  if(!missed)return null;
+  var ref=lastDone||firstMissed;
+  var days=Math.round((isoToDate(today)-isoToDate(ref))/86400000);
+  return days>=4?days:null;
+}
 function getAdherence(pid){
   var today=isoToday();var start=addDaysISO(today,-29);
   var sess=JB_SESSIONS[pid]||{};var ch=JB_CHECKS[pid]||{};
@@ -1395,9 +1415,11 @@ function renderSelect(){
     var adh=isCoach?getAdherence(p.id):null;
     var adhColor=adh?(adh.pct>=80?'var(--mob)':(adh.pct>=50?'var(--act)':'#ff7043')):'';
     var adhBadge=adh?'<div style="font-size:10px;font-weight:700;letter-spacing:0.03em;margin-top:4px;color:'+adhColor+';">Adherencia 30d: '+adh.pct+'% <span style="color:var(--muted2);font-weight:600;">('+adh.done+'/'+adh.total+' sesiones)</span></div>':'';
+    var inactDays=isCoach?getInactiveDays(p.id):null;
+    var inactBadge=inactDays?'<div style="font-size:10px;font-weight:800;letter-spacing:0.03em;margin-top:4px;color:#ff7043;">\u26a0 Inactivo hace '+inactDays+' d\u00edas</div>':'';
     var todayBadge=todaySess?'<div style="font-size:11px;color:var(--act);font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hoy: '+todaySess+'</div>':'';
     var actions=isCoach?'<div class="player-card-actions"><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openFicha(this.dataset.pid)" style="color:var(--cm);">Ficha'+(p.questionnaire?'':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff7043;margin-left:4px;vertical-align:middle;"></span>')+'</button><div class="pca-sep"></div><button class="pca-btn pca-edit" data-pid="'+p.id+'" onclick="editPlayer(this.dataset.pid)">Editar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="delPlayer(this.dataset.pid)">Eliminar</button></div>':'';
-    return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+weekBadge+strip+adhBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
+    return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+weekBadge+strip+adhBadge+inactBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
   }).join('');
   document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);updatePlayerCount();
 }
