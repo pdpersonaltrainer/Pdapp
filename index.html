@@ -50,6 +50,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .pd-nav-item span{font-size:15px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;}
 .pd-nav-item.active{color:var(--mob);}
 .pd-nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:26px;background:var(--mob);border-radius:0 3px 3px 0;}
+body.side-visible #screen-lib,body.side-visible #screen-profile,body.side-visible #screen-ajustes{padding-left:64px;}
 .select-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;margin-bottom:4px;}
 .select-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
 .players-grid{display:flex;flex-direction:column;gap:12px;}
@@ -1210,20 +1211,25 @@ var DEFAULT_LIB=[
 var LIB=[];
 
 // \u2500\u2500 SELECT SCREEN \u2500\u2500
-function showSidebar(){var s=document.getElementById('pd-sidebar');if(s)s.style.display='flex';var sc=document.getElementById('screen-select');if(sc)sc.classList.add('with-side');}
-function hideSidebar(){var s=document.getElementById('pd-sidebar');if(s){s.style.display='none';s.classList.remove('expanded');}var sc=document.getElementById('screen-select');if(sc)sc.classList.remove('with-side');}
+function showSidebar(){var s=document.getElementById('pd-sidebar');if(s)s.style.display='flex';var sc=document.getElementById('screen-select');if(sc)sc.classList.add('with-side');document.body.classList.add('side-visible');}
+function hideSidebar(){var s=document.getElementById('pd-sidebar');if(s){s.style.display='none';s.classList.remove('expanded');}var sc=document.getElementById('screen-select');if(sc)sc.classList.remove('with-side');document.body.classList.remove('side-visible');}
 function toggleSidebar(){var s=document.getElementById('pd-sidebar');if(s)s.classList.toggle('expanded');}
 function setSideActive(section){document.querySelectorAll('.pd-nav-item').forEach(function(n){n.classList.remove('active');});var el=document.getElementById('side-'+section);if(el)el.classList.add('active');}
 function sideNav(section){
   setSideActive(section);
   var s=document.getElementById('pd-sidebar');if(s)s.classList.remove('expanded');
+  if(section==='alumnos'){goBack();return;}
   if(section==='lib'){openLibFromHome();}
   else if(section==='perfil'){openProfileFromHome();}
   else if(section==='ajustes'){openSettingsFromHome();}
 }
-function openSettingsFromHome(){
+function closeHomeScreens(){
   document.getElementById('screen-select').style.display='none';
-  hideSidebar();
+  document.getElementById('screen-lib').classList.remove('active');
+  ['screen-profile','screen-ajustes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+}
+function openSettingsFromHome(){
+  closeHomeScreens();showSidebar();
   document.getElementById('set-pass1').value='';
   document.getElementById('set-pass2').value='';
   document.getElementById('set-msg').textContent='';
@@ -1243,8 +1249,7 @@ async function changePassword(){
   msg.style.color='var(--mob)';msg.textContent='\u2705 Contrase\u00f1a actualizada.';
 }
 function openProfileFromHome(){
-  document.getElementById('screen-select').style.display='none';
-  hideSidebar();
+  closeHomeScreens();showSidebar();
   document.getElementById('screen-profile').style.display='block';
   renderProfile();
 }
@@ -1283,8 +1288,7 @@ function copyProfileLink(){
   else{inp.select();document.execCommand('copy');m.style.color='var(--mob)';m.textContent='\u2705 Link copiado.';}
 }
 function openLibFromHome(){
-  document.getElementById('screen-select').style.display='none';
-  hideSidebar();
+  closeHomeScreens();showSidebar();
   document.getElementById('screen-lib').classList.add('active');
   document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);
   var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);
@@ -1717,7 +1721,7 @@ function renderLib(){
   if(activePattern)items=items.filter(function(e){return e.pattern===activePattern;});
   if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.note||'').toLowerCase().indexOf(q)>=0;});
   if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udd0d</div><p>Sin resultados.</p></div>';return;}
-  document.getElementById('lib-grid').innerHTML=items.map(function(e){var imgH=e.img?'<img class="lib-card-img" src="'+e.img+'" />':'<div class="lib-card-img-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var actions=isCoach?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':'';return '<div class="lib-card">'+imgH+'<div class="lib-card-body"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+actions+'</div></div>';}).join('');
+  document.getElementById('lib-grid').innerHTML=items.map(function(e){var imgH=e.img?'<img class="lib-card-img" src="'+e.img+'" />':'<div class="lib-card-img-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card">'+imgH+'<div class="lib-card-body"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+actions+'</div></div>';}).join('');
 }
 
 function filterLib(f,el){activeLibFilter=f;document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');renderLib();}
