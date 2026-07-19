@@ -1278,8 +1278,10 @@ function renderTemplates(){
     var bl=(t.data.blocks||[]);var nEx=bl.reduce(function(a,b){return a+((b.exs||[]).length);},0);
     var mine=t.trainer_id===MY_UID;
     var baseTag=t.is_base&&!mine?'<span style="font-size:9px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--cm);border:1px solid var(--cm);border-radius:4px;padding:1px 6px;margin-left:8px;">Base</span>':'';
+    var pdTag=t.is_base&&mine?'<span style="font-size:9px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--mob);border:1px solid var(--mob);border-radius:4px;padding:1px 6px;margin-left:8px;">Metodología PD</span>':'';
     var delBtn=mine?'<button onclick="delTemplate(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:none;color:#ff6b6b;font-size:12px;font-weight:700;cursor:pointer;padding:6px 10px;">Eliminar</button>':'';
-    return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;">'+t.name+baseTag+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+bl.length+' bloque'+(bl.length!==1?'s':'')+' &#183; '+nEx+' ejercicio'+(nEx!==1?'s':'')+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;"><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button>'+delBtn+'</div></div>';
+    var pubBtn=(mine&&isAdmin)?'<button onclick="togglePDBase(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:1px solid '+(t.is_base?'var(--muted2)':'var(--mob)')+';color:'+(t.is_base?'var(--muted)':'var(--mob)')+';border-radius:var(--rsm);font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:8px 12px;">'+(t.is_base?'Quitar de PD':'Publicar como PD')+'</button>':'';
+    return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;">'+t.name+baseTag+pdTag+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+bl.length+' bloque'+(bl.length!==1?'s':'')+' &#183; '+nEx+' ejercicio'+(nEx!==1?'s':'')+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;flex-wrap:wrap;"><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:130px;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button>'+pubBtn+delBtn+'</div></div>';
   }).join('');
 }
 async function saveAsTemplate(){
@@ -1318,6 +1320,15 @@ function executeTplInsert(){
   closeTplInsert();
   alert('\u2705 "'+tplToInsert.name+'" insertada en '+pname+' \u00b7 '+fmtDateLong(date));
   if(pid===currentPlayerId){curDate=date;renderPlan();}
+}
+async function togglePDBase(id){
+  var t=TEMPLATES.find(function(x){return x.id===id;});if(!t||!isAdmin)return;
+  var nv=!t.is_base;
+  if(nv&&!confirm('\u00bfPublicar "'+t.name+'" como Metodolog\u00eda PD?\n\nVa a estar disponible para todos los profes.'))return;
+  if(!nv&&!confirm('\u00bfQuitar "'+t.name+'" de Metodolog\u00eda PD?'))return;
+  var r=await sb.from('session_templates').update({is_base:nv}).eq('id',id);
+  if(r.error){alert('Error: '+r.error.message);return;}
+  t.is_base=nv;renderTemplates();
 }
 async function delTemplate(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
