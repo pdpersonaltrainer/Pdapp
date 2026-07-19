@@ -907,7 +907,7 @@ function savePlan(pid,plan){
 // \u2500\u2500 CALENDARIO REAL: sesiones por fecha (Fase 1: fundaci\u00f3n) \u2500\u2500
 function addDaysISO(iso,n){var p=String(iso).split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);dt.setDate(dt.getDate()+n);var y=dt.getFullYear(),m=('0'+(dt.getMonth()+1)).slice(-2),d=('0'+dt.getDate()).slice(-2);return y+'-'+m+'-'+d;}
 function buildSessionsFromWeeks(weeks,startISO){var out={};if(!startISO||!weeks)return out;for(var w=0;w<weeks.length;w++){for(var d=0;d<weeks[w].length;d++){var iso=addDaysISO(startISO,w*7+d);out[iso]=JSON.parse(JSON.stringify(weeks[w][d]));}}return out;}
-function saveSessions(pid){showSyncStatus('saving');sb.from('plans').update({sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()}).eq('player_id',pid).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);});}
+function saveSessions(pid){showSyncStatus('saving');sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);});}
 async function migrateAllSessions(){for(var i=0;i<PLAYERS.length;i++){var pp=PLAYERS[i];var ex=JB_SESSIONS[pp.id];if(ex&&Object.keys(ex).length)continue;if(!pp.startDate)continue;var weeks=JB_PLANS[pp.id];if(!weeks)continue;var sess=buildSessionsFromWeeks(weeks,pp.startDate);JB_SESSIONS[pp.id]=sess;try{await sb.from('plans').update({sessions:sess,updated_at:new Date().toISOString()}).eq('player_id',pp.id);}catch(e){console.error('migrate',e);}}}
 var MES_ES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var DOW_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -1610,6 +1610,8 @@ function renderPlan(){
   var body;
   if(!sess&&!isCoach){
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">Día libre</div><div class="hero-pat">Sin entrenamiento asignado</div></div>';
+  } else if(!sess&&isCoach){
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">Día libre</div><div class="hero-pat">Sin entrenamiento asignado</div></div><div style="max-width:var(--cw);margin:18px auto 0;padding:0 13px;"><button onclick="createTraining()" style="width:100%;padding:16px;border-radius:var(--r);border:2px dashed var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">+ Crear entrenamiento</button></div>';
   } else {
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn;
@@ -1623,6 +1625,13 @@ function setD(j){}
 function navigate(dir){curDate=addDaysISO(curDate||isoToday(),dir);lastCheckedDay=null;renderPlan();}
 function openDate(iso){curDate=iso;lastCheckedDay=null;showTab('plan');renderPlan();}
 function editSessionTitle(){openDayEditModal();}
+function createTraining(){
+  if(!isCoach||!currentPlayerId)return;
+  getCurSession(true);
+  saveSessions(currentPlayerId);
+  renderPlan();
+  openDayEditModal();
+}
 
 // ── BLOCKS ──
 function toggleBlock(el){el.closest('.bcard').classList.toggle('open');}
@@ -1634,7 +1643,7 @@ function toggleTrack(name){
   var i=arr.indexOf(name);
   if(i>=0)arr.splice(i,1);else arr.push(name);
   showSyncStatus('saving');
-  sb.from('plans').update({no_track:arr,updated_at:new Date().toISOString()}).eq('player_id',currentPlayerId).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('toggleTrack',r.error);});
+  sb.from('plans').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,no_track:arr,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('toggleTrack',r.error);});
   renderPlan();
 }
 function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
