@@ -368,6 +368,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Alumnos</span></button>
       <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg><span>Biblioteca</span></button>
       <button class="pd-nav-item" id="side-templates" onclick="sideNav('templates')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Mis Sesiones</span></button>
+      <button class="pd-nav-item" id="side-pdmethod" onclick="sideNav('pdmethod')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Metodología PD</span></button>
     </div>
     <button class="pd-nav-item" id="side-perfil" onclick="sideNav('perfil')" style="border-top:1px solid var(--border2);padding-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Mi perfil</span></button>
     <button class="pd-nav-item" id="side-ajustes" onclick="sideNav('ajustes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Ajustes</span></button>
@@ -569,6 +570,20 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div style="margin-top:32px;border-top:1px solid var(--border2);padding-top:24px;">
       <button onclick="logout()" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);color:#ff6b6b;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;">Cerrar sesi&#243;n</button>
     </div>
+  </div>
+</div>
+
+<!-- METODOLOGÍA PD -->
+<div id="screen-pdmethod" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left"><div><div class="hdr-name">Metodología PD</div><div class="hdr-sub">Sesiones base de Pablo</div></div></div>
+      <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
+    </div>
+  </header>
+  <div style="max-width:var(--cw);margin:0 auto;width:100%;padding:20px 16px;box-sizing:border-box;">
+    <div style="background:rgba(168,224,99,0.06);border:1px solid var(--mob);border-radius:var(--rsm);padding:12px 14px;font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;">Sesiones armadas con la metodología <b style="color:var(--mob);">PD</b>. Insertalas tal cual en un alumno, o duplicalas a <b>Mis Sesiones</b> para personalizarlas a tu gusto.</div>
+    <div id="pdm-list"></div>
   </div>
 </div>
 
@@ -1254,13 +1269,19 @@ function sideNav(section){
   if(section==='alumnos'){goBack();return;}
   if(section==='lib'){openLibFromHome();}
   else if(section==='templates'){openTemplatesFromHome();}
+  else if(section==='pdmethod'){openPDMethodFromHome();}
   else if(section==='perfil'){openProfileFromHome();}
   else if(section==='ajustes'){openSettingsFromHome();}
 }
 function closeHomeScreens(){
   document.getElementById('screen-select').style.display='none';
   document.getElementById('screen-lib').classList.remove('active');
-  ['screen-profile','screen-ajustes','screen-templates'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-profile','screen-ajustes','screen-templates','screen-pdmethod'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+}
+function openPDMethodFromHome(){
+  closeHomeScreens();showSidebar();
+  document.getElementById('screen-pdmethod').style.display='block';
+  loadTemplates().then(renderPDMethod);
 }
 function openTemplatesFromHome(){
   closeHomeScreens();showSidebar();
@@ -1283,6 +1304,27 @@ function renderTemplates(){
     var pubBtn=(mine&&isAdmin)?'<button onclick="togglePDBase(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:1px solid '+(t.is_base?'var(--muted2)':'var(--mob)')+';color:'+(t.is_base?'var(--muted)':'var(--mob)')+';border-radius:var(--rsm);font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:8px 12px;">'+(t.is_base?'Quitar de PD':'Publicar como PD')+'</button>':'';
     return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;">'+t.name+baseTag+pdTag+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+bl.length+' bloque'+(bl.length!==1?'s':'')+' &#183; '+nEx+' ejercicio'+(nEx!==1?'s':'')+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;flex-wrap:wrap;"><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:130px;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button>'+pubBtn+delBtn+'</div></div>';
   }).join('');
+}
+function renderPDMethod(){
+  var el=document.getElementById('pdm-list');if(!el)return;
+  var base=TEMPLATES.filter(function(t){return t.is_base&&t.trainer_id!==MY_UID;});
+  if(isAdmin)base=TEMPLATES.filter(function(t){return t.is_base;});
+  if(!base.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);padding:30px 0;font-size:13px;">Todav&#237;a no hay sesiones de metodolog&#237;a PD disponibles.</div>';return;}
+  el.innerHTML=base.map(function(t){
+    var bl=(t.data.blocks||[]);var nEx=bl.reduce(function(a,b){return a+((b.exs||[]).length);},0);
+    return '<div style="background:var(--s);border:1px solid var(--mob);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;">'+t.name+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+bl.length+' bloque'+(bl.length!==1?'s':'')+' &#183; '+nEx+' ejercicio'+(nEx!==1?'s':'')+'</div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;"><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button><button onclick="duplicateToMine(this.dataset.id)" data-id="'+t.id+'" style="flex:1;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Duplicar y editar</button></div></div>';
+  }).join('');
+}
+async function duplicateToMine(id){
+  var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
+  var name=prompt('Nombre de tu copia:',t.name+' (mi versi\u00f3n)');
+  if(name===null)return;name=name.trim();if(!name)return;
+  showSyncStatus('saving');
+  var r=await sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:JSON.parse(JSON.stringify(t.data))}).select('*').single();
+  if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+  showSyncStatus('ok');
+  TEMPLATES.unshift({id:r.data.id,name:name,data:t.data,is_base:false,trainer_id:MY_UID});
+  alert('\u2705 Copiada a "Mis Sesiones". Ya pod\u00e9s personalizarla ah\u00ed.');
 }
 async function saveAsTemplate(){
   if(!isCoach||!currentPlayerId||!curDate)return;
