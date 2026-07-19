@@ -367,6 +367,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="pd-nav">
       <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Alumnos</span></button>
       <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg><span>Biblioteca</span></button>
+      <button class="pd-nav-item" id="side-templates" onclick="sideNav('templates')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Mis Sesiones</span></button>
     </div>
     <button class="pd-nav-item" id="side-perfil" onclick="sideNav('perfil')" style="border-top:1px solid var(--border2);padding-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Mi perfil</span></button>
     <button class="pd-nav-item" id="side-ajustes" onclick="sideNav('ajustes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Ajustes</span></button>
@@ -571,6 +572,20 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   </div>
 </div>
 
+<!-- MIS SESIONES -->
+<div id="screen-templates" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left"><div><div class="hdr-name">Mis Sesiones</div><div class="hdr-sub">Modelos reutilizables</div></div></div>
+      <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
+    </div>
+  </header>
+  <div style="max-width:var(--cw);margin:0 auto;width:100%;padding:20px 16px;box-sizing:border-box;">
+    <div id="tpl-info" style="background:var(--s2);border-radius:var(--rsm);padding:12px 14px;font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;">Guard&#225; una sesi&#243;n como modelo desde el plan de un alumno (bot&#243;n <b style="color:var(--mob);">Guardar como sesi&#243;n</b>), y despu&#233;s inserta&#769;la en cualquier d&#237;a con un toque.</div>
+    <div id="tpl-list"></div>
+  </div>
+</div>
+
 <!-- WEEK VIEW -->
 <div id="screen-week" style="display:none;padding-bottom:80px;">
   <header>
@@ -749,6 +764,18 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-tpl-insert">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Insertar sesión</h3>
+    <div style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;">Insertando: <b id="tpl-ins-name" style="color:var(--mob);"></b></div>
+    <div class="form-row"><label>Alumno</label><select id="tpl-ins-player" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"></select></div>
+    <div class="form-row"><label>Fecha destino</label><input type="date" id="tpl-ins-date" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;">Reemplaza lo que haya ese día en el alumno elegido.</div>
+    <div style="display:flex;gap:8px;"><button class="mbtn mbtn-cancel" style="flex:1;" onclick="closeTplInsert()">Cancelar</button><button class="mbtn mbtn-save" style="flex:1;" onclick="executeTplInsert()">Insertar</button></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-duplicate">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -854,6 +881,8 @@ var JB_LOADS={};
 var JB_PLANS={};
 var JB_SESSIONS={};
 var JB_NOTRACK={};
+var TEMPLATES=[];
+var tplToInsert=null;
 var JB_LIB=null;
 
 function showSyncStatus(state){
@@ -1224,14 +1253,81 @@ function sideNav(section){
   var s=document.getElementById('pd-sidebar');if(s)s.classList.remove('expanded');
   if(section==='alumnos'){goBack();return;}
   if(section==='lib'){openLibFromHome();}
+  else if(section==='templates'){openTemplatesFromHome();}
   else if(section==='perfil'){openProfileFromHome();}
   else if(section==='ajustes'){openSettingsFromHome();}
 }
 function closeHomeScreens(){
   document.getElementById('screen-select').style.display='none';
   document.getElementById('screen-lib').classList.remove('active');
-  ['screen-profile','screen-ajustes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-profile','screen-ajustes','screen-templates'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
 }
+function openTemplatesFromHome(){
+  closeHomeScreens();showSidebar();
+  document.getElementById('screen-templates').style.display='block';
+  loadTemplates().then(renderTemplates);
+}
+async function loadTemplates(){
+  var r=await sb.from('session_templates').select('*').order('created_at',{ascending:false});
+  if(!r.error)TEMPLATES=(r.data||[]).map(function(t){return {id:t.id,name:t.name,data:t.data||{},is_base:t.is_base,trainer_id:t.trainer_id};});
+}
+function renderTemplates(){
+  var el=document.getElementById('tpl-list');if(!el)return;
+  if(!TEMPLATES.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);padding:30px 0;font-size:13px;">A&#250;n no guardaste ninguna sesi&#243;n.</div>';return;}
+  el.innerHTML=TEMPLATES.map(function(t){
+    var bl=(t.data.blocks||[]);var nEx=bl.reduce(function(a,b){return a+((b.exs||[]).length);},0);
+    var mine=t.trainer_id===MY_UID;
+    var baseTag=t.is_base&&!mine?'<span style="font-size:9px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--cm);border:1px solid var(--cm);border-radius:4px;padding:1px 6px;margin-left:8px;">Base</span>':'';
+    var delBtn=mine?'<button onclick="delTemplate(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:none;color:#ff6b6b;font-size:12px;font-weight:700;cursor:pointer;padding:6px 10px;">Eliminar</button>':'';
+    return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;">'+t.name+baseTag+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+bl.length+' bloque'+(bl.length!==1?'s':'')+' &#183; '+nEx+' ejercicio'+(nEx!==1?'s':'')+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;"><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button>'+delBtn+'</div></div>';
+  }).join('');
+}
+async function saveAsTemplate(){
+  if(!isCoach||!currentPlayerId||!curDate)return;
+  var s=getCurSession(false);
+  if(!s||!s.blocks||!s.blocks.length){alert('Este d\u00eda no tiene entrenamiento para guardar.');return;}
+  var name=prompt('Nombre de la sesi\u00f3n:',s.title||'Sesi\u00f3n');
+  if(name===null)return;name=name.trim();if(!name)return;
+  var data={title:s.title||name,pattern:s.pattern||'',pills:s.pills||[],blocks:JSON.parse(JSON.stringify(s.blocks))};
+  showSyncStatus('saving');
+  var r=await sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:data}).select('*').single();
+  if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
+  showSyncStatus('ok');
+  TEMPLATES.unshift({id:r.data.id,name:name,data:data,is_base:false,trainer_id:MY_UID});
+  alert('\u2705 Sesi\u00f3n guardada en "Mis Sesiones".');
+}
+function pickTemplateTarget(id){
+  var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
+  tplToInsert=t;
+  var opts=PLAYERS.map(function(p){return '<option value="'+p.id+'"'+(p.id===currentPlayerId?' selected':'')+'>'+p.name+'</option>';}).join('');
+  document.getElementById('tpl-ins-player').innerHTML=opts;
+  document.getElementById('tpl-ins-date').value=curDate||isoToday();
+  document.getElementById('tpl-ins-name').textContent=t.name;
+  document.getElementById('modal-tpl-insert').classList.add('open');
+}
+function closeTplInsert(){document.getElementById('modal-tpl-insert').classList.remove('open');tplToInsert=null;}
+function executeTplInsert(){
+  if(!tplToInsert)return;
+  var pid=document.getElementById('tpl-ins-player').value;
+  var date=document.getElementById('tpl-ins-date').value;
+  if(!pid||!date){alert('Eleg\u00ed alumno y fecha.');return;}
+  var ss=sessionsOf(pid);
+  ss[date]=JSON.parse(JSON.stringify(tplToInsert.data));
+  saveSessions(pid);
+  var pname=(PLAYERS.find(function(x){return x.id===pid;})||{}).name||'';
+  closeTplInsert();
+  alert('\u2705 "'+tplToInsert.name+'" insertada en '+pname+' \u00b7 '+fmtDateLong(date));
+  if(pid===currentPlayerId){curDate=date;renderPlan();}
+}
+async function delTemplate(id){
+  var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
+  if(!confirm('\u00bfEliminar "'+t.name+'" de Mis Sesiones?'))return;
+  var r=await sb.from('session_templates').delete().eq('id',id);
+  if(r.error){alert('Error: '+r.error.message);return;}
+  TEMPLATES=TEMPLATES.filter(function(x){return x.id!==id;});
+  renderTemplates();
+}
+function openTemplatesFromHomeStub(){}
 function openSettingsFromHome(){
   closeHomeScreens();showSidebar();
   document.getElementById('set-pass1').value='';
@@ -1618,7 +1714,7 @@ function renderPlan(){
   } else {
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn;
-    if(isCoach&&sess){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;"><button onclick="openDayEditModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;">✏️ Editar día</button></div><div style="max-width:var(--cw);margin:0 auto;padding:0 13px 8px;"><button onclick="openDuplicateModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">\ud83d\udcc5 Duplicar a otra fecha / alumno</button></div>';}
+    if(isCoach&&sess){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;"><button onclick="openDayEditModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;">✏️ Editar día</button></div><div style="max-width:var(--cw);margin:0 auto;padding:0 13px 8px;display:flex;gap:8px;"><button onclick="openDuplicateModal()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">\ud83d\udcc5 Duplicar</button><button onclick="saveAsTemplate()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">\ud83d\udcbe Guardar como sesión</button></div>';}
   }
   document.getElementById('plan-content').innerHTML='<div class="fadein">'+body+'</div>';
   window.scrollTo({top:0,behavior:'smooth'});
