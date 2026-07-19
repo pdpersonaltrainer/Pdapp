@@ -1415,10 +1415,6 @@ function renderSelect(){
     var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
     if(activePid&&activePid!==p.id&&!isCoach){return '<div class="player-card-locked"><div class="player-card-inner">'+av+'<div style="flex:1"><div class="player-name">'+p.name+'</div><div class="player-meta">'+meta+'</div></div><span style="font-size:16px">\ud83d\udd12</span></div></div>';}
     var pinBadge=isCoach&&p.pin?'<div class="player-pin-badge">PIN: '+p.pin.replace(/./g,'\u25cf')+'</div>':'';
-    var aw=p.activeWeek||0;
-    var wmNames=['Reeducaci\u00f3n','Base I/MA','Fuerza','Fza+F.Expl.'];
-    var wmColors=['#a8e063','#38d9c0','#ff7043','#5b9cf6'];
-    var weekBadge='<div style="display:flex;gap:5px;margin-top:5px;"><span style="font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:rgba(168,224,99,0.10);border:1px solid '+wmColors[aw]+';color:'+wmColors[aw]+'">SEM '+(aw+1)+'</span><span style="font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:600;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;padding:2px 0">'+wmNames[aw]+'</span></div>';
     var strip=isCoach?getWeekStrip(p.id):'';
     var todayW=isCoach?(p.wellness||{})[isoToday()]:null;
     var wDot=todayW?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+(todayW.pain?'#ff7043':'var(--mob)')+';margin-left:6px;vertical-align:middle;" title="Check-in hoy"></span>':'';
@@ -1430,7 +1426,7 @@ function renderSelect(){
     var inactBadge=inactDays?'<div style="font-size:10px;font-weight:800;letter-spacing:0.03em;margin-top:4px;color:#ff7043;">\u26a0 Inactivo hace '+inactDays+' d\u00edas</div>':'';
     var todayBadge=todaySess?'<div style="font-size:11px;color:var(--act);font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hoy: '+todaySess+'</div>':'';
     var actions=isCoach?'<div class="player-card-actions"><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openFicha(this.dataset.pid)" style="color:var(--cm);">Ficha'+(p.questionnaire?'':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff7043;margin-left:4px;vertical-align:middle;"></span>')+'</button><div class="pca-sep"></div><button class="pca-btn pca-edit" data-pid="'+p.id+'" onclick="editPlayer(this.dataset.pid)">Editar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="delPlayer(this.dataset.pid)">Eliminar</button></div>':'';
-    return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+weekBadge+strip+adhBadge+inactBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
+    return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+strip+adhBadge+inactBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
   }).join('');
   document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);updatePlayerCount();
 }
