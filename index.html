@@ -1666,11 +1666,11 @@ function renderBlock(b,bi,wIdx,dIdx){
   if(b.t==='cam'){
     var pasH='',intH='';
     if(b.campo){var pas=b.campo.pasadas||[];var inter=b.campo.intermitente||[];pasH=pas.length?'<div class="campo-lbl">Pasadas</div><div class="campo-chips">'+pas.map(function(p){return '<div class="campo-chip">'+p+'</div>';}).join('')+'</div>':'';intH=inter.length?'<div class="campo-lbl" style="margin-top:14px">Intermitente</div><div class="campo-chips">'+inter.map(function(x){return '<div class="campo-chip campo-chip-int">'+x+'</div>';}).join('')+'</div>':'';}
-    var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=loadCell('cam',wIdx,dIdx,bi,ei,e.l,e.n);var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div></div><div class="exright">'+lEl+del+'</div></div>';}).join(''):'';
+    var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=loadCell('cam',wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join(''):'';
     var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
     return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">'+BICONS.cam+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
   }
-  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div><div class="exright">'+lEl+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -1714,6 +1714,18 @@ function filterLibSearch(){renderLib();}
 function setLibPattern(v){activePattern=v;renderLib();}
 function setPickType(v){pickTypeFilter=v;renderPickList();}
 
+function exMoveBtns(w,d,b,e,total){
+  var up=e>0?'<button class="ex-del" style="color:var(--muted);" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();moveEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e,-1)">\u2191</button>':'';
+  var dn=e<total-1?'<button class="ex-del" style="color:var(--muted);" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();moveEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e,1)">\u2193</button>':'';
+  return up+dn;
+}
+function moveEx(w,d,b,e,dir){
+  if(!isCoach)return;
+  var exs=PLAN[w][d].blocks[b].exs;var j=e+dir;
+  if(j<0||j>=exs.length)return;
+  var t=exs[e];exs[e]=exs[j];exs[j]=t;
+  commitSession();renderPlan();
+}
 function delEx(w,d,b,e){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs.splice(e,1);commitSession();renderPlan();}
 function updateLoad(input){var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs[e].l=input.value;commitSession();}
 
