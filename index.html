@@ -815,6 +815,14 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="ac-msg" style="font-size:15px;color:var(--text);line-height:1.5;margin:6px 0 18px;"></div>
+    <div style="display:flex;gap:8px;"><button class="mbtn mbtn-cancel" id="ac-cancel" style="flex:1;" onclick="acDo(false)">Cancelar</button><button class="mbtn mbtn-save" id="ac-ok" style="flex:1;" onclick="acDo(true)">Aceptar</button></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-input">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -1362,6 +1370,16 @@ function renderPrograms(){
     return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:800;letter-spacing:0.02em;">'+p.name+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+p.weeks+' semanas &#183; '+filled+' sesiones asignadas</div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;"><button onclick="openProgEdit(this.dataset.id)" data-id="'+p.id+'" style="flex:1;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Abrir / editar</button>'+delBtn+'</div></div>';
   }).join('');
 }
+var acOk=null,acCancel=null;
+function askConfirm(msg,onOk,opts){
+  opts=opts||{};acOk=onOk;acCancel=opts.onCancel||null;
+  document.getElementById('ac-msg').textContent=msg;
+  var okb=document.getElementById('ac-ok');okb.textContent=opts.okLabel||'Aceptar';
+  if(opts.danger){okb.style.background='#ff6b6b';okb.style.color='#fff';}else{okb.style.background='';okb.style.color='';}
+  document.getElementById('ac-cancel').textContent=opts.cancelLabel||'Cancelar';
+  document.getElementById('modal-confirm').classList.add('open');
+}
+function acDo(ok){var o=acOk,cc=acCancel;document.getElementById('modal-confirm').classList.remove('open');acOk=null;acCancel=null;if(ok){if(o)o();}else{if(cc)cc();}}
 var miCallback=null;
 function askInput(title,defVal,onOk){
   miCallback=onOk;
@@ -1388,12 +1406,14 @@ function newProgram(){
     });
   });
 }
-async function delProgram(id){
+function delProgram(id){
   var p=PROGRAMS.find(function(x){return x.id===id;});if(!p)return;
-  if(!confirm('\u00bfEliminar el programa "'+p.name+'"?'))return;
-  var r=await sb.from('programs').delete().eq('id',id);
-  if(r.error){alert('Error: '+r.error.message);return;}
-  PROGRAMS=PROGRAMS.filter(function(x){return x.id!==id;});renderPrograms();
+  askConfirm('\u00bfEliminar el programa "'+p.name+'"?',function(){
+    sb.from('programs').delete().eq('id',id).then(function(r){
+      if(r.error){alert('Error: '+r.error.message);return;}
+      PROGRAMS=PROGRAMS.filter(function(x){return x.id!==id;});renderPrograms();
+    });
+  },{danger:true,okLabel:'Eliminar'});
 }
 function openProgEdit(id){
   var p=PROGRAMS.find(function(x){return x.id===id;});if(!p)return;
@@ -1427,8 +1447,10 @@ function progCellTap(key){
   progPickTarget=key;
   var cell=curProgram.grid[key];
   if(cell){
-    if(confirm('Este d\u00eda ya tiene "'+cell.name+'".\n\nOK = quitar la sesi\u00f3n\nCancelar = elegir otra'))
-      {delete curProgram.grid[key];saveProgram();renderProgGrid();return;}
+    askConfirm('Este d\u00eda ya tiene "'+cell.name+'". \u00bfQu\u00e9 quer\u00e9s hacer?',function(){
+      delete curProgram.grid[key];saveProgram();renderProgGrid();
+    },{okLabel:'Quitar sesi\u00f3n',cancelLabel:'Elegir otra',onCancel:function(){openProgSessionPicker();}});
+    return;
   }
   openProgSessionPicker();
 }
@@ -1455,13 +1477,13 @@ function pickProgSession(id){
 }
 function closeProgSess(){document.getElementById('modal-prog-sess').classList.remove('open');}
 function progAddWeek(){if(!curProgram)return;curProgram.weeks++;saveProgram();renderProgGrid();}
+function doRemoveWeek(w){[0,1,2,3,4,5,6].forEach(function(d){delete curProgram.grid[w+'-'+d];});curProgram.weeks--;saveProgram();renderProgGrid();}
 function progRemoveWeek(){
   if(!curProgram||curProgram.weeks<=1)return;
   var w=curProgram.weeks;
   var hasContent=[0,1,2,3,4,5,6].some(function(d){return curProgram.grid[w+'-'+d];});
-  if(hasContent&&!confirm('La \u00faltima semana tiene sesiones. \u00bfQuitarla igual?'))return;
-  [0,1,2,3,4,5,6].forEach(function(d){delete curProgram.grid[w+'-'+d];});
-  curProgram.weeks--;saveProgram();renderProgGrid();
+  if(hasContent){askConfirm('La \u00faltima semana tiene sesiones. \u00bfQuitarla igual?',function(){doRemoveWeek(w);},{danger:true,okLabel:'Quitar'});}
+  else{doRemoveWeek(w);}
 }
 function renameProgram(){
   if(!curProgram)return;
@@ -1609,22 +1631,25 @@ function executeTplInsert(){
   alert('\u2705 "'+tplToInsert.name+'" insertada en '+pname+' \u00b7 '+fmtDateLong(date));
   if(pid===currentPlayerId){curDate=date;renderPlan();}
 }
-async function togglePDBase(id){
+function togglePDBase(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t||!isAdmin)return;
   var nv=!t.is_base;
-  if(nv&&!confirm('\u00bfPublicar "'+t.name+'" como Metodolog\u00eda PD?\n\nVa a estar disponible para todos los profes.'))return;
-  if(!nv&&!confirm('\u00bfQuitar "'+t.name+'" de Metodolog\u00eda PD?'))return;
-  var r=await sb.from('session_templates').update({is_base:nv}).eq('id',id);
-  if(r.error){alert('Error: '+r.error.message);return;}
-  t.is_base=nv;renderTemplates();
+  var msg=nv?'\u00bfPublicar "'+t.name+'" como Metodolog\u00eda PD? Va a estar disponible para todos los profes.':'\u00bfQuitar "'+t.name+'" de Metodolog\u00eda PD?';
+  askConfirm(msg,function(){
+    sb.from('session_templates').update({is_base:nv}).eq('id',id).then(function(r){
+      if(r.error){alert('Error: '+r.error.message);return;}
+      t.is_base=nv;renderTemplates();
+    });
+  },{okLabel:nv?'Publicar':'Quitar'});
 }
-async function delTemplate(id){
+function delTemplate(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
-  if(!confirm('\u00bfEliminar "'+t.name+'" de Mis Sesiones?'))return;
-  var r=await sb.from('session_templates').delete().eq('id',id);
-  if(r.error){alert('Error: '+r.error.message);return;}
-  TEMPLATES=TEMPLATES.filter(function(x){return x.id!==id;});
-  renderTemplates();
+  askConfirm('\u00bfEliminar "'+t.name+'" de Mis Sesiones?',function(){
+    sb.from('session_templates').delete().eq('id',id).then(function(r){
+      if(r.error){alert('Error: '+r.error.message);return;}
+      TEMPLATES=TEMPLATES.filter(function(x){return x.id!==id;});renderTemplates();
+    });
+  },{danger:true,okLabel:'Eliminar'});
 }
 function openTemplatesFromHomeStub(){}
 function openSettingsFromHome(){
@@ -1908,13 +1933,15 @@ function checkPlayerPin(){var p=PLAYERS.find(function(x){return x.id===pendingSe
 function openPlayerModal(id){if(!id&&!isAdmin){var _max=(MY_PROFILE&&MY_PROFILE.max_players)||5;if(PLAYERS.length>=_max){alert('Llegaste al l\u00edmite de tu plan ('+_max+' alumno'+(_max>1?'s':'')+').\n\nMejor\u00e1 tu plan para sumar m\u00e1s alumnos.');return;}}editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Alumno':'Nuevo Alumno';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';var _q=p&&p.questionnaire?p.questionnaire:null;document.getElementById('f-psport').value=_q&&_q.sport?_q.sport:'';updatePSportPositions();if(_q&&_q.position)document.getElementById('f-pposition').value=_q.position;document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
 function closePlayerModal(){document.getElementById('modal-player').classList.remove('open');editingPlayerId=null;pendingPhotoData=null;}
 function editPlayer(id){openPlayerModal(id);}
-async function delPlayer(id){
-  if(!confirm('¿Eliminar este alumno? Se borran también su plan y progreso.'))return;
-  showSyncStatus('saving');
-  var r=await sb.from('players').delete().eq('id',id);
-  if(r.error){showSyncStatus('error');alert('Error al eliminar: '+r.error.message);return;}
-  PLAYERS=PLAYERS.filter(function(p){return p.id!==id;});
-  showSyncStatus('ok');renderSelect();
+function delPlayer(id){
+  askConfirm('¿Eliminar este alumno? Se borran también su plan y progreso.',function(){
+    showSyncStatus('saving');
+    sb.from('players').delete().eq('id',id).then(function(r){
+      if(r.error){showSyncStatus('error');alert('Error al eliminar: '+r.error.message);return;}
+      PLAYERS=PLAYERS.filter(function(p){return p.id!==id;});
+      showSyncStatus('ok');renderSelect();
+    });
+  },{danger:true,okLabel:'Eliminar'});
 }
 function handlePhotoUpload(e){
   var file=e.target.files[0];
@@ -2289,8 +2316,7 @@ function importLibFromFile(input){
     var arr;
     try{arr=JSON.parse(reader.result);}catch(e){alert('El archivo no es un JSON valido.');return;}
     if(!Array.isArray(arr)||!arr.length){alert('El archivo no tiene ejercicios.');return;}
-    if(!confirm('Esto reemplaza TODA tu biblioteca por el archivo ('+arr.length+' ejercicios). Tus planes NO se tocan. Continuar?'))return;
-    doImportLib(arr);
+    askConfirm('Esto reemplaza TODA tu biblioteca por el archivo ('+arr.length+' ejercicios). Tus planes NO se tocan. \u00bfContinuar?',function(){doImportLib(arr);},{danger:true,okLabel:'Reemplazar'});
   };
   reader.readAsText(file);
 }
@@ -2382,7 +2408,7 @@ function renderMonthView(p){
 function openDayEditModal(){if(!isCoach||!currentPlayerId)return;var sObj=getCurSession(false)||{title:'',pattern:'',pills:[]};document.getElementById('f-day-name').value=sObj.title||'';document.getElementById('f-day-pattern').value=sObj.pattern||'';document.getElementById('f-day-pills').value=(sObj.pills||[]).join(', ');document.getElementById('modal-edit-day').classList.add('open');}
 function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');}
 function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);sObj.title=document.getElementById('f-day-name').value.trim()||'Entrenamiento';sObj.pattern=document.getElementById('f-day-pattern').value.trim();var pr=document.getElementById('f-day-pills').value.trim();sObj.pills=pr?pr.split(',').map(function(x){return x.trim();}).filter(Boolean):[];PLAN[0][0]=sObj;commitSession();closeDayEditModal();renderPlan();}
-function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;if(!confirm('¿Borrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.'))return;var ss=sessionsOf(currentPlayerId);delete ss[curDate];var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();renderPlan();}
+function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfirm('\u00bfBorrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.',function(){var ss=sessionsOf(currentPlayerId);delete ss[curDate];var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();renderPlan();},{danger:true,okLabel:'Borrar'});}
 function goToToday(){var d=new Date();calCursor=new Date(d.getFullYear(),d.getMonth(),1);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
 
 function renderMessages(){
