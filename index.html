@@ -45,7 +45,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .pd-side:hover .pd-side-logo span,.pd-side:hover .pd-nav-item span,.pd-side.expanded .pd-side-logo span,.pd-side.expanded .pd-nav-item span{opacity:1;}
 .pd-side-logo span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:0.05em;text-transform:uppercase;background:linear-gradient(90deg,var(--mob),#d4f59a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
 .pd-nav{display:flex;flex-direction:column;gap:3px;flex:1;}
-.pd-nav-item{position:relative;display:flex;align-items:center;gap:15px;padding:12px 21px;min-width:210px;cursor:pointer;color:var(--muted2);border:none;background:none;text-align:left;font-family:'Barlow Condensed',sans-serif;}
+.pd-nav-item{position:relative;display:flex;align-items:center;gap:15px;padding:12px 21px;min-width:210px;cursor:pointer;color:rgba(255,255,255,0.78);border:none;background:none;text-align:left;font-family:'Barlow Condensed',sans-serif;transition:color .15s ease;}
+.pd-side:hover .pd-nav-item:hover{color:#fff;}
+.pd-side-logo:hover{opacity:0.85;}
 .pd-nav-item svg{width:23px;height:23px;flex:none;stroke:currentColor;}
 .pd-nav-item span{font-size:15px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;}
 .pd-nav-item.active{color:var(--mob);}
