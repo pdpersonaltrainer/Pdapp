@@ -815,6 +815,15 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-input">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="mi-title">Ingresar</h3>
+    <input type="text" id="mi-field" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:12px 14px;font-family:'Barlow',sans-serif;font-size:15px;color:var(--text);outline:none;margin-bottom:16px;" onkeydown="if(event.key==='Enter')miConfirm();"/>
+    <div style="display:flex;gap:8px;"><button class="mbtn mbtn-cancel" style="flex:1;" onclick="closeInputModal()">Cancelar</button><button class="mbtn mbtn-save" style="flex:1;" onclick="miConfirm()">Aceptar</button></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-prog-sess">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -1353,15 +1362,31 @@ function renderPrograms(){
     return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:800;letter-spacing:0.02em;">'+p.name+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+p.weeks+' semanas &#183; '+filled+' sesiones asignadas</div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;"><button onclick="openProgEdit(this.dataset.id)" data-id="'+p.id+'" style="flex:1;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Abrir / editar</button>'+delBtn+'</div></div>';
   }).join('');
 }
-async function newProgram(){
-  var name=prompt('Nombre del programa (ej: Pretemporada 4 semanas):','');
-  if(name===null)return;name=name.trim();if(!name)return;
-  showSyncStatus('saving');
-  var r=await sb.from('programs').insert({trainer_id:MY_UID,name:name,weeks:4,grid:{}}).select('*').single();
-  if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
-  showSyncStatus('ok');
-  PROGRAMS.unshift({id:r.data.id,name:name,weeks:4,grid:{},is_base:false,trainer_id:MY_UID});
-  renderPrograms();
+var miCallback=null;
+function askInput(title,defVal,onOk){
+  miCallback=onOk;
+  document.getElementById('mi-title').textContent=title;
+  var f=document.getElementById('mi-field');f.value=defVal||'';
+  document.getElementById('modal-input').classList.add('open');
+  setTimeout(function(){f.focus();f.select();},60);
+}
+function closeInputModal(){document.getElementById('modal-input').classList.remove('open');miCallback=null;}
+function miConfirm(){
+  var v=document.getElementById('mi-field').value.trim();
+  var cb=miCallback;
+  document.getElementById('modal-input').classList.remove('open');miCallback=null;
+  if(cb&&v)cb(v);
+}
+function newProgram(){
+  askInput('Nombre del programa (ej: Pretemporada 4 semanas)','',function(name){
+    showSyncStatus('saving');
+    sb.from('programs').insert({trainer_id:MY_UID,name:name,weeks:4,grid:{}}).select('*').single().then(function(r){
+      if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+      showSyncStatus('ok');
+      PROGRAMS.unshift({id:r.data.id,name:name,weeks:4,grid:{},is_base:false,trainer_id:MY_UID});
+      renderPrograms();
+    });
+  });
 }
 async function delProgram(id){
   var p=PROGRAMS.find(function(x){return x.id===id;});if(!p)return;
@@ -1438,11 +1463,11 @@ function progRemoveWeek(){
   [0,1,2,3,4,5,6].forEach(function(d){delete curProgram.grid[w+'-'+d];});
   curProgram.weeks--;saveProgram();renderProgGrid();
 }
-async function renameProgram(){
+function renameProgram(){
   if(!curProgram)return;
-  var name=prompt('Nuevo nombre:',curProgram.name);
-  if(name===null)return;name=name.trim();if(!name)return;
-  curProgram.name=name;document.getElementById('pe-name').textContent=name;saveProgram();
+  askInput('Nuevo nombre',curProgram.name,function(name){
+    curProgram.name=name;document.getElementById('pe-name').textContent=name;saveProgram();
+  });
 }
 function saveProgram(){
   if(!curProgram)return;
@@ -1534,30 +1559,32 @@ function renderPDMethod(){
     return '<div style="background:var(--s);border:1px solid var(--mob);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;">'+t.name+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+bl.length+' bloque'+(bl.length!==1?'s':'')+' &#183; '+nEx+' ejercicio'+(nEx!==1?'s':'')+'</div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;"><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button><button onclick="duplicateToMine(this.dataset.id)" data-id="'+t.id+'" style="flex:1;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Duplicar y editar</button></div></div>';
   }).join('');
 }
-async function duplicateToMine(id){
+function duplicateToMine(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
-  var name=prompt('Nombre de tu copia:',t.name+' (mi versi\u00f3n)');
-  if(name===null)return;name=name.trim();if(!name)return;
-  showSyncStatus('saving');
-  var r=await sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:JSON.parse(JSON.stringify(t.data))}).select('*').single();
-  if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
-  showSyncStatus('ok');
-  TEMPLATES.unshift({id:r.data.id,name:name,data:t.data,is_base:false,trainer_id:MY_UID});
-  alert('\u2705 Copiada a "Mis Sesiones". Ya pod\u00e9s personalizarla ah\u00ed.');
+  askInput('Nombre de tu copia',t.name+' (mi versi\u00f3n)',function(name){
+    showSyncStatus('saving');
+    sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:JSON.parse(JSON.stringify(t.data))}).select('*').single().then(function(r){
+      if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+      showSyncStatus('ok');
+      TEMPLATES.unshift({id:r.data.id,name:name,data:t.data,is_base:false,trainer_id:MY_UID});
+      alert('\u2705 Copiada a "Mis Sesiones". Ya pod\u00e9s personalizarla ah\u00ed.');
+    });
+  });
 }
-async function saveAsTemplate(){
+function saveAsTemplate(){
   if(!isCoach||!currentPlayerId||!curDate)return;
   var s=getCurSession(false);
   if(!s||!s.blocks||!s.blocks.length){alert('Este d\u00eda no tiene entrenamiento para guardar.');return;}
-  var name=prompt('Nombre de la sesi\u00f3n:',s.title||'Sesi\u00f3n');
-  if(name===null)return;name=name.trim();if(!name)return;
-  var data={title:s.title||name,pattern:s.pattern||'',pills:s.pills||[],blocks:JSON.parse(JSON.stringify(s.blocks))};
-  showSyncStatus('saving');
-  var r=await sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:data}).select('*').single();
-  if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
-  showSyncStatus('ok');
-  TEMPLATES.unshift({id:r.data.id,name:name,data:data,is_base:false,trainer_id:MY_UID});
-  alert('\u2705 Sesi\u00f3n guardada en "Mis Sesiones".');
+  askInput('Nombre de la sesi\u00f3n',s.title||'Sesi\u00f3n',function(name){
+    var data={title:s.title||name,pattern:s.pattern||'',pills:s.pills||[],blocks:JSON.parse(JSON.stringify(s.blocks))};
+    showSyncStatus('saving');
+    sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:data}).select('*').single().then(function(r){
+      if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
+      showSyncStatus('ok');
+      TEMPLATES.unshift({id:r.data.id,name:name,data:data,is_base:false,trainer_id:MY_UID});
+      alert('\u2705 Sesi\u00f3n guardada en "Mis Sesiones".');
+    });
+  });
 }
 function pickTemplateTarget(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
