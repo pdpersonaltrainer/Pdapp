@@ -1468,6 +1468,19 @@ function getInactiveDays(pid){
   var days=Math.round((isoToDate(today)-isoToDate(ref))/86400000);
   return days>=4?days:null;
 }
+function getStreak(pid){
+  var today=isoToday();
+  var sess=JB_SESSIONS[pid]||{};var ch=JB_CHECKS[pid]||{};
+  var days=Object.keys(sess).filter(function(iso){return /^\d{4}-\d{2}-\d{2}$/.test(iso)&&iso<=today&&sess[iso]&&sess[iso].blocks&&sess[iso].blocks.length;});
+  days.sort(function(a,b){return a<b?1:-1;});
+  var streak=0;
+  for(var i=0;i<days.length;i++){
+    var iso=days[i];
+    var done=Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    if(done)streak++;else break;
+  }
+  return streak;
+}
 function getAdherence(pid){
   var today=isoToday();var start=addDaysISO(today,-29);
   var sess=JB_SESSIONS[pid]||{};var ch=JB_CHECKS[pid]||{};
@@ -1576,9 +1589,11 @@ function renderSelect(){
     var adhBadge=adh?'<div style="font-size:10px;font-weight:700;letter-spacing:0.03em;margin-top:4px;color:'+adhColor+';">Adherencia 30d: '+adh.pct+'% <span style="color:var(--muted2);font-weight:600;">('+adh.done+'/'+adh.total+' sesiones)</span></div>':'';
     var inactDays=isCoach?getInactiveDays(p.id):null;
     var inactBadge=inactDays?'<div style="font-size:10px;font-weight:800;letter-spacing:0.03em;margin-top:4px;color:#ff7043;">\u26a0 Inactivo hace '+inactDays+' d\u00edas</div>':'';
+    var stk=isCoach?getStreak(p.id):0;
+    var streakBadge=stk>=2?'<div style="font-size:10px;font-weight:800;letter-spacing:0.03em;margin-top:4px;color:var(--mob);">\ud83d\udd25 '+stk+' en racha</div>':'';
     var todayBadge=todaySess?'<div style="font-size:11px;color:var(--act);font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hoy: '+todaySess+'</div>':'';
     var actions=isCoach?'<div class="player-card-actions"><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openFicha(this.dataset.pid)" style="color:var(--cm);">Ficha'+(p.questionnaire?'':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff7043;margin-left:4px;vertical-align:middle;"></span>')+'</button><div class="pca-sep"></div><button class="pca-btn pca-edit" data-pid="'+p.id+'" onclick="editPlayer(this.dataset.pid)">Editar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="delPlayer(this.dataset.pid)">Eliminar</button></div>':'';
-    return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+strip+adhBadge+inactBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
+    return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+strip+adhBadge+streakBadge+inactBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
   }).join('');
   document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);updatePlayerCount();
 }
@@ -1766,7 +1781,9 @@ function renderPlan(){
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">Día libre</div><div class="hero-pat">Sin entrenamiento asignado</div></div><div style="max-width:var(--cw);margin:18px auto 0;padding:0 13px;"><button onclick="createTraining()" style="width:100%;padding:16px;border-radius:var(--r);border:2px dashed var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">+ Crear entrenamiento</button></div>';
   } else {
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
-    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div></div>'+blocksH+addBBtn;
+    var stkP=(!isCoach)?getStreak(currentPlayerId):0;
+    var streakP=stkP>=2?'<div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stkP+' en racha</div>':'';
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div>'+streakP+'</div>'+blocksH+addBBtn;
     if(isCoach&&sess){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;"><button onclick="openDayEditModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;">✏️ Editar día</button></div><div style="max-width:var(--cw);margin:0 auto;padding:0 13px 8px;display:flex;gap:8px;"><button onclick="openDuplicateModal()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">\ud83d\udcc5 Duplicar</button><button onclick="saveAsTemplate()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">\ud83d\udcbe Guardar como sesión</button></div>';}
   }
   document.getElementById('plan-content').innerHTML='<div class="fadein">'+body+'</div>';
