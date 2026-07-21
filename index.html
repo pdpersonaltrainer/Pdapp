@@ -677,7 +677,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 <div id="screen-msg" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
-      <div class="hdr-left"><div><div class="hdr-name">Recordatorios</div><div class="hdr-sub">Mensajes para alumnos</div></div></div>
+      <div class="hdr-left"><div><div class="hdr-name" id="msg-title">Mensajes</div><div class="hdr-sub" id="msg-sub">Chat y recordatorios</div></div></div>
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
@@ -2026,7 +2026,7 @@ function goBack(){
 // \u2500\u2500 COACH MODE \u2500\u2500
 function toggleMode(){if(isCoach)deactivateCoach();else activateCoach();}
 function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Tus alumnos';if(ss)ss.textContent='Toc\u00e1 un nombre para abrir el plan, o sum\u00e1 uno nuevo.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='flex';showSidebar();setSideActive('alumnos');renderSelect();setCoachView(coachView);if(currentPlayerId)renderPlan();}
-function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib','atab-msg'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var ats=document.getElementById('atab-summary');if(ats)ats.style.display='';var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='none';hideSidebar();coachView='lista';var pg=document.getElementById('players-grid');if(pg)pg.style.display='';var wo=document.getElementById('week-overview');if(wo)wo.style.display='none';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
+function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var ats=document.getElementById('atab-summary');if(ats)ats.style.display='';var atm=document.getElementById('atab-msg');if(atm)atm.style.display='';var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='none';hideSidebar();coachView='lista';var pg=document.getElementById('players-grid');if(pg)pg.style.display='';var wo=document.getElementById('week-overview');if(wo)wo.style.display='none';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
 
 // \u2500\u2500 COACH PIN \u2500\u2500
 function openPinModal(){pinBuffer='';updatePinDots();document.getElementById('pin-overlay').classList.add('open');}
@@ -2143,7 +2143,7 @@ function showTab(name){
   var tabEl=document.getElementById('atab-'+name);if(tabEl)tabEl.classList.add('active');
   if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);renderLib();}
   if(name==='week'){weekViewW=cW;renderWeekView();}
-  if(name==='msg')renderMessages();
+  if(name==='msg')renderMsgTab();
   if(name==='summary')renderSummary();
 }
 
@@ -2602,6 +2602,82 @@ function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);s
 function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfirm('\u00bfBorrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.',function(){var ss=sessionsOf(currentPlayerId);delete ss[curDate];var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();renderPlan();},{danger:true,okLabel:'Borrar'});}
 function goToToday(){var d=new Date();calCursor=new Date(d.getFullYear(),d.getMonth(),1);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
 
+// \u2500\u2500 CHAT \u2500\u2500
+var msgView='chat',chatPlayerId=null,CHAT=[],CHAT_UNREAD={};
+function renderMsgTab(){
+  if(!isCoach){chatPlayerId=currentPlayerId;openChatThread(currentPlayerId);return;}
+  if(msgView==='record'){setMsgHeader('Recordatorios','Mensajes para alumnos');renderMessagesInto();return;}
+  if(chatPlayerId){openChatThread(chatPlayerId);return;}
+  renderChatList();
+}
+function setMsgHeader(t,s){var a=document.getElementById('msg-title');if(a)a.textContent=t;var b=document.getElementById('msg-sub');if(b)b.textContent=s;}
+function setMsgView(v){msgView=v;chatPlayerId=null;renderMsgTab();}
+function renderMsgToggle(){
+  return '<div style="display:flex;gap:8px;margin-bottom:16px;"><button class="cv-btn'+(msgView==='chat'?' cv-active':'')+'" onclick="setMsgView(\'chat\')">\ud83d\udcac Chat</button><button class="cv-btn'+(msgView==='record'?' cv-active':'')+'" onclick="setMsgView(\'record\')">\ud83d\udce8 Recordatorios</button></div>';
+}
+function renderMessagesInto(){renderMessages();var mc=document.getElementById('msg-content');mc.innerHTML=renderMsgToggle()+mc.innerHTML;}
+async function loadUnreadCounts(){
+  CHAT_UNREAD={};
+  var r=await sb.from('messages').select('player_id').eq('sender','athlete').eq('read_by_coach',false);
+  if(!r.error)(r.data||[]).forEach(function(m){CHAT_UNREAD[m.player_id]=(CHAT_UNREAD[m.player_id]||0)+1;});
+}
+async function renderChatList(){
+  setMsgHeader('Chat','Conversaciones con tus alumnos');
+  var mc=document.getElementById('msg-content');
+  mc.innerHTML=renderMsgToggle()+'<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
+  await loadUnreadCounts();
+  if(!PLAYERS.length){mc.innerHTML=renderMsgToggle()+'<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
+  var rows=PLAYERS.map(function(p){
+    var un=CHAT_UNREAD[p.id]||0;
+    var av=p.photo?'<img src="'+p.photo+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none;"/>':'<div style="width:40px;height:40px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;">\ud83d\udc64</div>';
+    var badge=un?'<span style="flex:none;min-width:22px;height:22px;border-radius:11px;background:var(--mob);color:#0a0b0e;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 6px;">'+un+'</span>':'<span style="color:var(--muted2);font-size:16px;">\u203a</span>';
+    return '<div onclick="openChatThread(\''+p.id+'\')" style="display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--border'+(un?';border-color:var(--mob)':'')+');border-radius:var(--r);padding:12px 14px;margin-bottom:8px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.28);">'+av+'<div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;letter-spacing:0.02em;">'+p.name+'</div><div style="font-size:11px;color:var(--muted);">'+(un?un+' mensaje'+(un>1?'s':'')+' nuevo'+(un>1?'s':''):'Abrir conversaci\u00f3n')+'</div></div>'+badge+'</div>';
+  }).join('');
+  mc.innerHTML=renderMsgToggle()+rows;
+}
+async function openChatThread(pid){
+  chatPlayerId=pid;
+  var p=PLAYERS.find(function(x){return x.id===pid;});
+  setMsgHeader(isCoach?('Chat \u00b7 '+(p?p.name:'')):'Chat con tu profe',isCoach?'Conversaci\u00f3n privada':'Escribile cuando quieras');
+  var mc=document.getElementById('msg-content');
+  mc.innerHTML='<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
+  var r=await sb.from('messages').select('*').eq('player_id',pid).order('created_at');
+  CHAT=r.error?[]:(r.data||[]);
+  // marcar leídos
+  if(isCoach){sb.from('messages').update({read_by_coach:true}).eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false).then(function(){});}
+  else{sb.from('messages').update({read_by_athlete:true}).eq('player_id',pid).eq('sender','coach').eq('read_by_athlete',false).then(function(){});}
+  renderChatThread();
+}
+function renderChatThread(){
+  var mc=document.getElementById('msg-content');
+  var backBtn=isCoach?'<button onclick="chatPlayerId=null;renderMsgTab();" style="background:none;border:none;color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:0;">\u2039 Conversaciones</button>':'';
+  var refBtn='<button onclick="openChatThread(chatPlayerId)" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 4px;" title="Actualizar">\u21bb</button>';
+  var top='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'+backBtn+refBtn+'</div>';
+  var mine=isCoach?'coach':'athlete';
+  var bubbles=CHAT.length?CHAT.map(function(m){
+    var isMine=m.sender===mine;
+    var d=new Date(m.created_at);
+    var hh=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+    var when=fmtDateShort(m.created_at.slice(0,10))+' '+hh;
+    return '<div style="display:flex;justify-content:'+(isMine?'flex-end':'flex-start')+';margin-bottom:8px;"><div style="max-width:78%;background:'+(isMine?'rgba(168,224,99,0.14)':'var(--s1)')+';border:1px solid '+(isMine?'var(--mob)':'var(--border)')+';border-radius:14px;border-'+(isMine?'bottom-right':'bottom-left')+'-radius:4px;padding:9px 13px;"><div style="font-size:14px;color:var(--text);line-height:1.45;white-space:pre-wrap;word-break:break-word;">'+escapeChat(m.body)+'</div><div style="font-size:9px;color:var(--muted2);margin-top:4px;text-align:right;">'+when+'</div></div></div>';
+  }).join(''):'<div style="text-align:center;color:var(--muted2);padding:26px 0;font-size:13px;">Todav\u00eda no hay mensajes. \u00a1Escrib\u00ed el primero!</div>';
+  var input='<div style="display:flex;gap:8px;margin-top:14px;"><textarea id="chat-input" placeholder="Escrib\u00ed un mensaje..." rows="1" style="flex:1;min-width:0;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:11px 14px;font-family:Barlow,sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea><button onclick="sendChat()" style="flex:none;width:46px;height:46px;border-radius:50%;border:none;background:var(--mob);color:#0a0b0e;font-size:18px;font-weight:800;cursor:pointer;">\u27a4</button></div>';
+  mc.innerHTML=top+'<div id="chat-scroll" style="max-height:56vh;overflow-y:auto;padding:2px;">'+bubbles+'</div>'+input;
+  var sc=document.getElementById('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
+}
+function escapeChat(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function sendChat(){
+  var inp=document.getElementById('chat-input');if(!inp)return;
+  var body=inp.value.trim();if(!body||!chatPlayerId)return;
+  inp.value='';
+  var sender=isCoach?'coach':'athlete';
+  var row={trainer_id:TRAINER_ID,player_id:chatPlayerId,sender:sender,body:body};
+  if(sender==='coach')row.read_by_coach=true;else row.read_by_athlete=true;
+  var r=await sb.from('messages').insert(row).select('*').single();
+  if(r.error){alert('No se pudo enviar: '+r.error.message);return;}
+  CHAT.push(r.data);
+  renderChatThread();
+}
 function renderMessages(){
   if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
   var todayISO=isoToday();
