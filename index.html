@@ -58,6 +58,9 @@ body.side-visible #screen-lib,body.side-visible #screen-profile,body.side-visibl
 .players-grid{display:flex;flex-direction:column;gap:12px;}
 .cv-btn{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
 .cv-btn.cv-active{background:var(--mob);color:#0a0b0e;border-color:var(--mob);}
+.pr-lbl{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.pr-type,.pr-eff{flex:1;font-size:12px;padding:9px 4px;}
+.pr-type.pr-on,.pr-eff.pr-on{background:var(--mob);color:#0a0b0e;border-color:var(--mob);}
 .player-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.15s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.28);}
 .player-card:active{transform:scale(0.985);}
 .player-card-inner{display:flex;align-items:center;gap:14px;padding:16px;}
@@ -814,6 +817,44 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <div class="pin-key" onclick="playerPinPress(0)">0</div><div class="pin-key del" onclick="playerPinDel()">&#9003;</div>
     </div>
     <button class="mbtn mbtn-cancel" style="width:100%;margin-top:14px;" onclick="closePlayerPinModal()">Cancelar</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-presc">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 style="margin-top:0;">Prescripción</h3>
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Tipo</div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button class="pr-type cv-btn" id="pr-type-reps" onclick="setPrescType('reps')">⚡ Reps</button>
+      <button class="pr-type cv-btn" id="pr-type-time" onclick="setPrescType('time')">⏱ Tiempo</button>
+      <button class="pr-type cv-btn" id="pr-type-dist" onclick="setPrescType('dist')">📏 Distancia</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="flex:1;"><div class="pr-lbl">Series</div><input type="number" id="pr-sets" inputmode="numeric" oninput="updatePrescPreview()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
+      <div style="flex:1;" id="pr-reps-wrap"><div class="pr-lbl">Reps</div><input type="number" id="pr-reps" inputmode="numeric" oninput="updatePrescPreview()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
+      <div style="flex:1.3;display:none;" id="pr-time-wrap"><div class="pr-lbl">Duración</div><div style="display:flex;gap:5px;"><input type="number" id="pr-dur" inputmode="numeric" oninput="updatePrescPreview()" style="flex:1;min-width:0;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/><button id="pr-durunit" onclick="togglePrescDurUnit()" style="flex:none;padding:0 12px;border-radius:var(--rsm);border:1px solid var(--border);background:var(--s2);color:var(--mob);font-weight:800;cursor:pointer;">s</button></div></div>
+      <div style="flex:1;display:none;" id="pr-dist-wrap"><div class="pr-lbl">Metros</div><input type="number" id="pr-dist" inputmode="numeric" oninput="updatePrescPreview()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:8px 0;border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);">
+      <span style="font-size:13px;color:var(--text);font-weight:600;">Por lado (c/l)</span>
+      <button id="pr-perside" onclick="togglePrescSide()" style="padding:6px 16px;border-radius:14px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;cursor:pointer;">No</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="flex:1.3;"><div class="pr-lbl">Carga (opcional)</div><div style="display:flex;gap:5px;"><input type="text" id="pr-load" oninput="updatePrescPreview()" placeholder="Ej: 70" style="flex:1;min-width:0;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/><button id="pr-loadunit" onclick="togglePrescLoadUnit()" style="flex:none;padding:0 12px;border-radius:var(--rsm);border:1px solid var(--border);background:var(--s2);color:var(--mob);font-weight:800;cursor:pointer;">kg</button></div></div>
+      <div style="flex:1;"><div class="pr-lbl">Descanso (s)</div><input type="number" id="pr-rest" inputmode="numeric" oninput="updatePrescPreview()" placeholder="opc." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div class="pr-lbl">Esfuerzo (opcional)</div>
+      <div style="display:flex;gap:6px;">
+        <button class="pr-eff cv-btn" id="pr-eff-none" onclick="setPrescEff('')">Ninguno</button>
+        <button class="pr-eff cv-btn" id="pr-eff-rpe" onclick="setPrescEff('rpe')">RPE</button>
+        <button class="pr-eff cv-btn" id="pr-eff-rir" onclick="setPrescEff('rir')">RIR</button>
+        <input type="number" id="pr-eff-val" inputmode="numeric" oninput="updatePrescPreview()" placeholder="#" style="width:64px;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;display:none;"/>
+      </div>
+    </div>
+    <div style="background:var(--s2);border-radius:var(--rsm);padding:12px;text-align:center;margin-bottom:16px;"><div style="font-size:10px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">Vista previa</div><div id="pr-preview" style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:800;color:var(--mob);">—</div></div>
+    <div style="display:flex;gap:8px;"><button class="mbtn mbtn-cancel" style="flex:1;" onclick="closePrescModal()">Cancelar</button><button class="mbtn mbtn-save" style="flex:1;" onclick="savePresc()">Guardar</button></div>
   </div>
 </div>
 
@@ -2122,7 +2163,7 @@ function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
   var nEsc=String(exName||'').replace(/"/g,'&quot;');
   if(isCoach){
     var tBtn='<button onclick="event.stopPropagation();toggleTrack(this.dataset.n)" data-n="'+nEsc+'" title="'+(tracked?'Registro de carga: activado':'Registro de carga: desactivado')+'" style="width:26px;height:26px;flex:none;border-radius:7px;border:1px solid '+(tracked?'var(--mob)':'var(--border2)')+';background:'+(tracked?'rgba(168,224,99,0.10)':'transparent')+';color:'+(tracked?'var(--mob)':'var(--muted2)')+';display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></button>';
-    return '<div style="display:flex;align-items:flex-start;gap:6px;"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><input class="exload-edit" value="'+objetivo+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onchange="updateLoad(this)" onclick="event.stopPropagation()"/>'+(tracked&&aL?'<div style="font-size:10px;font-weight:700;color:var(--cm);white-space:nowrap;">Hizo: '+aL+'</div>':'')+'</div>'+tBtn+'</div>';
+    return '<div style="display:flex;align-items:flex-start;gap:6px;"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><button class="exload-edit" style="cursor:pointer;min-height:26px;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();openPrescModal('+wIdx+','+dIdx+','+bi+','+ei+')">'+(objetivo||'+ Definir')+'</button>'+(tracked&&aL?'<div style="font-size:10px;font-weight:700;color:var(--cm);white-space:nowrap;">Hizo: '+aL+'</div>':'')+'</div>'+tBtn+'</div>';
   }
   if(!tracked)return '<div class="exload l-'+t+'">'+objetivo+'</div>';
   return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="exload l-'+t+'">'+objetivo+'</div><input value="'+aL+'" placeholder="\u00bfQu\u00e9 hiciste?" data-b="'+bi+'" data-e="'+ei+'" onchange="saveLoad(this)" onclick="event.stopPropagation()" style="width:96px;box-sizing:border-box;background:var(--s2);border:1px solid var(--cm);border-radius:6px;color:var(--text);padding:5px 6px;font-size:11px;text-align:center;outline:none;"/></div>';
@@ -2195,6 +2236,80 @@ function moveEx(w,d,b,e,dir){
 }
 function delEx(w,d,b,e){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs.splice(e,1);commitSession();renderPlan();}
 function updateLoad(input){var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs[e].l=input.value;commitSession();}
+var prescTarget=null,prescState={};
+function openPrescModal(w,d,b,e){
+  if(!isCoach||!currentPlayerId)return;
+  prescTarget={w:w,d:d,b:b,e:e};
+  var ex=PLAN[w][d].blocks[b].exs[e];
+  var p=ex.p||{};
+  prescState={type:p.type||'reps',sets:p.sets||'',reps:p.reps||'',dur:p.dur||'',durUnit:p.durUnit||'s',dist:p.dist||'',perSide:!!p.perSide,load:p.load||'',loadUnit:p.loadUnit||'kg',effType:p.effType||'',eff:p.eff||'',rest:p.rest||''};
+  document.getElementById('pr-sets').value=prescState.sets;
+  document.getElementById('pr-reps').value=prescState.reps;
+  document.getElementById('pr-dur').value=prescState.dur;
+  document.getElementById('pr-dist').value=prescState.dist;
+  document.getElementById('pr-load').value=prescState.load;
+  document.getElementById('pr-rest').value=prescState.rest;
+  document.getElementById('pr-eff-val').value=prescState.eff;
+  document.getElementById('pr-durunit').textContent=prescState.durUnit;
+  document.getElementById('pr-loadunit').textContent=prescState.loadUnit;
+  setPrescType(prescState.type,true);
+  setPrescEff(prescState.effType,true);
+  togglePrescSideSet(prescState.perSide);
+  updatePrescPreview();
+  document.getElementById('modal-presc').classList.add('open');
+}
+function closePrescModal(){document.getElementById('modal-presc').classList.remove('open');prescTarget=null;}
+function setPrescType(t,keep){
+  prescState.type=t;
+  ['reps','time','dist'].forEach(function(x){document.getElementById('pr-type-'+x).classList.toggle('pr-on',x===t);});
+  document.getElementById('pr-reps-wrap').style.display=t==='reps'?'':'none';
+  document.getElementById('pr-time-wrap').style.display=t==='time'?'':'none';
+  document.getElementById('pr-dist-wrap').style.display=t==='dist'?'':'none';
+  updatePrescPreview();
+}
+function setPrescEff(t,keep){
+  prescState.effType=t;
+  ['none','rpe','rir'].forEach(function(x){document.getElementById('pr-eff-'+x).classList.toggle('pr-on',(x==='none'&&!t)||x===t);});
+  document.getElementById('pr-eff-val').style.display=t?'':'none';
+  updatePrescPreview();
+}
+function togglePrescSide(){togglePrescSideSet(!prescState.perSide);updatePrescPreview();}
+function togglePrescSideSet(v){prescState.perSide=v;var b=document.getElementById('pr-perside');b.textContent=v?'Sí':'No';if(v){b.style.background='var(--mob)';b.style.color='#0a0b0e';b.style.borderColor='var(--mob)';}else{b.style.background='var(--s2)';b.style.color='var(--muted)';b.style.borderColor='var(--border2)';}}
+function togglePrescDurUnit(){prescState.durUnit=prescState.durUnit==='s'?'min':'s';document.getElementById('pr-durunit').textContent=prescState.durUnit;updatePrescPreview();}
+function togglePrescLoadUnit(){var seq={'kg':'%','%':'','':'kg'};prescState.loadUnit=seq[prescState.loadUnit];document.getElementById('pr-loadunit').textContent=prescState.loadUnit||'—';updatePrescPreview();}
+function readPresc(){
+  prescState.sets=document.getElementById('pr-sets').value.trim();
+  prescState.reps=document.getElementById('pr-reps').value.trim();
+  prescState.dur=document.getElementById('pr-dur').value.trim();
+  prescState.dist=document.getElementById('pr-dist').value.trim();
+  prescState.load=document.getElementById('pr-load').value.trim();
+  prescState.rest=document.getElementById('pr-rest').value.trim();
+  prescState.eff=document.getElementById('pr-eff-val').value.trim();
+  return prescState;
+}
+function buildPrescString(p){
+  if(!p)return '';
+  var core='';var s=p.sets||'';
+  if(p.type==='reps')core=s+(p.reps?'×'+p.reps:'');
+  else if(p.type==='time')core=s+(p.dur?'×'+p.dur+(p.durUnit||'s'):'');
+  else if(p.type==='dist')core=s+(p.dist?'×'+p.dist+'m':'');
+  var out=core;
+  if(p.perSide&&core)out+=' c/l';
+  if(p.load)out+=' @'+p.load+(p.loadUnit||'');
+  if(p.effType&&p.eff)out+=' · '+(p.effType==='rpe'?'RPE':'RIR')+p.eff;
+  if(p.rest)out+=' · desc '+p.rest+'s';
+  return out.trim();
+}
+function updatePrescPreview(){readPresc();var str=buildPrescString(prescState);document.getElementById('pr-preview').textContent=str||'—';}
+function savePresc(){
+  if(!prescTarget)return;
+  readPresc();
+  var str=buildPrescString(prescState);
+  var t=prescTarget;var ex=PLAN[t.w][t.d].blocks[t.b].exs[t.e];
+  ex.p=JSON.parse(JSON.stringify(prescState));
+  ex.l=str;
+  commitSession();closePrescModal();renderPlan();
+}
 
 function openAddBlockModal(){document.getElementById('modal-add-block').classList.add('open');}
 function closeAddBlockModal(){document.getElementById('modal-add-block').classList.remove('open');}
