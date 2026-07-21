@@ -593,6 +593,17 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
   </div>
 </div>
 
+<!-- EDITOR BORRADOR DE SESIÓN -->
+<div id="screen-draft" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left"><div><div class="hdr-name">Nueva sesión</div><div class="hdr-sub">Armá bloques y ejercicios</div></div></div>
+      <div class="hdr-right" style="display:flex;gap:8px;"><button class="back-btn" onclick="exitDraft()">Cancelar</button><button onclick="saveDraftSession()" style="padding:8px 16px;border-radius:var(--rsm);border:none;background:var(--mob);color:#0a0b0e;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Guardar</button></div>
+    </div>
+  </header>
+  <div id="draft-content" style="max-width:var(--cw);margin:0 auto;width:100%;padding:16px 13px;box-sizing:border-box;"></div>
+</div>
+
 <!-- PROGRAMAS -->
 <div id="screen-programs" style="display:none;padding-bottom:80px;">
   <header>
@@ -637,7 +648,8 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     </div>
   </header>
   <div style="max-width:var(--cw);margin:0 auto;width:100%;padding:20px 16px;box-sizing:border-box;">
-    <div id="tpl-info" style="background:var(--s2);border-radius:var(--rsm);padding:12px 14px;font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;">Guard&#225; una sesi&#243;n como modelo desde el plan de un alumno (bot&#243;n <b style="color:var(--mob);">Guardar como sesi&#243;n</b>), y despu&#233;s inserta&#769;la en cualquier d&#237;a con un toque.</div>
+    <div id="tpl-info" style="background:var(--s2);border-radius:var(--rsm);padding:12px 14px;font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;">Guard&#225; una sesi&#243;n como modelo desde el plan de un alumno (bot&#243;n <b style="color:var(--mob);">Guardar como sesi&#243;n</b>), o cre&#225; una desde cero ac&#225; abajo.</div>
+    <button onclick="newSessionDraft()" style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;margin-bottom:18px;">+ Crear sesión nueva</button>
     <div id="tpl-list"></div>
   </div>
 </div>
@@ -1093,7 +1105,7 @@ function fmtDateLong(iso){var dt=isoToDate(iso);return DOW_ES[dt.getDay()]+' '+d
 function fmtDateShort(iso){var dt=isoToDate(iso);return (DOW_ES[dt.getDay()]+' '+dt.getDate()).toUpperCase();}
 function sessionsOf(pid){if(!JB_SESSIONS[pid])JB_SESSIONS[pid]={};return JB_SESSIONS[pid];}
 function getCurSession(create){var ss=sessionsOf(currentPlayerId);var sObj=ss[curDate];if(!sObj&&create){sObj={title:'Entrenamiento',pattern:'',pills:[],blocks:[]};ss[curDate]=sObj;}return sObj;}
-function commitSession(){if(!currentPlayerId||!curDate)return;var ss=sessionsOf(currentPlayerId);ss[curDate]=PLAN[0][0];saveSessions(currentPlayerId);}
+function commitSession(){if(draftMode){draftSession=PLAN[0][0];return;}if(!currentPlayerId||!curDate)return;var ss=sessionsOf(currentPlayerId);ss[curDate]=PLAN[0][0];saveSessions(currentPlayerId);}
 function firstSessionDate(pid){var ss=JB_SESSIONS[pid];if(!ss)return null;var ks=Object.keys(ss).filter(function(k){return ss[k]&&ss[k].blocks&&ss[k].blocks.length;}).sort();return ks.length?ks[0]:null;}
 function migrateAllChecks(){
   Object.keys(JB_CHECKS).forEach(function(pid){
@@ -1406,7 +1418,7 @@ function sideNav(section){
 function closeHomeScreens(){
   document.getElementById('screen-select').style.display='none';
   document.getElementById('screen-lib').classList.remove('active');
-  ['screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
 }
 async function loadPrograms(){
   var r=await sb.from('programs').select('*').order('created_at',{ascending:false});
@@ -1600,6 +1612,42 @@ function openPDMethodFromHome(){
   closeHomeScreens();showSidebar();
   document.getElementById('screen-pdmethod').style.display='block';
   loadTemplates().then(renderPDMethod);
+}
+function newSessionDraft(){
+  draftMode=true;
+  draftSession={title:'Nueva sesión',pattern:'',pills:[],blocks:[]};
+  currentPlayerId='__draft__';curDate='__draft__';
+  PLAN=[[draftSession]];cW=0;cD=0;
+  closeHomeScreens();showSidebar();
+  document.getElementById('screen-draft').style.display='block';
+  renderDraft();
+}
+function renderDraft(){
+  PLAN=[[draftSession]];cW=0;cD=0;
+  var blocksH=(draftSession.blocks||[]).map(function(b,bi){return renderBlock(b,bi,0,0);}).join('');
+  var hero='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">Sesión modelo</div><div class="hero-title" style="cursor:pointer" onclick="renameDraft()" title="Tocá para renombrar">'+draftSession.title+'</div><div class="hero-pat">Tocá el título para renombrar</div></div>';
+  var addBBtn='<button class="add-block-btn" onclick="openAddBlockModal()">+ Agregar bloque</button>';
+  document.getElementById('draft-content').innerHTML='<div class="fadein">'+hero+blocksH+addBBtn+'</div>';
+}
+function renameDraft(){askInput('Nombre de la sesión',draftSession.title,function(name){draftSession.title=name;renderDraft();});}
+function saveDraftSession(){
+  if(!draftSession.blocks||!draftSession.blocks.length){alert('Agregá al menos un bloque con ejercicios antes de guardar.');return;}
+  askInput('Nombre de la sesión',draftSession.title||'Sesión',function(name){
+    var data={title:name,pattern:draftSession.pattern||'',pills:draftSession.pills||[],blocks:JSON.parse(JSON.stringify(draftSession.blocks))};
+    showSyncStatus('saving');
+    sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:data}).select('*').single().then(function(r){
+      if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
+      showSyncStatus('ok');
+      TEMPLATES.unshift({id:r.data.id,name:name,data:data,is_base:false,trainer_id:MY_UID});
+      exitDraft();
+      alert('✅ Sesión guardada en "Mis Sesiones".');
+    });
+  });
+}
+function exitDraft(){
+  draftMode=false;draftSession=null;currentPlayerId=null;curDate=null;PLAN=[];
+  document.getElementById('screen-draft').style.display='none';
+  openTemplatesFromHome();
 }
 function openTemplatesFromHome(){
   closeHomeScreens();showSidebar();
@@ -2101,6 +2149,7 @@ function showTab(name){
 
 // \u2500\u2500 PLAN \u2500\u2500
 function renderPlan(){
+  if(draftMode){renderDraft();return;}
   if(!curDate)curDate=isoToday();
   if(lastCheckedDay!==curDate){checkState={};lastCheckedDay=curDate;loadCheckState();}
   var wbar=document.querySelector('#screen-plan .week-bar');if(wbar)wbar.style.display='none';
@@ -2149,6 +2198,7 @@ function toggleBlock(el){el.closest('.bcard').classList.toggle('open');}
 function isTracked(name){if(!name)return true;return (JB_NOTRACK[currentPlayerId]||[]).indexOf(name)===-1;}
 function toggleTrack(name){
   if(!currentPlayerId||!name)return;
+  if(draftMode)return;
   if(!JB_NOTRACK[currentPlayerId])JB_NOTRACK[currentPlayerId]=[];
   var arr=JB_NOTRACK[currentPlayerId];
   var i=arr.indexOf(name);
@@ -2237,6 +2287,7 @@ function moveEx(w,d,b,e,dir){
 function delEx(w,d,b,e){if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs.splice(e,1);commitSession();renderPlan();}
 function updateLoad(input){var w=+input.dataset.w,d=+input.dataset.d,b=+input.dataset.b,e=+input.dataset.e;if(!isCoach||!currentPlayerId)return;PLAN[w][d].blocks[b].exs[e].l=input.value;commitSession();}
 var prescTarget=null,prescState={};
+var draftMode=false,draftSession=null;
 function openPrescModal(w,d,b,e){
   if(!isCoach||!currentPlayerId)return;
   prescTarget={w:w,d:d,b:b,e:e};
