@@ -1307,6 +1307,15 @@ async function initApp(){
   if(tk){await bootAthlete(tk);return;}
   var pf=params.get('profe');
   if(pf){
+    document.getElementById('screen-login').style.display='none';
+    var _ov=document.getElementById('loading-overlay');_ov.style.display='flex';
+    document.getElementById('loading-spinner').style.display='none';
+    document.getElementById('loading-title').style.display='none';
+    var _er=document.getElementById('loading-error');_er.style.display='block';
+    _er.innerHTML='Este link ya no es v\u00e1lido.<br><br>Ped\u00edle a tu profe que te env\u00ede tu <b>link personal</b> nuevo.';
+    return;
+  }
+  if(false){
     PLAYER_MODE=true;TRAINER_ID=pf;isCoach=false;ONLY_PLAYER_ID=params.get('a')||null;
     document.getElementById('screen-login').style.display='none';
     var ct=document.getElementById('coach-toggle');if(ct)ct.style.display='none';
