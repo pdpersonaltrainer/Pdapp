@@ -1029,6 +1029,7 @@ var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 var MY_UID=null;
 var MY_PROFILE={};
 var ONLY_PLAYER_ID=null;
+var ATH_TOKEN=null,ATH_PIN=null;
 var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
@@ -1065,7 +1066,7 @@ function showSyncStatus(state){
 async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{}};});
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null};});
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track');
   if(plr.error)throw plr.error;
   JB_PLANS={};JB_SESSIONS={};JB_NOTRACK={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;JB_NOTRACK[r.player_id]=r.no_track||[];});
@@ -1141,6 +1142,7 @@ function saveLoad(input){
   var key=aLoadKey(bi,ei);
   if(v)ld[key]=v;else delete ld[key];
   showSyncStatus('saving');
+  if(ATH_TOKEN){sb.rpc('athlete_save_progress',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_checks:JB_CHECKS[currentPlayerId]||{},p_loads:ld}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveLoad',r.error);});return;}
   sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:JB_CHECKS[currentPlayerId]||{},loads:ld,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveLoad',r.error);});
 }
 
@@ -1157,6 +1159,7 @@ function saveCheckState(){
   Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});
   Object.keys(checkState).forEach(function(k){ch[curDate+'-'+k.split('-')[2]]=checkState[k];});
   showSyncStatus('saving');
+  if(ATH_TOKEN){sb.rpc('athlete_save_progress',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_checks:ch,p_loads:JB_LOADS[currentPlayerId]||{}}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});return;}
   sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,loads:JB_LOADS[currentPlayerId]||{},updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveCheckState',r.error);});
 }
 
@@ -1230,7 +1233,7 @@ async function registerCoach(){
 async function loadPlayerData(tid){
   var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{}};});
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null};});
   if(PLAYERS.length===0)throw new Error('Link sin alumnos o invalido.');
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
@@ -1239,6 +1242,46 @@ async function loadPlayerData(tid){
   if(pgr.error)throw pgr.error;
   JB_CHECKS={};JB_LOADS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};});
   LIB=[];
+}
+async function bootAthlete(tk){
+  ATH_TOKEN=tk;PLAYER_MODE=true;isCoach=false;
+  document.getElementById('screen-login').style.display='none';
+  var ct=document.getElementById('coach-toggle');if(ct)ct.style.display='none';
+  var lo=document.getElementById('logout-btn');if(lo)lo.style.display='none';
+  var overlay=document.getElementById('loading-overlay');
+  overlay.style.display='flex';
+  document.getElementById('loading-spinner').style.display='block';
+  document.getElementById('loading-title').style.display='block';
+  document.getElementById('loading-error').style.display='none';
+  try{
+    var r=await sb.rpc('athlete_peek',{p_token:tk});
+    if(r.error||!r.data)throw new Error('Link invalido o vencido.');
+    var d=r.data;
+    TRAINER_ID=d.trainer_id;
+    PLAYERS=[{id:d.id,name:d.name,photo:d.photo_url||'',club:'',pos:'',pin:'',activeWeek:0,startDate:'',questionnaire:null,wellness:{}}];
+    ONLY_PLAYER_ID=d.id;
+    var _am=document.getElementById('atab-msg');if(_am)_am.style.display='';
+    var _as=document.getElementById('atab-summary');if(_as)_as.style.display='';
+    overlay.style.display='none';
+    renderSelect();
+    pendingSelectPid=d.id;
+    openPlayerPinModal(PLAYERS[0]);
+  }catch(e){
+    document.getElementById('loading-spinner').style.display='none';
+    document.getElementById('loading-title').style.display='none';
+    var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML='No se pudo abrir tu plan:<br>'+((e&&e.message)||e);
+  }
+}
+function applyAthleteData(d){
+  var p=d.player;
+  PLAYERS=[{id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:'',activeWeek:0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{}}];
+  JB_SESSIONS={};JB_PLANS={};JB_NOTRACK={};JB_CHECKS={};JB_LOADS={};
+  JB_SESSIONS[p.id]=(d.plan&&d.plan.sessions)||null;
+  JB_PLANS[p.id]=(d.plan&&d.plan.weeks)||null;
+  JB_NOTRACK[p.id]=(d.plan&&d.plan.no_track)||[];
+  JB_CHECKS[p.id]=(d.progress&&d.progress.checks)||{};
+  JB_LOADS[p.id]=(d.progress&&d.progress.loads)||{};
+  MY_PROFILE=d.trainer||{};
 }
 async function bootPlayer(){
   var overlay=document.getElementById('loading-overlay');
@@ -1260,6 +1303,8 @@ async function bootPlayer(){
 }
 async function initApp(){
   var params=new URLSearchParams(location.search);
+  var tk=params.get('t');
+  if(tk){await bootAthlete(tk);return;}
   var pf=params.get('profe');
   if(pf){
     PLAYER_MODE=true;TRAINER_ID=pf;isCoach=false;ONLY_PLAYER_ID=params.get('a')||null;
@@ -1985,7 +2030,7 @@ function updatePlayerCount(){
   }else{el.style.display='none';}
 }
 var sharePid=null;
-function playerLink(pid){return location.origin+location.pathname+'?profe='+(TRAINER_ID||MY_UID||'')+'&a='+pid;}
+function playerLink(pid){var p=PLAYERS.find(function(x){return x.id===pid;});var tk=p&&p.token?p.token:'';return location.origin+location.pathname+(tk?('?t='+tk):('?profe='+(TRAINER_ID||MY_UID||'')+'&a='+pid));}
 function shareAccess(pid){
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
   sharePid=pid;
@@ -2093,7 +2138,20 @@ function closePlayerPinModal(){document.getElementById('modal-player-pin').class
 function playerPinPress(d){if(playerPinBuffer.length>=4)return;playerPinBuffer+=String(d);updatePlayerPinDots();if(playerPinBuffer.length===4)setTimeout(checkPlayerPin,120);}
 function playerPinDel(){playerPinBuffer=playerPinBuffer.slice(0,-1);updatePlayerPinDots();}
 function updatePlayerPinDots(){for(var i=0;i<4;i++){var d=document.getElementById('ppd'+i);d.classList.toggle('filled',i<playerPinBuffer.length);d.classList.remove('error');}}
-function checkPlayerPin(){var p=PLAYERS.find(function(x){return x.id===pendingSelectPid;});var stored=p?String(p.pin||'').trim():'';var entered=String(playerPinBuffer).trim();if(p&&stored===entered&&entered.length===4){var pid=pendingSelectPid;closePlayerPinModal();doSelectPlayer(pid);}else{for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}}
+function pinFail(){for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}
+async function checkAthletePin(){
+  var entered=String(playerPinBuffer).trim();
+  if(entered.length!==4){pinFail();return;}
+  var r=await sb.rpc('athlete_bootstrap',{p_token:ATH_TOKEN,p_pin:entered});
+  if(r.error||!r.data){pinFail();return;}
+  ATH_PIN=entered;
+  applyAthleteData(r.data);
+  var pid=PLAYERS[0].id;
+  closePlayerPinModal();
+  renderSelect();
+  doSelectPlayer(pid);
+}
+function checkPlayerPin(){if(ATH_TOKEN){checkAthletePin();return;}var p=PLAYERS.find(function(x){return x.id===pendingSelectPid;});var stored=p?String(p.pin||'').trim():'';var entered=String(playerPinBuffer).trim();if(p&&stored===entered&&entered.length===4){var pid=pendingSelectPid;closePlayerPinModal();doSelectPlayer(pid);}else{for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}}
 
 // \u2500\u2500 PLAYER MODAL \u2500\u2500
 function openPlayerModal(id){if(!id&&!isAdmin){var _max=(MY_PROFILE&&MY_PROFILE.max_players)||5;if(PLAYERS.length>=_max){showInfo('Llegaste al l\u00edmite de tu plan ('+_max+' alumno'+(_max>1?'s':'')+').\n\nMejor\u00e1 tu plan para sumar m\u00e1s alumnos.');return;}}editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Alumno':'Nuevo Alumno';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';var _q=p&&p.questionnaire?p.questionnaire:null;document.getElementById('f-psport').value=_q&&_q.sport?_q.sport:'';updatePSportPositions();if(_q&&_q.position)document.getElementById('f-pposition').value=_q.position;document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
@@ -2692,7 +2750,7 @@ async function openChatThread(pid){
   setMsgHeader(isCoach?('Chat \u00b7 '+(p?p.name:'')):'Chat con tu profe',isCoach?'Conversaci\u00f3n privada':'Escribile cuando quieras');
   var mc=document.getElementById('msg-content');
   mc.innerHTML='<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
-  var r=await sb.from('messages').select('*').eq('player_id',pid).order('created_at');
+  var r=ATH_TOKEN?(await sb.rpc('athlete_messages',{p_token:ATH_TOKEN,p_pin:ATH_PIN})):(await sb.from('messages').select('*').eq('player_id',pid).order('created_at'));
   CHAT=r.error?[]:(r.data||[]);
   // marcar leídos
   if(isCoach){sb.from('messages').update({read_by_coach:true}).eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false).then(function(){});}
@@ -2724,7 +2782,7 @@ async function sendChat(){
   var sender=isCoach?'coach':'athlete';
   var row={trainer_id:TRAINER_ID,player_id:chatPlayerId,sender:sender,body:body};
   if(sender==='coach')row.read_by_coach=true;else row.read_by_athlete=true;
-  var r=await sb.from('messages').insert(row).select('*').single();
+  var r=ATH_TOKEN?(await sb.rpc('athlete_send_message',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_body:body})):(await sb.from('messages').insert(row).select('*').single());
   if(r.error){showInfo('No se pudo enviar: '+r.error.message);return;}
   CHAT.push(r.data);
   renderChatThread();
@@ -2848,7 +2906,7 @@ async function submitWellness(){
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
   var existing=JSON.parse(JSON.stringify(p&&p.wellness||{}));
   existing[isoToday()]=entry;
-  var r=await sb.from('players').update({wellness:existing}).eq('id',currentPlayerId);
+  var r=ATH_TOKEN?(await sb.rpc('athlete_save_field',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_field:'wellness',p_value:existing})):(await sb.from('players').update({wellness:existing}).eq('id',currentPlayerId));
   btn.disabled=false;btn.textContent='Listo \u2192';
   if(r.error){msgEl.textContent='Error: '+r.error.message;return;}
   if(p)p.wellness=existing;
@@ -2904,7 +2962,7 @@ async function submitQuestionnaire(){
   if(!activity){msgEl.textContent='Seleccion\u00e1 tu nivel de actividad.';return;}
   btn.disabled=true;btn.textContent='Guardando...';msgEl.textContent='';
   var q={sport:sport,position:document.getElementById('q-position').value||null,inj_current:document.getElementById('q-inj-current').value.trim()||null,inj_past:document.getElementById('q-inj-past').value.trim()||null,sleep_hours:sleep,activity_level:activity,goals:document.getElementById('q-goals').value.trim()||null,medical:document.getElementById('q-medical').value.trim()||null,completed_at:new Date().toISOString()};
-  var r=await sb.from('players').update({questionnaire:q}).eq('id',currentPlayerId);
+  var r=ATH_TOKEN?(await sb.rpc('athlete_save_field',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_field:'questionnaire',p_value:q})):(await sb.from('players').update({questionnaire:q}).eq('id',currentPlayerId));
   btn.disabled=false;btn.textContent='Comenzar \u2192';
   if(r.error){msgEl.textContent='Error: '+r.error.message;return;}
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});if(p)p.questionnaire=q;
