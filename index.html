@@ -1248,6 +1248,8 @@ async function bootPlayer(){
   document.getElementById('loading-error').style.display='none';
   try{
     await loadPlayerData(TRAINER_ID);
+    var _am=document.getElementById('atab-msg');if(_am)_am.style.display='';
+    var _as=document.getElementById('atab-summary');if(_as)_as.style.display='';
     overlay.style.display='none';
     renderSelect();
   }catch(e){
@@ -1447,9 +1449,18 @@ function renderPrograms(){
     return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:800;letter-spacing:0.02em;">'+p.name+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+p.weeks+' semanas &#183; '+filled+' sesiones asignadas</div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;"><button onclick="openProgEdit(this.dataset.id)" data-id="'+p.id+'" style="flex:1;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Abrir / editar</button>'+delBtn+'</div></div>';
   }).join('');
 }
+function showInfo(msg,opts){
+  opts=opts||{};acOk=opts.onOk||null;acCancel=null;
+  document.getElementById('ac-msg').textContent=msg;
+  var okb=document.getElementById('ac-ok');okb.textContent=opts.okLabel||'Entendido';
+  okb.style.background='';okb.style.color='';
+  var cb=document.getElementById('ac-cancel');cb.style.display='none';
+  document.getElementById('modal-confirm').classList.add('open');
+}
 var acOk=null,acCancel=null;
 function askConfirm(msg,onOk,opts){
   opts=opts||{};acOk=onOk;acCancel=opts.onCancel||null;
+  document.getElementById('ac-cancel').style.display='';
   document.getElementById('ac-msg').textContent=msg;
   var okb=document.getElementById('ac-ok');okb.textContent=opts.okLabel||'Aceptar';
   if(opts.danger){okb.style.background='#ff6b6b';okb.style.color='#fff';}else{okb.style.background='';okb.style.color='';}
@@ -1476,7 +1487,7 @@ function newProgram(){
   askInput('Nombre del programa (ej: Pretemporada 4 semanas)','',function(name){
     showSyncStatus('saving');
     sb.from('programs').insert({trainer_id:MY_UID,name:name,weeks:4,grid:{}}).select('*').single().then(function(r){
-      if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+      if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
       showSyncStatus('ok');
       PROGRAMS.unshift({id:r.data.id,name:name,weeks:4,grid:{},is_base:false,trainer_id:MY_UID});
       renderPrograms();
@@ -1487,7 +1498,7 @@ function delProgram(id){
   var p=PROGRAMS.find(function(x){return x.id===id;});if(!p)return;
   askConfirm('\u00bfEliminar el programa "'+p.name+'"?',function(){
     sb.from('programs').delete().eq('id',id).then(function(r){
-      if(r.error){alert('Error: '+r.error.message);return;}
+      if(r.error){showInfo('Error: '+r.error.message);return;}
       PROGRAMS=PROGRAMS.filter(function(x){return x.id!==id;});renderPrograms();
     });
   },{danger:true,okLabel:'Eliminar'});
@@ -1576,7 +1587,7 @@ function saveProgram(){
 function assignProgram(){
   if(!curProgram)return;
   var filled=Object.keys(curProgram.grid).filter(function(k){return curProgram.grid[k];}).length;
-  if(!filled){alert('Este programa no tiene sesiones asignadas todav\u00eda.');return;}
+  if(!filled){showInfo('Este programa no tiene sesiones asignadas todav\u00eda.');return;}
   var opts=PLAYERS.map(function(p){return '<option value="'+p.id+'">'+p.name+'</option>';}).join('');
   document.getElementById('pa-player').innerHTML=opts;
   document.getElementById('pa-date').value=isoToday();
@@ -1589,7 +1600,7 @@ function executeProgAssign(){
   if(!curProgram)return;
   var pid=document.getElementById('pa-player').value;
   var start=document.getElementById('pa-date').value;
-  if(!pid||!start){alert('Eleg\u00ed alumno y fecha de inicio.');return;}
+  if(!pid||!start){showInfo('Eleg\u00ed alumno y fecha de inicio.');return;}
   var ss=sessionsOf(pid);
   var mondayOffset=0;
   var targets={};var collision=false;
@@ -1613,7 +1624,7 @@ function executeProgAssign(){
   var warn2=document.getElementById('pa-warn');warn2.style.display='none';delete warn2.dataset.confirmed;
   document.getElementById('pa-confirm-btn').textContent='Asignar';
   closeProgAssign();
-  alert('\u2705 Programa "'+curProgram.name+'" asignado a '+pname+'.\n'+Object.keys(targets).length+' sesiones cargadas desde el '+fmtDateShort(start)+'.');
+  showInfo('\u2705 Programa "'+curProgram.name+'" asignado a '+pname+'.\n'+Object.keys(targets).length+' sesiones cargadas desde el '+fmtDateShort(start)+'.');
   if(pid===currentPlayerId){renderPlan();}
 }
 function openProgramsFromHome(){
@@ -1644,16 +1655,16 @@ function renderDraft(){
 }
 function renameDraft(){askInput('Nombre de la sesión',draftSession.title,function(name){draftSession.title=name;renderDraft();});}
 function saveDraftSession(){
-  if(!draftSession.blocks||!draftSession.blocks.length){alert('Agregá al menos un bloque con ejercicios antes de guardar.');return;}
+  if(!draftSession.blocks||!draftSession.blocks.length){showInfo('Agregá al menos un bloque con ejercicios antes de guardar.');return;}
   askInput('Nombre de la sesión',draftSession.title||'Sesión',function(name){
     var data={title:name,pattern:draftSession.pattern||'',pills:draftSession.pills||[],blocks:JSON.parse(JSON.stringify(draftSession.blocks))};
     showSyncStatus('saving');
     sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:data}).select('*').single().then(function(r){
-      if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
+      if(r.error){showSyncStatus('error');showInfo('Error al guardar: '+r.error.message);return;}
       showSyncStatus('ok');
       TEMPLATES.unshift({id:r.data.id,name:name,data:data,is_base:false,trainer_id:MY_UID});
       exitDraft();
-      alert('✅ Sesión guardada en "Mis Sesiones".');
+      showInfo('✅ Sesión guardada en "Mis Sesiones".');
     });
   });
 }
@@ -1714,25 +1725,25 @@ function duplicateToMine(id){
   askInput('Nombre de tu copia',t.name+' (mi versi\u00f3n)',function(name){
     showSyncStatus('saving');
     sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:JSON.parse(JSON.stringify(t.data))}).select('*').single().then(function(r){
-      if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+      if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
       showSyncStatus('ok');
       TEMPLATES.unshift({id:r.data.id,name:name,data:t.data,is_base:false,trainer_id:MY_UID});
-      alert('\u2705 Copiada a "Mis Sesiones". Ya pod\u00e9s personalizarla ah\u00ed.');
+      showInfo('\u2705 Copiada a "Mis Sesiones". Ya pod\u00e9s personalizarla ah\u00ed.');
     });
   });
 }
 function saveAsTemplate(){
   if(!isCoach||!currentPlayerId||!curDate)return;
   var s=getCurSession(false);
-  if(!s||!s.blocks||!s.blocks.length){alert('Este d\u00eda no tiene entrenamiento para guardar.');return;}
+  if(!s||!s.blocks||!s.blocks.length){showInfo('Este d\u00eda no tiene entrenamiento para guardar.');return;}
   askInput('Nombre de la sesi\u00f3n',s.title||'Sesi\u00f3n',function(name){
     var data={title:s.title||name,pattern:s.pattern||'',pills:s.pills||[],blocks:JSON.parse(JSON.stringify(s.blocks))};
     showSyncStatus('saving');
     sb.from('session_templates').insert({trainer_id:MY_UID,name:name,data:data}).select('*').single().then(function(r){
-      if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
+      if(r.error){showSyncStatus('error');showInfo('Error al guardar: '+r.error.message);return;}
       showSyncStatus('ok');
       TEMPLATES.unshift({id:r.data.id,name:name,data:data,is_base:false,trainer_id:MY_UID});
-      alert('\u2705 Sesi\u00f3n guardada en "Mis Sesiones".');
+      showInfo('\u2705 Sesi\u00f3n guardada en "Mis Sesiones".');
     });
   });
 }
@@ -1750,13 +1761,13 @@ function executeTplInsert(){
   if(!tplToInsert)return;
   var pid=document.getElementById('tpl-ins-player').value;
   var date=document.getElementById('tpl-ins-date').value;
-  if(!pid||!date){alert('Eleg\u00ed alumno y fecha.');return;}
+  if(!pid||!date){showInfo('Eleg\u00ed alumno y fecha.');return;}
   var ss=sessionsOf(pid);
   ss[date]=JSON.parse(JSON.stringify(tplToInsert.data));
   saveSessions(pid);
   var pname=(PLAYERS.find(function(x){return x.id===pid;})||{}).name||'';
   closeTplInsert();
-  alert('\u2705 "'+tplToInsert.name+'" insertada en '+pname+' \u00b7 '+fmtDateLong(date));
+  showInfo('\u2705 "'+tplToInsert.name+'" insertada en '+pname+' \u00b7 '+fmtDateLong(date));
   if(pid===currentPlayerId){curDate=date;renderPlan();}
 }
 function togglePDBase(id){
@@ -1765,7 +1776,7 @@ function togglePDBase(id){
   var msg=nv?'\u00bfPublicar "'+t.name+'" como Metodolog\u00eda PD? Va a estar disponible para todos los profes.':'\u00bfQuitar "'+t.name+'" de Metodolog\u00eda PD?';
   askConfirm(msg,function(){
     sb.from('session_templates').update({is_base:nv}).eq('id',id).then(function(r){
-      if(r.error){alert('Error: '+r.error.message);return;}
+      if(r.error){showInfo('Error: '+r.error.message);return;}
       t.is_base=nv;renderTemplates();
     });
   },{okLabel:nv?'Publicar':'Quitar'});
@@ -1774,7 +1785,7 @@ function delTemplate(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
   askConfirm('\u00bfEliminar "'+t.name+'" de Mis Sesiones?',function(){
     sb.from('session_templates').delete().eq('id',id).then(function(r){
-      if(r.error){alert('Error: '+r.error.message);return;}
+      if(r.error){showInfo('Error: '+r.error.message);return;}
       TEMPLATES=TEMPLATES.filter(function(x){return x.id!==id;});renderTemplates();
     });
   },{danger:true,okLabel:'Eliminar'});
@@ -2085,14 +2096,14 @@ function updatePlayerPinDots(){for(var i=0;i<4;i++){var d=document.getElementByI
 function checkPlayerPin(){var p=PLAYERS.find(function(x){return x.id===pendingSelectPid;});var stored=p?String(p.pin||'').trim():'';var entered=String(playerPinBuffer).trim();if(p&&stored===entered&&entered.length===4){var pid=pendingSelectPid;closePlayerPinModal();doSelectPlayer(pid);}else{for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}}
 
 // \u2500\u2500 PLAYER MODAL \u2500\u2500
-function openPlayerModal(id){if(!id&&!isAdmin){var _max=(MY_PROFILE&&MY_PROFILE.max_players)||5;if(PLAYERS.length>=_max){alert('Llegaste al l\u00edmite de tu plan ('+_max+' alumno'+(_max>1?'s':'')+').\n\nMejor\u00e1 tu plan para sumar m\u00e1s alumnos.');return;}}editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Alumno':'Nuevo Alumno';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';var _q=p&&p.questionnaire?p.questionnaire:null;document.getElementById('f-psport').value=_q&&_q.sport?_q.sport:'';updatePSportPositions();if(_q&&_q.position)document.getElementById('f-pposition').value=_q.position;document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
+function openPlayerModal(id){if(!id&&!isAdmin){var _max=(MY_PROFILE&&MY_PROFILE.max_players)||5;if(PLAYERS.length>=_max){showInfo('Llegaste al l\u00edmite de tu plan ('+_max+' alumno'+(_max>1?'s':'')+').\n\nMejor\u00e1 tu plan para sumar m\u00e1s alumnos.');return;}}editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=p?'Editar Alumno':'Nuevo Alumno';document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';var _q=p&&p.questionnaire?p.questionnaire:null;document.getElementById('f-psport').value=_q&&_q.sport?_q.sport:'';updatePSportPositions();if(_q&&_q.position)document.getElementById('f-pposition').value=_q.position;document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';document.getElementById('modal-player').classList.add('open');}
 function closePlayerModal(){document.getElementById('modal-player').classList.remove('open');editingPlayerId=null;pendingPhotoData=null;}
 function editPlayer(id){openPlayerModal(id);}
 function delPlayer(id){
   askConfirm('¿Eliminar este alumno? Se borran también su plan y progreso.',function(){
     showSyncStatus('saving');
     sb.from('players').delete().eq('id',id).then(function(r){
-      if(r.error){showSyncStatus('error');alert('Error al eliminar: '+r.error.message);return;}
+      if(r.error){showSyncStatus('error');showInfo('Error al eliminar: '+r.error.message);return;}
       PLAYERS=PLAYERS.filter(function(p){return p.id!==id;});
       showSyncStatus('ok');renderSelect();
     });
@@ -2142,7 +2153,7 @@ function updatePSportPositions(){
 }
 async function savePlayer(){
   var name=document.getElementById('f-pname').value.trim();
-  if(!name){alert('El nombre es obligatorio.');return;}
+  if(!name){showInfo('El nombre es obligatorio.');return;}
   var newPin=String(document.getElementById('f-ppin').value.trim()).slice(0,4);
   var club=document.getElementById('f-pclub').value.trim();
   var pSport=document.getElementById('f-psport').value;
@@ -2161,13 +2172,13 @@ async function savePlayer(){
     if(newPin)upd.pin=newPin;
     if(pendingPhotoData)upd.photo_url=photo;
     var r=await sb.from('players').update(upd).eq('id',editingPlayerId);
-    if(r.error){showSyncStatus('error');alert('Error al guardar: '+r.error.message);return;}
+    if(r.error){showSyncStatus('error');showInfo('Error al guardar: '+r.error.message);return;}
     var idx=PLAYERS.findIndex(function(p){return p.id===editingPlayerId;});
     if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=club;PLAYERS[idx].pos=pos;if(pSport)PLAYERS[idx].questionnaire=q;if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=photo;PLAYERS[idx].activeWeek=aw;PLAYERS[idx].startDate=startDate;}
   }else{
     var qNew=pSport?{sport:pSport,position:pPosition||null}:null;
     var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw,start_date:startDate,questionnaire:qNew}).select('id').single();
-    if(ins.error){showSyncStatus('error');alert('Error al crear: '+ins.error.message);return;}
+    if(ins.error){showSyncStatus('error');showInfo('Error al crear: '+ins.error.message);return;}
     PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw,startDate:startDate,questionnaire:qNew,wellness:{}});
   }
   showSyncStatus('ok');closePlayerModal();renderSelect();
@@ -2416,7 +2427,7 @@ function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState
 function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();renderPlan();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
-function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){alert('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
+function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
 function setPickPattern(v){pickPattern=v;renderPickList();}
 var pickSelected={};
 function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mob);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">Sin ejercicios en esta acci\u00f3n.</div>';updatePickBtn();}
@@ -2468,18 +2479,18 @@ function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){r
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
 async function saveLibExercise(){
   var name=document.getElementById('f-name').value.trim();
-  if(!name){alert('El nombre es obligatorio.');return;}
+  if(!name){showInfo('El nombre es obligatorio.');return;}
   var fields={name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim(),pattern:document.getElementById('f-pattern').value||null};
   showSyncStatus('saving');
   if(editingLibId){
     var r=await sb.from('exercises').update(fields).eq('id',editingLibId);
-    if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+    if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
     var idx=LIB.findIndex(function(e){return e.id===editingLibId;});
     if(idx>=0){for(var k in fields)LIB[idx][k]=fields[k];}
   }else{
     var payload={trainer_id:MY_UID,is_base:false};for(var k in fields)payload[k]=fields[k];
     var ins=await sb.from('exercises').insert(payload).select('*').single();
-    if(ins.error){showSyncStatus('error');alert('Error: '+ins.error.message);return;}
+    if(ins.error){showSyncStatus('error');showInfo('Error: '+ins.error.message);return;}
     LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',pattern:ins.data.pattern||null,is_base:false});
   }
   showSyncStatus('ok');closeLibModal();renderLib();
@@ -2518,7 +2529,7 @@ function closeDuplicateModal(){document.getElementById('modal-duplicate').classL
 function executeDuplicate(){
   var tgtPid=document.getElementById('dup-player').value;
   var tgtDate=document.getElementById('dup-date').value;
-  if(!tgtPid||!tgtDate){alert('Eleg\u00ed alumno y fecha destino.');return;}
+  if(!tgtPid||!tgtDate){showInfo('Eleg\u00ed alumno y fecha destino.');return;}
   var srcSs=sessionsOf(currentPlayerId);var ss=sessionsOf(tgtPid);
   var pname=(PLAYERS.find(function(x){return x.id===tgtPid;})||{}).name||'';
   if(dupMode==='semana'){
@@ -2527,15 +2538,15 @@ function executeDuplicate(){
       var sObj=srcSs[addDaysISO(srcMon,i)];
       if(sObj&&sObj.blocks&&sObj.blocks.length){ss[addDaysISO(tgtMon,i)]=JSON.parse(JSON.stringify(sObj));copied++;}
     }
-    if(!copied){alert('Esta semana no tiene entrenamientos para copiar.');return;}
+    if(!copied){showInfo('Esta semana no tiene entrenamientos para copiar.');return;}
     saveSessions(tgtPid);closeDuplicateModal();
-    alert('\u2705 Semana copiada a '+pname+' ('+copied+' d\u00eda'+(copied>1?'s':'')+') \u00b7 semana del '+fmtDateShort(tgtMon));
+    showInfo('\u2705 Semana copiada a '+pname+' ('+copied+' d\u00eda'+(copied>1?'s':'')+') \u00b7 semana del '+fmtDateShort(tgtMon));
   }else{
     var d=srcSs[curDate];
-    if(!d||!d.blocks||!d.blocks.length){alert('Este d\u00eda no tiene entrenamiento para duplicar.');return;}
+    if(!d||!d.blocks||!d.blocks.length){showInfo('Este d\u00eda no tiene entrenamiento para duplicar.');return;}
     ss[tgtDate]=JSON.parse(JSON.stringify(d));
     saveSessions(tgtPid);closeDuplicateModal();
-    alert('\u2705 Duplicado a '+pname+' \u00b7 '+fmtDateLong(tgtDate));
+    showInfo('\u2705 Duplicado a '+pname+' \u00b7 '+fmtDateLong(tgtDate));
   }
   if(tgtPid===currentPlayerId){if(currentTab==='week')renderWeekView();else renderPlan();}
 }
@@ -2546,8 +2557,8 @@ function importLibFromFile(input){
   var reader=new FileReader();
   reader.onload=function(){
     var arr;
-    try{arr=JSON.parse(reader.result);}catch(e){alert('El archivo no es un JSON valido.');return;}
-    if(!Array.isArray(arr)||!arr.length){alert('El archivo no tiene ejercicios.');return;}
+    try{arr=JSON.parse(reader.result);}catch(e){showInfo('El archivo no es un JSON valido.');return;}
+    if(!Array.isArray(arr)||!arr.length){showInfo('El archivo no tiene ejercicios.');return;}
     askConfirm('Esto reemplaza TODA tu biblioteca por el archivo ('+arr.length+' ejercicios). Tus planes NO se tocan. \u00bfContinuar?',function(){doImportLib(arr);},{danger:true,okLabel:'Reemplazar'});
   };
   reader.readAsText(file);
@@ -2555,14 +2566,14 @@ function importLibFromFile(input){
 async function doImportLib(arr){
   showSyncStatus('saving');
   var del=await sb.from('exercises').delete().eq('is_base',true).eq('trainer_id',MY_UID);
-  if(del.error){showSyncStatus('error');alert('Error al limpiar la biblioteca: '+del.error.message);return;}
+  if(del.error){showSyncStatus('error');showInfo('Error al limpiar la biblioteca: '+del.error.message);return;}
   var payload=arr.map(function(x){return {trainer_id:MY_UID,is_base:true,name:String(x.name||'').trim(),type:x.type||'mob',load:x.load||'',note:x.note||'',link:x.link||'',img:x.img||'',pattern:x.pattern||null};}).filter(function(x){return x.name;});
   var ins=await sb.from('exercises').insert(payload).select('id');
-  if(ins.error){showSyncStatus('error');alert('Error al importar: '+ins.error.message);return;}
+  if(ins.error){showSyncStatus('error');showInfo('Error al importar: '+ins.error.message);return;}
   var exr=await sb.from('exercises').select('*').order('type');
   if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base};});
   showSyncStatus('ok');renderLib();
-  alert('Listo! Biblioteca actualizada: '+payload.length+' ejercicios.');
+  showInfo('Listo! Biblioteca actualizada: '+payload.length+' ejercicios.');
 }
 function exportLib(){
   try{
@@ -2576,19 +2587,19 @@ function exportLib(){
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }catch(e){alert('Error al exportar: '+e.message);}
+  }catch(e){showInfo('Error al exportar: '+e.message);}
 }
 
 function resetLib(){
   if(!isCoach)return;
-  alert('La restauración no está disponible en esta versión.');return;
+  showInfo('La restauración no está disponible en esta versión.');return;
   var btn=document.getElementById('reset-lib-btn');
   if(btn){var orig=btn.textContent;btn.textContent='✓ Restaurada';setTimeout(function(){btn.textContent='↺ Restaurar';},2000);}
 }
 async function delLibEx(id){
   showSyncStatus('saving');
   var r=await sb.from('exercises').delete().eq('id',id);
-  if(r.error){showSyncStatus('error');alert('Error: '+r.error.message);return;}
+  if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
   LIB=LIB.filter(function(e){return e.id!==id;});
   showSyncStatus('ok');renderLib();
 }
@@ -2714,7 +2725,7 @@ async function sendChat(){
   var row={trainer_id:TRAINER_ID,player_id:chatPlayerId,sender:sender,body:body};
   if(sender==='coach')row.read_by_coach=true;else row.read_by_athlete=true;
   var r=await sb.from('messages').insert(row).select('*').single();
-  if(r.error){alert('No se pudo enviar: '+r.error.message);return;}
+  if(r.error){showInfo('No se pudo enviar: '+r.error.message);return;}
   CHAT.push(r.data);
   renderChatThread();
 }
@@ -2983,7 +2994,7 @@ async function generateInvite(){
   if(note)payload.note=note;
   var r=await sb.from('invites').insert(payload);
   btn.disabled=false;btn.textContent='+ Generar c\u00f3digo';
-  if(r.error){alert('Error al generar: '+r.error.message);return;}
+  if(r.error){showInfo('Error al generar: '+r.error.message);return;}
   document.getElementById('f-invite-note').value='';
   await loadInvites();
 }
