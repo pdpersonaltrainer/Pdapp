@@ -371,6 +371,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     <div class="pd-side-logo" onclick="toggleSidebar()"><img src="logo-bg.png" alt="PDapp" onerror="this.style.display='none'"><span>PDapp</span></div>
     <div class="pd-nav">
       <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Alumnos</span></button>
+      <button class="pd-nav-item" id="side-chat" onclick="sideNav('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Chat</span><span id="side-chat-dot" style="display:none;position:absolute;left:32px;top:9px;width:9px;height:9px;border-radius:50%;background:#ff7043;border:2px solid var(--bg);"></span></button>
       <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg><span>Biblioteca</span></button>
       <button class="pd-nav-item" id="side-templates" onclick="sideNav('templates')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Mis Sesiones</span></button>
       <button class="pd-nav-item" id="side-pdmethod" onclick="sideNav('pdmethod')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Metodología PD</span></button>
@@ -471,8 +472,11 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <div class="welcome-ring"></div>
     </div>
     <div class="welcome-name" id="welcome-name">Alumno</div>
-    <div class="welcome-sub" id="welcome-sub">Plan personalizado · Pablo PT</div>
-    <button class="welcome-btn" onclick="enterPlan()">Ver mi plan</button>
+    <div class="welcome-sub" id="welcome-sub">Plan personalizado</div>
+    <div id="wl-streak" style="display:none;margin:2px 0 14px;"></div>
+    <div id="wl-today" style="width:100%;max-width:420px;margin:0 auto 16px;"></div>
+    <button class="welcome-btn" id="wl-btn" onclick="enterPlan()">Ver mi plan</button>
+    <div id="wl-cal" style="width:100%;max-width:420px;margin:20px auto 0;"></div>
   </div>
   <div class="welcome-footer">PDapp by Pablo PT</div>
 </div>
@@ -637,6 +641,17 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
       <button onclick="progRemoveWeek()" style="flex:1;padding:11px;border-radius:var(--rsm);border:1px solid rgba(255,107,107,0.35);background:rgba(255,107,107,0.06);color:#ff6b6b;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Quitar &#250;ltima</button>
     </div>
   </div>
+</div>
+
+<!-- CHAT COACH -->
+<div id="screen-chat" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left"><div><div class="hdr-name" id="chat-hdr-title">Chat</div><div class="hdr-sub" id="chat-hdr-sub">Conversaciones con tus alumnos</div></div></div>
+      <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
+    </div>
+  </header>
+  <div style="max-width:var(--cw);margin:0 auto;width:100%;padding:16px 13px;box-sizing:border-box;" id="chat-content"></div>
 </div>
 
 <!-- MIS SESIONES -->
@@ -1030,6 +1045,7 @@ var MY_UID=null;
 var MY_PROFILE={};
 var ONLY_PLAYER_ID=null;
 var ATH_TOKEN=null,ATH_PIN=null;
+var pendingDate=null;
 var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
@@ -1477,7 +1493,8 @@ function sideNav(section){
   setSideActive(section);
   var s=document.getElementById('pd-sidebar');if(s)s.classList.remove('expanded');
   if(section==='alumnos'){goBack();return;}
-  if(section==='lib'){openLibFromHome();}
+  if(section==='chat'){openChatFromHome();}
+  else if(section==='lib'){openLibFromHome();}
   else if(section==='templates'){openTemplatesFromHome();}
   else if(section==='pdmethod'){openPDMethodFromHome();}
   else if(section==='programs'){openProgramsFromHome();}
@@ -1487,7 +1504,7 @@ function sideNav(section){
 function closeHomeScreens(){
   document.getElementById('screen-select').style.display='none';
   document.getElementById('screen-lib').classList.remove('active');
-  ['screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
 }
 async function loadPrograms(){
   var r=await sb.from('programs').select('*').order('created_at',{ascending:false});
@@ -1726,6 +1743,19 @@ function exitDraft(){
   draftMode=false;draftSession=null;currentPlayerId=null;curDate=null;PLAN=[];
   document.getElementById('screen-draft').style.display='none';
   openTemplatesFromHome();
+}
+function openChatFromHome(){
+  closeHomeScreens();showSidebar();
+  CHAT_CT='chat-content';chatPlayerId=null;
+  document.getElementById('chat-hdr-title').textContent='Chat';
+  document.getElementById('screen-chat').style.display='block';
+  renderChatList();
+}
+async function refreshChatBadge(){
+  if(!isCoach)return;
+  await loadUnreadCounts();
+  var total=0;Object.keys(CHAT_UNREAD).forEach(function(k){total+=CHAT_UNREAD[k];});
+  var d=document.getElementById('side-chat-dot');if(d)d.style.display=total?'block':'none';
 }
 function openTemplatesFromHome(){
   closeHomeScreens();showSidebar();
@@ -2109,7 +2139,54 @@ function doSelectPlayer(pid){
   document.getElementById('welcome-sub').textContent=sub;
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');
   document.getElementById('screen-select').style.display='none';
+  try{renderAthleteHome();}catch(e){console.error('athleteHome',e);}
 }
+function renderAthleteHome(){
+  var pid=currentPlayerId;if(!pid)return;
+  var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
+  var today=isoToday();
+  var sess=JB_SESSIONS[pid]||{};var ch=JB_CHECKS[pid]||{};
+  var s=sess[today];var has=s&&s.blocks&&s.blocks.length;
+  var doneToday=has&&Object.keys(ch).some(function(k){return k.indexOf(today+'-')===0&&ch[k]&&ch[k].done;});
+  // racha
+  var stk=getStreak(pid);
+  var se=document.getElementById('wl-streak');
+  if(stk>=2){se.style.display='block';se.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stk+' en racha</span>';}
+  else se.style.display='none';
+  // panel de hoy
+  var t=document.getElementById('wl-today');
+  if(has){
+    var nb=s.blocks.length;
+    t.innerHTML='<div style="background:var(--s1);border:1px solid '+(doneToday?'var(--mob)':'var(--border)')+';border-radius:var(--r);padding:14px 16px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.28);"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">Hoy \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.02em;color:'+(doneToday?'var(--mob)':'var(--text)')+';">'+(doneToday?'\u2713 ':'')+(s.title||'Entrenamiento')+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+nb+' bloque'+(nb!==1?'s':'')+(doneToday?' \u00b7 completado':'')+'</div></div>';
+    document.getElementById('wl-btn').textContent=doneToday?'Ver mi sesi\u00f3n':'Empezar entrenamiento';
+  }else{
+    t.innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:left;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">Hoy \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;color:var(--muted);">D\u00eda libre</div><div style="font-size:12px;color:var(--muted2);margin-top:2px;">Sin entrenamiento asignado</div></div>';
+    document.getElementById('wl-btn').textContent='Ver mi plan';
+  }
+  // mini calendario del mes
+  var d=isoToDate(today);var y=d.getFullYear(),mo=d.getMonth();
+  var first=new Date(y,mo,1);var dow=first.getDay();var off=(dow===0?6:dow-1);
+  var dim=new Date(y,mo+1,0).getDate();
+  var labels=['L','M','X','J','V','S','D'];
+  var head=labels.map(function(l){return '<div style="text-align:center;font-size:9px;font-weight:700;color:var(--muted2);">'+l+'</div>';}).join('');
+  var cells='';
+  for(var i=0;i<off;i++)cells+='<div></div>';
+  for(var dd=1;dd<=dim;dd++){
+    var iso=y+'-'+('0'+(mo+1)).slice(-2)+'-'+('0'+dd).slice(-2);
+    var ss=sess[iso];var hs=ss&&ss.blocks&&ss.blocks.length;
+    var dn=hs&&Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    var bg='transparent',col='var(--muted2)',bd='none';
+    if(hs){
+      if(dn){bg='var(--mob)';col='#0a0b0e';}
+      else if(iso===today){bg='rgba(249,200,70,0.18)';col='var(--act)';bd='1px solid var(--act)';}
+      else if(iso>today){bg='rgba(77,171,247,0.12)';col='#4dabf7';bd='1px solid rgba(77,171,247,0.4)';}
+      else {bg='rgba(255,112,67,0.12)';col='#ff7043';bd='1px solid rgba(255,112,67,0.4)';}
+    }else if(iso===today){col='var(--act)';bd='1px solid var(--border2)';}
+    cells+='<div onclick="wlGoDate(\''+iso+'\')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;background:'+bg+';border:'+bd+';color:'+col+';font-size:11px;font-weight:700;cursor:'+(hs?'pointer':'default')+';">'+dd+'</div>';
+  }
+  document.getElementById('wl-cal').innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:12px;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:8px;">'+fmtDateLong(today).split(' ').slice(-2).join(' ').toUpperCase()+'</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;">'+head+'</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">'+cells+'</div></div>';
+}
+function wlGoDate(iso){var sess=JB_SESSIONS[currentPlayerId]||{};var s=sess[iso];if(!s||!s.blocks||!s.blocks.length)return;pendingDate=iso;enterPlan();}
 function enterPlan(){
   hideSidebar();
   var ws=document.getElementById('screen-welcome');ws.classList.add('hidden');
@@ -2118,7 +2195,7 @@ function enterPlan(){
   document.getElementById('app-tabs').classList.remove('hidden');
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
   if(p){document.getElementById('hdr-name').textContent=p.name;var avw=document.getElementById('hdr-av-wrap');avw.innerHTML=p.photo?'<img class="hdr-avatar" src="'+p.photo+'"/>':'<div class="hdr-avatar-ph">\ud83d\udc64</div>';}
-  curDate=firstSessionDate(currentPlayerId)||(p&&p.startDate)||isoToday();lastCheckedDay=null;cW=0;cD=0;weekViewW=0;renderPlan();
+  curDate=pendingDate||(isCoach?(firstSessionDate(currentPlayerId)||(p&&p.startDate)||isoToday()):isoToday());pendingDate=null;lastCheckedDay=null;cW=0;cD=0;weekViewW=0;renderPlan();
 }
 function goBack(){
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
@@ -2130,7 +2207,7 @@ function goBack(){
 
 // \u2500\u2500 COACH MODE \u2500\u2500
 function toggleMode(){if(isCoach)deactivateCoach();else activateCoach();}
-function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Tus alumnos';if(ss)ss.textContent='Toc\u00e1 un nombre para abrir el plan, o sum\u00e1 uno nuevo.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='flex';showSidebar();setSideActive('alumnos');renderSelect();setCoachView(coachView);if(currentPlayerId)renderPlan();}
+function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Tus alumnos';if(ss)ss.textContent='Toc\u00e1 un nombre para abrir el plan, o sum\u00e1 uno nuevo.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='flex';showSidebar();setSideActive('alumnos');refreshChatBadge();renderSelect();setCoachView(coachView);if(currentPlayerId)renderPlan();}
 function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var ats=document.getElementById('atab-summary');if(ats)ats.style.display='';var atm=document.getElementById('atab-msg');if(atm)atm.style.display='';var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='none';hideSidebar();coachView='lista';var pg=document.getElementById('players-grid');if(pg)pg.style.display='';var wo=document.getElementById('week-overview');if(wo)wo.style.display='none';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
 
 // \u2500\u2500 COACH PIN \u2500\u2500
@@ -2721,8 +2798,9 @@ function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfi
 function goToToday(){var d=new Date();calCursor=new Date(d.getFullYear(),d.getMonth(),1);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
 
 // \u2500\u2500 CHAT \u2500\u2500
-var msgView='chat',chatPlayerId=null,CHAT=[],CHAT_UNREAD={};
+var msgView='chat',chatPlayerId=null,CHAT=[],CHAT_UNREAD={},CHAT_CT='msg-content';
 function renderMsgTab(){
+  CHAT_CT='msg-content';
   if(!isCoach){chatPlayerId=currentPlayerId;openChatThread(currentPlayerId);return;}
   if(msgView==='record'){setMsgHeader('Recordatorios','Mensajes para alumnos');renderMessagesInto();return;}
   if(chatPlayerId){openChatThread(chatPlayerId);return;}
@@ -2740,24 +2818,24 @@ async function loadUnreadCounts(){
   if(!r.error)(r.data||[]).forEach(function(m){CHAT_UNREAD[m.player_id]=(CHAT_UNREAD[m.player_id]||0)+1;});
 }
 async function renderChatList(){
-  setMsgHeader('Chat','Conversaciones con tus alumnos');
-  var mc=document.getElementById('msg-content');
-  mc.innerHTML=renderMsgToggle()+'<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
+  if(CHAT_CT==='msg-content')setMsgHeader('Chat','Conversaciones con tus alumnos');
+  var mc=document.getElementById(CHAT_CT);
+  mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+'<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
   await loadUnreadCounts();
-  if(!PLAYERS.length){mc.innerHTML=renderMsgToggle()+'<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
+  if(!PLAYERS.length){mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+'<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
   var rows=PLAYERS.map(function(p){
     var un=CHAT_UNREAD[p.id]||0;
     var av=p.photo?'<img src="'+p.photo+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none;"/>':'<div style="width:40px;height:40px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;">\ud83d\udc64</div>';
     var badge=un?'<span style="flex:none;min-width:22px;height:22px;border-radius:11px;background:var(--mob);color:#0a0b0e;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 6px;">'+un+'</span>':'<span style="color:var(--muted2);font-size:16px;">\u203a</span>';
     return '<div onclick="openChatThread(\''+p.id+'\')" style="display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--border'+(un?';border-color:var(--mob)':'')+');border-radius:var(--r);padding:12px 14px;margin-bottom:8px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.28);">'+av+'<div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;letter-spacing:0.02em;">'+p.name+'</div><div style="font-size:11px;color:var(--muted);">'+(un?un+' mensaje'+(un>1?'s':'')+' nuevo'+(un>1?'s':''):'Abrir conversaci\u00f3n')+'</div></div>'+badge+'</div>';
   }).join('');
-  mc.innerHTML=renderMsgToggle()+rows;
+  mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+rows;
 }
 async function openChatThread(pid){
   chatPlayerId=pid;
   var p=PLAYERS.find(function(x){return x.id===pid;});
-  setMsgHeader(isCoach?('Chat \u00b7 '+(p?p.name:'')):'Chat con tu profe',isCoach?'Conversaci\u00f3n privada':'Escribile cuando quieras');
-  var mc=document.getElementById('msg-content');
+  if(CHAT_CT==='msg-content'){setMsgHeader(isCoach?('Chat \u00b7 '+(p?p.name:'')):'Chat con tu profe',isCoach?'Conversaci\u00f3n privada':'Escribile cuando quieras');}else{var _t=document.getElementById('chat-hdr-title');if(_t)_t.textContent='Chat \u00b7 '+(p?p.name:'');}
+  var mc=document.getElementById(CHAT_CT);
   mc.innerHTML='<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
   var r=ATH_TOKEN?(await sb.rpc('athlete_messages',{p_token:ATH_TOKEN,p_pin:ATH_PIN})):(await sb.from('messages').select('*').eq('player_id',pid).order('created_at'));
   CHAT=r.error?[]:(r.data||[]);
@@ -2765,9 +2843,10 @@ async function openChatThread(pid){
   if(isCoach){sb.from('messages').update({read_by_coach:true}).eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false).then(function(){});}
   else{sb.from('messages').update({read_by_athlete:true}).eq('player_id',pid).eq('sender','coach').eq('read_by_athlete',false).then(function(){});}
   renderChatThread();
+  refreshChatBadge();
 }
 function renderChatThread(){
-  var mc=document.getElementById('msg-content');
+  var mc=document.getElementById(CHAT_CT);
   var backBtn=isCoach?'<button onclick="chatPlayerId=null;renderMsgTab();" style="background:none;border:none;color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:0;">\u2039 Conversaciones</button>':'';
   var refBtn='<button onclick="openChatThread(chatPlayerId)" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 4px;" title="Actualizar">\u21bb</button>';
   var top='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'+backBtn+refBtn+'</div>';
