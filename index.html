@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>PDapp · Pablo PT</title>
 <link rel="manifest" href="manifest.json"/>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -321,6 +324,12 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 @keyframes spin{to{transform:rotate(360deg);}}
 #loading-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#eef0f5;}
 #loading-error{display:none;font-size:12px;color:#ff4d4d;text-align:center;max-width:260px;line-height:1.6;}
+
+@media(max-width:640px){
+  #month-view{padding:0 4px 24px !important;}
+  #month-view .mv-grid{gap:3px !important;}
+}
+body{overflow-x:hidden;}
 </style>
 </head>
 <body>
@@ -684,7 +693,7 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
     </div>
   </header>
   <div class="week-view-content">
-    <div id="month-view" style="max-width:1100px;margin:0 auto;padding:0 10px 24px;"></div>
+    <div id="month-view" style="max-width:1100px;margin:0 auto;padding:0 10px 24px;overflow-x:hidden;"></div>
   </div>
 </div>
 
@@ -2199,7 +2208,7 @@ function enterPlan(){
 }
 function goBack(){
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   document.getElementById('screen-select').style.display='';
   currentPlayerId=null;activePid=null;PLAN=[];checkState={};curDate=null;calCursor=null;currentTab='plan';renderSelect();if(isCoach){showSidebar();setSideActive('alumnos');}
@@ -2782,14 +2791,14 @@ function renderMonthView(p){
     if(day&&day.blocks&&day.blocks.length){
       var blocksList=day.blocks.map(function(b){var bt=b.t||'mob';var exs=(b.exs||[]).map(function(e){var ld=e.l?' <span style=\"color:var(--mob);font-weight:700;\">'+e.l+'</span>':'';return '<div style=\"font-size:12px;color:var(--muted);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">'+e.n+ld+'</div>';}).join('');return '<div style=\"margin-top:5px;\"><div style=\"font-size:12px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;color:#eef0f5;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">'+(b.title||'')+'</div>'+exs+'</div>';}).join('');
       var _ch=JB_CHECKS[p.id]||{};var _tot=day.blocks.length,_dn=0;for(var _bi=0;_bi<_tot;_bi++){if(_ch[iso+'-'+_bi]&&_ch[iso+'-'+_bi].done)_dn++;}var st=(_tot>0&&_dn===_tot)?'<span style="float:right;color:var(--mob);font-weight:800;">✓</span>':(_dn>0?'<span style="float:right;color:var(--act);font-weight:800;">~</span>':'');
-      cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:10px;padding:9px 10px;min-height:110px;'+tHi+'"><div style="font-weight:700;font-size:13px;margin-bottom:2px;">'+dnum+st+'</div><div style="font-size:13px;font-weight:800;color:var(--mob);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.02em;">'+(day.title||'Entrenamiento')+'</div>'+blocksList+'</div>';
+      cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:10px;padding:9px 10px;min-height:110px;min-width:0;overflow:hidden;'+tHi+'"><div style="font-weight:700;font-size:13px;margin-bottom:2px;">'+dnum+st+'</div><div style="font-size:13px;font-weight:800;color:var(--mob);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.02em;">'+(day.title||'Entrenamiento')+'</div>'+blocksList+'</div>';
     } else if(isCoach){
       cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'display:flex;flex-direction:column;">'+head+'<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:20px;opacity:0.45;">+</div></div>';
     } else {
       cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'">'+head+'</div>';
     }
   }
-  cont.innerHTML=header+todayBtn+dowH+'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
+  cont.innerHTML=header+todayBtn+dowH+'<div class="mv-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
 }
 function openDayEditModal(){if(!isCoach||!currentPlayerId)return;var sObj=getCurSession(false)||{title:'',pattern:'',pills:[]};document.getElementById('f-day-name').value=sObj.title||'';document.getElementById('f-day-pattern').value=sObj.pattern||'';document.getElementById('f-day-pills').value=(sObj.pills||[]).join(', ');document.getElementById('modal-edit-day').classList.add('open');}
 function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');}
