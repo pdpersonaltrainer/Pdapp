@@ -347,6 +347,7 @@ body{overflow-x:hidden;}
       <button onclick="login()" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
       <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
       <button onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Ten&#233;s c&#243;digo de invitaci&#243;n? Registrate &#8594;</button>
+      <button onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
     </div>
 
     <!-- PANEL REGISTRO -->
@@ -360,6 +361,25 @@ body{overflow-x:hidden;}
       <button onclick="registerCoach()" id="btn-register" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Crear cuenta</button>
       <div id="reg-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
       <button onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Ya ten&#233;s cuenta? Ingres&#225;</button>
+    </div>
+
+    <!-- PANEL RECUPERAR CONTRASEÑA -->
+    <div id="panel-forgot" style="display:none;">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:14px;margin-top:2px;">Recuperar contrase&#241;a</div>
+      <div style="font-size:13px;color:#9aa0aa;margin-bottom:14px;line-height:1.5;">Ingres&#225; tu email y te enviamos un link para crear una contrase&#241;a nueva.</div>
+      <input id="forgot-email" type="email" placeholder="Email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();sendReset();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <button onclick="sendReset()" id="btn-forgot" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Enviar link</button>
+      <div id="forgot-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
+      <button onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Volver</button>
+    </div>
+
+    <!-- PANEL NUEVA CONTRASEÑA (desde link de recuperación) -->
+    <div id="panel-reset" style="display:none;">
+      <div style="font-size:13px;color:#6b7280;margin-bottom:14px;margin-top:2px;">Cre&#225; tu nueva contrase&#241;a</div>
+      <input id="reset-pass" type="password" placeholder="Nueva contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <input id="reset-pass2" type="password" placeholder="Confirmar contrase&#241;a" autocomplete="new-password" onkeydown="if(event.key==='Enter'){event.preventDefault();doReset();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+      <button onclick="doReset()" id="btn-reset" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Guardar contrase&#241;a</button>
+      <div id="reset-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
     </div>
   </div>
 </div>
@@ -1049,6 +1069,8 @@ body{overflow-x:hidden;}
 var SUPABASE_URL='https://yroinbaixsgdowhigfom.supabase.co';
 var SUPABASE_KEY='sb_publishable_YuiKKtYILL-VlnDzXkwRMw_S1G4dCQi';
 var sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+var IS_RECOVERY=/type=recovery/.test(location.hash||'');
+sb.auth.onAuthStateChange(function(evt){if(evt==='PASSWORD_RECOVERY'){IS_RECOVERY=true;try{showResetPanel();}catch(e){}}});
 var MY_UID=null;
 var MY_PROFILE={};
 var ONLY_PLAYER_ID=null;
@@ -1221,13 +1243,57 @@ async function login(){
 async function logout(){await sb.auth.signOut();location.reload();}
 function showRegister(){
   document.getElementById('panel-login').style.display='none';
+  document.getElementById('panel-forgot').style.display='none';
+  document.getElementById('panel-reset').style.display='none';
   document.getElementById('panel-register').style.display='';
   document.getElementById('reg-msg').textContent='';
 }
 function showLogin(){
   document.getElementById('panel-register').style.display='none';
+  document.getElementById('panel-forgot').style.display='none';
+  document.getElementById('panel-reset').style.display='none';
   document.getElementById('panel-login').style.display='';
   document.getElementById('login-err').textContent='';
+}
+function showForgot(){
+  document.getElementById('panel-login').style.display='none';
+  document.getElementById('panel-register').style.display='none';
+  document.getElementById('panel-reset').style.display='none';
+  document.getElementById('panel-forgot').style.display='';
+  document.getElementById('forgot-msg').textContent='';
+}
+function showResetPanel(){
+  var ov=document.getElementById('loading-overlay');if(ov)ov.style.display='none';
+  document.getElementById('screen-login').style.display='flex';
+  document.getElementById('panel-login').style.display='none';
+  document.getElementById('panel-register').style.display='none';
+  document.getElementById('panel-forgot').style.display='none';
+  document.getElementById('panel-reset').style.display='';
+  document.getElementById('reset-msg').textContent='';
+}
+async function sendReset(){
+  var email=document.getElementById('forgot-email').value.trim();
+  var msg=document.getElementById('forgot-msg');var btn=document.getElementById('btn-forgot');
+  if(!email){msg.style.color='#ff4d4d';msg.textContent='Ingres\u00e1 tu email.';return;}
+  btn.disabled=true;btn.textContent='Enviando...';msg.style.color='#6b7280';msg.textContent='';
+  var r=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  btn.disabled=false;btn.textContent='Enviar link';
+  if(r.error){msg.style.color='#ff4d4d';msg.textContent='Error: '+r.error.message;return;}
+  msg.style.color='#a8e063';msg.textContent='\u2705 Si el email existe, te enviamos un link. Revis\u00e1 tu casilla (y spam).';
+}
+async function doReset(){
+  var p1=document.getElementById('reset-pass').value,p2=document.getElementById('reset-pass2').value;
+  var msg=document.getElementById('reset-msg');var btn=document.getElementById('btn-reset');
+  if(p1.length<6){msg.style.color='#ff4d4d';msg.textContent='La contrase\u00f1a debe tener al menos 6 caracteres.';return;}
+  if(p1!==p2){msg.style.color='#ff4d4d';msg.textContent='Las contrase\u00f1as no coinciden.';return;}
+  btn.disabled=true;btn.textContent='Guardando...';msg.style.color='#6b7280';msg.textContent='';
+  var r=await sb.auth.updateUser({password:p1});
+  if(r.error){btn.disabled=false;btn.textContent='Guardar contrase\u00f1a';msg.style.color='#ff4d4d';msg.textContent='Error: '+r.error.message+'. Ped\u00ed un link nuevo desde la pantalla de ingreso.';return;}
+  msg.style.color='#a8e063';msg.textContent='\u2705 Contrase\u00f1a actualizada. Entrando...';
+  if(history.replaceState){try{history.replaceState(null,'',location.origin+location.pathname);}catch(e){}}
+  IS_RECOVERY=false;MY_UID=r.data.user.id;TRAINER_ID=MY_UID;
+  document.getElementById('screen-login').style.display='none';
+  await bootApp();
 }
 async function registerCoach(){
   var name=document.getElementById('reg-name').value.trim();
@@ -1326,6 +1392,7 @@ async function bootPlayer(){
   }
 }
 async function initApp(){
+  if(IS_RECOVERY||/type=recovery/.test(location.hash||'')){showResetPanel();return;}
   var params=new URLSearchParams(location.search);
   var tk=params.get('t');
   if(tk){await bootAthlete(tk);return;}
