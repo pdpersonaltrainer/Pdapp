@@ -213,6 +213,8 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 .lib-card-main{flex:1;min-width:0;}
 .lib-card-thumb-a{flex-shrink:0;line-height:0;display:block;}
 .lib-card-thumb{width:92px;height:92px;border-radius:9px;object-fit:cover;display:block;flex-shrink:0;background:var(--s2);}
+.lib-card-thumb-ph{width:92px;height:92px;border-radius:9px;background:var(--s2);display:flex;align-items:center;justify-content:center;color:var(--muted2);flex-shrink:0;}
+.lib-card-thumb-ph svg{width:30px;height:30px;}
 .lib-card-body{padding:12px 14px 14px;}
 .lib-card-tags{display:flex;gap:6px;margin-bottom:7px;flex-wrap:wrap;}
 .lib-tag{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;}
@@ -358,7 +360,8 @@ body{overflow-x:hidden;}
 
     <!-- PANEL REGISTRO -->
     <div id="panel-register" style="display:none;">
-      <div style="font-size:13px;color:#6b7280;margin-bottom:22px;margin-top:2px;">Registro de profe</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#a8e063;margin-top:6px;">Bienvenido a PDapp</div>
+      <div style="font-size:13px;color:#9aa0aa;margin:6px 0 18px;line-height:1.5;">Cre&#225; tu cuenta de profe y empez&#225; a gestionar tus alumnos con la Metodolog&#237;a PD.</div>
       <input id="reg-name" type="text" placeholder="Nombre completo" autocomplete="name" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <input id="reg-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <input id="reg-pass" type="password" placeholder="Contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
@@ -1035,6 +1038,20 @@ body{overflow-x:hidden;}
 </div>
 
 <!-- INVITES MODAL -->
+<div class="modal-overlay" id="modal-welcome">
+  <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;padding:26px 22px 30px;width:100%;max-width:520px;box-shadow:0 -8px 40px rgba(0,0,0,0.5);">
+    <div style="text-align:center;margin-bottom:6px;font-size:34px;">&#x1F44B;</div>
+    <div style="text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;">&#161;Bienvenido a PDapp!</div>
+    <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5;">Tu espacio para gestionar alumnos y planes de entrenamiento.</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:22px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;"><div style="flex:none;width:26px;height:26px;border-radius:50%;background:rgba(168,224,99,0.15);color:#a8e063;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">1</div><div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:3px;"><b>Cre&#225; tu primer alumno</b> con su deporte y posici&#243;n.</div></div>
+      <div style="display:flex;gap:12px;align-items:flex-start;"><div style="flex:none;width:26px;height:26px;border-radius:50%;background:rgba(168,224,99,0.15);color:#a8e063;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">2</div><div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:3px;"><b>Arm&#225; su plan</b> con sesiones de la <b>Metodolog&#237;a PD</b> o cre&#225; las tuyas.</div></div>
+      <div style="display:flex;gap:12px;align-items:flex-start;"><div style="flex:none;width:26px;height:26px;border-radius:50%;background:rgba(168,224,99,0.15);color:#a8e063;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">3</div><div style="font-size:13px;color:var(--text);line-height:1.5;padding-top:3px;"><b>Compartile su acceso</b> con el bot&#243;n &#171;Acceso&#187; y listo: el alumno entra sin crear cuenta.</div></div>
+    </div>
+    <button onclick="closeWelcome();openPlayerModal();" style="width:100%;padding:14px;border-radius:var(--rsm);border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">Crear mi primer alumno</button>
+    <button onclick="closeWelcome()" style="width:100%;padding:12px;margin-top:8px;border:none;background:none;color:var(--muted);font-size:13px;cursor:pointer;">Explorar por mi cuenta</button>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-invites">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -1229,6 +1246,7 @@ async function bootApp(){
     overlay.style.display='none';
     activateCoach();
     var ib=document.getElementById('invites-btn');if(ib)ib.style.display=isAdmin?'':'none';
+    try{if(!isAdmin&&PLAYERS.length===0&&!localStorage.getItem('pd_welcome_done')){document.getElementById('modal-welcome').classList.add('open');}}catch(e){}
   }catch(e){
     overlay.style.display='flex';
     document.getElementById('loading-spinner').style.display='none';
@@ -1864,8 +1882,9 @@ function previewTemplate(id){
 function closeTplPreview(){document.getElementById('modal-tpl-preview').classList.remove('open');}
 function renderTemplates(){
   var el=document.getElementById('tpl-list');if(!el)return;
-  if(!TEMPLATES.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);padding:30px 0;font-size:13px;">A&#250;n no guardaste ninguna sesi&#243;n.</div>';return;}
-  el.innerHTML=TEMPLATES.map(function(t){
+  var own=TEMPLATES.filter(function(t){return t.trainer_id===MY_UID;});
+  if(!own.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);padding:30px 0;font-size:13px;">A&#250;n no guardaste ninguna sesi&#243;n.</div>';return;}
+  el.innerHTML=own.map(function(t){
     var bl=(t.data.blocks||[]);var nEx=bl.reduce(function(a,b){return a+((b.exs||[]).length);},0);
     var mine=t.trainer_id===MY_UID;
     var baseTag=t.is_base&&!mine?'<span style="font-size:9px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--cm);border:1px solid var(--cm);border-radius:4px;padding:1px 6px;margin-left:8px;">Base</span>':'';
@@ -2673,7 +2692,7 @@ function renderLib(){
   if(activePattern)items=items.filter(function(e){return e.pattern===activePattern;});
   if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.note||'').toLowerCase().indexOf(q)>=0;});
   if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udd0d</div><p>Sin resultados.</p></div>';return;}
-  document.getElementById('lib-grid').innerHTML=items.map(function(e){var _thumb=e.img||ytThumb(e.link);var thumbH=_thumb?(e.link?'<a href="'+e.link+'" target="_blank" class="lib-card-thumb-a"><img class="lib-card-thumb" src="'+_thumb+'" loading="lazy" /></a>':'<img class="lib-card-thumb" src="'+_thumb+'" loading="lazy" />'):'';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
+  document.getElementById('lib-grid').innerHTML=items.map(function(e){var _thumb=e.img||ytThumb(e.link);var thumbH=_thumb?(e.link?'<a href="'+e.link+'" target="_blank" class="lib-card-thumb-a"><img class="lib-card-thumb" src="'+_thumb+'" loading="lazy" /></a>':'<img class="lib-card-thumb" src="'+_thumb+'" loading="lazy" />'):'<div class="lib-card-thumb-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
 }
 
 function filterLib(f,el){activeLibFilter=f;document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');renderLib();}
@@ -3190,6 +3209,7 @@ async function openInvitesModal(){
   document.getElementById('modal-invites').classList.add('open');
   await loadInvites();
 }
+function closeWelcome(){document.getElementById('modal-welcome').classList.remove('open');try{localStorage.setItem('pd_welcome_done','1');}catch(e){}}
 function closeInvitesModal(){document.getElementById('modal-invites').classList.remove('open');}
 async function loadInvites(){
   var el=document.getElementById('invites-list');
@@ -3203,7 +3223,7 @@ async function loadInvites(){
     var estado=usado?'<span style="color:var(--muted2);font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Usado</span>':'<span style="color:#a8e063;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Disponible</span>';
     var fecha=inv.created_at?new Date(inv.created_at).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'}):'';
     var nota=inv.note?'<div style="font-size:12px;color:var(--muted);margin-top:1px;">'+inv.note+'</div>':'';
-    var copyBtn=usado?'':'<button onclick="copyInviteCode(\''+inv.code+'\',this)" style="flex-shrink:0;padding:7px 12px;border-radius:var(--rsm);border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.04em;font-family:\'Barlow Condensed\',sans-serif;text-transform:uppercase;">Copiar</button>';
+    var copyBtn=usado?'':'<button onclick="copyInviteCode(\''+inv.code+'\',this)" style="flex-shrink:0;padding:7px 12px;border-radius:var(--rsm);border:1px solid var(--border2);background:var(--s2);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.04em;font-family:\'Barlow Condensed\',sans-serif;text-transform:uppercase;">Copiar</button><button onclick="waInvite(\''+inv.code+'\')" style="flex-shrink:0;padding:7px 12px;border-radius:var(--rsm);border:1px solid rgba(37,211,102,0.4);background:rgba(37,211,102,0.10);color:#25D366;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.04em;font-family:\'Barlow Condensed\',sans-serif;text-transform:uppercase;">WhatsApp</button>';
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2);"><div style="flex:1;min-width:0;"><div style="font-family:monospace;font-size:15px;font-weight:700;letter-spacing:0.12em;color:var(--text);">'+inv.code+'</div>'+nota+'<div style="margin-top:3px;display:flex;align-items:center;gap:8px;">'+estado+'<span style="color:var(--muted2);font-size:10px;">'+fecha+'</span></div></div>'+copyBtn+'</div>';
   }).join('');
 }
@@ -3220,6 +3240,18 @@ async function generateInvite(){
   if(r.error){showInfo('Error al generar: '+r.error.message);return;}
   document.getElementById('f-invite-note').value='';
   await loadInvites();
+}
+function waInvite(code){
+  var url=location.origin+location.pathname;
+  var msg='\u00a1Hola! Te doy la bienvenida a *PDapp* \ud83d\udcaa\n\n'
+    +'PDapp es la plataforma con la que vas a poder gestionar a tus alumnos, armar sus planes de entrenamiento con la *Metodolog\u00eda PD* y hacer su seguimiento d\u00eda a d\u00eda.\n\n'
+    +'\ud83c\udf9f Tu c\u00f3digo de invitaci\u00f3n: *'+code+'*\n\n'
+    +'*Para crear tu cuenta:*\n'
+    +'1\ufe0f\u20e3 Entr\u00e1 a '+url+'\n'
+    +'2\ufe0f\u20e3 Toc\u00e1 \u00abRegistrate\u00bb\n'
+    +'3\ufe0f\u20e3 Complet\u00e1 tus datos e ingres\u00e1 el c\u00f3digo\n\n'
+    +'Cualquier duda me escrib\u00eds. \u00a1Nos vemos adentro!';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 function copyInviteCode(code,btn){
   var orig=btn.textContent;
