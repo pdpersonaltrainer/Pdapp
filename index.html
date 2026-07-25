@@ -450,10 +450,10 @@ body{overflow-x:hidden;}
 <div id="screen-wellness" style="display:none;position:fixed;inset:0;z-index:445;background:#0a0b0e;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;">
   <div style="max-width:400px;width:100%;text-align:center;">
     <div id="w-av" style="width:64px;height:64px;border-radius:50%;background:var(--s2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;margin:0 auto 10px;"></div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;">&#191;C&#243;mo lleg&#225;s hoy?</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;" id="w-q-title">&#191;C&#243;mo lleg&#225;s hoy?</div>
     <div id="w-pname" style="font-size:14px;font-weight:700;color:var(--mob);margin-bottom:24px;"></div>
     <div style="margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">&#128564; &#191;C&#243;mo dormiste anoche?</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;" id="w-lb-sleep">&#128564; &#191;C&#243;mo dormiste anoche?</div>
       <div style="display:flex;justify-content:center;gap:10px;">
         <button onclick="setWRating('sleep',1)" id="w-sleep-1" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);background:transparent;color:var(--muted);font-size:17px;font-weight:800;cursor:pointer;">1</button>
         <button onclick="setWRating('sleep',2)" id="w-sleep-2" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);background:transparent;color:var(--muted);font-size:17px;font-weight:800;cursor:pointer;">2</button>
@@ -461,10 +461,10 @@ body{overflow-x:hidden;}
         <button onclick="setWRating('sleep',4)" id="w-sleep-4" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);background:transparent;color:var(--muted);font-size:17px;font-weight:800;cursor:pointer;">4</button>
         <button onclick="setWRating('sleep',5)" id="w-sleep-5" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);background:transparent;color:var(--muted);font-size:17px;font-weight:800;cursor:pointer;">5</button>
       </div>
-      <div style="display:flex;justify-content:space-between;padding:4px 4px 0;max-width:280px;margin:0 auto;"><span style="font-size:10px;color:var(--muted2);">Mal</span><span style="font-size:10px;color:var(--muted2);">Excelente</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 4px 0;max-width:280px;margin:0 auto;"><span style="font-size:10px;color:var(--muted2);" id="w-lo-sleep">Mal</span><span style="font-size:10px;color:var(--muted2);" id="w-hi-sleep">Excelente</span></div>
     </div>
     <div style="margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">&#9889; &#191;C&#243;mo te sent&#237;s hoy?</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;" id="w-lb-energy">&#9889; &#191;C&#243;mo te sent&#237;s hoy?</div>
       <div style="display:flex;justify-content:center;gap:10px;">
         <button onclick="setWRating('energy',1)" id="w-energy-1" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);background:transparent;color:var(--muted);font-size:17px;font-weight:800;cursor:pointer;">1</button>
         <button onclick="setWRating('energy',2)" id="w-energy-2" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);background:transparent;color:var(--muted);font-size:17px;font-weight:800;cursor:pointer;">2</button>
@@ -472,10 +472,10 @@ body{overflow-x:hidden;}
         <button onclick="setWRating('energy',4)" id="w-energy-4" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);background:transparent;color:var(--muted);font-size:17px;font-weight:800;cursor:pointer;">4</button>
         <button onclick="setWRating('energy',5)" id="w-energy-5" style="width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);background:transparent;color:var(--muted);font-size:17px;font-weight:800;cursor:pointer;">5</button>
       </div>
-      <div style="display:flex;justify-content:space-between;padding:4px 4px 0;max-width:280px;margin:0 auto;"><span style="font-size:10px;color:var(--muted2);">Bajo</span><span style="font-size:10px;color:var(--muted2);">&#193;lvaro</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 4px 0;max-width:280px;margin:0 auto;"><span style="font-size:10px;color:var(--muted2);" id="w-lo-energy">Bajo</span><span style="font-size:10px;color:var(--muted2);" id="w-hi-energy">Alto</span></div>
     </div>
     <div style="margin-bottom:24px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">&#129657; &#191;Alg&#250;n dolor o molestia?</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;" id="w-lb-pain">&#129657; &#191;Alg&#250;n dolor o molestia?</div>
       <div style="display:flex;gap:12px;justify-content:center;">
         <button id="w-pain-no-btn" onclick="setPainW(false)" style="padding:10px 28px;border-radius:var(--rsm);border:2px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">No</button>
         <button id="w-pain-yes-btn" onclick="setPainW(true)" style="padding:10px 28px;border-radius:var(--rsm);border:2px solid var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">S&#237;</button>
@@ -484,7 +484,7 @@ body{overflow-x:hidden;}
     </div>
     <div id="w-msg" style="color:#ff6b6b;font-size:13px;margin-bottom:10px;min-height:16px;"></div>
     <button onclick="submitWellness()" id="btn-w-submit" style="width:100%;padding:14px;border-radius:var(--rsm);border:none;background:var(--mob);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Listo &#8594;</button>
-    <button onclick="skipWellness()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:var(--muted2);font-size:12px;cursor:pointer;">Saltar por ahora</button>
+    <button onclick="skipWellness()" id="w-skip-btn" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:var(--muted2);font-size:12px;cursor:pointer;">Saltar por ahora</button>
   </div>
 </div>
 
@@ -524,6 +524,7 @@ body{overflow-x:hidden;}
     <div id="wl-today" style="width:100%;max-width:420px;margin:0 auto 16px;"></div>
     <button class="welcome-btn" id="wl-btn" onclick="enterPlan()">Ver mi plan</button>
     <div id="wl-cal" style="width:100%;max-width:420px;margin:20px auto 0;"></div>
+    <div id="lang-sel-ath" style="display:flex;justify-content:center;gap:8px;margin-top:22px;"></div>
   </div>
   <div class="welcome-footer">PDapp by Pablo PT</div>
 </div>
@@ -624,6 +625,7 @@ body{overflow-x:hidden;}
     </div>
 
     <div style="margin-top:32px;border-top:1px solid var(--border2);padding-top:24px;">
+      <div style="margin:0 0 18px;"><div id="lang-title" style="font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Idioma</div><div id="lang-sel-coach" style="display:flex;gap:8px;"></div></div>
       <button onclick="logout()" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);color:#ff6b6b;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;">Cerrar sesi&#243;n</button>
     </div>
   </div>
@@ -791,8 +793,8 @@ body{overflow-x:hidden;}
     </div>
     <div class="form-row"><label>O pegar URL de foto (GitHub, etc.)</label><input type="text" id="f-pphotourl" placeholder="https://..." oninput="handlePhotoUrl(this.value)" style="font-size:12px;"/></div>
     <div class="form-row"><label>Nombre</label><input type="text" id="f-pname" placeholder="Ej: Lionel Messi"/></div>
-    <div class="form-row"><label>Club</label><input type="text" id="f-pclub" placeholder="Ej: Inter Miami"/></div>
     <div class="form-row"><label>Deporte</label><select id="f-psport" onchange="updatePSportPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225; el deporte...</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="voley">V&#243;ley</option><option value="handball">Handball</option><option value="tenis">Tenis</option><option value="padel">P&#225;del</option><option value="running">Running / Atletismo</option><option value="wellness">Wellness / Sin deporte</option></select></div>
+    <div class="form-row" id="f-pclub-wrap" style="display:none;"><label>Club</label><input type="text" id="f-pclub" placeholder="Ej: Inter Miami"/></div>
     <div class="form-row" id="f-ppos-wrap" style="display:none;"><label>Posici&#243;n</label><select id="f-pposition" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225;...</option></select></div>
     <div class="form-row"><label>Fecha de inicio del plan</label><input type="date" id="f-pstart" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/></div><div class="form-row"><label>PIN del alumno (4 dígitos)</label><input type="tel" id="f-ppin" placeholder="Ej: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:0.2em;font-size:18px;text-align:center;"/></div>
     <div class="modal-btns">
@@ -890,7 +892,7 @@ body{overflow-x:hidden;}
     <div class="modal-handle"></div>
     <div id="player-pin-av" style="width:64px;height:64px;border-radius:50%;background:var(--s2);border:2px solid var(--w1);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;overflow:hidden;font-size:28px;"></div>
     <div id="player-pin-player-name" style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;"></div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:20px;">Ingresá tu PIN para ver tu plan</p>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:20px;" id="pin-msg">Ingresá tu PIN para ver tu plan</p>
     <div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px;">
       <div class="pin-dot" id="ppd0"></div><div class="pin-dot" id="ppd1"></div>
       <div class="pin-dot" id="ppd2"></div><div class="pin-dot" id="ppd3"></div>
@@ -1123,6 +1125,30 @@ var pendingDate=null;
 var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
+/* ===== i18n ===== */
+var LANG=(function(){try{var l=localStorage.getItem('pd_lang');return (l==='en'||l==='it')?l:'es';}catch(e){return 'es';}})();
+var I18N={
+es:{planPersonal:'Plan personalizado',verMiPlan:'Ver mi plan',verMiSesion:'Ver mi sesi\u00f3n',empezar:'Empezar entrenamiento',hoy:'Hoy',diaLibre:'D\u00eda libre',sinEntreno:'Sin entrenamiento asignado',entrenamiento:'Entrenamiento',bloque:'bloque',bloques:'bloques',completado:'completado',enRacha:'en racha',wQTitle:'\u00bfC\u00f3mo lleg\u00e1s hoy?',wSleep:'\ud83d\ude34 \u00bfC\u00f3mo dormiste anoche?',wMal:'Mal',wExc:'Excelente',wEnergy:'\u26a1 \u00bfC\u00f3mo te sent\u00eds hoy?',wBajo:'Bajo',wAlto:'Alto',wPain:'\ud83e\ude79 \u00bfAlg\u00fan dolor o molestia?',no:'No',si:'S\u00ed',wPainPh:'\u00bfD\u00f3nde y cu\u00e1nto? (Ej: rodilla derecha, leve)',listo:'Listo \u2192',saltar:'Saltar por ahora',wCompleta:'Complet\u00e1 c\u00f3mo dormiste.',pinMsg:'Ingres\u00e1 tu PIN para ver tu plan',verVideo:'Ver video',bloqueDone:'Bloque completado',marcarDone:'Marcar como completado',rpeBloque:'RPE del bloque',notaPh:'Nota... (c\u00f3mo te sentiste, peso usado)',chatEmpty:'Todav\u00eda no hay mensajes. \u00a1Escrib\u00ed el primero!',chatPh:'Escrib\u00ed un mensaje...',tabPlan:'Plan',tabCal:'Calendario',tabLib:'Biblioteca',tabMsg:'Mensajes',tabSum:'Resumen',idioma:'Idioma',dowL:['L','M','X','J','V','S','D'],dow3:['Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b','Dom']},
+en:{planPersonal:'Personalized plan',verMiPlan:'View my plan',verMiSesion:'View my session',empezar:'Start training',hoy:'Today',diaLibre:'Rest day',sinEntreno:'No training scheduled',entrenamiento:'Workout',bloque:'block',bloques:'blocks',completado:'completed',enRacha:'day streak',wQTitle:'How are you today?',wSleep:'\ud83d\ude34 How did you sleep last night?',wMal:'Poor',wExc:'Excellent',wEnergy:'\u26a1 How is your energy today?',wBajo:'Low',wAlto:'High',wPain:'\ud83e\ude79 Any pain or discomfort?',no:'No',si:'Yes',wPainPh:'Where and how much? (E.g.: right knee, mild)',listo:'Done \u2192',saltar:'Skip for now',wCompleta:'Please rate your sleep.',pinMsg:'Enter your PIN to view your plan',verVideo:'Watch video',bloqueDone:'Block completed',marcarDone:'Mark as completed',rpeBloque:'Block RPE',notaPh:'Note... (how it felt, weight used)',chatEmpty:'No messages yet. Write the first one!',chatPh:'Type a message...',tabPlan:'Plan',tabCal:'Calendar',tabLib:'Library',tabMsg:'Messages',tabSum:'Summary',idioma:'Language',dowL:['M','T','W','T','F','S','S'],dow3:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']},
+it:{planPersonal:'Piano personalizzato',verMiPlan:'Vedi il mio piano',verMiSesion:'Vedi la mia sessione',empezar:'Inizia l\u0027allenamento',hoy:'Oggi',diaLibre:'Giorno libero',sinEntreno:'Nessun allenamento assegnato',entrenamiento:'Allenamento',bloque:'blocco',bloques:'blocchi',completado:'completato',enRacha:'di fila',wQTitle:'Come stai oggi?',wSleep:'\ud83d\ude34 Come hai dormito stanotte?',wMal:'Male',wExc:'Eccellente',wEnergy:'\u26a1 Come ti senti oggi?',wBajo:'Bassa',wAlto:'Alta',wPain:'\ud83e\ude79 Qualche dolore o fastidio?',no:'No',si:'S\u00ec',wPainPh:'Dove e quanto? (Es: ginocchio destro, lieve)',listo:'Fatto \u2192',saltar:'Salta per ora',wCompleta:'Indica come hai dormito.',pinMsg:'Inserisci il tuo PIN per vedere il tuo piano',verVideo:'Guarda il video',bloqueDone:'Blocco completato',marcarDone:'Segna come completato',rpeBloque:'RPE del blocco',notaPh:'Nota... (come ti sei sentito, peso usato)',chatEmpty:'Ancora nessun messaggio. Scrivi il primo!',chatPh:'Scrivi un messaggio...',tabPlan:'Piano',tabCal:'Calendario',tabLib:'Libreria',tabMsg:'Messaggi',tabSum:'Riepilogo',idioma:'Lingua',dowL:['L','M','M','G','V','S','D'],dow3:['Lun','Mar','Mer','Gio','Ven','Sab','Dom']}
+};
+function t(k){var d=I18N[LANG]||I18N.es;return (d&&d[k]!==undefined)?d[k]:(I18N.es[k]!==undefined?I18N.es[k]:k);}
+function setLang(l){try{localStorage.setItem('pd_lang',l);}catch(e){}location.reload();}
+function langSelHtml(){return ['es','en','it'].map(function(l){var on=LANG===l;return '<button onclick="setLang(\''+l+'\')" style="border:1px solid '+(on?'var(--mob)':'var(--border2)')+';background:'+(on?'rgba(168,224,99,0.12)':'transparent')+';color:'+(on?'var(--mob)':'var(--muted)')+';border-radius:8px;padding:6px 14px;font-size:11px;font-weight:800;letter-spacing:0.05em;cursor:pointer;text-transform:uppercase;font-family:\'Barlow Condensed\',sans-serif;">'+l.toUpperCase()+'</button>';}).join('');}
+function applyLang(){
+  function st(id,k){var e=document.getElementById(id);if(e)e.textContent=t(k);}
+  function sp(id,k){var e=document.getElementById(id);if(e)e.placeholder=t(k);}
+  st('welcome-sub','planPersonal');st('wl-btn','verMiPlan');
+  st('w-q-title','wQTitle');st('w-lb-sleep','wSleep');st('w-lo-sleep','wMal');st('w-hi-sleep','wExc');
+  st('w-lb-energy','wEnergy');st('w-lo-energy','wBajo');st('w-hi-energy','wAlto');st('w-lb-pain','wPain');
+  st('w-pain-no-btn','no');st('w-pain-yes-btn','si');sp('w-pain-note','wPainPh');
+  st('btn-w-submit','listo');st('w-skip-btn','saltar');st('pin-msg','pinMsg');st('lang-title','idioma');
+  var tabs={'atab-plan':'tabPlan','atab-week':'tabCal','atab-lib':'tabLib','atab-msg':'tabMsg','atab-summary':'tabSum'};
+  Object.keys(tabs).forEach(function(id){var e=document.querySelector('#'+id+' .atab-lbl');if(e)e.textContent=t(tabs[id]);});
+  var la=document.getElementById('lang-sel-ath');if(la)la.innerHTML=langSelHtml();
+  var lc=document.getElementById('lang-sel-coach');if(lc)lc.innerHTML=langSelHtml();
+}
+/* ===== fin i18n ===== */
 
 var BICONS={mob:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v4h-4"/></svg>',act:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',fza:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6"/><path d="M7 7v10"/><path d="M7 12h10"/><path d="M17 7v10"/><path d="M20 9v6"/></svg>',exp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>',cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg>'};
 var TNAMES={mob:'ED + Movilidad',act:'Activaci\u00f3n & Prevenci\u00f3n',fza:'Fuerza',exp:'Contraste Explosivo',cam:'Trabajo de Campo'};
@@ -1204,6 +1230,8 @@ function saveSessions(pid){showSyncStatus('saving');sb.from('plans').upsert({pla
 async function migrateAllSessions(){for(var i=0;i<PLAYERS.length;i++){var pp=PLAYERS[i];var ex=JB_SESSIONS[pp.id];if(ex&&Object.keys(ex).length)continue;if(!pp.startDate)continue;var weeks=JB_PLANS[pp.id];if(!weeks)continue;var sess=buildSessionsFromWeeks(weeks,pp.startDate);JB_SESSIONS[pp.id]=sess;try{await sb.from('plans').update({sessions:sess,updated_at:new Date().toISOString()}).eq('player_id',pp.id);}catch(e){console.error('migrate',e);}}}
 var MES_ES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var DOW_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+if(LANG==='en'){MES_ES_L=['January','February','March','April','May','June','July','August','September','October','November','December'];DOW_ES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];}
+else if(LANG==='it'){MES_ES_L=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];DOW_ES=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];}
 function isoToday(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
 function isoToDate(iso){var pp=String(iso).split('-');return new Date(+pp[0],+pp[1]-1,+pp[2]);}
 function fmtDateLong(iso){var dt=isoToDate(iso);return DOW_ES[dt.getDay()]+' '+dt.getDate()+' '+MES_ES_L[dt.getMonth()]+' '+dt.getFullYear();}
@@ -2157,7 +2185,7 @@ function getWeekStrip(pid){
   var days=[];for(var i=0;i<7;i++){var dd=new Date(monday);dd.setDate(monday.getDate()+i);days.push(dd.getFullYear()+'-'+('0'+(dd.getMonth()+1)).slice(-2)+'-'+('0'+dd.getDate()).slice(-2));}
   var sess=JB_SESSIONS[pid]||{};
   var ch=JB_CHECKS[pid]||{};
-  var labels=['L','M','X','J','V','S','D'];
+  var labels=t('dowL');
   var hasSessThisWeek=days.some(function(iso){return sess[iso]&&sess[iso].blocks&&sess[iso].blocks.length>0;});
   if(!hasSessThisWeek)return '<div style="font-size:10px;color:var(--muted2);margin-top:6px;font-style:italic;">Sin sesiones esta semana</div>';
   return '<div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end;">'+days.map(function(iso,i){
@@ -2310,23 +2338,23 @@ function renderAthleteHome(){
   // racha
   var stk=getStreak(pid);
   var se=document.getElementById('wl-streak');
-  if(stk>=2){se.style.display='block';se.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stk+' en racha</span>';}
+  if(stk>=2){se.style.display='block';se.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stk+' '+t('enRacha')+'</span>';}
   else se.style.display='none';
   // panel de hoy
   var t=document.getElementById('wl-today');
   if(has){
     var nb=s.blocks.length;
-    t.innerHTML='<div style="background:var(--s1);border:1px solid '+(doneToday?'var(--mob)':'var(--border)')+';border-radius:var(--r);padding:14px 16px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.28);"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">Hoy \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.02em;color:'+(doneToday?'var(--mob)':'var(--text)')+';">'+(doneToday?'\u2713 ':'')+(s.title||'Entrenamiento')+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+nb+' bloque'+(nb!==1?'s':'')+(doneToday?' \u00b7 completado':'')+'</div></div>';
-    document.getElementById('wl-btn').textContent=doneToday?'Ver mi sesi\u00f3n':'Empezar entrenamiento';
+    t.innerHTML='<div style="background:var(--s1);border:1px solid '+(doneToday?'var(--mob)':'var(--border)')+';border-radius:var(--r);padding:14px 16px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.28);"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+t('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.02em;color:'+(doneToday?'var(--mob)':'var(--text)')+';">'+(doneToday?'\u2713 ':'')+(s.title||t('entrenamiento'))+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+nb+' '+(nb!==1?t('bloques'):t('bloque'))+(doneToday?' \u00b7 '+t('completado'):'')+'</div></div>';
+    document.getElementById('wl-btn').textContent=doneToday?t('verMiSesion'):t('empezar');
   }else{
-    t.innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:left;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">Hoy \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;color:var(--muted);">D\u00eda libre</div><div style="font-size:12px;color:var(--muted2);margin-top:2px;">Sin entrenamiento asignado</div></div>';
-    document.getElementById('wl-btn').textContent='Ver mi plan';
+    t.innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:left;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+t('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;color:var(--muted);">D\u00eda libre</div><div style="font-size:12px;color:var(--muted2);margin-top:2px;">'+t('sinEntreno')+'</div></div>';
+    document.getElementById('wl-btn').textContent=t('verMiPlan');
   }
   // mini calendario del mes
   var d=isoToDate(today);var y=d.getFullYear(),mo=d.getMonth();
   var first=new Date(y,mo,1);var dow=first.getDay();var off=(dow===0?6:dow-1);
   var dim=new Date(y,mo+1,0).getDate();
-  var labels=['L','M','X','J','V','S','D'];
+  var labels=t('dowL');
   var head=labels.map(function(l){return '<div style="text-align:center;font-size:9px;font-weight:700;color:var(--muted2);">'+l+'</div>';}).join('');
   var cells='';
   for(var i=0;i<off;i++)cells+='<div></div>';
@@ -2449,6 +2477,8 @@ function updatePSportPositions(){
   var sport=document.getElementById('f-psport').value;
   var wrap=document.getElementById('f-ppos-wrap');
   var sel=document.getElementById('f-pposition');
+  var clubWrap=document.getElementById('f-pclub-wrap');
+  if(clubWrap)clubWrap.style.display=sport?'':'none';
   if(sport&&sport!=='wellness'&&SPORT_POSITIONS[sport]){
     sel.innerHTML='<option value="">Seleccion\u00e1...</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+pos+'</option>';}).join('');
     wrap.style.display='';
@@ -2521,7 +2551,7 @@ function renderPlan(){
   var addBBtn=isCoach?'<button class="add-block-btn" onclick="openAddBlockModal()">+ Agregar bloque</button>':'';
   var body;
   if(!sess&&!isCoach){
-    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">Día libre</div><div class="hero-pat">Sin entrenamiento asignado</div></div>';
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">Día libre</div><div class="hero-pat">'+t('sinEntreno')+'</div></div>';
   } else if(!sess&&isCoach){
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">Día libre</div><div class="hero-pat">Sin entrenamiento asignado</div></div><div style="max-width:var(--cw);margin:18px auto 0;padding:0 13px;"><button onclick="createTraining()" style="width:100%;padding:16px;border-radius:var(--r);border:2px dashed var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">+ Crear entrenamiento</button></div>';
   } else {
@@ -2584,7 +2614,7 @@ function renderBlock(b,bi,wIdx,dIdx){
     var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
     return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">'+BICONS.cam+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
   }
-  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var thumb=ytThumb(e.link);var thumbH=thumb?'<a class="exthumb-a" href="'+e.link+'" target="_blank"><img class="exthumb" src="'+thumb+'" loading="lazy"/></a>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; '+t('verVideo')+'</a>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var thumb=ytThumb(e.link);var thumbH=thumb?'<a class="exthumb-a" href="'+e.link+'" target="_blank"><img class="exthumb" src="'+thumb+'" loading="lazy"/></a>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" ondblclick="editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" ondblclick="editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -2724,9 +2754,9 @@ function addBlock(type){if(!isCoach||!currentPlayerId)return;var nb={t:type,titl
 
 function buildCheckArea(w,d,bi){
   var key=w+'-'+d+'-'+bi;var state=checkState[key]||{done:false,note:'',rpe:0};
-  var dCls=state.done?' done':'';var tick=state.done?'\u2713':'';var lbl=state.done?'Bloque completado':'Marcar como completado';
+  var dCls=state.done?' done':'';var tick=state.done?'\u2713':'';var lbl=state.done?t('bloqueDone'):t('marcarDone');
   var rpeBtns='';for(var r=1;r<=10;r++){var sCls='';if(state.rpe===r)sCls=r<=4?' sel-low':r<=6?' sel-mid':r<=8?' sel-high':' sel-max';rpeBtns+='<button class="rpe-btn'+sCls+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" data-r="'+r+'" onclick="setRpe(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.r)">'+r+'</button>';}
-  return '<div class="block-check-area"><button class="block-check-btn'+dCls+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" onclick="toggleCheck(+this.dataset.w,+this.dataset.d,+this.dataset.b)"><div class="check-circle"><span style="font-size:12px;color:#0a0b0e;display:'+(state.done?'block':'none')+'">'+tick+'</span></div><span class="check-lbl">'+lbl+'</span></button><div class="rpe-area"><span class="rpe-lbl">RPE del bloque</span><div class="rpe-grid">'+rpeBtns+'</div></div><textarea class="block-note" placeholder="Nota... (c\u00f3mo te sentiste, peso usado)" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" onchange="saveNote(this)" onclick="event.stopPropagation()">'+( state.note||'')+'</textarea></div>';
+  return '<div class="block-check-area"><button class="block-check-btn'+dCls+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" onclick="toggleCheck(+this.dataset.w,+this.dataset.d,+this.dataset.b)"><div class="check-circle"><span style="font-size:12px;color:#0a0b0e;display:'+(state.done?'block':'none')+'">'+tick+'</span></div><span class="check-lbl">'+lbl+'</span></button><div class="rpe-area"><span class="rpe-lbl">'+t('rpeBloque')+'</span><div class="rpe-grid">'+rpeBtns+'</div></div><textarea class="block-note" placeholder="'+t('notaPh')+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" onchange="saveNote(this)" onclick="event.stopPropagation()">'+( state.note||'')+'</textarea></div>';
 }
 function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].done=!checkState[key].done;saveCheckState();renderPlan();}
 function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();renderPlan();}
@@ -2757,7 +2787,7 @@ function renderLib(){
   if(activePattern)items=items.filter(function(e){return e.pattern===activePattern;});
   if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.note||'').toLowerCase().indexOf(q)>=0;});
   if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udd0d</div><p>Sin resultados.</p></div>';return;}
-  document.getElementById('lib-grid').innerHTML=items.map(function(e){var _thumb=e.img||ytThumb(e.link);var thumbH=_thumb?(e.link?'<a href="'+e.link+'" target="_blank" class="lib-card-thumb-a"><img class="lib-card-thumb" src="'+_thumb+'" loading="lazy" /></a>':'<img class="lib-card-thumb" src="'+_thumb+'" loading="lazy" />'):'<div class="lib-card-thumb-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; Ver video</a>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
+  document.getElementById('lib-grid').innerHTML=items.map(function(e){var _thumb=e.img||ytThumb(e.link);var thumbH=_thumb?(e.link?'<a href="'+e.link+'" target="_blank" class="lib-card-thumb-a"><img class="lib-card-thumb" src="'+_thumb+'" loading="lazy" /></a>':'<img class="lib-card-thumb" src="'+_thumb+'" loading="lazy" />'):'<div class="lib-card-thumb-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; '+t('verVideo')+'</a>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
 }
 
 function filterLib(f,el){activeLibFilter=f;document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');renderLib();}
@@ -2925,12 +2955,12 @@ function renderMonthView(p){
   var ss=sessionsOf(p.id);
   if(!calCursor||_monthPid!==currentPlayerId){var base=firstSessionDate(p.id)||p.startDate||isoToday();var bd=isoToDate(base);calCursor=new Date(bd.getFullYear(),bd.getMonth(),1);_monthPid=currentPlayerId;}
   var y=calCursor.getFullYear(),mo=calCursor.getMonth();
-  var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var meses=MES_ES_L;
   var startWd=(new Date(y,mo,1).getDay()+6)%7;
   var dim=new Date(y,mo+1,0).getDate();
   var todayISO=isoToday();
   var header='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px;"><button onclick="moveMonth(-1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u2039</button><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;letter-spacing:0.04em;text-transform:uppercase;">'+meses[mo]+' '+y+'</div><button onclick="moveMonth(1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u203a</button></div>';
-  var dows=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  var dows=t('dow3');
   var dowH='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">'+dows.map(function(dn){return '<div style="text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);font-weight:700;">'+dn+'</div>';}).join('')+'</div>';
   var todayBtn='<div style="text-align:center;margin-bottom:10px;"><button onclick="goToToday()" style="padding:5px 16px;border-radius:14px;border:1px solid var(--border2);background:var(--s2);color:var(--mob);cursor:pointer;font-size:11px;font-family:Barlow Condensed,sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Hoy</button></div>';
   var cells='';
@@ -3019,7 +3049,7 @@ function renderChatThread(){
     var when=fmtDateShort(m.created_at.slice(0,10))+' '+hh;
     return '<div style="display:flex;justify-content:'+(isMine?'flex-end':'flex-start')+';margin-bottom:8px;"><div style="max-width:78%;background:'+(isMine?'rgba(168,224,99,0.14)':'var(--s1)')+';border:1px solid '+(isMine?'var(--mob)':'var(--border)')+';border-radius:14px;border-'+(isMine?'bottom-right':'bottom-left')+'-radius:4px;padding:9px 13px;"><div style="font-size:14px;color:var(--text);line-height:1.45;white-space:pre-wrap;word-break:break-word;">'+escapeChat(m.body)+'</div><div style="font-size:9px;color:var(--muted2);margin-top:4px;text-align:right;">'+when+'</div></div></div>';
   }).join(''):'<div style="text-align:center;color:var(--muted2);padding:26px 0;font-size:13px;">Todav\u00eda no hay mensajes. \u00a1Escrib\u00ed el primero!</div>';
-  var input='<div style="display:flex;gap:8px;margin-top:14px;"><textarea id="chat-input" placeholder="Escrib\u00ed un mensaje..." rows="1" style="flex:1;min-width:0;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:11px 14px;font-family:Barlow,sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea><button onclick="sendChat()" style="flex:none;width:46px;height:46px;border-radius:50%;border:none;background:var(--mob);color:#0a0b0e;font-size:18px;font-weight:800;cursor:pointer;">\u27a4</button></div>';
+  var input='<div style="display:flex;gap:8px;margin-top:14px;"><textarea id="chat-input" placeholder="'+t('chatPh')+'" rows="1" style="flex:1;min-width:0;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:11px 14px;font-family:Barlow,sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea><button onclick="sendChat()" style="flex:none;width:46px;height:46px;border-radius:50%;border:none;background:var(--mob);color:#0a0b0e;font-size:18px;font-weight:800;cursor:pointer;">\u27a4</button></div>';
   mc.innerHTML=top+'<div id="chat-scroll" style="max-height:56vh;overflow-y:auto;padding:2px;">'+bubbles+'</div>'+input;
   var sc=document.getElementById('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
 }
@@ -3146,7 +3176,7 @@ function setPainW(val){
 }
 async function submitWellness(){
   var msgEl=document.getElementById('w-msg');
-  if(!wSleep){msgEl.textContent='Complet\u00e1 c\u00f3mo dormiste.';return;}
+  if(!wSleep){msgEl.textContent=t('wCompleta');return;}
   if(!wEnergy){msgEl.textContent='Complet\u00e1 c\u00f3mo te sent\u00eds.';return;}
   if(wPain===null){msgEl.textContent='Indic\u00e1 si ten\u00e9s alguna molestia.';return;}
   var btn=document.getElementById('btn-w-submit');btn.disabled=true;btn.textContent='Guardando...';msgEl.textContent='';
@@ -3329,6 +3359,7 @@ function copyInviteCode(code,btn){
 }
 // ── FIN INVITE MANAGER ────────────────────────────────────────────
 
+try{applyLang();}catch(e){console.error('i18n',e);}
 initApp();
 </script>
 </body>
