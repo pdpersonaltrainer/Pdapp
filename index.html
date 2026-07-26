@@ -1174,9 +1174,15 @@ function applyLang(){
     var _i=LANG==='en'?0:1;
     var BAN={'pd-intro':['Sessions built with the <b style="color:var(--mob);">PD</b> methodology. Insert them as-is into an athlete, or duplicate them to <b>My Sessions</b> to customize them.','Sessioni costruite con la metodologia <b style="color:var(--mob);">PD</b>. Inseriscile cos\u00ec come sono in un atleta, oppure duplicale in <b>Le mie sessioni</b> per personalizzarle.'],'tpl-info':['Save a session as a template from an athlete\u0027s plan (<b style="color:var(--mob);">Save as session</b> button), or create one from scratch below.','Salva una sessione come modello dal piano di un atleta (pulsante <b style="color:var(--mob);">Salva come sessione</b>), oppure creane una da zero qui sotto.']};
     Object.keys(BAN).forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=BAN[id][_i];});
-    if(!window.__pdObs){try{window.__pdObs=new MutationObserver(function(ms){for(var i=0;i<ms.length;i++){var ns=ms[i].addedNodes;for(var j=0;j<ns.length;j++){var n=ns[j];if(!n)continue;if(n.nodeType===1)trStatic(n);else if(n.nodeType===3&&n.parentNode&&n.parentNode.nodeType===1)trStatic(n.parentNode);}}});window.__pdObs.observe(document.body,{childList:true,subtree:true});}catch(e){}}
+    if(!window.__pdObs){try{window.__pdObs=new MutationObserver(function(ms){
+      if(__trBusy)return;
+      var obs=window.__pdObs;obs.disconnect();
+      try{for(var i=0;i<ms.length;i++){var ns=ms[i].addedNodes;for(var j=0;j<ns.length;j++){var n=ns[j];if(!n)continue;if(n.nodeType===1)trStatic(n);else if(n.nodeType===3&&n.parentNode&&n.parentNode.nodeType===1)trStatic(n.parentNode);}}}catch(e){console.error('obs',e);}
+      try{obs.takeRecords();obs.observe(document.body,{childList:true,subtree:true});}catch(e){}
+    });window.__pdObs.observe(document.body,{childList:true,subtree:true});}catch(e){}}
   }
 }
+var __trBusy=false;
 function tr(str){
   if(LANG==='es'||!str)return str;var _i=LANG==='en'?0:1;
   var k=String(str).trim();var v=STATIC_I18N[k];
@@ -1186,12 +1192,16 @@ function tr(str){
   return str;
 }
 function trStatic(root){
-  if(LANG==='es')return;var _i=LANG==='en'?0:1;
+  if(LANG==='es'||!root||__trBusy)return;var _i=LANG==='en'?0:1;
   var SEL='.hdr-name,.hdr-sub,.pd-nav-item span,label,button,h2,.lib-tag,.atab-lbl,.filter-chip,.pca-btn,.sec-lbl';
-  function fix(el){if(el.children&&el.children.length)return;var v=STATIC_I18N[(el.textContent||'').trim()];if(v)el.textContent=v[_i];}
-  function fixPh(el){var v=STATIC_I18N[(el.placeholder||'').trim()];if(v)el.placeholder=v[_i];}
-  try{if(root.matches&&root.matches(SEL))fix(root);}catch(e){}
-  if(root.querySelectorAll){root.querySelectorAll(SEL).forEach(fix);root.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(fixPh);}
+  __trBusy=true;
+  try{
+    var fix=function(el){if(el.children&&el.children.length)return;var cur=(el.textContent||'').trim();var v=STATIC_I18N[cur];if(v&&v[_i]!==cur)el.textContent=v[_i];};
+    var fixPh=function(el){var cur=(el.placeholder||'').trim();var v=STATIC_I18N[cur];if(v&&v[_i]!==cur)el.placeholder=v[_i];};
+    try{if(root.matches&&root.matches(SEL))fix(root);}catch(e){}
+    if(root.querySelectorAll){root.querySelectorAll(SEL).forEach(fix);root.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(fixPh);}
+  }catch(e){console.error('trStatic',e);}
+  __trBusy=false;
 }
 /* ===== fin i18n ===== */
 
