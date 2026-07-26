@@ -2180,8 +2180,8 @@ function openLibFromHome(){
   closeHomeScreens();showSidebar();
   document.getElementById('screen-lib').classList.add('active');
   document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);
-  var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);
-  var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);
+  var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!(isCoach&&isAdmin));
+  var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!(isCoach&&isAdmin));
   currentTab='lib';renderLib();
 }
 function getInactiveDays(pid){
@@ -2581,7 +2581,7 @@ function showTab(name){
   ['screen-week','screen-msg','screen-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=(id==='screen-'+name)?'block':'none';});
   document.querySelectorAll('.atab').forEach(function(t){t.classList.remove('active');});
   var tabEl=document.getElementById('atab-'+name);if(tabEl)tabEl.classList.add('active');
-  if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!isCoach);var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!isCoach);renderLib();}
+  if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!(isCoach&&isAdmin));var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!(isCoach&&isAdmin));renderLib();}
   if(name==='week'){weekViewW=cW;renderWeekView();}
   if(name==='msg')renderMsgTab();
   if(name==='summary')renderSummary();
