@@ -27,6 +27,8 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
 #screen-select{min-height:100vh;display:flex;flex-direction:column;}
+body.side-open #screen-select{display:none!important;}
+body.side-open #screen-plan,body.side-open #screen-lib,body.side-open #screen-welcome,body.side-open #screen-week,body.side-open #screen-msg,body.side-open #screen-summary,body.side-open #app-tabs{display:none!important;}
 #screen-select::before{content:none;}
 .select-header{padding:calc(20px + env(safe-area-inset-top)) 18px 14px;display:flex;align-items:center;justify-content:space-between;max-width:var(--cw);margin:0 auto;width:100%;position:relative;z-index:1;}
 .select-header h1{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;background:linear-gradient(90deg,var(--mob),#d4f59a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
@@ -1165,7 +1167,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260727-13';
+var APP_VERSION='20260727-14';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1822,11 +1824,12 @@ function hideAllScreens(except){
 }
 function openSideScreen(id){
   hideAllScreens(id);
+  try{document.body.classList.add('side-open');}catch(e){}
   try{window.scrollTo(0,0);}catch(e){}
   showSidebar();
   var el=document.getElementById(id);if(el)el.style.display='block';
   setTimeout(function(){
-    var s2=document.getElementById('screen-select');if(s2)s2.style.display='none';
+    try{document.body.classList.add('side-open');}catch(e){}
     var e2=document.getElementById(id);if(e2)e2.style.display='block';
   },80);
 }
@@ -2504,6 +2507,7 @@ function shareWhatsApp(){
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
 }
 function showSelectContent(){
+  try{document.body.classList.remove('side-open');}catch(e){}
   var el=document.getElementById('screen-select');if(!el)return;
   el.style.display='';el.style.minHeight='';el.style.height='';el.style.overflow='';
   var _sh=el.querySelector('.select-header');if(_sh)_sh.style.display='';
@@ -2607,6 +2611,7 @@ function renderAthleteHome(){
 }
 function wlGoDate(iso){var sess=JB_SESSIONS[currentPlayerId]||{};var s=sess[iso];if(!s||!s.blocks||!s.blocks.length)return;pendingDate=iso;enterPlan();}
 function enterPlan(){
+  try{document.body.classList.remove('side-open');}catch(e){}
   hideSidebar();
   var ws=document.getElementById('screen-welcome');ws.classList.add('hidden');
   setTimeout(function(){ws.classList.add('gone');},420);
@@ -2758,6 +2763,7 @@ async function savePlayer(){
 // \u2500\u2500 TABS \u2500\u2500
 function showTab(name){
   currentTab=name;
+  try{document.body.classList.remove('side-open');}catch(e){}
   try{closeHomeScreens();}catch(e){}
   document.getElementById('screen-plan').classList.toggle('active',name==='plan');
   document.getElementById('screen-lib').classList.toggle('active',name==='lib');
