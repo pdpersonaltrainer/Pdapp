@@ -41,13 +41,11 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .select-body{flex:1;max-width:var(--cw);margin:0 auto;width:100%;padding:24px 16px 100px;position:relative;z-index:1;}
 #screen-select.with-side .select-header,#screen-select.with-side .select-body{padding-left:80px;}
 .pd-side{position:fixed;top:0;left:0;bottom:0;width:64px;background:rgba(10,11,14,0.98);border-right:1px solid var(--border);z-index:400;display:none;flex-direction:column;padding:calc(16px + env(safe-area-inset-top)) 0 16px;transition:width .22s ease;overflow:hidden;}
-.pd-side.expanded{width:210px;box-shadow:8px 0 30px rgba(0,0,0,0.45);}
-@media (hover:hover) and (pointer:fine){.pd-side:hover{width:210px;box-shadow:8px 0 30px rgba(0,0,0,0.45);}}
+.pd-side.expanded,.pd-side.hovering{width:210px;box-shadow:8px 0 30px rgba(0,0,0,0.45);}
 .pd-side-logo{display:flex;align-items:center;gap:11px;padding:2px 17px 16px;min-width:210px;cursor:pointer;}
 .pd-side-logo img{width:34px;height:34px;object-fit:contain;flex:none;}
 .pd-side-logo span,.pd-nav-item span{opacity:0;transition:opacity .18s ease;}
-.pd-side.expanded .pd-side-logo span,.pd-side.expanded .pd-nav-item span{opacity:1;}
-@media (hover:hover) and (pointer:fine){.pd-side:hover .pd-side-logo span,.pd-side:hover .pd-nav-item span{opacity:1;}}
+.pd-side.expanded .pd-side-logo span,.pd-side.expanded .pd-nav-item span,.pd-side.hovering .pd-side-logo span,.pd-side.hovering .pd-nav-item span{opacity:1;}
 .pd-side-logo span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:0.05em;text-transform:uppercase;background:linear-gradient(90deg,var(--mob),#d4f59a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
 .pd-nav{display:flex;flex-direction:column;gap:3px;flex:1;}
 .pd-nav-item{position:relative;display:flex;align-items:center;gap:15px;padding:12px 21px;min-width:210px;cursor:pointer;color:rgba(255,255,255,0.78);border:none;background:none;text-align:left;font-family:'Barlow Condensed',sans-serif;transition:color .15s ease;}
@@ -1168,7 +1166,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260728-01';
+var APP_VERSION='20260728-02';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1790,6 +1788,16 @@ var LIB=[];
 // \u2500\u2500 SELECT SCREEN \u2500\u2500
 function showSidebar(){var s=document.getElementById('pd-sidebar');if(s)s.style.display='flex';var sc=document.getElementById('screen-select');if(sc)sc.classList.add('with-side');document.body.classList.add('side-visible');}
 function hideSidebar(){var s=document.getElementById('pd-sidebar');if(s){s.style.display='none';s.classList.remove('expanded');}var sc=document.getElementById('screen-select');if(sc)sc.classList.remove('with-side');document.body.classList.remove('side-visible');}
+(function(){
+  function bind(){
+    var s=document.getElementById('pd-sidebar');if(!s)return;
+    s.addEventListener('pointerenter',function(e){if(e.pointerType!=='touch')s.classList.add('hovering');});
+    s.addEventListener('pointerleave',function(){s.classList.remove('hovering');});
+    s.addEventListener('pointerdown',function(e){if(e.pointerType==='touch')s.classList.remove('hovering');});
+    s.addEventListener('click',function(){setTimeout(function(){s.classList.remove('hovering');},120);});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
 function toggleSidebar(){var s=document.getElementById('pd-sidebar');if(s)s.classList.toggle('expanded');}
 function setSideActive(section){document.querySelectorAll('.pd-nav-item').forEach(function(n){n.classList.remove('active');});var el=document.getElementById('side-'+section);if(el)el.classList.add('active');}
 function sideNav(section){
@@ -2639,7 +2647,7 @@ function enterPlan(){
 }
 function goBack(){
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   showSelectContent();
   currentPlayerId=null;activePid=null;PLAN=[];checkState={};curDate=null;calCursor=null;currentTab='plan';renderSelect();if(isCoach){showSidebar();setSideActive('alumnos');}
