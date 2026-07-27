@@ -1080,6 +1080,7 @@ body{overflow-x:hidden;}
 </div>
 
 <!-- INVITES MODAL -->
+<div id="ver-badge" style="position:fixed;left:6px;bottom:4px;z-index:9999;font:700 9px/1 monospace;color:rgba(168,224,99,0.55);pointer-events:none;letter-spacing:0.04em;"></div>
 <div class="modal-overlay" id="modal-test">
   <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;padding:24px 20px 26px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.5);">
     <div id="test-modal-title" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:10px;"></div>
@@ -1167,7 +1168,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260727-14';
+var APP_VERSION='20260727-16';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1822,16 +1823,38 @@ function hideAllScreens(except){
   });
   var _at=document.getElementById('app-tabs');if(_at)_at.classList.add('hidden');
 }
+function forceRepaint(){
+  try{
+    var b=document.body;
+    b.style.webkitTransform='translateZ(0)';
+    void b.offsetHeight;                 // obliga a recalcular el diseño
+    b.style.webkitTransform='';
+    if(window.requestAnimationFrame){
+      requestAnimationFrame(function(){
+        window.scrollTo(0,1);window.scrollTo(0,0);
+        var sx=document.getElementById('screen-select');
+        if(sx){sx.style.display='none';void sx.offsetHeight;}
+      });
+    }
+  }catch(e){}
+}
 function openSideScreen(id){
   hideAllScreens(id);
   try{document.body.classList.add('side-open');}catch(e){}
   try{window.scrollTo(0,0);}catch(e){}
   showSidebar();
-  var el=document.getElementById(id);if(el)el.style.display='block';
-  setTimeout(function(){
-    try{document.body.classList.add('side-open');}catch(e){}
-    var e2=document.getElementById(id);if(e2)e2.style.display='block';
-  },80);
+  var el=document.getElementById(id);if(el){el.style.display='block';void el.offsetHeight;}
+  forceRepaint();
+  [60,200,450,900].forEach(function(ms){
+    setTimeout(function(){
+      if(document.getElementById(id)&&document.getElementById(id).style.display==='block'){
+        try{document.body.classList.add('side-open');}catch(e){}
+        var sx=document.getElementById('screen-select');
+        if(sx){sx.style.display='none';sx.style.pointerEvents='none';void sx.offsetHeight;}
+        forceRepaint();
+      }
+    },ms);
+  });
 }
 function closeHomeScreens(){
   var _ss=document.getElementById('screen-select');if(_ss)_ss.style.display='none';
@@ -2509,6 +2532,8 @@ function shareWhatsApp(){
 function showSelectContent(){
   try{document.body.classList.remove('side-open');}catch(e){}
   var el=document.getElementById('screen-select');if(!el)return;
+  el.style.pointerEvents='';
+  setTimeout(forceRepaint,30);
   el.style.display='';el.style.minHeight='';el.style.height='';el.style.overflow='';
   var _sh=el.querySelector('.select-header');if(_sh)_sh.style.display='';
   var _sb=el.querySelector('.select-body');if(_sb)_sb.style.display='';
@@ -3768,7 +3793,7 @@ function copyInviteCode(code,btn){
 // ── FIN INVITE MANAGER ────────────────────────────────────────────
 
 try{applyLang();}catch(e){console.error('i18n',e);}
-try{var _vl=document.getElementById('app-ver-lbl');if(_vl)_vl.textContent=APP_VERSION;}catch(e){}
+try{var _vl=document.getElementById('app-ver-lbl');if(_vl)_vl.textContent=APP_VERSION;var _vb=document.getElementById('ver-badge');if(_vb)_vb.textContent='v'+APP_VERSION;}catch(e){}
 initApp();
 </script>
 </body>
