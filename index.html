@@ -627,7 +627,8 @@ body{overflow-x:hidden;}
     </div>
 
     <div style="margin-top:32px;border-top:1px solid var(--border2);padding-top:24px;">
-      <div style="margin:0 0 18px;"><div id="lang-title" style="font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Idioma</div><div id="lang-sel-coach" style="display:flex;gap:8px;"></div></div>
+      <div style="margin:0 0 18px;"><div style="font-size:10px;color:var(--muted2);text-align:center;margin-bottom:14px;">PDapp v<span id="app-ver-lbl"></span></div>
+      <div id="lang-title" style="font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Idioma</div><div id="lang-sel-coach" style="display:flex;gap:8px;"></div></div>
       <button onclick="logout()" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);color:#ff6b6b;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;">Cerrar sesi&#243;n</button>
     </div>
   </div>
@@ -1164,7 +1165,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260727-09';
+var APP_VERSION='20260727-11';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1802,13 +1803,43 @@ function sideNav(section){
   else if(section==='perfil'){openProfileFromHome();}
   else if(section==='ajustes'){openSettingsFromHome();}
 }
-function openSideScreen(id){
-  closeHomeScreens();
-  var _sw=document.getElementById('screen-welcome');if(_sw){_sw.classList.add('hidden');_sw.classList.add('gone');}
+var ALL_SCREENS=['screen-select','screen-welcome','screen-plan','screen-lib','screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-profes','screen-tests'];
+var CLASS_SCREENS=['screen-plan','screen-lib','screen-welcome'];
+function hideAllScreens(except){
+  ALL_SCREENS.forEach(function(id){
+    if(id===except)return;
+    var el=document.getElementById(id);if(!el)return;
+    if(id==='screen-select'){
+      el.style.display='none';
+      // el sidebar vive adentro: ocultamos el contenido para que no se cuele
+      var _sh=el.querySelector('.select-header');if(_sh)_sh.style.display='none';
+      var _sb=el.querySelector('.select-body');if(_sb)_sb.style.display='none';
+      return;
+    }
+    if(CLASS_SCREENS.indexOf(id)>=0){
+      el.classList.remove('active');
+      el.style.display='';
+      if(id==='screen-welcome'){el.classList.add('hidden');el.classList.add('gone');}
+    } else {
+      el.style.display='none';
+      el.classList.remove('active');
+    }
+  });
   var _at=document.getElementById('app-tabs');if(_at)_at.classList.add('hidden');
+}
+function openSideScreen(id){
+  hideAllScreens(id);
   try{window.scrollTo(0,0);}catch(e){}
+  // el sidebar vive dentro de screen-select: lo dejamos visible pero vacío
+  var sel=document.getElementById('screen-select');
+  if(sel&&isCoach){sel.style.display='';var _sh=sel.querySelector('.select-header');if(_sh)_sh.style.display='none';var _sb=sel.querySelector('.select-body');if(_sb)_sb.style.display='none';}
   showSidebar();
   var el=document.getElementById(id);if(el)el.style.display='block';
+  setTimeout(function(){
+    var sel2=document.getElementById('screen-select');
+    if(sel2){var a=sel2.querySelector('.select-header');if(a)a.style.display='none';var b=sel2.querySelector('.select-body');if(b)b.style.display='none';}
+    var e2=document.getElementById(id);if(e2)e2.style.display='block';
+  },80);
 }
 function closeHomeScreens(){
   var _ss=document.getElementById('screen-select');if(_ss)_ss.style.display='none';
@@ -2010,13 +2041,11 @@ function executeProgAssign(){
   if(pid===currentPlayerId){renderPlan();}
 }
 function openProgramsFromHome(){
-  closeHomeScreens();showSidebar();
-  document.getElementById('screen-programs').style.display='block';
+  openSideScreen('screen-programs');
   Promise.all([loadTemplates(),loadPrograms()]).then(renderPrograms);
 }
 function openPDMethodFromHome(){
-  closeHomeScreens();showSidebar();
-  document.getElementById('screen-pdmethod').style.display='block';
+  openSideScreen('screen-pdmethod');
   loadTemplates().then(renderPDMethod);
 }
 function newSessionDraft(){
@@ -2159,8 +2188,7 @@ function toggleTrainerActive(id,active,name){
   },{okLabel:active?'Reactivar':'Suspender',danger:!active});
 }
 function openTemplatesFromHome(){
-  closeHomeScreens();showSidebar();
-  document.getElementById('screen-templates').style.display='block';
+  openSideScreen('screen-templates');
   loadTemplates().then(renderTemplates);
 }
 async function loadTemplates(){
@@ -2298,8 +2326,7 @@ async function changePassword(){
   msg.style.color='var(--mob)';msg.textContent='\u2705 Contrase\u00f1a actualizada.';
 }
 function openProfileFromHome(){
-  closeHomeScreens();showSidebar();
-  document.getElementById('screen-profile').style.display='block';
+  openSideScreen('screen-profile');
   renderProfile();
 }
 function renderProfile(){
@@ -2487,7 +2514,14 @@ function shareWhatsApp(){
   var txt='Hola '+p.name+' \ud83d\udc4b\n\nAc\u00e1 ten\u00e9s tu acceso a la app de entrenamiento:\n\ud83d\udc49 '+playerLink(p.id)+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 '+prof;
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
 }
+function showSelectContent(){
+  var el=document.getElementById('screen-select');if(!el)return;
+  el.style.display='';
+  var _sh=el.querySelector('.select-header');if(_sh)_sh.style.display='';
+  var _sb=el.querySelector('.select-body');if(_sb)_sb.style.display='';
+}
 function renderSelect(){
+  showSelectContent();
   var g=document.getElementById('players-grid');
   if(ONLY_PLAYER_ID&&!isCoach){var _one=PLAYERS.filter(function(x){return x.id===ONLY_PLAYER_ID;});if(_one.length){g.innerHTML=_one.map(renderPlayerCard).join('');document.getElementById('add-player-btn').classList.add('hidden');updatePlayerCount();return;}}
   if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><img src="logo-bg.png" style="width:60px;height:60px;object-fit:contain;opacity:0.18;display:block;margin:0 auto 10px;" onerror="this.style.display=\'none\'"><p>'+(isCoach?'Sin alumnos. Agrega\u0301 el primero.':'Sin alumnos cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);updatePlayerCount();return;}
@@ -2602,7 +2636,7 @@ function goBack(){
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
   ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
-  document.getElementById('screen-select').style.display='';
+  showSelectContent();
   currentPlayerId=null;activePid=null;PLAN=[];checkState={};curDate=null;calCursor=null;currentTab='plan';renderSelect();if(isCoach){showSidebar();setSideActive('alumnos');}
 }
 
@@ -3739,6 +3773,7 @@ function copyInviteCode(code,btn){
 // ── FIN INVITE MANAGER ────────────────────────────────────────────
 
 try{applyLang();}catch(e){console.error('i18n',e);}
+try{var _vl=document.getElementById('app-ver-lbl');if(_vl)_vl.textContent=APP_VERSION;}catch(e){}
 initApp();
 </script>
 </body>
