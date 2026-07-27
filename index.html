@@ -1165,7 +1165,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260727-11';
+var APP_VERSION='20260727-12';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1832,12 +1832,12 @@ function openSideScreen(id){
   try{window.scrollTo(0,0);}catch(e){}
   // el sidebar vive dentro de screen-select: lo dejamos visible pero vacío
   var sel=document.getElementById('screen-select');
-  if(sel&&isCoach){sel.style.display='';var _sh=sel.querySelector('.select-header');if(_sh)_sh.style.display='none';var _sb=sel.querySelector('.select-body');if(_sb)_sb.style.display='none';}
+  if(sel&&isCoach)collapseSelect(sel);
   showSidebar();
   var el=document.getElementById(id);if(el)el.style.display='block';
   setTimeout(function(){
     var sel2=document.getElementById('screen-select');
-    if(sel2){var a=sel2.querySelector('.select-header');if(a)a.style.display='none';var b=sel2.querySelector('.select-body');if(b)b.style.display='none';}
+    if(sel2&&isCoach)collapseSelect(sel2);
     var e2=document.getElementById(id);if(e2)e2.style.display='block';
   },80);
 }
@@ -2514,9 +2514,15 @@ function shareWhatsApp(){
   var txt='Hola '+p.name+' \ud83d\udc4b\n\nAc\u00e1 ten\u00e9s tu acceso a la app de entrenamiento:\n\ud83d\udc49 '+playerLink(p.id)+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 '+prof;
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
 }
+function collapseSelect(sel){
+  sel=sel||document.getElementById('screen-select');if(!sel)return;
+  sel.style.display='';sel.style.minHeight='0';sel.style.height='0';sel.style.overflow='hidden';
+  var a=sel.querySelector('.select-header');if(a)a.style.display='none';
+  var b=sel.querySelector('.select-body');if(b)b.style.display='none';
+}
 function showSelectContent(){
   var el=document.getElementById('screen-select');if(!el)return;
-  el.style.display='';
+  el.style.display='';el.style.minHeight='';el.style.height='';el.style.overflow='';
   var _sh=el.querySelector('.select-header');if(_sh)_sh.style.display='';
   var _sb=el.querySelector('.select-body');if(_sb)_sb.style.display='';
 }
