@@ -1150,7 +1150,8 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260727-01';
+var APP_VERSION='20260727-02';
+window.__TESTDBG=true;
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -3236,8 +3237,14 @@ function renderTestsPicker(p){
 function renderTestsAthlete(){
   var box=document.getElementById('tests-athlete');if(!box)return;
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
+  if(!p&&PLAYERS.length===1)p=PLAYERS[0];
   var list=testsEnabled(p);
-  if(!list.length){box.innerHTML='';return;}
+  if(!list.length){
+    if(window.__TESTDBG){
+      box.innerHTML='<div style="font-size:11px;color:#ffb020;padding:10px;border:1px dashed #ffb020;border-radius:8px;line-height:1.6;">DBG tests<br>pid='+String(currentPlayerId)+'<br>PLAYERS='+PLAYERS.length+'<br>encontrado='+(p?'si':'NO')+'<br>tests_enabled='+JSON.stringify(p&&p.tests_enabled)+'<br>tests='+JSON.stringify(p&&p.tests)+'</div>';
+    } else box.innerHTML='';
+    return;
+  }
   box.innerHTML='<div class="sum-lbl" style="margin-top:16px;">'+tr('Mis tests')+'</div>'+list.map(function(x){
     var h=testHistory(p,x.k);var last=h[h.length-1];var prev=h[h.length-2];
     var val='';
