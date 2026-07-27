@@ -1164,7 +1164,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260727-07';
+var APP_VERSION='20260727-09';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1802,8 +1802,16 @@ function sideNav(section){
   else if(section==='perfil'){openProfileFromHome();}
   else if(section==='ajustes'){openSettingsFromHome();}
 }
+function openSideScreen(id){
+  closeHomeScreens();
+  var _sw=document.getElementById('screen-welcome');if(_sw){_sw.classList.add('hidden');_sw.classList.add('gone');}
+  var _at=document.getElementById('app-tabs');if(_at)_at.classList.add('hidden');
+  try{window.scrollTo(0,0);}catch(e){}
+  showSidebar();
+  var el=document.getElementById(id);if(el)el.style.display='block';
+}
 function closeHomeScreens(){
-  document.getElementById('screen-select').style.display='none';
+  var _ss=document.getElementById('screen-select');if(_ss)_ss.style.display='none';
   document.getElementById('screen-lib').classList.remove('active');
   var _sp=document.getElementById('screen-plan');if(_sp)_sp.classList.remove('active');
   ['screen-week','screen-msg','screen-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
@@ -2061,8 +2069,7 @@ async function refreshChatBadge(){
   var d=document.getElementById('side-chat-dot');if(d)d.style.display=total?'block':'none';
 }
 function openTestsFromHome(){
-  closeHomeScreens();showSidebar();
-  document.getElementById('screen-tests').style.display='block';
+  openSideScreen('screen-tests');
   renderTestsScreen();
 }
 var testsOpenPid=null;
@@ -2113,8 +2120,7 @@ async function toggleTestEnabled(pid,key,on){
 }
 function coachMeasure(pid,key){testTargetPid=pid;openTestModal(key);}
 function openProfesFromHome(){
-  closeHomeScreens();showSidebar();
-  document.getElementById('screen-profes').style.display='block';
+  openSideScreen('screen-profes');
   loadProfes();
 }
 async function loadProfes(){
@@ -2590,7 +2596,7 @@ function enterPlan(){
   document.getElementById('app-tabs').classList.remove('hidden');
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
   if(p){document.getElementById('hdr-name').textContent=p.name;var avw=document.getElementById('hdr-av-wrap');avw.innerHTML=p.photo?'<img class="hdr-avatar" src="'+p.photo+'"/>':'<div class="hdr-avatar-ph">\ud83d\udc64</div>';}
-  curDate=pendingDate||(isCoach?(firstSessionDate(currentPlayerId)||(p&&p.startDate)||isoToday()):isoToday());pendingDate=null;lastCheckedDay=null;cW=0;cD=0;weekViewW=0;renderPlan();
+  curDate=pendingDate||isoToday();pendingDate=null;lastCheckedDay=null;cW=0;cD=0;weekViewW=0;renderPlan();
 }
 function goBack(){
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
