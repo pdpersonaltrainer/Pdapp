@@ -412,7 +412,6 @@ body{overflow-x:hidden;}
 </div>
 
 <!-- SELECT -->
-<div id="screen-select">
   <nav class="pd-side" id="pd-sidebar">
     <div class="pd-side-logo" onclick="toggleSidebar()"><img src="logo-bg.png" alt="PDapp" onerror="this.style.display='none'"><span>PDapp</span></div>
     <div class="pd-nav">
@@ -429,6 +428,7 @@ body{overflow-x:hidden;}
     <button class="pd-nav-item" id="side-ajustes" onclick="sideNav('ajustes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Ajustes</span></button>
     <button class="pd-nav-item" id="side-lang" onclick="openLangModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg><span>Idioma</span></button>
   </nav>
+<div id="screen-select">
   <div class="select-header">
     <div></div>
     <div style="display:flex;align-items:center;gap:8px;"><button class="coach-toggle" id="coach-toggle" onclick="toggleMode()">Alumno</button> <button class="coach-toggle" id="logout-btn" onclick="logout()">Salir</button></div>
@@ -1165,7 +1165,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260727-12';
+var APP_VERSION='20260727-13';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1809,13 +1809,6 @@ function hideAllScreens(except){
   ALL_SCREENS.forEach(function(id){
     if(id===except)return;
     var el=document.getElementById(id);if(!el)return;
-    if(id==='screen-select'){
-      el.style.display='none';
-      // el sidebar vive adentro: ocultamos el contenido para que no se cuele
-      var _sh=el.querySelector('.select-header');if(_sh)_sh.style.display='none';
-      var _sb=el.querySelector('.select-body');if(_sb)_sb.style.display='none';
-      return;
-    }
     if(CLASS_SCREENS.indexOf(id)>=0){
       el.classList.remove('active');
       el.style.display='';
@@ -1830,14 +1823,10 @@ function hideAllScreens(except){
 function openSideScreen(id){
   hideAllScreens(id);
   try{window.scrollTo(0,0);}catch(e){}
-  // el sidebar vive dentro de screen-select: lo dejamos visible pero vacío
-  var sel=document.getElementById('screen-select');
-  if(sel&&isCoach)collapseSelect(sel);
   showSidebar();
   var el=document.getElementById(id);if(el)el.style.display='block';
   setTimeout(function(){
-    var sel2=document.getElementById('screen-select');
-    if(sel2&&isCoach)collapseSelect(sel2);
+    var s2=document.getElementById('screen-select');if(s2)s2.style.display='none';
     var e2=document.getElementById(id);if(e2)e2.style.display='block';
   },80);
 }
@@ -2085,7 +2074,7 @@ function exitDraft(){
   openTemplatesFromHome();
 }
 function openChatFromHome(){
-  closeHomeScreens();showSidebar();
+  openSideScreen('screen-chat');
   CHAT_CT='chat-content';chatPlayerId=null;
   document.getElementById('chat-hdr-title').textContent='Chat';
   document.getElementById('screen-chat').style.display='block';
@@ -2306,7 +2295,7 @@ function delTemplate(id){
 }
 function openTemplatesFromHomeStub(){}
 function openSettingsFromHome(){
-  closeHomeScreens();showSidebar();
+  openSideScreen('screen-ajustes');
   document.getElementById('set-pass1').value='';
   document.getElementById('set-pass2').value='';
   document.getElementById('set-msg').textContent='';
@@ -2513,12 +2502,6 @@ function shareWhatsApp(){
   var prof=(MY_PROFILE&&MY_PROFILE.display_name)?MY_PROFILE.display_name:'tu profe';
   var txt='Hola '+p.name+' \ud83d\udc4b\n\nAc\u00e1 ten\u00e9s tu acceso a la app de entrenamiento:\n\ud83d\udc49 '+playerLink(p.id)+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 '+prof;
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
-}
-function collapseSelect(sel){
-  sel=sel||document.getElementById('screen-select');if(!sel)return;
-  sel.style.display='';sel.style.minHeight='0';sel.style.height='0';sel.style.overflow='hidden';
-  var a=sel.querySelector('.select-header');if(a)a.style.display='none';
-  var b=sel.querySelector('.select-body');if(b)b.style.display='none';
 }
 function showSelectContent(){
   var el=document.getElementById('screen-select');if(!el)return;
