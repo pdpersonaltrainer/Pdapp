@@ -1172,7 +1172,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260728-05';
+var APP_VERSION='20260728-06';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1191,6 +1191,15 @@ var APP_VERSION='20260728-05';
   }catch(e){}
 })();
 /* ===== fin auto-actualización ===== */
+window.addEventListener('error',function(ev){
+  try{
+    var d=document.getElementById('err-bar');
+    if(!d){d=document.createElement('div');d.id='err-bar';
+      d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#7a1020;color:#fff;font:600 12px/1.4 monospace;padding:10px 12px;max-height:38vh;overflow:auto;white-space:pre-wrap;';
+      d.onclick=function(){d.remove();};document.body.appendChild(d);}
+    d.textContent='ERROR: '+(ev.message||'')+'\n'+(ev.filename||'').split('/').pop()+' linea '+(ev.lineno||'')+'\n(tocá para cerrar)';
+  }catch(e){}
+});
 /* ===== i18n ===== */
 var LANG=(function(){
   try{var l=localStorage.getItem('pd_lang');if(l==='en'||l==='it'||l==='es')return l;}catch(e){}
@@ -2801,7 +2810,7 @@ function showTab(name){
 }
 
 // \u2500\u2500 PLAN \u2500\u2500
-function refreshPlanUI(){if(draftMode){try{renderDraft();return;}catch(e){}}renderPlan();}
+function refreshPlanUI(){if(draftMode){renderDraft();return;}renderPlan();}
 function renderPlan(){
   if(draftMode){renderDraft();return;}
   if(!curDate)curDate=isoToday();
