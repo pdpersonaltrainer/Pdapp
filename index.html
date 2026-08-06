@@ -448,9 +448,11 @@ body{overflow-x:hidden;}
     <div id="coach-view-toggle" style="display:none;gap:8px;margin-bottom:16px;">
       <button id="cv-lista" class="cv-btn cv-active" onclick="setCoachView('lista')">Lista</button>
       <button id="cv-semana" class="cv-btn" onclick="setCoachView('semana')">Semana</button>
+      <button id="cv-grupos" class="cv-btn" onclick="setCoachView('grupos')">Grupos</button>
     </div>
     <div class="players-grid" id="players-grid"></div>
     <div id="week-overview" style="display:none;"></div>
+    <div id="groups-view" style="display:none;"></div>
     <div id="player-count" style="display:none;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin:4px 0 12px;"></div>
     <button class="add-player-btn hidden" id="add-player-btn" onclick="openPlayerModal()">+ Agregar alumno</button>
 
@@ -1211,7 +1213,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260729-1';
+var APP_VERSION='20260806-1';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -1593,6 +1595,7 @@ var JB_SESSIONS={};
 var JB_NOTRACK={};
 var TEMPLATES=[];
 var PROGRAMS=[];
+var GROUPS=[];var openGroupId=null;
 var curProgram=null;
 var progPickTarget=null;
 var tplToInsert=null;
@@ -1620,7 +1623,8 @@ function retrySync(){
 async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{}};});
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null};});
+  try{var gr=await sb.from('groups').select('*').order('created_at');if(!gr.error)GROUPS=(gr.data||[]).map(function(g){return {id:g.id,name:g.name};});else GROUPS=[];}catch(e){GROUPS=[];}
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track');
   if(plr.error)throw plr.error;
   JB_PLANS={};JB_SESSIONS={};JB_NOTRACK={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;JB_NOTRACK[r.player_id]=r.no_track||[];});
@@ -1837,7 +1841,7 @@ async function registerCoach(){
 async function loadPlayerData(tid){
   var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{}};});
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null};});
   if(PLAYERS.length===0)throw new Error('Link sin alumnos o invalido.');
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
@@ -1878,7 +1882,7 @@ async function bootAthlete(tk){
 }
 function applyAthleteData(d){
   var p=d.player;
-  PLAYERS=[{id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:'',activeWeek:0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{}}];
+  PLAYERS=[{id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:'',activeWeek:0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null}];
   JB_SESSIONS={};JB_PLANS={};JB_NOTRACK={};JB_CHECKS={};JB_LOADS={};
   JB_SESSIONS[p.id]=(d.plan&&d.plan.sessions)||null;
   JB_PLANS[p.id]=(d.plan&&d.plan.weeks)||null;
@@ -2774,9 +2778,91 @@ function setCoachView(v){
   coachView=v;
   document.getElementById('cv-lista').classList.toggle('cv-active',v==='lista');
   document.getElementById('cv-semana').classList.toggle('cv-active',v==='semana');
-  var pg=document.getElementById('players-grid'),apb=document.getElementById('add-player-btn'),wo=document.getElementById('week-overview');
-  if(v==='semana'){pg.style.display='none';if(apb)apb.style.display='none';var pcs=document.getElementById('player-count');if(pcs)pcs.style.display='none';wo.style.display='block';renderWeekOverview();}
-  else{pg.style.display='';if(apb){apb.style.display='';apb.classList.toggle('hidden',!isCoach);}wo.style.display='none';updatePlayerCount();}
+  var gb=document.getElementById('cv-grupos');if(gb)gb.classList.toggle('cv-active',v==='grupos');
+  var pg=document.getElementById('players-grid'),apb=document.getElementById('add-player-btn'),wo=document.getElementById('week-overview'),gv=document.getElementById('groups-view'),pcs=document.getElementById('player-count');
+  if(pg)pg.style.display='none';if(wo)wo.style.display='none';if(gv)gv.style.display='none';if(apb)apb.style.display='none';if(pcs)pcs.style.display='none';
+  if(v==='semana'){if(wo){wo.style.display='block';renderWeekOverview();}}
+  else if(v==='grupos'){openGroupId=null;if(gv){gv.style.display='block';renderGroups();}}
+  else{if(pg)pg.style.display='';if(apb){apb.style.display='';apb.classList.toggle('hidden',!isCoach);}updatePlayerCount();}
+}
+/* ===== GRUPOS ===== */
+function groupMembers(gid){return PLAYERS.filter(function(p){return p.group_id===gid;});}
+function renderGroups(){
+  var gv=document.getElementById('groups-view');if(!gv)return;
+  if(openGroupId){renderGroupDetail(gv);return;}
+  var head='<button onclick="createGroup()" class="add-block-btn" style="margin-bottom:14px;">+ Crear grupo</button>';
+  if(!GROUPS.length){gv.innerHTML=head+'<div class="empty-state"><p>Todav\u00eda no ten\u00e9s grupos. Cre\u00e1 el primero.</p></div>';return;}
+  var cards=GROUPS.map(function(g){
+    var n=groupMembers(g.id).length;
+    return '<div class="player-card" data-gid="'+g.id+'" onclick="openGroupDetail(this.dataset.gid)"><div class="player-card-inner"><div class="player-photo" style="font-size:22px;">\ud83d\udc65</div><div style="flex:1;min-width:0;"><div class="player-name">'+g.name+'</div><div class="player-meta">'+n+' '+(n===1?'alumno':'alumnos')+'</div></div><span class="player-arrow">\u203a</span></div><div class="player-card-actions"><button class="pca-btn pca-edit" data-gid="'+g.id+'" onclick="event.stopPropagation();renameGroup(this.dataset.gid)">Renombrar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-gid="'+g.id+'" onclick="event.stopPropagation();deleteGroup(this.dataset.gid)">Eliminar</button></div></div>';
+  }).join('');
+  var ng=PLAYERS.filter(function(p){return !p.group_id;}).length;
+  var foot=ng?'<div style="text-align:center;color:var(--muted2);font-size:12px;margin-top:12px;">'+ng+' alumno'+(ng!==1?'s':'')+' sin grupo</div>':'';
+  gv.innerHTML=head+cards+foot;
+}
+function renderGroupDetail(gv){
+  var g=GROUPS.find(function(x){return x.id===openGroupId;});
+  if(!g){openGroupId=null;renderGroups();return;}
+  var back='<button onclick="closeGroupDetail()" class="cv-btn" style="flex:none;padding:8px 14px;margin-bottom:14px;display:inline-block;width:auto;">\u2039 Grupos</button>';
+  var title='<div data-gid="'+g.id+'" onclick="renameGroup(this.dataset.gid)" style="cursor:pointer;font-family:Barlow Condensed,sans-serif;font-size:24px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;">'+g.name+'</div><div style="font-size:11px;color:var(--muted2);margin-bottom:16px;">Toc\u00e1 el nombre para renombrar</div>';
+  var n=groupMembers(g.id).length;
+  var count='<div style="font-size:11px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">'+n+' '+(n===1?'alumno en el grupo':'alumnos en el grupo')+'</div>';
+  var rows=PLAYERS.length?PLAYERS.map(function(p){
+    var inThis=p.group_id===g.id;
+    var otherG=(!inThis&&p.group_id)?((GROUPS.find(function(x){return x.id===p.group_id;})||{}).name||''):'';
+    var av=p.photo?'<div class="player-photo" style="width:36px;height:36px;"><img src="'+p.photo+'"/></div>':'<div class="player-photo" style="width:36px;height:36px;font-size:16px;">\ud83d\udc64</div>';
+    var meta=otherG?'<div class="player-meta" style="color:var(--act);">En: '+otherG+'</div>':'';
+    var btn=inThis?'<button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="togglePlayerGroup(this.dataset.pid)">Quitar</button>':'<button class="pca-btn" style="color:var(--mob);" data-pid="'+p.id+'" onclick="togglePlayerGroup(this.dataset.pid)">'+(otherG?'Mover ac\u00e1':'Agregar')+'</button>';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid '+(inThis?'var(--mob)':'var(--border2)')+';border-radius:12px;margin-bottom:8px;background:'+(inThis?'rgba(168,224,99,0.06)':'var(--s1)')+';">'+av+'<div style="flex:1;min-width:0;"><div class="player-name" style="font-size:15px;">'+p.name+'</div>'+meta+'</div>'+btn+'</div>';
+  }).join(''):'<div style="text-align:center;color:var(--muted2);font-size:13px;padding:16px 0;">No ten\u00e9s alumnos cargados.</div>';
+  var del='<button data-gid="'+g.id+'" onclick="deleteGroup(this.dataset.gid)" class="cv-btn" style="border-color:#ff4d4d;color:#ff7043;margin-top:16px;">Eliminar grupo</button>';
+  gv.innerHTML=back+title+count+rows+del;
+}
+function openGroupDetail(id){openGroupId=id;renderGroups();}
+function closeGroupDetail(){openGroupId=null;renderGroups();}
+function createGroup(){
+  askInput('Nombre del grupo','',function(name){
+    name=(name||'').trim();if(!name)return;
+    showSyncStatus('saving');
+    sb.from('groups').insert({trainer_id:MY_UID,name:name}).select('*').single().then(function(r){
+      if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+      GROUPS.push({id:r.data.id,name:r.data.name});showSyncStatus('ok');renderGroups();
+    });
+  });
+}
+function renameGroup(id){
+  var g=GROUPS.find(function(x){return x.id===id;});if(!g)return;
+  askInput('Renombrar grupo',g.name,function(name){
+    name=(name||'').trim();if(!name)return;
+    showSyncStatus('saving');
+    sb.from('groups').update({name:name}).eq('id',id).then(function(r){
+      if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+      g.name=name;showSyncStatus('ok');renderGroups();
+    });
+  });
+}
+function deleteGroup(id){
+  var g=GROUPS.find(function(x){return x.id===id;});if(!g)return;
+  askConfirm('\u00bfEliminar el grupo "'+g.name+'"? Los alumnos NO se borran, solo quedan sin grupo.',function(){
+    showSyncStatus('saving');
+    sb.from('groups').delete().eq('id',id).then(function(r){
+      if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+      GROUPS=GROUPS.filter(function(x){return x.id!==id;});
+      PLAYERS.forEach(function(p){if(p.group_id===id)p.group_id=null;});
+      if(openGroupId===id)openGroupId=null;
+      showSyncStatus('ok');renderGroups();
+    });
+  },{danger:true,okLabel:'Eliminar'});
+}
+function togglePlayerGroup(pid){
+  var g=GROUPS.find(function(x){return x.id===openGroupId;});if(!g)return;
+  var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
+  var newGid=(p.group_id===g.id)?null:g.id;
+  showSyncStatus('saving');
+  sb.from('players').update({group_id:newGid}).eq('id',pid).then(function(r){
+    if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+    p.group_id=newGid;showSyncStatus('ok');renderGroups();
+  });
 }
 function renderWeekOverview(){
   var wo=document.getElementById('week-overview');
