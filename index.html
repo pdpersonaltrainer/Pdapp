@@ -1031,6 +1031,21 @@ body{overflow-x:hidden;}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-group-assign">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Asignar al grupo</h3>
+    <div style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:12px;">Grupo: <b id="ga-sub" style="color:var(--mob);"></b></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button id="ga-t-prog" class="cv-btn cv-active" onclick="gaSetType('prog')">Programa</button>
+      <button id="ga-t-sess" class="cv-btn" onclick="gaSetType('sess')">Sesi&#243;n suelta</button>
+    </div>
+    <div class="form-row"><label>Fecha de inicio</label><input type="date" id="ga-date" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
+    <div id="ga-list" style="max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch;margin:6px 0 14px;"></div>
+    <button class="mbtn mbtn-cancel" style="width:100%;" onclick="closeGroupAssign()">Cancelar</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-tpl-insert">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -1213,7 +1228,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260806-1';
+var APP_VERSION='20260806-2';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -2815,8 +2830,9 @@ function renderGroupDetail(gv){
     var btn=inThis?'<button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="togglePlayerGroup(this.dataset.pid)">Quitar</button>':'<button class="pca-btn" style="color:var(--mob);" data-pid="'+p.id+'" onclick="togglePlayerGroup(this.dataset.pid)">'+(otherG?'Mover ac\u00e1':'Agregar')+'</button>';
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid '+(inThis?'var(--mob)':'var(--border2)')+';border-radius:12px;margin-bottom:8px;background:'+(inThis?'rgba(168,224,99,0.06)':'var(--s1)')+';">'+av+'<div style="flex:1;min-width:0;"><div class="player-name" style="font-size:15px;">'+p.name+'</div>'+meta+'</div>'+btn+'</div>';
   }).join(''):'<div style="text-align:center;color:var(--muted2);font-size:13px;padding:16px 0;">No ten\u00e9s alumnos cargados.</div>';
+  var asg=n?'<button data-gid="'+g.id+'" onclick="openGroupAssign(this.dataset.gid)" style="width:100%;padding:12px;border-radius:12px;border:none;background:var(--mob);color:#0a0b0e;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;margin-bottom:14px;">Asignar programa / sesi\u00f3n</button>':'';
   var del='<button data-gid="'+g.id+'" onclick="deleteGroup(this.dataset.gid)" class="cv-btn" style="border-color:#ff4d4d;color:#ff7043;margin-top:16px;">Eliminar grupo</button>';
-  gv.innerHTML=back+title+count+rows+del;
+  gv.innerHTML=back+title+count+asg+rows+del;
 }
 function openGroupDetail(id){openGroupId=id;renderGroups();}
 function closeGroupDetail(){openGroupId=null;renderGroups();}
@@ -2863,6 +2879,85 @@ function togglePlayerGroup(pid){
     if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
     p.group_id=newGid;showSyncStatus('ok');renderGroups();
   });
+}
+var gaGroupId=null,gaType='prog',gaPending=null;
+function openGroupAssign(gid){
+  gaGroupId=gid;gaType='prog';gaPending=null;
+  var g=GROUPS.find(function(x){return x.id===gid;});
+  document.getElementById('ga-sub').textContent=g?g.name:'';
+  document.getElementById('ga-date').value=isoToday();
+  document.getElementById('ga-list').innerHTML='<div style="text-align:center;color:var(--muted2);padding:18px;font-size:13px;">Cargando\u2026</div>';
+  document.getElementById('modal-group-assign').classList.add('open');
+  Promise.all([loadPrograms(),loadTemplates()]).then(function(){gaSetType('prog');}).catch(function(){gaSetType('prog');});
+}
+function closeGroupAssign(){document.getElementById('modal-group-assign').classList.remove('open');gaPending=null;}
+function gaSetType(t){
+  gaType=t;gaPending=null;
+  document.getElementById('ga-t-prog').classList.toggle('cv-active',t==='prog');
+  document.getElementById('ga-t-sess').classList.toggle('cv-active',t==='sess');
+  gaRenderList();
+}
+function gaRenderList(){
+  var el=document.getElementById('ga-list');if(!el)return;
+  if(gaType==='prog'){
+    var progs=PROGRAMS.filter(function(p){return Object.keys(p.grid||{}).some(function(k){return p.grid[k];});});
+    el.innerHTML=progs.length?progs.map(function(p){
+      var n=Object.keys(p.grid||{}).filter(function(k){return p.grid[k];}).length;
+      return '<div class="pick-item" data-id="'+p.id+'" onclick="gaPick(this.dataset.id)"><div class="pick-info"><div class="pick-name">'+p.name+'</div><div class="pick-load">'+n+' sesiones \u00b7 '+p.weeks+' sem</div></div><div class="pick-add">+</div></div>';
+    }).join(''):'<div style="text-align:center;color:var(--muted2);padding:18px;font-size:13px;">No ten\u00e9s programas con sesiones cargadas.</div>';
+  }else{
+    var mine=TEMPLATES.filter(function(t){return t.trainer_id===MY_UID;});
+    var base=TEMPLATES.filter(function(t){return isAdmin?t.is_base:(t.is_base&&t.trainer_id!==MY_UID);});
+    var row=function(t){var bl=(t.data.blocks||[]);var nEx=bl.reduce(function(a,b){return a+((b.exs||[]).length);},0);return '<div class="pick-item" data-id="'+t.id+'" onclick="gaPick(this.dataset.id)"><div class="pick-info"><div class="pick-name">'+t.name+'</div><div class="pick-load">'+bl.length+' bloques \u00b7 '+nEx+' ej</div></div><div class="pick-add">+</div></div>';};
+    var html='';
+    if(mine.length)html+='<div style="font-size:10px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin:4px 0 6px;">Mis Sesiones</div>'+mine.map(row).join('');
+    if(base.length)html+='<div style="font-size:10px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--mob);margin:12px 0 6px;">Metodolog\u00eda PD</div>'+base.map(row).join('');
+    el.innerHTML=html||'<div style="text-align:center;color:var(--muted2);padding:18px;font-size:13px;">No ten\u00e9s sesiones guardadas todav\u00eda.</div>';
+  }
+}
+function gaPick(id){
+  var start=document.getElementById('ga-date').value;
+  if(!start){showInfo('Eleg\u00ed una fecha de inicio.');return;}
+  var isSession=(gaType==='sess');
+  var item=isSession?TEMPLATES.find(function(x){return x.id===id;}):PROGRAMS.find(function(x){return x.id===id;});
+  if(!item)return;
+  var rel=[];
+  if(isSession){rel.push({off:0,data:item.data});}
+  else{Object.keys(item.grid||{}).forEach(function(key){var cell=item.grid[key];if(!cell)return;var parts=key.split('-');var w=+parts[0],d=+parts[1];rel.push({off:(w-1)*7+d,data:cell.data});});}
+  if(!rel.length){showInfo('Eso no tiene sesiones para asignar.');return;}
+  var members=groupMembers(gaGroupId);
+  if(!members.length){showInfo('El grupo no tiene alumnos.');return;}
+  var collision=false;
+  members.forEach(function(p){var ss=sessionsOf(p.id);rel.forEach(function(r){var iso=addDaysISO(start,r.off);if(ss[iso]&&ss[iso].blocks&&ss[iso].blocks.length)collision=true;});});
+  gaPending={rel:rel,start:start,members:members,item:item};
+  if(collision){
+    askConfirm('Algunos alumnos ya tienen sesiones en esos d\u00edas. \u00bfQu\u00e9 hago con esos d\u00edas? (cerr\u00e1 este aviso para cancelar)',
+      function(){gaCommit('overwrite');},
+      {okLabel:'Pisar',cancelLabel:'Saltear',onCancel:function(){gaCommit('skip');}});
+    return;
+  }
+  gaCommit('overwrite');
+}
+function gaCommit(mode){
+  if(!gaPending)return;
+  var rel=gaPending.rel,start=gaPending.start,members=gaPending.members,item=gaPending.item;
+  var count=0;
+  members.forEach(function(p){
+    var ss=sessionsOf(p.id);var changed=false;
+    rel.forEach(function(r){
+      var iso=addDaysISO(start,r.off);
+      var occupied=ss[iso]&&ss[iso].blocks&&ss[iso].blocks.length;
+      if(mode==='skip'&&occupied)return;
+      ss[iso]=JSON.parse(JSON.stringify(r.data));changed=true;count++;
+    });
+    if(changed)saveSessions(p.id);
+  });
+  var gname=(GROUPS.find(function(x){return x.id===gaGroupId;})||{}).name||'';
+  var isMember=currentPlayerId&&members.some(function(p){return p.id===currentPlayerId;});
+  gaPending=null;
+  closeGroupAssign();
+  showInfo('\u2705 "'+item.name+'" asignado al grupo '+gname+'.\n'+members.length+' alumnos \u00b7 '+count+' sesiones cargadas desde el '+fmtDateShort(start)+'.');
+  if(isMember){renderPlan();}
 }
 function renderWeekOverview(){
   var wo=document.getElementById('week-overview');
