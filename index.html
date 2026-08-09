@@ -1228,7 +1228,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260806-2';
+var APP_VERSION='20260806-3';
 (function(){
   try{
     var qs=new URLSearchParams(location.search);
@@ -3367,7 +3367,7 @@ function mediaThumbHtml(link,img,cls){
   // 1) imagen propia  2) miniatura de YouTube  3) fotograma del video subido
   var src=img||ytThumb(link);
   if(src)return '<img class="'+cls+'" src="'+src+'" loading="lazy" />';
-  if(link&&isVideoFile(link))return '<video class="'+cls+'" src="'+link+'#t=0.5" muted playsinline preload="metadata" tabindex="-1"></video>';
+  if(link&&isVideoFile(link))return '<div class="'+cls+'" style="display:flex;align-items:center;justify-content:center;background:#000;color:var(--mob);"><svg viewBox="0 0 24 24" width="42%" height="42%" fill="currentColor" style="opacity:0.92;"><path d="M8 5v14l11-7z"/></svg></div>';
   return '';
 }
 function ytId(u){if(!u)return '';u=String(u).trim();var P=[/[?&]v=([A-Za-z0-9_-]{11})/,/youtu\.be\/([A-Za-z0-9_-]{11})/,/\/embed\/([A-Za-z0-9_-]{11})/,/\/shorts\/([A-Za-z0-9_-]{11})/,/\/live\/([A-Za-z0-9_-]{11})/,/\/v\/([A-Za-z0-9_-]{11})/];for(var i=0;i<P.length;i++){var m=u.match(P[i]);if(m)return m[1];}return '';}
