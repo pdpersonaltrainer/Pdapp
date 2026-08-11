@@ -1243,7 +1243,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260811-2';
+var APP_VERSION='20260811-3';
 (function(){
   try{
     setTimeout(function(){
@@ -4104,6 +4104,52 @@ async function saveTest(){
 function toggleSumSec(hdr){hdr.parentNode.classList.toggle('open');}
 function stripLbl(html){return (html||'').replace(/^<div class=\"sum-lbl\"[^>]*>[^<]*<\/div>/,'');}
 function sumSec(ic,title,content,open){return '<div class=\"sum-sec'+(open?' open':'')+'\"><div class=\"sum-sec-hdr\" onclick=\"toggleSumSec(this)\"><span class=\"sum-sec-ic\">'+ic+'</span><span class=\"sum-sec-title\">'+title+'</span><svg class=\"sum-sec-chev\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 18l6-6-6-6\"/></svg></div><div class=\"sum-sec-body\">'+content+'</div></div>';}
+function lerpHex(a,b,t){function h(x){return parseInt(x,16);}var ar=h(a.slice(1,3)),ag=h(a.slice(3,5)),ab=h(a.slice(5,7)),br=h(b.slice(1,3)),bg=h(b.slice(3,5)),bb=h(b.slice(5,7));function m(x,y){return Math.round(x+(y-x)*t);}return 'rgb('+m(ar,br)+','+m(ag,bg)+','+m(ab,bb)+')';}
+function wkColor(v){v=Math.max(1,Math.min(10,v));if(v<=5.5)return lerpHex('#ff6b6b','#ffb020',(v-1)/4.5);return lerpHex('#ffb020','#a8e063',(v-5.5)/4.5);}
+var WK_DIMS=[['fatiga','\uD83D\uDD0B'],['dolor','\uD83E\uDDB5'],['estres','\uD83E\uDDE0'],['motiv','\uD83D\uDD25']];
+function wkHeat(h){
+  var weeks=h.slice(-8);var nc=weeks.length;
+  var html='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:4px;"><div style="display:grid;grid-template-columns:26px repeat('+nc+',minmax(0,1fr));gap:3px;min-width:'+(30+nc*30)+'px;">';
+  html+='<div></div>';
+  weeks.forEach(function(x){var d=isoToDate(x.w);html+='<div style="font-size:8.5px;color:var(--muted2);text-align:center;line-height:1.05;">'+d.getDate()+'/'+(d.getMonth()+1)+'</div>';});
+  WK_DIMS.forEach(function(dm){
+    html+='<div style="font-size:13px;display:flex;align-items:center;justify-content:center;">'+dm[1]+'</div>';
+    weeks.forEach(function(x){var v=x.e[dm[0]];html+='<div style="aspect-ratio:1;min-height:22px;border-radius:5px;background:'+wkColor(v)+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0b0e;">'+v+'</div>';});
+  });
+  html+='</div></div>';
+  return html;
+}
+function wkRadar(cur,prev){
+  var cx=100,cy=90,R=56;
+  var axes=[['fatiga','\uD83D\uDD0B',-90],['dolor','\uD83E\uDDB5',0],['estres','\uD83E\uDDE0',90],['motiv','\uD83D\uDD25',180]];
+  function pt(v,ang){var a=ang*Math.PI/180;var r=(Math.max(0,Math.min(10,v))/10)*R;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+  function poly(e){return axes.map(function(ax){var p=pt(e[ax[0]],ax[2]);return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');}
+  var outer=axes.map(function(ax){var p=pt(10,ax[2]);return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+  var mid=axes.map(function(ax){var p=pt(5,ax[2]);return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+  var svg='<svg viewBox="0 0 200 180" style="width:100%;max-width:250px;display:block;margin:4px auto 0;">';
+  axes.forEach(function(ax){var p=pt(10,ax[2]);svg+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="var(--border2)" stroke-width="1"/>';});
+  svg+='<polygon points="'+outer+'" fill="none" stroke="var(--border2)" stroke-width="1"/>';
+  svg+='<polygon points="'+mid+'" fill="none" stroke="var(--border2)" stroke-width="0.7" stroke-dasharray="2 2"/>';
+  if(prev)svg+='<polygon points="'+poly(prev)+'" fill="none" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="3 3"/>';
+  svg+='<polygon points="'+poly(cur)+'" fill="rgba(168,224,99,0.22)" stroke="var(--mob)" stroke-width="2"/>';
+  axes.forEach(function(ax){var p=pt(cur[ax[0]],ax[2]);svg+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.4" fill="var(--mob)"/>';});
+  axes.forEach(function(ax){var p=pt(12.5,ax[2]);svg+='<text x="'+p[0].toFixed(1)+'" y="'+(p[1]+3.5).toFixed(1)+'" text-anchor="middle" font-size="11">'+ax[1]+'</text>';});
+  svg+='</svg>';
+  return svg;
+}
+function weeklyVizHtml(p){
+  var h=weeklyHistory(p);if(!h.length)return '';
+  var last=h[h.length-1].e;var prev=h.length>1?h[h.length-2].e:null;
+  var lg=weeklyLight(last);var sc=weeklyScore(last);
+  var det=TT('Fatiga')+' '+last.fatiga+' \u00B7 '+TT('Dolor')+' '+last.dolor+' \u00B7 '+TT('Estr\u00E9s')+' '+last.estres+' \u00B7 '+TT('Ganas')+' '+last.motiv;
+  var head='<div style="font-size:13px;font-weight:700;color:'+lg.c+';">'+lg.l+' '+lg.t+' <span style="color:var(--muted2);font-weight:400;font-size:11px;">('+sc+'/10)</span></div>'
+    +'<div style="font-size:11.5px;color:var(--muted);margin-top:3px;">'+det+'</div>'
+    +(last.note?'<div style="font-size:11.5px;color:var(--text);margin-top:4px;font-style:italic;">\u201C'+last.note+'\u201D</div>':'');
+  var legend='<div style="display:flex;gap:14px;justify-content:center;margin-top:2px;font-size:9.5px;color:var(--muted2);"><span><span style="display:inline-block;width:13px;height:0;border-top:2px solid var(--mob);vertical-align:middle;"></span> Esta semana</span>'+(prev?'<span><span style="display:inline-block;width:13px;height:0;border-top:2px dashed var(--muted);vertical-align:middle;"></span> Semana pasada</span>':'')+'</div>';
+  return head
+    +'<div class="sum-lbl" style="margin-top:12px;">Tendencia por semana</div>'+wkHeat(h)
+    +'<div class="sum-lbl" style="margin-top:14px;">Perfil de la semana</div>'+wkRadar(last,prev)+legend;
+}
 function renderSummary(){
   var tEl=document.getElementById('sum-title');var sEl=document.getElementById('sum-sub');
   if(tEl)tEl.textContent=isCoach?TT('resumenCoach'):TT('miProgreso');
@@ -4138,7 +4184,7 @@ function renderSummary(){
     }).join(''):'<div class="sum-empty">'+TT('sinCargas')+'</div>';
     var rpeInner='<div class="sum-lbl" style="margin-top:0;">'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('evolCargas')+'</div>'+loadsH;
     var secs='';
-    if(isCoach){var _wc=weeklyCoachHtml(p);if(_wc)secs+=sumSec('🔋',TT('Autoevaluación semanal'),stripLbl(_wc),true);}
+    if(isCoach){var _wc=weeklyVizHtml(p);if(_wc)secs+=sumSec('🔋',TT('Autoevaluación semanal'),_wc,true);}
     if(isCoach){var _pc=painsCoachHtml(p);if(_pc)secs+=sumSec('🩹',TT('Molestias (30 días)'),stripLbl(_pc),false);}
     secs+=sumSec('📊',TT('evolCargas'),rpeInner,!isCoach);
     secs+=sumSec('📝',TT('notasRec'),notesH,false);
