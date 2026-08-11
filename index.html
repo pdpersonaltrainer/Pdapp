@@ -1093,19 +1093,19 @@ body{overflow-x:hidden;}
 </div>
 
 <!-- FICHA MODAL -->
-<div class="modal-overlay" id="modal-maxes" style="z-index:650;">
+<div class="modal-overlay" id="modal-maxes" style="z-index:650;align-items:center;">
   <div class="modal" style="max-height:82vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <h3>🏋️ Cargas máximas (1RM)</h3>
     <div id="maxes-player-name" style="font-size:13px;color:var(--muted);margin-bottom:6px;"></div>
     <div style="font-size:11.5px;color:var(--muted2);line-height:1.5;margin-bottom:14px;">Cargá el 1RM de los ejercicios principales. La app usa esto para convertir los % en kg y calcular el tonelaje automáticamente.</div>
-    <div id="maxes-list"></div>
-    <div style="display:flex;gap:6px;margin-top:12px;align-items:center;">
+    <div style="display:flex;gap:6px;margin-bottom:14px;align-items:center;">
       <input id="maxes-name" list="maxes-datalist" placeholder="Ejercicio" style="flex:2;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 11px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"/>
       <datalist id="maxes-datalist"></datalist>
       <input id="maxes-kg" type="number" inputmode="decimal" placeholder="kg" style="flex:none;width:64px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 8px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;text-align:center;"/>
       <button onclick="addMaxRow()" style="flex:none;padding:9px 15px;border-radius:var(--rsm);border:none;background:var(--mob);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;cursor:pointer;">+</button>
     </div>
+    <div id="maxes-list"></div>
     <button class="mbtn mbtn-cancel" style="width:100%;margin-top:16px;" onclick="closeMaxes()">Cerrar</button>
   </div>
 </div>
@@ -1260,7 +1260,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260811-6';
+var APP_VERSION='20260811-7';
 (function(){
   try{
     setTimeout(function(){
