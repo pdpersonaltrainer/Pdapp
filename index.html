@@ -888,6 +888,10 @@ body{overflow-x:hidden;}
   <div class="modal">
     <div class="modal-handle"></div>
     <h3>Agregar desde Biblioteca</h3>
+    <div style="position:relative;margin-bottom:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted);pointer-events:none;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="pick-search" type="text" oninput="setPickSearch(this.value)" placeholder="Buscar ejercicio..." style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px 9px 34px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/>
+    </div>
     <select id="pick-type-filter" onchange="setPickType(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:8px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todos los tipos</option><option value="mob">Movilidad</option><option value="act">Activaci&#243;n y Prevenci&#243;n</option><option value="fza">Fuerza</option><option value="cm">Control Motor</option><option value="exp">Explosivos / Velocidad</option><option value="cam">Carrera</option><option value="est">Estiramientos din&#225;micos</option></select>
     <select id="pick-pat-filter" onchange="setPickPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla &middot; Bi</option><option value="dr_uni">Dominante rodilla &middot; Uni</option><option value="dc_bi">Dominante cadera &middot; Bi</option><option value="dc_uni">Dominante cadera &middot; Uni</option><option value="eh_bi">Empuje horizontal &middot; Bi</option><option value="eh_uni">Empuje horizontal &middot; Uni</option><option value="ev_bi">Empuje vertical &middot; Bi</option><option value="ev_uni">Empuje vertical &middot; Uni</option><option value="th">Tracci&#243;n horizontal</option><option value="tv">Tracci&#243;n vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select>
     <div class="pick-list" id="pick-list"></div>
@@ -1230,7 +1234,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260810-3';
+var APP_VERSION='20260811-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3423,10 +3427,11 @@ function editBlockField(el){
 
 var PATTERNS=[['dr_bi','Dominante rodilla · Bi'],['dr_uni','Dominante rodilla · Uni'],['dc_bi','Dominante cadera · Bi'],['dc_uni','Dominante cadera · Uni'],['eh_bi','Empuje horizontal · Bi'],['eh_uni','Empuje horizontal · Uni'],['ev_bi','Empuje vertical · Bi'],['ev_uni','Empuje vertical · Uni'],['th','Tracción horizontal'],['tv','Tracción vertical'],['s2','Salto 2 piernas'],['s1','Salto 1 pierna']];
 var PATLABEL={};PATTERNS.forEach(function(x){PATLABEL[x[0]]=x[1];});
-var activePattern='',pickPattern='',pickTypeFilter='';
+var activePattern='',pickPattern='',pickTypeFilter='',pickSearch='';
 function filterLibSearch(){renderLib();}
 function setLibPattern(v){activePattern=v;renderLib();}
 function setPickType(v){pickTypeFilter=v;renderPickList();}
+function setPickSearch(v){pickSearch=v;renderPickList();}
 
 function exMoveBtns(w,d,b,e,total){
   var up=e>0?'<button class="ex-del" style="color:var(--muted);" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();moveEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e,-1)">\u2191</button>':'';
@@ -3530,10 +3535,10 @@ function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState
 function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();renderPlan();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
-function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
+function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';pickSearch='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';var ssel=document.getElementById('pick-search');if(ssel)ssel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
 function setPickPattern(v){pickPattern=v;renderPickList();}
 var pickSelected={};
-function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mob);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
+function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});if(pickSearch){var _q=pickSearch.trim().toLowerCase();if(_q)items=items.filter(function(e){return (e.name||'').toLowerCase().indexOf(_q)!==-1;});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mob);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
 function togglePickSel(id){if(pickSelected[id])delete pickSelected[id];else pickSelected[id]=true;renderPickList();}
 function updatePickBtn(){var n=Object.keys(pickSelected).length;var b=document.getElementById('pick-add-btn');if(!b)return;b.textContent='Agregar ('+n+')';if(n){b.style.background='var(--mob)';b.style.color='#0a0b0e';}else{b.style.background='var(--border2)';b.style.color='var(--muted2)';}}
 function addSelectedFromLib(){
