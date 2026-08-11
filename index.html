@@ -1093,11 +1093,28 @@ body{overflow-x:hidden;}
 </div>
 
 <!-- FICHA MODAL -->
+<div class="modal-overlay" id="modal-maxes">
+  <div class="modal" style="max-height:82vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <h3>🏋️ Cargas máximas (1RM)</h3>
+    <div id="maxes-player-name" style="font-size:13px;color:var(--muted);margin-bottom:6px;"></div>
+    <div style="font-size:11.5px;color:var(--muted2);line-height:1.5;margin-bottom:14px;">Cargá el 1RM de los ejercicios principales. La app usa esto para convertir los % en kg y calcular el tonelaje automáticamente.</div>
+    <div id="maxes-list"></div>
+    <div style="display:flex;gap:6px;margin-top:12px;align-items:center;">
+      <input id="maxes-name" list="maxes-datalist" placeholder="Ejercicio" style="flex:2;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 11px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"/>
+      <datalist id="maxes-datalist"></datalist>
+      <input id="maxes-kg" type="number" inputmode="decimal" placeholder="kg" style="flex:none;width:64px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 8px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;text-align:center;"/>
+      <button onclick="addMaxRow()" style="flex:none;padding:9px 15px;border-radius:var(--rsm);border:none;background:var(--mob);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;cursor:pointer;">+</button>
+    </div>
+    <button class="mbtn mbtn-cancel" style="width:100%;margin-top:16px;" onclick="closeMaxes()">Cerrar</button>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-ficha">
   <div class="modal" style="max-height:82vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <h3>&#128203; Ficha del alumno</h3>
-    <div id="ficha-player-name" style="font-size:13px;color:var(--muted);margin-bottom:16px;"></div>
+    <div id="ficha-player-name" style="font-size:13px;color:var(--muted);margin-bottom:12px;"></div>
+    <button onclick="openMaxes(fichaPlayerId)" style="width:100%;padding:11px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.08);color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:16px;">🏋️ Cargas máximas (1RM)</button>
     <div id="ficha-empty" style="display:none;text-align:center;padding:16px 0 20px;font-size:13px;color:var(--muted2);line-height:1.6;">Este alumno a&#250;n no complet&#243; su ficha.<br>Aparecer&#225; autom&#225;ticamente la pr&#243;xima vez que ingrese.</div>
     <div id="ficha-form">
       <div style="margin-bottom:12px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Deporte</label><select id="f-q-sport" onchange="updateFichaPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Sin especificar</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="voley">V&#243;ley</option><option value="handball">Handball</option><option value="tenis">Tenis</option><option value="padel">P&#225;del</option><option value="running">Running / Atletismo</option><option value="wellness">Wellness / Sin deporte</option></select></div>
@@ -1243,7 +1260,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260811-4';
+var APP_VERSION='20260811-5';
 (function(){
   try{
     setTimeout(function(){
@@ -1653,7 +1670,7 @@ function retrySync(){
 async function loadAllFromSupabase(){
   var pr=await sb.from('players').select('*').order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null};});
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null,maxes:p.maxes||{}};});
   try{var gr=await sb.from('groups').select('*').order('created_at');if(!gr.error)GROUPS=(gr.data||[]).map(function(g){return {id:g.id,name:g.name};});else GROUPS=[];}catch(e){GROUPS=[];}
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track');
   if(plr.error)throw plr.error;
@@ -1871,7 +1888,7 @@ async function registerCoach(){
 async function loadPlayerData(tid){
   var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null};});
+  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null,maxes:p.maxes||{}};});
   if(PLAYERS.length===0)throw new Error('Link sin alumnos o invalido.');
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
@@ -1912,7 +1929,7 @@ async function bootAthlete(tk){
 }
 function applyAthleteData(d){
   var p=d.player;
-  PLAYERS=[{id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:'',activeWeek:0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null}];
+  PLAYERS=[{id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:'',activeWeek:0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null,maxes:p.maxes||{}}];
   JB_SESSIONS={};JB_PLANS={};JB_NOTRACK={};JB_CHECKS={};JB_LOADS={};
   JB_SESSIONS[p.id]=(d.plan&&d.plan.sessions)||null;
   JB_PLANS[p.id]=(d.plan&&d.plan.weeks)||null;
@@ -4304,6 +4321,52 @@ async function submitQuestionnaire(){
   doSelectPlayer(currentPlayerId);
 }
 var fichaPlayerId=null;
+var maxesPlayerId=null;
+function openMaxes(pid){
+  maxesPlayerId=pid;
+  var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
+  if(!p.maxes)p.maxes={};
+  document.getElementById('maxes-player-name').textContent=p.name;
+  var seen={},opts='';
+  LIB.forEach(function(e){if(e.name&&!seen[e.name]){seen[e.name]=1;opts+='<option value="'+String(e.name).replace(/"/g,'&quot;')+'"></option>';}});
+  document.getElementById('maxes-datalist').innerHTML=opts;
+  document.getElementById('maxes-name').value='';document.getElementById('maxes-kg').value='';
+  renderMaxesList();
+  document.getElementById('modal-maxes').classList.add('open');
+}
+function closeMaxes(){document.getElementById('modal-maxes').classList.remove('open');maxesPlayerId=null;}
+function renderMaxesList(){
+  var el=document.getElementById('maxes-list');if(!el)return;
+  var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p)return;
+  var keys=Object.keys(p.maxes||{});
+  if(!keys.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:12.5px;padding:14px 0;">Todavía no cargaste ninguna carga máxima.</div>';return;}
+  keys.sort();
+  el.innerHTML=keys.map(function(k){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--border2);border-radius:10px;margin-bottom:7px;background:var(--s2);"><div style="flex:1;min-width:0;font-size:14px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+k+'</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;color:var(--mob);white-space:nowrap;">'+p.maxes[k]+' kg</div><button data-k="'+String(k).replace(/"/g,'&quot;')+'" onclick="delMax(this.dataset.k)" style="flex:none;width:26px;height:26px;border-radius:7px;border:1px solid #ff4d4d;background:transparent;color:#ff7043;cursor:pointer;font-size:16px;line-height:1;padding:0;">\u00d7</button></div>';
+  }).join('');
+}
+function addMaxRow(){
+  var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p)return;
+  var name=(document.getElementById('maxes-name').value||'').trim();
+  var kg=parseFloat(String(document.getElementById('maxes-kg').value||'').replace(',','.'));
+  if(!name){showInfo('Escribí el nombre del ejercicio.');return;}
+  if(!kg||kg<=0){showInfo('Ingresá un valor de kg válido.');return;}
+  if(!p.maxes)p.maxes={};
+  p.maxes[name]=Math.round(kg*10)/10;
+  document.getElementById('maxes-name').value='';document.getElementById('maxes-kg').value='';
+  renderMaxesList();saveMaxes(p);
+}
+function delMax(k){
+  var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p||!p.maxes)return;
+  delete p.maxes[k];renderMaxesList();saveMaxes(p);
+}
+function saveMaxes(p){
+  showSyncStatus('saving');
+  sb.from('players').update({maxes:p.maxes}).eq('id',p.id).then(function(r){
+    if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+    showSyncStatus('ok');
+  });
+}
 function openFicha(pid){
   fichaPlayerId=pid;
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
