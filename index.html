@@ -1099,12 +1099,14 @@ body{overflow-x:hidden;}
     <h3>🏋️ Cargas máximas (1RM)</h3>
     <div id="maxes-player-name" style="font-size:13px;color:var(--muted);margin-bottom:6px;"></div>
     <div style="font-size:11.5px;color:var(--muted2);line-height:1.5;margin-bottom:14px;">Cargá el 1RM de los ejercicios principales. La app usa esto para convertir los % en kg y calcular el tonelaje automáticamente.</div>
-    <div style="display:flex;gap:6px;margin-bottom:14px;align-items:center;">
-      <input id="maxes-name" list="maxes-datalist" placeholder="Ejercicio" style="flex:2;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 11px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"/>
-      <datalist id="maxes-datalist"></datalist>
-      <input id="maxes-kg" type="number" inputmode="decimal" placeholder="kg" style="flex:none;width:64px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 8px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;text-align:center;"/>
-      <button onclick="addMaxRow()" style="flex:none;padding:9px 15px;border-radius:var(--rsm);border:none;background:var(--mob);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;cursor:pointer;">+</button>
+    <div id="maxes-pending"></div>
+    <div style="position:relative;margin-bottom:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted);pointer-events:none;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="maxes-search" type="text" oninput="maxesFilter(this.value)" placeholder="Buscar ejercicio..." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px 9px 34px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"/>
     </div>
+    <div id="maxes-lib" style="max-height:30vh;overflow-y:auto;-webkit-overflow-scrolling:touch;"></div>
+    <div style="height:1px;background:var(--border2);margin:14px 0 10px;"></div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Cargados</div>
     <div id="maxes-list"></div>
     <button class="mbtn mbtn-cancel" style="width:100%;margin-top:16px;" onclick="closeMaxes()">Cerrar</button>
   </div>
@@ -1260,7 +1262,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260811-7';
+var APP_VERSION='20260811-8';
 (function(){
   try{
     setTimeout(function(){
@@ -4321,17 +4323,14 @@ async function submitQuestionnaire(){
   doSelectPlayer(currentPlayerId);
 }
 var fichaPlayerId=null;
-var maxesPlayerId=null;
+var maxesPlayerId=null,maxesSearchQ='',maxesPending=null;
 function openMaxes(pid){
-  maxesPlayerId=pid;
+  maxesPlayerId=pid;maxesSearchQ='';maxesPending=null;
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
   if(!p.maxes)p.maxes={};
   document.getElementById('maxes-player-name').textContent=p.name;
-  var seen={},opts='';
-  LIB.forEach(function(e){if(e.name&&!seen[e.name]){seen[e.name]=1;opts+='<option value="'+String(e.name).replace(/"/g,'&quot;')+'"></option>';}});
-  document.getElementById('maxes-datalist').innerHTML=opts;
-  document.getElementById('maxes-name').value='';document.getElementById('maxes-kg').value='';
-  renderMaxesList();
+  var s=document.getElementById('maxes-search');if(s)s.value='';
+  renderMaxesPending();renderMaxesList();renderMaxesLib();
   document.getElementById('modal-maxes').classList.add('open');
 }
 function closeMaxes(){document.getElementById('modal-maxes').classList.remove('open');maxesPlayerId=null;}
@@ -4345,17 +4344,43 @@ function renderMaxesList(){
     return '<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--border2);border-radius:10px;margin-bottom:7px;background:var(--s2);"><div style="flex:1;min-width:0;font-size:14px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+k+'</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;color:var(--mob);white-space:nowrap;">'+p.maxes[k]+' kg</div><button data-k="'+String(k).replace(/"/g,'&quot;')+'" onclick="delMax(this.dataset.k)" style="flex:none;width:26px;height:26px;border-radius:7px;border:1px solid #ff4d4d;background:transparent;color:#ff7043;cursor:pointer;font-size:16px;line-height:1;padding:0;">\u00d7</button></div>';
   }).join('');
 }
-function addMaxRow(){
+function maxesFilter(v){maxesSearchQ=v;renderMaxesLib();}
+function renderMaxesLib(){
+  var el=document.getElementById('maxes-lib');if(!el)return;
   var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p)return;
-  var name=(document.getElementById('maxes-name').value||'').trim();
-  var kg=parseFloat(String(document.getElementById('maxes-kg').value||'').replace(',','.'));
-  if(!name){showInfo('Escribí el nombre del ejercicio.');return;}
+  var q=(maxesSearchQ||'').trim().toLowerCase();
+  var seen={},items=[];
+  LIB.forEach(function(e){if(!e.name)return;if(seen[e.name])return;if(q&&e.name.toLowerCase().indexOf(q)===-1)return;seen[e.name]=1;items.push(e);});
+  items.sort(function(a,b){return a.name.localeCompare(b.name);});
+  if(!items.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:12.5px;padding:12px 0;">Sin resultados.</div>';return;}
+  el.innerHTML=items.slice(0,80).map(function(e){
+    var has=p.maxes&&p.maxes[e.name]!=null;
+    return '<div data-lid="'+e.id+'" onclick="pickMax(this.dataset.lid)" style="display:flex;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--border2);border-radius:9px;margin-bottom:6px;background:var(--s2);cursor:pointer;"><div style="width:8px;height:8px;border-radius:50%;flex:none;background:var(--'+e.type+');"></div><div style="flex:1;min-width:0;font-size:13.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e.name+'</div>'+(has?'<div style="font-size:12px;font-weight:800;color:var(--mob);white-space:nowrap;">'+p.maxes[e.name]+' kg</div>':'<div style="font-size:17px;color:var(--mob);font-weight:800;line-height:1;">+</div>')+'</div>';
+  }).join('');
+}
+function pickMax(lid){
+  var e=LIB.find(function(x){return x.id===lid;});if(!e)return;
+  var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p)return;
+  maxesPending={name:e.name,cur:(p.maxes&&p.maxes[e.name]!=null)?p.maxes[e.name]:''};
+  renderMaxesPending();
+  setTimeout(function(){var i=document.getElementById('maxes-kg-in');if(i)i.focus();},60);
+}
+function renderMaxesPending(){
+  var el=document.getElementById('maxes-pending');if(!el)return;
+  if(!maxesPending){el.innerHTML='';return;}
+  el.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid var(--mob);border-radius:11px;margin-bottom:12px;background:rgba(168,224,99,0.06);"><div style="flex:1;min-width:0;font-size:13.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+maxesPending.name+'</div><input id="maxes-kg-in" type="number" inputmode="decimal" value="'+maxesPending.cur+'" placeholder="kg" onkeydown="if(event.key===\'Enter\')saveMaxPending()" style="flex:none;width:66px;background:var(--s2);border:1px solid var(--mob);border-radius:8px;padding:8px;font-size:15px;color:var(--text);outline:none;font-family:\'Barlow\',sans-serif;text-align:center;"/><button onclick="saveMaxPending()" style="flex:none;padding:8px 13px;border-radius:8px;border:none;background:var(--mob);color:#0a0b0e;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">OK</button><button onclick="cancelMaxPending()" style="flex:none;width:30px;height:30px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted2);cursor:pointer;font-size:15px;line-height:1;padding:0;">\u00d7</button></div>';
+}
+function saveMaxPending(){
+  if(!maxesPending)return;
+  var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p)return;
+  var kg=parseFloat(String(document.getElementById('maxes-kg-in').value||'').replace(',','.'));
   if(!kg||kg<=0){showInfo('Ingresá un valor de kg válido.');return;}
   if(!p.maxes)p.maxes={};
-  p.maxes[name]=Math.round(kg*10)/10;
-  document.getElementById('maxes-name').value='';document.getElementById('maxes-kg').value='';
-  renderMaxesList();saveMaxes(p);
+  p.maxes[maxesPending.name]=Math.round(kg*10)/10;
+  maxesPending=null;
+  renderMaxesPending();renderMaxesList();renderMaxesLib();saveMaxes(p);
 }
+function cancelMaxPending(){maxesPending=null;renderMaxesPending();}
 function delMax(k){
   var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p||!p.maxes)return;
   delete p.maxes[k];renderMaxesList();saveMaxes(p);
