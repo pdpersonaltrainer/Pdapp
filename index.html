@@ -275,6 +275,15 @@ video.exthumb::-webkit-media-controls,video.lib-card-thumb::-webkit-media-contro
 .sum-meta{font-size:11px;color:var(--muted);margin-top:1px;}
 .sum-body{padding:0 16px 14px;}
 .sum-lbl{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px;}
+.sum-sec{border:1px solid var(--border2);border-radius:12px;margin-top:10px;overflow:hidden;background:var(--s2);}
+.sum-sec-hdr{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;-webkit-user-select:none;user-select:none;}
+.sum-sec-ic{font-size:15px;line-height:1;flex:none;}
+.sum-sec-title{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text);}
+.sum-sec-chev{width:16px;height:16px;flex:none;color:var(--muted);transition:transform 0.18s;}
+.sum-sec.open .sum-sec-chev{transform:rotate(90deg);}
+.sum-sec-body{display:none;padding:2px 13px 12px;}
+.sum-sec.open .sum-sec-body{display:block;}
+.sum-sec-body .sum-lbl:first-child{margin-top:2px;}
 .rpe-chart{display:flex;align-items:flex-end;gap:4px;height:70px;margin-bottom:4px;}
 .rpe-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
 .rpe-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;}
@@ -1234,7 +1243,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260811-1';
+var APP_VERSION='20260811-2';
 (function(){
   try{
     setTimeout(function(){
@@ -4092,6 +4101,9 @@ async function saveTest(){
   closeTestModal();testTargetPid=null;try{renderTestsAthlete();}catch(e){}try{renderTestsScreen();}catch(e){}
 }
 
+function toggleSumSec(hdr){hdr.parentNode.classList.toggle('open');}
+function stripLbl(html){return (html||'').replace(/^<div class=\"sum-lbl\"[^>]*>[^<]*<\/div>/,'');}
+function sumSec(ic,title,content,open){return '<div class=\"sum-sec'+(open?' open':'')+'\"><div class=\"sum-sec-hdr\" onclick=\"toggleSumSec(this)\"><span class=\"sum-sec-ic\">'+ic+'</span><span class=\"sum-sec-title\">'+title+'</span><svg class=\"sum-sec-chev\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 18l6-6-6-6\"/></svg></div><div class=\"sum-sec-body\">'+content+'</div></div>';}
 function renderSummary(){
   var tEl=document.getElementById('sum-title');var sEl=document.getElementById('sum-sub');
   if(tEl)tEl.textContent=isCoach?TT('resumenCoach'):TT('miProgreso');
@@ -4124,7 +4136,13 @@ function renderSummary(){
       var chain=ent.map(function(en){return '<span style="white-space:nowrap;"><span style="color:var(--muted2);">'+fmtDateShort(en.iso)+':</span> <b style="color:var(--text);">'+en.val+'</b></span>';}).join(' <span style="color:var(--mob);">\u2192</span> ');
       return '<div style="padding:7px 0;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--cm);margin-bottom:3px;">'+ex.name+'</div><div style="font-size:12px;line-height:1.7;">'+chain+'</div></div>';
     }).join(''):'<div class="sum-empty">'+TT('sinCargas')+'</div>';
-    return '<div class="sum-card"><div class="sum-hdr">'+avH+'<div class="sum-info"><div class="sum-name">'+p.name+'</div><div class="sum-meta">'+meta+'</div></div></div><div class="sum-body"><div class="sum-lbl">'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('notasRec')+'</div>'+notesH+(isCoach?weeklyCoachHtml(p):'')+(isCoach?painsCoachHtml(p):'')+'<div class="sum-lbl" style="margin-top:12px;">'+TT('evolCargas')+'</div>'+loadsH+'</div></div>';
+    var rpeInner='<div class="sum-lbl" style="margin-top:0;">'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('evolCargas')+'</div>'+loadsH;
+    var secs='';
+    if(isCoach){var _wc=weeklyCoachHtml(p);if(_wc)secs+=sumSec('🔋',TT('Autoevaluación semanal'),stripLbl(_wc),true);}
+    if(isCoach){var _pc=painsCoachHtml(p);if(_pc)secs+=sumSec('🩹',TT('Molestias (30 días)'),stripLbl(_pc),false);}
+    secs+=sumSec('📊',TT('evolCargas'),rpeInner,!isCoach);
+    secs+=sumSec('📝',TT('notasRec'),notesH,false);
+    return '<div class="sum-card"><div class="sum-hdr">'+avH+'<div class="sum-info"><div class="sum-name">'+p.name+'</div><div class="sum-meta">'+meta+'</div></div></div><div class="sum-body">'+secs+'</div></div>';
   }).join('');
   document.getElementById('summary-content').innerHTML=html;
   try{renderTestsAthlete();}catch(e){console.error('tests',e);}
