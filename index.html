@@ -1243,7 +1243,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260811-3';
+var APP_VERSION='20260811-4';
 (function(){
   try{
     setTimeout(function(){
@@ -4109,12 +4109,12 @@ function wkColor(v){v=Math.max(1,Math.min(10,v));if(v<=5.5)return lerpHex('#ff6b
 var WK_DIMS=[['fatiga','\uD83D\uDD0B'],['dolor','\uD83E\uDDB5'],['estres','\uD83E\uDDE0'],['motiv','\uD83D\uDD25']];
 function wkHeat(h){
   var weeks=h.slice(-8);var nc=weeks.length;
-  var html='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:4px;"><div style="display:grid;grid-template-columns:26px repeat('+nc+',minmax(0,1fr));gap:3px;min-width:'+(30+nc*30)+'px;">';
+  var CELL=34;var html='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:4px;"><div style="width:max-content;margin:0 auto;display:grid;grid-template-columns:24px repeat('+nc+','+CELL+'px);gap:3px;">';
   html+='<div></div>';
   weeks.forEach(function(x){var d=isoToDate(x.w);html+='<div style="font-size:8.5px;color:var(--muted2);text-align:center;line-height:1.05;">'+d.getDate()+'/'+(d.getMonth()+1)+'</div>';});
   WK_DIMS.forEach(function(dm){
     html+='<div style="font-size:13px;display:flex;align-items:center;justify-content:center;">'+dm[1]+'</div>';
-    weeks.forEach(function(x){var v=x.e[dm[0]];html+='<div style="aspect-ratio:1;min-height:22px;border-radius:5px;background:'+wkColor(v)+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#0a0b0e;">'+v+'</div>';});
+    weeks.forEach(function(x){var v=x.e[dm[0]];html+='<div style="width:'+CELL+'px;height:'+CELL+'px;border-radius:6px;background:'+wkColor(v)+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0a0b0e;">'+v+'</div>';});
   });
   html+='</div></div>';
   return html;
