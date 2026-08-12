@@ -1262,7 +1262,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260811-8';
+var APP_VERSION='20260812-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3325,6 +3325,45 @@ function showTab(name){
 }
 
 // \u2500\u2500 PLAN \u2500\u2500
+function _pnum(n){n=Math.round(n||0);return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function _rxAvg(tok){var m=String(tok).match(/\d+(?:[.,]\d+)?/g);if(!m)return 0;var s=0;m.forEach(function(x){s+=parseFloat(x.replace(',','.'));});return s/m.length;}
+function parseRx(str){
+  str=String(str||'');
+  var m=str.match(/(\d+(?:[.,]\d+)?)\s*[\u00d7xX*]\s*(\d+(?:[.,]\d+)?(?:\s*-\s*\d+(?:[.,]\d+)?)?)\s*(s|seg|min|m|h)?/);
+  if(!m)return null;
+  var sets=parseFloat(m[1].replace(',','.'));if(!sets)return null;
+  var unit=(m[3]||'').toLowerCase();
+  var reps=unit?0:_rxAvg(m[2]);
+  var perSide=/c\s*\/\s*l/i.test(str);
+  var load=null,loadUnit=null;
+  var lm=str.match(/@\s*(\d+(?:[.,]\d+)?)\s*(%|kg)?/i);
+  if(lm){load=parseFloat(lm[1].replace(',','.'));loadUnit=(lm[2]||'%').toLowerCase();}
+  return {sets:sets,reps:reps,perSide:perSide,load:load,loadUnit:loadUnit};
+}
+function sessionVol(blocks,maxes){
+  maxes=maxes||{};
+  var sets=0,reps=0,kg=0,kgKnown=false,pctMissing=0;
+  (blocks||[]).forEach(function(b){(b.exs||[]).forEach(function(e){
+    var rx=parseRx(e.l);if(!rx)return;
+    var mult=rx.perSide?2:1;
+    sets+=rx.sets;
+    reps+=rx.sets*rx.reps*mult;
+    if(rx.reps>0&&rx.load){
+      if(rx.loadUnit==='kg'){kg+=rx.sets*rx.reps*mult*rx.load;kgKnown=true;}
+      else if(rx.loadUnit==='%'){var mx=maxes[e.n];if(mx){kg+=rx.sets*rx.reps*mult*(rx.load/100*mx);kgKnown=true;}else{pctMissing++;}}
+    }
+  });});
+  return {sets:sets,reps:Math.round(reps),kg:Math.round(kg),kgKnown:kgKnown,pctMissing:pctMissing};
+}
+function volBarHtml(blocks,maxes){
+  var v=sessionVol(blocks,maxes);
+  if(!v.sets)return '';
+  function cell(lbl,val){return '<div style="flex:1;text-align:center;min-width:0;"><div style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;">'+lbl+'</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:19px;font-weight:800;color:var(--text);line-height:1;white-space:nowrap;">'+val+'</div></div>';}
+  var sep='<div style="width:1px;background:var(--border2);margin:2px;"></div>';
+  var kgVal=v.kgKnown?'<span style="color:var(--mob);">'+_pnum(v.kg)+'</span> <span style="font-size:11px;color:var(--muted2);">kg</span>':'<span style="color:var(--muted2);">\u2014</span>';
+  var hint=(!v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--act);margin-top:5px;">Carg\u00e1 el 1RM de los ejercicios para ver el tonelaje</div>':((v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--muted2);margin-top:5px;">'+v.pctMissing+' ejercicio'+(v.pctMissing>1?'s':'')+' sin 1RM cargado</div>':'');
+  return '<div style="position:sticky;top:55px;z-index:150;background:var(--bg);padding:8px 13px 6px;"><div style="max-width:var(--cw);margin:0 auto;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:9px 10px;box-shadow:0 6px 16px rgba(0,0,0,0.35);"><div style="display:flex;align-items:stretch;gap:6px;">'+cell('Series',_pnum(v.sets))+sep+cell('Reps',_pnum(v.reps))+sep+cell('Tonelaje',kgVal)+'</div>'+hint+'</div></div>';
+}
 function refreshPlanUI(){if(draftMode){renderDraft();return;}renderPlan();}
 function renderPlan(){
   if(draftMode){renderDraft();return;}
@@ -3335,6 +3374,7 @@ function renderPlan(){
   var badge=document.getElementById('hdr-badge');if(badge){badge.textContent=fmtDateShort(curDate);badge.style.background='var(--mob)';badge.style.color='#0a0b0e';}
   var sess=getCurSession(false);
   var day=sess||{title:'Entrenamiento',pattern:'',pills:[],blocks:[]};
+  var _mx=(PLAYERS.find(function(x){return x.id===currentPlayerId;})||{}).maxes||{};
   PLAN=[[day]];cW=0;cD=0;
   var nw=document.getElementById('nwlbl');if(nw)nw.textContent=fmtDateLong(curDate);
   var nd=document.getElementById('ndlbl');if(nd)nd.textContent=sess?(day.title||''):t('sinEntrenoShort');
@@ -3352,7 +3392,7 @@ function renderPlan(){
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
     var stkP=(!isCoach)?getStreak(currentPlayerId):0;
     var streakP=stkP>=2?'<div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stkP+' en racha</div>':'';
-    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div>'+streakP+'</div>'+blocksH+addBBtn;
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div>'+streakP+'</div>'+(isCoach?volBarHtml(day.blocks,_mx):'')+blocksH+addBBtn;
     if(isCoach&&sess){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;"><button onclick="openDayEditModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;">✏️ Editar día</button></div><div style="max-width:var(--cw);margin:0 auto;padding:0 13px 8px;display:flex;gap:8px;"><button onclick="openDuplicateModal()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">\ud83d\udcc5 Duplicar</button><button onclick="saveAsTemplate()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">\ud83d\udcbe Guardar como sesión</button></div>';}
   }
   document.getElementById('plan-content').innerHTML='<div class="fadein">'+body+'</div>';
