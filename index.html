@@ -1262,7 +1262,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260812-1';
+var APP_VERSION='20260812-2';
 (function(){
   try{
     setTimeout(function(){
@@ -3364,6 +3364,38 @@ function volBarHtml(blocks,maxes){
   var hint=(!v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--act);margin-top:5px;">Carg\u00e1 el 1RM de los ejercicios para ver el tonelaje</div>':((v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--muted2);margin-top:5px;">'+v.pctMissing+' ejercicio'+(v.pctMissing>1?'s':'')+' sin 1RM cargado</div>':'');
   return '<div style="position:sticky;top:55px;z-index:150;background:var(--bg);padding:8px 13px 6px;"><div style="max-width:var(--cw);margin:0 auto;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:9px 10px;box-shadow:0 6px 16px rgba(0,0,0,0.35);"><div style="display:flex;align-items:stretch;gap:6px;">'+cell('Series',_pnum(v.sets))+sep+cell('Reps',_pnum(v.reps))+sep+cell('Tonelaje',kgVal)+'</div>'+hint+'</div></div>';
 }
+function weeklyVolHistory(pid,maxes){
+  var sess=(typeof JB_SESSIONS!=='undefined'&&JB_SESSIONS[pid])?JB_SESSIONS[pid]:{};
+  var byWeek={};
+  Object.keys(sess).forEach(function(iso){
+    var s=sess[iso];if(!s||!s.blocks)return;
+    var wk=weekMondayISO(iso);
+    var v=sessionVol(s.blocks,maxes);
+    if(!v.sets)return;
+    if(!byWeek[wk])byWeek[wk]={sets:0,reps:0,kg:0,kgKnown:false};
+    byWeek[wk].sets+=v.sets;byWeek[wk].reps+=v.reps;byWeek[wk].kg+=v.kg;if(v.kgKnown)byWeek[wk].kgKnown=true;
+  });
+  return Object.keys(byWeek).sort().map(function(w){return {w:w,v:byWeek[w]};});
+}
+function volTrendHtml(pid,maxes){
+  maxes=maxes||{};
+  var h=weeklyVolHistory(pid,maxes);
+  if(!h.length)return '';
+  var recent=h.slice(-8);
+  var last=recent[recent.length-1].v;
+  var prev=recent.length>1?recent[recent.length-2].v:null;
+  var maxKg=Math.max.apply(null,recent.map(function(x){return x.v.kg;}).concat([1]));
+  var anyKg=recent.some(function(x){return x.v.kgKnown&&x.v.kg>0;});
+  var delta='';
+  if(prev&&prev.kg>0&&last.kgKnown){var d=last.kg-prev.kg;var pc=Math.round(d/prev.kg*100);delta=' <span style="color:'+(d>=0?'var(--mob)':'var(--fza)')+';font-size:11px;">('+(d>=0?'+':'')+pc+'%)</span>';}
+  var head='<div style="font-size:12.5px;color:var(--text);margin:2px 0 8px;">Esta semana: <b style="color:var(--mob);">'+(last.kgKnown?_pnum(last.kg)+' kg':'\u2014')+'</b>'+delta+' <span style="color:var(--muted2);font-size:11px;">\u00b7 '+last.sets+' series \u00b7 '+_pnum(last.reps)+' reps</span></div>';
+  var bars=recent.map(function(x){
+    var kg=x.v.kg;var hgt=maxKg>0?Math.max(3,Math.round(kg/maxKg*54)):3;var d=isoToDate(x.w);
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;"><div style="font-size:8px;color:var(--muted2);white-space:nowrap;">'+(kg>0?_pnum(kg):'')+'</div><div style="width:68%;max-width:22px;height:'+hgt+'px;background:var(--mob);border-radius:3px 3px 0 0;opacity:'+(kg>0?1:0.25)+';"></div><div style="font-size:8px;color:var(--muted2);white-space:nowrap;">'+d.getDate()+'/'+(d.getMonth()+1)+'</div></div>';
+  }).join('');
+  var chart=anyKg?'<div style="display:flex;align-items:flex-end;gap:4px;height:78px;margin-top:2px;">'+bars+'</div>':'<div style="font-size:11.5px;color:var(--muted2);padding:6px 0;line-height:1.5;">Carg\u00e1 el 1RM de los ejercicios (Ficha \u2192 Cargas m\u00e1ximas) para ver la tendencia de tonelaje. Igual ves las series/reps arriba.</div>';
+  return '<div class="sum-lbl" style="margin-top:0;">Tonelaje por semana</div>'+head+chart;
+}
 function refreshPlanUI(){if(draftMode){renderDraft();return;}renderPlan();}
 function renderPlan(){
   if(draftMode){renderDraft();return;}
@@ -4241,11 +4273,12 @@ function renderSummary(){
       var chain=ent.map(function(en){return '<span style="white-space:nowrap;"><span style="color:var(--muted2);">'+fmtDateShort(en.iso)+':</span> <b style="color:var(--text);">'+en.val+'</b></span>';}).join(' <span style="color:var(--mob);">\u2192</span> ');
       return '<div style="padding:7px 0;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--cm);margin-bottom:3px;">'+ex.name+'</div><div style="font-size:12px;line-height:1.7;">'+chain+'</div></div>';
     }).join(''):'<div class="sum-empty">'+TT('sinCargas')+'</div>';
-    var rpeInner='<div class="sum-lbl" style="margin-top:0;">'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('evolCargas')+'</div>'+loadsH;
+    var _volH=volTrendHtml(p.id,p.maxes||{});
+    var rpeInner=_volH+'<div class="sum-lbl"'+(_volH?'':' style="margin-top:0;"')+'>'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('evolCargas')+'</div>'+loadsH;
     var secs='';
     if(isCoach){var _wc=weeklyVizHtml(p);if(_wc)secs+=sumSec('🔋',TT('Autoevaluación semanal'),_wc,true);}
     if(isCoach){var _pc=painsCoachHtml(p);if(_pc)secs+=sumSec('🩹',TT('Molestias (30 días)'),stripLbl(_pc),false);}
-    secs+=sumSec('📊',TT('evolCargas'),rpeInner,!isCoach);
+    secs+=sumSec('📊','Carga y volumen',rpeInner,!isCoach);
     secs+=sumSec('📝',TT('notasRec'),notesH,false);
     return '<div class="sum-card"><div class="sum-hdr">'+avH+'<div class="sum-info"><div class="sum-name">'+p.name+'</div><div class="sum-meta">'+meta+'</div></div></div><div class="sum-body">'+secs+'</div></div>';
   }).join('');
