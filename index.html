@@ -662,6 +662,7 @@ body{overflow-x:hidden;}
     <div style="margin-top:32px;border-top:1px solid var(--border2);padding-top:24px;">
       <div style="margin:0 0 18px;"><div style="font-size:10px;color:var(--muted2);text-align:center;margin-bottom:14px;">PDapp v<span id="app-ver-lbl"></span></div>
       <div id="lang-title" style="font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Idioma</div><div id="lang-sel-coach" style="display:flex;gap:8px;"></div></div>
+      <button onclick="openTutorial(isCoach?'coach':'athlete')" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid var(--border2);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:10px;">📖 Tutorial / Ayuda</button>
       <button onclick="logout()" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);color:#ff6b6b;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;">Cerrar sesi&#243;n</button>
     </div>
   </div>
@@ -1093,6 +1094,21 @@ body{overflow-x:hidden;}
 </div>
 
 <!-- FICHA MODAL -->
+<div class="modal-overlay" id="modal-tutorial" style="z-index:700;align-items:center;">
+  <div class="modal" style="max-width:440px;">
+    <div style="text-align:center;">
+      <div id="tut-icon" style="font-size:44px;line-height:1;margin:4px 0 12px;"></div>
+      <div id="tut-title" style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:0.02em;margin-bottom:9px;color:var(--text);"></div>
+      <div id="tut-text" style="font-size:14px;line-height:1.6;color:var(--muted);min-height:78px;"></div>
+    </div>
+    <div id="tut-dots" style="display:flex;gap:6px;justify-content:center;margin:16px 0 14px;"></div>
+    <div style="display:flex;gap:8px;">
+      <button id="tut-prev" onclick="tutNav(-1)" class="mbtn mbtn-cancel" style="flex:1;">Anterior</button>
+      <button id="tut-next" onclick="tutNav(1)" class="mbtn mbtn-save" style="flex:1;">Siguiente</button>
+    </div>
+    <button onclick="closeTutorial(true)" style="width:100%;margin-top:10px;background:none;border:none;color:var(--muted2);font-size:12px;cursor:pointer;padding:6px;">Saltar tutorial</button>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-maxes" style="z-index:650;align-items:center;">
   <div class="modal" style="max-height:82vh;overflow-y:auto;">
     <div class="modal-handle"></div>
@@ -1262,7 +1278,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260812-2';
+var APP_VERSION='20260812-3';
 (function(){
   try{
     setTimeout(function(){
@@ -1789,6 +1805,7 @@ async function bootApp(){
     var ib=document.getElementById('invites-btn');if(ib)ib.style.display=isAdmin?'':'none';
     var sp=document.getElementById('side-profes');if(sp)sp.style.display=isAdmin?'':'none';
     try{if(!isAdmin&&PLAYERS.length===0&&!localStorage.getItem('pd_welcome_done')){document.getElementById('modal-welcome').classList.add('open');}}catch(e){}
+    try{setTimeout(function(){maybeShowTutorial('coach');},1500);}catch(e){}
   }catch(e){
     if(e&&e.message==='__SUSPENDED__'){overlay.style.display='none';document.getElementById('screen-suspended').style.display='flex';return;}
     overlay.style.display='flex';
@@ -1952,6 +1969,7 @@ async function bootPlayer(){
     var _as=document.getElementById('atab-summary');if(_as)_as.style.display='';
     overlay.style.display='none';
     renderSelect();
+    try{setTimeout(function(){maybeShowTutorial('athlete');},1500);}catch(e){}
   }catch(e){
     document.getElementById('loading-spinner').style.display='none';
     document.getElementById('loading-title').style.display='none';
@@ -4464,6 +4482,48 @@ function saveMaxes(p){
     if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
     showSyncStatus('ok');
   });
+}
+var TUT_COACH=[
+ {i:'👋',t:'Bienvenido a PDapp',x:'Tu plataforma para gestionar alumnos, armar entrenamientos y seguir su evolución. Te muestro lo básico en 1 minuto.'},
+ {i:'👥',t:'Cargá tus alumnos',x:'En "Tus Alumnos" tocá <b>+ Nuevo</b> y completá sus datos. Cada uno tendrá su propio acceso.'},
+ {i:'🏋️',t:'Armá las sesiones',x:'Creá sesiones con bloques y ejercicios en "Mis Sesiones", o usá el esqueleto de <b>Metodología PD</b> para arrancar más rápido.'},
+ {i:'📅',t:'Asigná y agrupá',x:'Meté una sesión o un programa completo en el calendario del alumno. Podés crear <b>Grupos</b> y asignar a todo el equipo de una.'},
+ {i:'📐',t:'Cargá los 1RM',x:'En la Ficha de cada alumno cargá sus cargas máximas: la app calcula el <b>tonelaje</b> automático mientras planificás.'},
+ {i:'📊',t:'Seguí el progreso',x:'En "Resumen" ves la autoevaluación semanal, molestias y la evolución de carga y volumen de cada alumno.'}
+];
+var TUT_ATHLETE=[
+ {i:'👋',t:'Bienvenido a PDapp',x:'Acá vas a ver tus entrenamientos y registrar cómo te sentís. Te muestro lo básico.'},
+ {i:'📋',t:'Tu plan del día',x:'En "Plan" ves la sesión de hoy. Al terminar, tocá <b>Marcar como completado</b>.'},
+ {i:'💪',t:'Registrá tu esfuerzo',x:'Después de cada bloque, poné el <b>RPE</b> (qué tan duro fue) y una nota si querés.'},
+ {i:'📝',t:'Autoevaluación semanal',x:'Los lunes te aparece un cuestionario corto (fatiga, dolor, estrés, ganas). Es clave para que tu profe ajuste tu plan.'},
+ {i:'🩹',t:'Molestias y chat',x:'Marcá dónde te duele en el mapa corporal, y hablá con tu profe por <b>Mensajes</b> cuando lo necesites.'}
+];
+var tutSlides=[],tutIdx=0,tutRole='';
+function openTutorial(role){
+  tutRole=role;tutSlides=(role==='athlete')?TUT_ATHLETE:TUT_COACH;tutIdx=0;
+  renderTut();document.getElementById('modal-tutorial').classList.add('open');
+}
+function renderTut(){
+  var s=tutSlides[tutIdx];if(!s)return;
+  document.getElementById('tut-icon').textContent=s.i;
+  document.getElementById('tut-title').textContent=s.t;
+  document.getElementById('tut-text').innerHTML=s.x;
+  document.getElementById('tut-dots').innerHTML=tutSlides.map(function(_x,k){return '<div style="width:7px;height:7px;border-radius:50%;background:'+(k===tutIdx?'var(--mob)':'var(--border2)')+';"></div>';}).join('');
+  document.getElementById('tut-prev').style.visibility=tutIdx>0?'visible':'hidden';
+  document.getElementById('tut-next').textContent=(tutIdx===tutSlides.length-1)?'Empezar':'Siguiente';
+}
+function tutNav(d){
+  if(d>0&&tutIdx===tutSlides.length-1){closeTutorial(true);return;}
+  tutIdx=Math.max(0,Math.min(tutSlides.length-1,tutIdx+d));renderTut();
+}
+function closeTutorial(markSeen){
+  document.getElementById('modal-tutorial').classList.remove('open');
+  if(markSeen){try{localStorage.setItem('pd_tut_'+tutRole,'1');}catch(e){}}
+}
+function maybeShowTutorial(role){
+  try{if(localStorage.getItem('pd_tut_'+role))return;}catch(e){}
+  try{if(document.querySelector('.modal-overlay.open'))return;}catch(e){}
+  openTutorial(role);
 }
 function openFicha(pid){
   fichaPlayerId=pid;
