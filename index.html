@@ -278,6 +278,15 @@ video.exthumb::-webkit-media-controls,video.lib-card-thumb::-webkit-media-contro
 .sum-sec{border:1px solid var(--border2);border-radius:12px;margin-top:10px;overflow:hidden;background:var(--s2);}
 .sum-sec-hdr{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;-webkit-user-select:none;user-select:none;}
 .sum-sec-ic{font-size:17px;line-height:1;flex:none;color:var(--mob);display:flex;align-items:center;}
+.pnl-head{display:flex;gap:9px;margin-bottom:14px;}
+.pnl-stat{flex:1;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 8px;text-align:center;}
+.pnl-stat-n{font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:800;line-height:1;color:var(--text);}
+.pnl-stat-l{font-size:9.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);margin-top:4px;}
+.pnl-card{background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:12px 13px;margin-bottom:9px;cursor:pointer;transition:border-color 0.15s;}
+.pnl-card:active{border-color:var(--mob);}
+.pnl-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.03em;text-transform:uppercase;color:var(--text);}
+.pnl-meta{font-size:11.5px;color:var(--muted2);margin-top:1px;}
+.pnl-ok-hdr{display:flex;align-items:center;gap:8px;padding:11px 4px;margin-top:6px;cursor:pointer;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;}
 .sum-sec-title{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text);}
 .sum-sec-chev{width:16px;height:16px;flex:none;color:var(--muted);transition:transform 0.18s;}
 .sum-sec.open .sum-sec-chev{transform:rotate(90deg);}
@@ -457,11 +466,13 @@ body{overflow-x:hidden;}
     <div class="select-title" id="select-title">Qui&#233;n sos?</div>
     <div class="select-sub" id="select-sub">Selecci&#243;n&#225; tu nombre para ver tu plan.</div>
     <div id="coach-view-toggle" style="display:none;gap:8px;margin-bottom:16px;">
-      <button id="cv-lista" class="cv-btn cv-active" onclick="setCoachView('lista')">Lista</button>
+      <button id="cv-panel" class="cv-btn cv-active" onclick="setCoachView('panel')">Panel</button>
+      <button id="cv-lista" class="cv-btn" onclick="setCoachView('lista')">Lista</button>
       <button id="cv-semana" class="cv-btn" onclick="setCoachView('semana')">Semana</button>
       <button id="cv-grupos" class="cv-btn" onclick="setCoachView('grupos')">Grupos</button>
     </div>
     <div class="players-grid" id="players-grid"></div>
+    <div id="panel-view" style="display:none;"></div>
     <div id="week-overview" style="display:none;"></div>
     <div id="groups-view" style="display:none;"></div>
     <div id="player-count" style="display:none;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin:4px 0 12px;"></div>
@@ -1279,7 +1290,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260815-3';
+var APP_VERSION='20260815-4';
 (function(){
   try{
     setTimeout(function(){
@@ -2838,18 +2849,118 @@ function getTodaySession(pid){
   var s=(JB_SESSIONS[pid]||{})[isoToday()];
   return(s&&s.title)?s.title:null;
 }
-var coachView='lista',weekOvStart=null,dupMode='dia';
+var coachView='panel',weekOvStart=null,dupMode='dia';
 function weekMondayISO(iso){var d=isoToDate(iso);var dow=d.getDay();var m=new Date(d);m.setDate(d.getDate()-(dow===0?6:dow-1));return m.getFullYear()+'-'+('0'+(m.getMonth()+1)).slice(-2)+'-'+('0'+m.getDate()).slice(-2);}
 function shiftWeekOv(n){if(!weekOvStart)weekOvStart=weekMondayISO(isoToday());weekOvStart=addDaysISO(weekOvStart,n*7);renderWeekOverview();}
 function openPlayerAtDate(pid,iso){doSelectPlayer(pid);enterPlan();curDate=iso;lastCheckedDay=null;renderPlan();}
+/* ===== PANEL GENERAL DEL EQUIPO ===== */
+var PANEL_SEV={alta:{c:'#ff6b6b',l:'Alta'},media:{c:'#ffb020',l:'Media'},baja:{c:'#4dabf7',l:'Info'}};
+function panelAlerts(p){
+  var out=[];
+  // 1) Adherencia baja / inactividad
+  var ad=getAdherence(p.id);
+  var inact=getInactiveDays(p.id);
+  if(inact&&inact>=7){
+    out.push({p:1,sev:'alta',ic:'calendar',txt:inact+' días sin entrenar'});
+  } else if(ad&&ad.total>=3&&ad.pct<60){
+    out.push({p:1,sev:ad.pct<40?'alta':'media',ic:'calendar',txt:'Adherencia '+ad.pct+'% ('+ad.done+'/'+ad.total+' en 30 días)'});
+  } else if(inact&&inact>=4){
+    out.push({p:1,sev:'media',ic:'calendar',txt:inact+' días sin entrenar'});
+  }
+  // 2) Autoevaluación en rojo
+  var h=weeklyHistory(p);
+  if(h.length){
+    var last=h[h.length-1].e;var lg=weeklyLight(last);
+    if(lg&&lg.c==='#ff6b6b'){
+      var det=[];
+      if(last.fatiga<=3)det.push('fatiga '+last.fatiga);
+      if(last.dolor<=3)det.push('dolor '+last.dolor);
+      out.push({p:2,sev:'alta',ic:'pulse',txt:'Autoevaluación en rojo'+(det.length?' ('+det.join(' · ')+')':'')});
+    }
+  }
+  // 3) Molestia recurrente
+  var acc=painsHeat(p,30);
+  var rec=Object.keys(acc).filter(function(z){return acc[z].n>=3;});
+  if(rec.length){
+    out.push({p:3,sev:'media',ic:'bandage',txt:'Zona recurrente: '+rec.slice(0,2).map(function(z){return TT(BODY_LBL[z]||z);}).join(', ')+(rec.length>2?' +'+(rec.length-2):'')});
+  }
+  // 4) No cargó la autoevaluación
+  if(needsWeekly(p)){
+    out.push({p:4,sev:'baja',ic:'pencil',txt:'Sin autoevaluación esta semana'});
+  }
+  out.sort(function(a,b){return a.p-b.p;});
+  return out;
+}
+function panelRank(al){
+  if(!al.length)return 999;
+  var w={alta:0,media:1,baja:2};
+  return al[0].p*10+w[al[0].sev];
+}
+function panelCard(p,al){
+  var av=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">'+ICON('people')+'</div>';
+  var meta=[p.pos,p.club].filter(Boolean).join(' · ')||'';
+  var chips=al.map(function(a){
+    var c=PANEL_SEV[a.sev].c;
+    return '<div style="display:flex;align-items:center;gap:7px;padding:5px 0;">'
+      +'<span style="color:'+c+';display:flex;flex:none;font-size:13px;">'+ICON(a.ic)+'</span>'
+      +'<span style="font-size:12.5px;color:var(--text);flex:1;min-width:0;">'+a.txt+'</span></div>';
+  }).join('');
+  var bar=al.length?PANEL_SEV[al[0].sev].c:'var(--border2)';
+  return '<div class="pnl-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)" style="border-left:3px solid '+bar+';">'
+    +'<div style="display:flex;align-items:center;gap:11px;">'+av
+    +'<div style="flex:1;min-width:0;"><div class="pnl-name">'+p.name+'</div>'
+    +(meta?'<div class="pnl-meta">'+meta+'</div>':'')+'</div>'
+    +'<span style="color:var(--muted2);font-size:18px;flex:none;">›</span></div>'
+    +(chips?'<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);">'+chips+'</div>':'')
+    +'</div>';
+}
+function togglePanelOk(){
+  var b=document.getElementById('pnl-ok-body');var c=document.getElementById('pnl-ok-chev');
+  if(!b)return;
+  var open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  if(c)c.style.transform=open?'rotate(0deg)':'rotate(90deg)';
+}
+function renderPanel(){
+  var el=document.getElementById('panel-view');if(!el)return;
+  if(!PLAYERS.length){el.innerHTML='<div class="empty-state"><p>Todavía no tenés alumnos.</p></div>';return;}
+  var rows=PLAYERS.map(function(p){var al=panelAlerts(p);return {p:p,al:al,r:panelRank(al)};});
+  var conAlerta=rows.filter(function(x){return x.al.length;}).sort(function(a,b){return a.r-b.r;});
+  var sinAlerta=rows.filter(function(x){return !x.al.length;});
+  var nAlta=conAlerta.filter(function(x){return x.al[0].sev==='alta';}).length;
+  var head='<div class="pnl-head">'
+    +'<div class="pnl-stat"><div class="pnl-stat-n">'+PLAYERS.length+'</div><div class="pnl-stat-l">Alumnos</div></div>'
+    +'<div class="pnl-stat"><div class="pnl-stat-n" style="color:'+(conAlerta.length?'#ffb020':'var(--mob)')+';">'+conAlerta.length+'</div><div class="pnl-stat-l">Con alerta</div></div>'
+    +'<div class="pnl-stat"><div class="pnl-stat-n" style="color:'+(nAlta?'#ff6b6b':'var(--mob)')+';">'+nAlta+'</div><div class="pnl-stat-l">Urgentes</div></div>'
+    +'</div>';
+  var body='';
+  if(conAlerta.length){
+    body+=conAlerta.map(function(x){return panelCard(x.p,x.al);}).join('');
+  } else {
+    body+='<div style="text-align:center;padding:26px 16px;color:var(--muted);">'
+      +'<div style="color:var(--mob);font-size:26px;margin-bottom:8px;display:flex;justify-content:center;">'+ICON('pulse')+'</div>'
+      +'<div style="font-size:13.5px;">Todo el plantel está en verde.</div>'
+      +'<div style="font-size:11.5px;color:var(--muted2);margin-top:3px;">Sin alertas activas esta semana.</div></div>';
+  }
+  if(sinAlerta.length){
+    body+='<div class="pnl-ok-hdr" onclick="togglePanelOk()">'
+      +'<svg id="pnl-ok-chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;flex:none;"><path d="M9 18l6-6-6-6"/></svg>'
+      +'<span>Sin alertas ('+sinAlerta.length+')</span></div>'
+      +'<div id="pnl-ok-body" style="display:none;">'+sinAlerta.map(function(x){return panelCard(x.p,[]);}).join('')+'</div>';
+  }
+  el.innerHTML=head+body;
+}
+/* ===== fin panel ===== */
 function setCoachView(v){
   coachView=v;
+  var pnb=document.getElementById('cv-panel');if(pnb)pnb.classList.toggle('cv-active',v==='panel');
   document.getElementById('cv-lista').classList.toggle('cv-active',v==='lista');
   document.getElementById('cv-semana').classList.toggle('cv-active',v==='semana');
   var gb=document.getElementById('cv-grupos');if(gb)gb.classList.toggle('cv-active',v==='grupos');
-  var pg=document.getElementById('players-grid'),apb=document.getElementById('add-player-btn'),wo=document.getElementById('week-overview'),gv=document.getElementById('groups-view'),pcs=document.getElementById('player-count');
-  if(pg)pg.style.display='none';if(wo)wo.style.display='none';if(gv)gv.style.display='none';if(apb)apb.style.display='none';if(pcs)pcs.style.display='none';
-  if(v==='semana'){if(wo){wo.style.display='block';renderWeekOverview();}}
+  var pg=document.getElementById('players-grid'),apb=document.getElementById('add-player-btn'),wo=document.getElementById('week-overview'),gv=document.getElementById('groups-view'),pcs=document.getElementById('player-count'),pnv=document.getElementById('panel-view');
+  if(pg)pg.style.display='none';if(wo)wo.style.display='none';if(gv)gv.style.display='none';if(apb)apb.style.display='none';if(pcs)pcs.style.display='none';if(pnv)pnv.style.display='none';
+  if(v==='panel'){if(pnv){pnv.style.display='block';renderPanel();}}
+  else if(v==='semana'){if(wo){wo.style.display='block';renderWeekOverview();}}
   else if(v==='grupos'){openGroupId=null;if(gv){gv.style.display='block';renderGroups();}}
   else{if(pg)pg.style.display='';if(apb){apb.style.display='';apb.classList.toggle('hidden',!isCoach);}updatePlayerCount();}
 }
@@ -3214,7 +3325,7 @@ function goBack(){
 // \u2500\u2500 COACH MODE \u2500\u2500
 function toggleMode(){if(isCoach)deactivateCoach();else activateCoach();}
 function activateCoach(){isCoach=true;activePid=null;document.getElementById('coach-toggle').textContent='Coach';document.getElementById('coach-toggle').classList.add('active');document.getElementById('add-player-btn').classList.remove('hidden');['atab-lib','atab-msg','atab-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent=t('tusAlumnos');if(ss)ss.textContent=t('tusAlumnosSub');var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='flex';showSidebar();setSideActive('alumnos');refreshChatBadge();renderSelect();setCoachView(coachView);if(currentPlayerId)renderPlan();}
-function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var ats=document.getElementById('atab-summary');if(ats)ats.style.display='';var atm=document.getElementById('atab-msg');if(atm)atm.style.display='';var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='none';hideSidebar();coachView='lista';var pg=document.getElementById('players-grid');if(pg)pg.style.display='';var wo=document.getElementById('week-overview');if(wo)wo.style.display='none';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
+function deactivateCoach(){isCoach=false;document.getElementById('coach-toggle').textContent='Alumno';document.getElementById('coach-toggle').classList.remove('active');document.getElementById('add-player-btn').classList.add('hidden');document.getElementById('add-lib-btn').classList.add('hidden');['atab-lib'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var ats=document.getElementById('atab-summary');if(ats)ats.style.display='';var atm=document.getElementById('atab-msg');if(atm)atm.style.display='';var st=document.getElementById('select-title');var ss=document.getElementById('select-sub');if(st)st.textContent='Qui\u00e9n sos?';if(ss)ss.textContent='Selecci\u00f3n\u00e1 tu nombre para ver tu plan.';var cvt=document.getElementById('coach-view-toggle');if(cvt)cvt.style.display='none';hideSidebar();coachView='lista';var pg=document.getElementById('players-grid');if(pg)pg.style.display='';var wo=document.getElementById('week-overview');if(wo)wo.style.display='none';var _pnv=document.getElementById('panel-view');if(_pnv)_pnv.style.display='none';if(currentTab==='lib'||currentTab==='msg'||currentTab==='summary')showTab('plan');renderSelect();if(currentPlayerId)renderPlan();}
 
 // \u2500\u2500 COACH PIN \u2500\u2500
 function openPinModal(){pinBuffer='';updatePinDots();document.getElementById('pin-overlay').classList.add('open');}
