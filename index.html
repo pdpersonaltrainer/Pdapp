@@ -1316,7 +1316,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260822-1';
+var APP_VERSION='20260822-2';
 (function(){
   try{
     setTimeout(function(){
@@ -3893,7 +3893,18 @@ function volTrendHtml(pid,maxes){
   var chart=anyKg?'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:2px;"><div style="display:flex;align-items:flex-end;gap:4px;height:78px;width:max-content;margin:0 auto;">'+bars+'</div></div>':'<div style="font-size:11.5px;color:var(--muted2);padding:6px 0;line-height:1.5;">Carg\u00e1 el 1RM de los ejercicios (Ficha \u2192 Cargas m\u00e1ximas) para ver la tendencia de tonelaje. Igual ves las series/reps arriba.</div>';
   return '<div class="sum-lbl" style="margin-top:0;">Tonelaje por semana</div>'+head+chart;
 }
-function refreshPlanUI(){if(draftMode){renderDraft();return;}renderPlan();}
+function refreshPlanUI(){
+  var _sy=window.pageYOffset||document.documentElement.scrollTop||0;
+  if(draftMode){renderDraft();}else{renderPlan();}
+  if(_sy>0){
+    var _restore=function(){window.scrollTo(0,_sy);};
+    _restore();
+    requestAnimationFrame(function(){
+      _restore();
+      requestAnimationFrame(_restore);
+    });
+  }
+}
 function renderPlan(){
   if(draftMode){renderDraft();return;}
   if(!curDate)curDate=isoToday();
@@ -3952,7 +3963,7 @@ function toggleTrack(name){
   if(i>=0)arr.splice(i,1);else arr.push(name);
   showSyncStatus('saving');
   sb.from('plans').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,no_track:arr,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('toggleTrack',r.error);});
-  renderPlan();
+  refreshPlanUI();
 }
 function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
   var tracked=isTracked(exName);
@@ -4142,8 +4153,8 @@ function buildCheckArea(w,d,bi){
   var rpeBtns='';for(var r=1;r<=10;r++){var sCls='';if(state.rpe===r)sCls=r<=4?' sel-low':r<=6?' sel-mid':r<=8?' sel-high':' sel-max';rpeBtns+='<button class="rpe-btn'+sCls+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" data-r="'+r+'" onclick="setRpe(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.r)">'+r+'</button>';}
   return '<div class="block-check-area"><button class="block-check-btn'+dCls+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" onclick="toggleCheck(+this.dataset.w,+this.dataset.d,+this.dataset.b)"><div class="check-circle"><span style="font-size:12px;color:#0a0b0e;display:'+(state.done?'block':'none')+'">'+tick+'</span></div><span class="check-lbl">'+lbl+'</span></button><div class="rpe-area"><span class="rpe-lbl">'+TT('rpeBloque')+'</span><div class="rpe-grid">'+rpeBtns+'</div></div><textarea class="block-note" placeholder="'+TT('notaPh')+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" onchange="saveNote(this)" onclick="event.stopPropagation()">'+( state.note||'')+'</textarea></div>';
 }
-function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].done=!checkState[key].done;saveCheckState();renderPlan();}
-function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();renderPlan();}
+function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].done=!checkState[key].done;saveCheckState();refreshPlanUI();}
+function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();refreshPlanUI();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
 function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';pickSearch='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';var ssel=document.getElementById('pick-search');if(ssel)ssel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
