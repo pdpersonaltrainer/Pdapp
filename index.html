@@ -173,6 +173,11 @@ video.exthumb::-webkit-media-controls,video.lib-card-thumb::-webkit-media-contro
 .exload{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;}
 .l-mob{background:rgba(168,224,99,0.10);color:var(--mob);}.l-act{background:rgba(249,200,70,0.10);color:var(--act);}.l-fza{background:rgba(255,112,67,0.10);color:var(--fza);}.l-exp{background:rgba(199,125,255,0.10);color:var(--exp);}.l-cam{background:rgba(56,217,192,0.10);color:var(--cam);}.l-cm{background:rgba(77,171,247,0.10);color:var(--cm);}.l-est{background:rgba(240,101,149,0.10);color:var(--est);}.l-gen{background:rgba(168,224,99,0.10);color:var(--mob);}
 .exload-edit{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid var(--act);background:var(--s2);color:var(--text);outline:none;width:90px;text-align:center;}
+.ex-grip{background:rgba(255,255,255,0.05);color:var(--muted);border:none;border-radius:4px;width:22px;height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;touch-action:none;padding:0;}
+.ex-grip:active{cursor:grabbing;background:rgba(168,224,99,0.18);color:var(--mob);}
+.ex-swap{background:rgba(168,224,99,0.10);color:var(--mob);border:none;border-radius:4px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.exrow.ex-dragging{position:relative;z-index:50;opacity:0.92;background:var(--s2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
+.exrow{will-change:transform;}
 .ex-del{background:rgba(255,77,77,0.10);color:var(--danger);border:none;border-radius:4px;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
 .add-ex-btn{width:100%;margin-top:6px;padding:9px;border-radius:var(--rsm);border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
 .add-block-btn{width:100%;margin-top:4px;margin-bottom:8px;padding:12px;border-radius:var(--r);border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
@@ -916,7 +921,7 @@ body{overflow-x:hidden;}
 <div class="modal-overlay" id="modal-pick">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h3>Agregar desde Biblioteca</h3>
+    <h3 id="pick-title">Agregar desde Biblioteca</h3>
     <div style="position:relative;margin-bottom:8px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted);pointer-events:none;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input id="pick-search" type="text" oninput="setPickSearch(this.value)" placeholder="Buscar ejercicio..." style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px 9px 34px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/>
@@ -1316,7 +1321,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260822-2';
+var APP_VERSION='20260822-3';
 (function(){
   try{
     setTimeout(function(){
@@ -1354,7 +1359,9 @@ function langSelHtml(){return ['es','en','it'].map(function(l){var on=LANG===l;r
 var STATIC_I18N={
 'Ajustes':['Settings','Impostazioni'],'Alumno':['Athlete','Atleta'],'Alumnos':['Athletes','Atleti'],'Biblioteca':['Library','Libreria'],'Metodolog\u00eda PD':['PD Method','Metodo PD'],'Mi Perfil':['My Profile','Il mio profilo'],'Mi perfil':['My profile','Il mio profilo'],'Mis Sesiones':['My Sessions','Le mie sessioni'],'Nueva sesi\u00f3n':['New session','Nuova sessione'],'Profes':['Coaches','Coach'],'Programas':['Programs','Programmi'],'Chat':['Chat','Chat'],
 'Arm\u00e1 bloques y ejercicios':['Build blocks and exercises','Crea blocchi ed esercizi'],'Calendario':['Calendar','Calendario'],'Conversaciones con tus alumnos':['Conversations with your athletes','Conversazioni con i tuoi atleti'],'Cuenta y seguridad':['Account and security','Account e sicurezza'],'Cuentas de entrenadores':['Coach accounts','Account dei coach'],'Ejercicios guardados':['Saved exercises','Esercizi salvati'],'Mesociclos de varias semanas':['Multi-week mesocycles','Mesocicli di pi\u00f9 settimane'],'Modelos reutilizables':['Reusable templates','Modelli riutilizzabili'],'Sesiones base de Pablo':['Pablo\u0027s base sessions','Sessioni base di Pablo'],'Toc\u00e1 un casillero para asignar una sesi\u00f3n':['Tap a cell to assign a session','Tocca una casella per assegnare una sessione'],'Tu informaci\u00f3n p\u00fablica':['Your public info','Le tue informazioni pubbliche'],
-'Cancelar':['Cancel','Annulla'],'Guardar':['Save','Salva'],'Guardar cambios':['Save changes','Salva modifiche'],'Cerrar':['Close','Chiudi'],'Eliminar':['Delete','Elimina'],'Editar':['Edit','Modifica'],'Copiar':['Copy','Copia'],'Semana':['Week','Settimana'],'Lista':['List','Elenco'],'Insertar en un d\u00eda':['Insert into a day','Inserisci in un giorno'],'Cerrar sesi\u00f3n':['Log out','Esci'],'Aceptar':['OK','OK'],'Ver':['View','Vedi'],'Suspender':['Suspend','Sospendi'],'Reactivar':['Reactivate','Riattiva'],'Salir':['Exit','Esci'],'S\u00ed':['Yes','S\u00ec'],'Renombrar':['Rename','Rinomina'],'Reintentar':['Retry','Riprova'],'Quitar \u00faltima':['Remove last','Rimuovi ultima'],
+'Cancelar':['Cancel','Annulla'],'Guardar':['Save','Salva'],'Guardar cambios':['Save changes','Salva modifiche'],'Cerrar':['Close','Chiudi'],'Eliminar':['Delete','Elimina'],'Editar':['Edit','Modifica'],
+'Cambiar ejercicio':['Swap exercise','Cambia esercizio'],
+'Arrastrar para reordenar':['Drag to reorder','Trascina per riordinare'],'Copiar':['Copy','Copia'],'Semana':['Week','Settimana'],'Lista':['List','Elenco'],'Insertar en un d\u00eda':['Insert into a day','Inserisci in un giorno'],'Cerrar sesi\u00f3n':['Log out','Esci'],'Aceptar':['OK','OK'],'Ver':['View','Vedi'],'Suspender':['Suspend','Sospendi'],'Reactivar':['Reactivate','Riattiva'],'Salir':['Exit','Esci'],'S\u00ed':['Yes','S\u00ec'],'Renombrar':['Rename','Rinomina'],'Reintentar':['Retry','Riprova'],'Quitar \u00faltima':['Remove last','Rimuovi ultima'],
 'Nombre':['Name','Nome'],'Club':['Club','Club'],'Deporte':['Sport','Sport'],'Posici\u00f3n':['Position','Ruolo'],'Categor\u00eda':['Category','Categoria'],'Bio':['Bio','Bio'],'Especialidad':['Specialty','Specialit\u00e0'],'Nombre p\u00fablico':['Public name','Nome pubblico'],'Nueva contrase\u00f1a':['New password','Nuova password'],'Repetir contrase\u00f1a':['Repeat password','Ripeti password'],'PIN del alumno (4 d\u00edgitos)':['Athlete PIN (4 digits)','PIN dell\u0027atleta (4 cifre)'],'PIN del alumno':['Athlete PIN','PIN dell\u0027atleta'],'Video / Link':['Video / Link','Video / Link'],'Nota t\u00e9cnica':['Technical note','Nota tecnica'],'Series / Reps / Carga':['Sets / Reps / Load','Serie / Rip / Carico'],'Acci\u00f3n / Patr\u00f3n de movimiento':['Action / Movement pattern','Azione / Schema motorio'],'Patr\u00f3n / Descripci\u00f3n':['Pattern / Description','Schema / Descrizione'],'Link personal':['Personal link','Link personale'],'Imagen (URL)':['Image (URL)','Immagine (URL)'],'Fecha de inicio del plan':['Plan start date','Data di inizio del piano'],'Fecha destino':['Target date','Data di destinazione'],'Copiar a':['Copy to','Copia su'],'Nombre del d\u00eda':['Day name','Nome del giorno'],'Fecha de inicio (Semana 1, D\u00eda 1)':['Start date (Week 1, Day 1)','Data di inizio (Settimana 1, Giorno 1)'],'O pegar URL de foto (GitHub, etc.)':['Or paste a photo URL (GitHub, etc.)','Oppure incolla l\u0027URL di una foto (GitHub, ecc.)'],'Idioma':['Language','Lingua'],'Eliminar bloque':['Delete block','Elimina blocco'],'+ Crear sesi\u00f3n nueva':['+ Create new session','+ Crea nuova sessione'],'Publicar como PD':['Publish as PD','Pubblica come PD'],'Quitar de PD':['Remove from PD','Rimuovi da PD'],'+ Agregar':['+ Add','+ Aggiungi'],'\u2191 Importar':['\u2191 Import','\u2191 Importa'],'\u2193 Backup':['\u2193 Backup','\u2193 Backup'],'Ejercicios':['Exercises','Esercizi'],'Todos':['All','Tutti'],'ED + Movilidad':['ED + Mobility','ED + Mobilit\u00e0'],'Activaci\u00f3n':['Activation','Attivazione'],'Fuerza':['Strength','Forza'],'Explosivos':['Explosive','Esplosivi'],'Carrera':['Running','Corsa'],'Control Motor':['Motor Control','Controllo Motorio'],'Estiramientos':['Stretching','Allungamenti'],'+ Agregar ejercicio':['+ Add exercise','+ Aggiungi esercizio'],'Guardar como sesi\u00f3n':['Save as session','Salva come sessione'],'Duplicar y editar':['Duplicate and edit','Duplica e modifica'],'Recordatorios':['Reminders','Promemoria'],'Insertar en un d\u00eda':['Insert into a day','Inserisci in un giorno'],'Todas las acciones':['All actions','Tutte le azioni'],'Buscar ejercicio...':['Search exercise...','Cerca esercizio...'],'Cambiar contrase\u00f1a':['Change password','Cambia password'],'Actualizar contrase\u00f1a':['Update password','Aggiorna password'],'M\u00ednimo 6 caracteres':['Minimum 6 characters','Minimo 6 caratteri'],'Repet\u00ed la nueva contrase\u00f1a':['Repeat the new password','Ripeti la nuova password'],'Invitaciones':['Invitations','Inviti'],'Gener\u00e1 c\u00f3digos para que otros profes se registren en la app.':['Generate codes so other coaches can sign up for the app.','Genera codici per far registrare altri coach all\u0027app.'],'\ud83c\udf9f Generar / ver invitaciones':['\ud83c\udf9f Generate / view invitations','\ud83c\udf9f Genera / vedi inviti'],'+ Nuevo programa':['+ New program','+ Nuovo programma'],'Abrir / editar':['Open / edit','Apri / modifica'],'+ Agregar alumno':['+ Add athlete','+ Aggiungi atleta'],'Estiramientos din\u00e1micos':['Dynamic stretching','Allungamenti dinamici'],'Control Motor':['Motor Control','Controllo Motorio'],'Campo':['Field','Campo'],'+ Agregar bloque':['+ Add block','+ Aggiungi blocco'],'+ Agregar ejercicio':['+ Add exercise','+ Aggiungi esercizio'],'\u270f\ufe0f Editar d\u00eda':['\u270f\ufe0f Edit day','\u270f\ufe0f Modifica giorno'],'\ud83d\udcc5 Duplicar':['\ud83d\udcc5 Duplicate','\ud83d\udcc5 Duplica'],'\ud83d\udcbe Guardar como sesi\u00f3n':['\ud83d\udcbe Save as session','\ud83d\udcbe Salva come sessione'],'Duplicar':['Duplicate','Duplica'],'Editar d\u00eda':['Edit day','Modifica giorno'],'Agregar bloque':['Add block','Aggiungi blocco'],'No se pudo guardar. Revisá tu conexión.':['Couldn\'t save. Check your connection.','Impossibile salvare. Controlla la connessione.'],'Reintentar':['Retry','Riprova'],'+ Crear sesión con el esqueleto PD':['+ Create session with the PD skeleton','+ Crea una sessione con lo scheletro PD'],'Esqueleto PD':['PD skeleton','Scheletro PD'],'Elegí qué bloques incluir. Se crean vacíos, en este orden, y después agregás los ejercicios.':['Choose which blocks to include. They\'re created empty, in this order, and then you add the exercises.','Scegli quali blocchi includere. Vengono creati vuoti, in quest\'ordine, e poi aggiungi gli esercizi.'],'Empezar':['Start','Inizia'],
 '{n} días sin entrenar':['{n} days without training','{n} giorni senza allenarsi'],
 'Adherencia {p}% ({d}/{t} en 30 días)':['Adherence {p}% ({d}/{t} in 30 days)','Aderenza {p}% ({d}/{t} in 30 giorni)'],
@@ -4042,9 +4049,95 @@ function setPickType(v){pickTypeFilter=v;renderPickList();}
 function setPickSearch(v){pickSearch=v;renderPickList();}
 
 function exMoveBtns(w,d,b,e,total){
-  var up=e>0?'<button class="ex-del" style="color:var(--muted);" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();moveEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e,-1)">\u2191</button>':'';
-  var dn=e<total-1?'<button class="ex-del" style="color:var(--muted);" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();moveEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e,1)">\u2193</button>':'';
-  return up+dn;
+  var grip='<button class="ex-grip" title="Arrastrar para reordenar" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();">'
+    +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg></button>';
+  var swap='<button class="ex-swap" title="Cambiar ejercicio" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();swapEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">'
+    +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg></button>';
+  return grip+swap;
+}
+/* ===== CAMBIAR EJERCICIO EN EL LUGAR ===== */
+var swapTarget=null;
+function swapEx(w,d,b,e){
+  if(!isCoach||!currentPlayerId)return;
+  swapTarget={wIdx:w,dIdx:d,bIdx:b,eIdx:e};
+  openPickModal(w,d,b);
+  var t=document.getElementById('pick-title');
+  if(t)t.textContent=tr('Cambiar ejercicio');
+}
+/* ===== ARRASTRAR PARA REORDENAR ===== */
+var dragCtx=null;
+function _exRowsOf(blockEl){return Array.prototype.slice.call(blockEl.querySelectorAll(':scope > .exrow'));}
+function initExDrag(){
+  document.addEventListener('pointerdown',function(ev){
+    var g=ev.target.closest&&ev.target.closest('.ex-grip');
+    if(!g||!isCoach)return;
+    var row=g.closest('.exrow');if(!row)return;
+    var host=row.parentNode;
+    var rows=Array.prototype.slice.call(host.children).filter(function(n){return n.classList&&n.classList.contains('exrow');});
+    if(rows.length<2)return;
+    ev.preventDefault();
+    try{g.setPointerCapture(ev.pointerId);}catch(_e){}
+    var r=row.getBoundingClientRect();
+    dragCtx={
+      w:+g.dataset.w,d:+g.dataset.d,b:+g.dataset.b,from:+g.dataset.e,
+      row:row,host:host,rows:rows,grip:g,pid:ev.pointerId,
+      startY:ev.clientY,offset:ev.clientY-r.top,h:r.height,to:+g.dataset.e,moved:false
+    };
+    row.classList.add('ex-dragging');
+    document.body.style.userSelect='none';
+    document.body.style.overflow='hidden';
+  },true);
+
+  document.addEventListener('pointermove',function(ev){
+    if(!dragCtx||ev.pointerId!==dragCtx.pid)return;
+    ev.preventDefault();
+    var dy=ev.clientY-dragCtx.startY;
+    if(Math.abs(dy)>3)dragCtx.moved=true;
+    dragCtx.row.style.transform='translateY('+dy+'px)';
+    // calcular posición destino
+    var mid=ev.clientY;
+    var to=dragCtx.from;
+    for(var i=0;i<dragCtx.rows.length;i++){
+      var rr=dragCtx.rows[i];
+      if(rr===dragCtx.row)continue;
+      var bb=rr.getBoundingClientRect();
+      var c=bb.top+bb.height/2;
+      if(i<dragCtx.from&&mid<c){to=Math.min(to,i);}
+      else if(i>dragCtx.from&&mid>c){to=Math.max(to,i);}
+    }
+    if(to!==dragCtx.to){
+      dragCtx.to=to;
+      dragCtx.rows.forEach(function(rr,i){
+        if(rr===dragCtx.row)return;
+        var shift=0;
+        if(dragCtx.from<to&&i>dragCtx.from&&i<=to)shift=-dragCtx.h;
+        else if(dragCtx.from>to&&i>=to&&i<dragCtx.from)shift=dragCtx.h;
+        rr.style.transition='transform 0.16s';
+        rr.style.transform=shift?'translateY('+shift+'px)':'';
+      });
+    }
+  },true);
+
+  var endDrag=function(ev){
+    if(!dragCtx||(ev&&ev.pointerId!==undefined&&ev.pointerId!==dragCtx.pid))return;
+    var c=dragCtx;dragCtx=null;
+    document.body.style.userSelect='';
+    document.body.style.overflow='';
+    c.row.classList.remove('ex-dragging');
+    c.rows.forEach(function(rr){rr.style.transition='';rr.style.transform='';});
+    if(c.moved&&c.to!==c.from)reorderEx(c.w,c.d,c.b,c.from,c.to);
+  };
+  document.addEventListener('pointerup',endDrag,true);
+  document.addEventListener('pointercancel',endDrag,true);
+}
+function reorderEx(w,d,b,from,to){
+  if(!isCoach)return;
+  var exs=(((PLAN[w]||[])[d]||{}).blocks||[])[b];
+  exs=exs&&exs.exs;
+  if(!exs||from===to||from<0||to<0||from>=exs.length||to>=exs.length)return;
+  var it=exs.splice(from,1)[0];
+  exs.splice(to,0,it);
+  commitSession();refreshPlanUI();
 }
 function moveEx(w,d,b,e,dir){
   if(!isCoach)return;
@@ -4167,12 +4260,36 @@ function addSelectedFromLib(){
   if(!pickTarget||!currentPlayerId)return;
   var ids=Object.keys(pickSelected);if(!ids.length)return;
   var exs=PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs;
-  LIB.forEach(function(ex){if(pickSelected[ex.id])exs.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});});
+  var sel=[];
+  LIB.forEach(function(ex){if(pickSelected[ex.id])sel.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});});
+  if(!sel.length)return;
+  if(swapTarget&&swapTarget.bIdx===pickTarget.bIdx&&exs[swapTarget.eIdx]){
+    var prev=exs[swapTarget.eIdx];
+    if(prev.l)sel[0].l=prev.l;
+    if(prev.p)sel[0].p=JSON.parse(JSON.stringify(prev.p));
+    Array.prototype.splice.apply(exs,[swapTarget.eIdx,1].concat(sel));
+  } else sel.forEach(function(x){exs.push(x);});
   commitSession();closePickModal();refreshPlanUI();
 }
 
-function closePickModal(){document.getElementById('modal-pick').classList.remove('open');pickTarget=null;}
-function addFromLib(id){if(!pickTarget||!currentPlayerId)return;var ex=LIB.find(function(e){return e.id===id;});if(!ex)return;PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});commitSession();closePickModal();refreshPlanUI();}
+function closePickModal(){
+  document.getElementById('modal-pick').classList.remove('open');
+  pickTarget=null;swapTarget=null;
+  var t=document.getElementById('pick-title');if(t)t.textContent=tr('Agregar desde Biblioteca');
+}
+function addFromLib(id){
+  if(!pickTarget||!currentPlayerId)return;
+  var ex=LIB.find(function(e){return e.id===id;});if(!ex)return;
+  var exs=PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs;
+  var nw={n:ex.name,d:ex.note,l:ex.load,link:ex.link||''};
+  if(swapTarget&&swapTarget.bIdx===pickTarget.bIdx&&exs[swapTarget.eIdx]){
+    var prev=exs[swapTarget.eIdx];
+    if(prev.l)nw.l=prev.l;
+    if(prev.p)nw.p=JSON.parse(JSON.stringify(prev.p));
+    exs[swapTarget.eIdx]=nw;
+  } else exs.push(nw);
+  commitSession();closePickModal();refreshPlanUI();
+}
 
 function renderLib(){
   var labels={mob:'ED + Movilidad',act:'Activaci\u00f3n',fza:'Fuerza',exp:'Explosivos',cam:'Campo',cm:'Control Motor',est:'Estiramientos din\u00e1micos'};
@@ -5290,6 +5407,7 @@ function copyInviteCode(code,btn){
 // ── FIN INVITE MANAGER ────────────────────────────────────────────
 
 try{applyLang();}catch(e){console.error('i18n',e);}
+try{initExDrag();}catch(e){console.error('initExDrag',e);}
 try{var _vl=document.getElementById('app-ver-lbl');if(_vl)_vl.textContent=APP_VERSION;}catch(e){}
 initApp();
 </script>
