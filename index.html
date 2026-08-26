@@ -1321,12 +1321,16 @@ var MY_UID=null;
 var MY_PROFILE={};
 var ONLY_PLAYER_ID=null;
 var ATH_TOKEN=null,ATH_PIN=null;
+var ATH_TK_KEY='pdapp_ath_token';
+function saveAthToken(tk){try{if(tk)localStorage.setItem(ATH_TK_KEY,tk);}catch(e){}}
+function readAthToken(){try{return localStorage.getItem(ATH_TK_KEY)||null;}catch(e){return null;}}
+function clearAthToken(){try{localStorage.removeItem(ATH_TK_KEY);}catch(e){}}
 var pendingDate=null;
 var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260822-4';
+var APP_VERSION='20260822-5';
 (function(){
   try{
     setTimeout(function(){
@@ -2138,10 +2142,11 @@ async function login(){
   var r=await sb.auth.signInWithPassword({email:email,password:pass});
   if(r.error){errEl.textContent='Error: '+r.error.message;return;}
   MY_UID=r.data.user.id;TRAINER_ID=MY_UID;
+  clearAthToken();
   document.getElementById('screen-login').style.display='none';
   await bootApp();
 }
-async function logout(){await sb.auth.signOut();location.reload();}
+async function logout(){clearAthToken();await sb.auth.signOut();location.reload();}
 function showRegister(){
   document.getElementById('panel-login').style.display='none';
   document.getElementById('panel-forgot').style.display='none';
@@ -2254,12 +2259,14 @@ async function bootAthlete(tk){
     var _am=document.getElementById('atab-msg');if(_am)_am.style.display='';
     var _as=document.getElementById('atab-summary');if(_as)_as.style.display='';
     overlay.style.display='none';
+    saveAthToken(tk);
     renderSelect();
     pendingSelectPid=d.id;
     openPlayerPinModal(PLAYERS[0]);
   }catch(e){
     document.getElementById('loading-spinner').style.display='none';
     document.getElementById('loading-title').style.display='none';
+    if(readAthToken()===tk)clearAthToken();
     var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML='No se pudo abrir tu plan:<br>'+((e&&e.message)||e);
   }
 }
@@ -2296,6 +2303,11 @@ async function bootPlayer(){
 async function initApp(){
   if(IS_RECOVERY||/type=recovery/.test(location.hash||'')){showResetPanel();return;}
   var params=new URLSearchParams(location.search);
+  if(params.get('reset')){
+    clearAthToken();
+    try{await sb.auth.signOut();}catch(e){}
+    if(history.replaceState){try{history.replaceState(null,'',location.origin+location.pathname);}catch(e){}}
+  }
   var tk=params.get('t');
   if(tk){await bootAthlete(tk);return;}
   var pf=params.get('profe');
@@ -2322,6 +2334,8 @@ async function initApp(){
     document.getElementById('screen-login').style.display='none';
     await bootApp();
   }else{
+    var _savedTk=readAthToken();
+    if(_savedTk){await bootAthlete(_savedTk);return;}
     document.getElementById('loading-overlay').style.display='none';
     document.getElementById('screen-login').style.display='flex';
   }
