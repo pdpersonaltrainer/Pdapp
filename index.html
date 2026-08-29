@@ -991,6 +991,14 @@ body{overflow-x:hidden;}
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="modal-video" style="z-index:800;align-items:center;" onclick="if(event.target===this)closeVideoModal()">
+  <div class="modal" style="max-width:min(680px,94vw);padding:12px;">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button onclick="closeVideoModal()" style="background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:8px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div id="video-box"></div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-presc">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -1330,7 +1338,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260829-7';
+var APP_VERSION='20260829-8';
 (function(){
   try{
     setTimeout(function(){
@@ -1413,6 +1421,8 @@ var STATIC_I18N={
 'Duplicar día':['Duplicate day','Duplica giorno'],
 'Eliminar sesión':['Delete session','Elimina sessione'],
 'Abrir sesión':['Open session','Apri sessione'],
+'Este video se abre fuera de la app.':['This video opens outside the app.','Questo video si apre fuori dall’app.'],
+'Abrir video':['Open video','Apri video'],
 'Marcar como completado':['Mark as completed','Segna come completato'],
 'Mover a otra fecha':['Move to another date','Sposta ad altra data'],
 'Guardar como modelo':['Save as template','Salva come modello'],
@@ -4044,6 +4054,31 @@ function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
   return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="exload l-'+t+'">'+objetivo+'</div><input value="'+aL+'" placeholder="\u00bfQu\u00e9 hiciste?" data-b="'+bi+'" data-e="'+ei+'" onchange="saveLoad(this)" onclick="event.stopPropagation()" style="width:96px;box-sizing:border-box;background:var(--s2);border:1px solid var(--cm);border-radius:6px;color:var(--text);padding:5px 6px;font-size:16px;transform:scale(0.7);transform-origin:right center;text-align:center;outline:none;"/></div>';
 }
 function isVideoFile(u){return /\.(mp4|mov|m4v|webm|ogg)(\?|#|$)/i.test(u||'')||/\/storage\/v1\/object\/public\/videos\//i.test(u||'');}
+/* ===== REPRODUCTOR INTERNO (no saca al usuario de la app) ===== */
+function openVideoModal(url){
+  if(!url)return;
+  var ov=document.getElementById('modal-video');
+  var box=document.getElementById('video-box');
+  if(!ov||!box)return;
+  var id=ytId(url);
+  if(id){
+    box.innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#000;display:block;"></iframe>';
+  } else if(isVideoFile(url)){
+    box.innerHTML='<video src="'+url+'" controls autoplay playsinline preload="metadata" style="width:100%;max-height:74vh;border-radius:10px;background:#000;display:block;"></video>';
+  } else {
+    box.innerHTML='<div style="text-align:center;padding:20px 10px;"><p style="color:var(--muted);font-size:13px;margin:0 0 14px;">'+tr('Este video se abre fuera de la app.')+'</p><a href="'+url+'" target="_blank" rel="noopener" class="mbtn mbtn-save" style="display:inline-block;text-decoration:none;">'+tr('Abrir video')+'</a></div>';
+  }
+  ov.classList.add('open');
+}
+function closeVideoModal(){
+  var ov=document.getElementById('modal-video');
+  var box=document.getElementById('video-box');
+  if(box){
+    try{var v=box.querySelector('video');if(v){v.pause();v.removeAttribute('src');v.load();}}catch(e){}
+    box.innerHTML='';
+  }
+  if(ov)ov.classList.remove('open');
+}
 function mediaThumbHtml(link,img,cls){
   // 1) imagen propia  2) miniatura de YouTube  3) fotograma del video subido
   var src=img||ytThumb(link);
@@ -4063,7 +4098,7 @@ function renderBlock(b,bi,wIdx,dIdx){
     var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
     return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">'+BICONS.cam+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
   }
-  var exsH=b.exs.map(function(e,ei){var link=e.link?'<a class="exlink" href="'+e.link+'" target="_blank">&#9658; '+TT('verVideo')+'</a>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=mediaThumbHtml(e.link,e.img,'exthumb');var thumbH=_mt2?'<a class="exthumb-a" href="'+e.link+'" target="_blank">'+_mt2+'</a>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=e.link?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=mediaThumbHtml(e.link,e.img,'exthumb');var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -4359,7 +4394,7 @@ function renderLib(){
   if(activePattern)items=items.filter(function(e){return e.pattern===activePattern;});
   if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.note||'').toLowerCase().indexOf(q)>=0;});
   if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udd0d</div><p>Sin resultados.</p></div>';return;}
-  document.getElementById('lib-grid').innerHTML=items.map(function(e){var _mt=mediaThumbHtml(e.link,e.img,'lib-card-thumb');var thumbH=_mt?(e.link?'<a href="'+e.link+'" target="_blank" class="lib-card-thumb-a">'+_mt+'</a>':_mt):'<div class="lib-card-thumb-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<a class="lib-card-link" href="'+e.link+'" target="_blank">&#9658; '+TT('verVideo')+'</a>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
+  document.getElementById('lib-grid').innerHTML=items.map(function(e){var _mt=mediaThumbHtml(e.link,e.img,'lib-card-thumb');var thumbH=_mt?(e.link?'<span class="lib-card-thumb-a" style="cursor:pointer;display:block;" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u)">'+_mt+'</span>':_mt):'<div class="lib-card-thumb-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<button class="lib-card-link" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
 }
 
 function filterLib(f,el){activeLibFilter=f;document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');renderLib();}
