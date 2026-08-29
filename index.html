@@ -1330,7 +1330,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260829-2';
+var APP_VERSION='20260829-3';
 (function(){
   try{
     setTimeout(function(){
@@ -1371,6 +1371,9 @@ var STATIC_I18N={
 'Cancelar':['Cancel','Annulla'],'Guardar':['Save','Salva'],'Guardar cambios':['Save changes','Salva modifiche'],'Cerrar':['Close','Chiudi'],'Eliminar':['Delete','Elimina'],'Editar':['Edit','Modifica'],
 'Cambiar ejercicio':['Swap exercise','Cambia esercizio'],
 'Eliminar registro':['Delete entry','Elimina registrazione'],
+'Borrar último registro':['Delete last entry','Elimina ultima registrazione'],
+'¿Borrar el último registro de':['Delete the last entry of','Eliminare l’ultima registrazione di'],
+'Este test no tiene registros.':['This test has no entries.','Questo test non ha registrazioni.'],
 '¿Borrar el registro de':['Delete the entry from','Eliminare la registrazione del'],
 'Descargar informe':['Download report','Scarica report'],
 'Informe generado el':['Report generated on','Report generato il'],
@@ -2900,6 +2903,7 @@ function renderTestsScreen(){
         +'<input type="checkbox" onchange="toggleTestEnabled(\''+p.id+'\',\''+x.k+'\',this.checked)"'+(on?' checked':'')+' style="width:18px;height:18px;accent-color:var(--mob);margin-top:2px;flex:none;"/>'
         +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+x.ic+' '+tr(x.n)+'</div><div style="margin-top:3px;">'+val+'</div></div>'
         +(on?'<button onclick="coachMeasure(\''+p.id+'\',\''+x.k+'\')" style="flex:none;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 11px;font-family:\'Barlow Condensed\',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">'+tr('Cargar')+'</button>':'')
+        +((on&&testHistory(p,x.k).length)?'<button onclick="deleteLastTest(\''+p.id+'\',\''+x.k+'\')" title="'+tr('Borrar último registro')+'" style="flex:none;margin-left:7px;background:rgba(255,107,107,0.10);border:1px solid rgba(255,107,107,0.28);color:#ff6b6b;border-radius:8px;width:34px;height:32px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'')
         +'</div>';
     }).join('');
     return '<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;">'+head+rows+'</div>';
@@ -4913,7 +4917,9 @@ function renderTestsAthlete(){
     return '<div style="background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">'
       +'<div style="font-size:20px;flex:none;">'+x.ic+'</div>'
       +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+tr(x.n)+'</div><div style="font-size:12px;margin-top:2px;">'+val+'</div></div>'
-      +'<button onclick="openTestModal(\''+x.k+'\')" style="flex:none;background:var(--mob);color:#0a0b0e;border:none;border-radius:8px;padding:8px 13px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">'+tr('Medir')+'</button></div>';
+      +'<button onclick="openTestModal(\''+x.k+'\')" style="flex:none;background:var(--mob);color:#0a0b0e;border:none;border-radius:8px;padding:8px 13px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">'+tr('Medir')+'</button>'
+      +(h.length?'<button onclick="deleteLastTest(\''+p.id+'\',\''+x.k+'\')" title="'+tr('Borrar último registro')+'" style="flex:none;margin-left:7px;background:rgba(255,107,107,0.10);border:1px solid rgba(255,107,107,0.28);color:#ff6b6b;border-radius:8px;width:34px;height:33px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'')
+      +'</div>';
   }).join('');
 }
 function testsCoachHtml(p){
@@ -4967,6 +4973,32 @@ function openTestModal(k){
   }).join('')):'';
   document.getElementById('test-msg').textContent='';
   document.getElementById('modal-test').classList.add('open');
+}
+async function _persistTests(pid,all){
+  showSyncStatus('saving');
+  var r2=ATH_TOKEN?(await sb.rpc('athlete_save_field',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_field:'tests',p_value:all}))
+                  :(await sb.from('players').update({tests:all}).eq('id',pid));
+  if(r2.error){showSyncStatus('error');showInfo('Error: '+r2.error.message);return false;}
+  showSyncStatus('ok');return true;
+}
+function deleteLastTest(pid,key){
+  var p=PLAYERS.find(function(y){return y.id===pid;});if(!p)return;
+  var x=testDef(key);if(!x)return;
+  var hist=testHistory(p,key);
+  if(!hist.length){showInfo(tr('Este test no tiene registros.'));return;}
+  var last=hist[hist.length-1];
+  var val=x.bi?('I '+last.l+' · D '+last.r+' '+x.u):(last.v+' '+x.u);
+  askConfirm(tr('¿Borrar el último registro de')+' '+tr(x.n)+' ('+fmtDateShort(last.d)+' · '+val+')?',async function(){
+    var all=JSON.parse(JSON.stringify(p.tests||{}));
+    if(!all[key])return;
+    all[key]=all[key].filter(function(e){return e.d!==last.d;});
+    if(!all[key].length)delete all[key];
+    if(!(await _persistTests(pid,all)))return;
+    p.tests=all;
+    try{renderTestsScreen();}catch(e){}
+    try{renderTestsAthlete();}catch(e){}
+    try{if(currentTab==='summary')renderSummary();}catch(e){}
+  },{danger:true,okLabel:'Borrar'});
 }
 async function deleteTestEntry(dISO){
   if(!isCoach||!curTestKey)return;
