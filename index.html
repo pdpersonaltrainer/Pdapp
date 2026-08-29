@@ -1330,7 +1330,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260829-6';
+var APP_VERSION='20260829-7';
 (function(){
   try{
     setTimeout(function(){
@@ -4001,24 +4001,43 @@ function createTraining(){
 
 // ── BLOCKS ──
 function toggleBlock(el){el.closest('.bcard').classList.toggle('open');}
-function isTracked(name){if(!name)return true;return (JB_NOTRACK[currentPlayerId]||[]).indexOf(name)===-1;}
-function toggleTrack(name){
+function isTracked(name,ex){
+  if(ex&&ex.nt)return false;
+  if(!name)return true;
+  return (JB_NOTRACK[currentPlayerId]||[]).indexOf(name)===-1;
+}
+function _exAt(w,d,b,e){
+  var blk=(((PLAN[w]||[])[d]||{}).blocks||[])[b];
+  return (blk&&blk.exs)?blk.exs[e]:null;
+}
+function toggleTrack(name,w,d,b,e){
+  var ex=(w!==undefined&&w!==null&&!isNaN(+w))?_exAt(+w,+d,+b,+e):null;
+  if(draftMode){
+    if(!ex)return;
+    if(ex.nt)delete ex.nt;else ex.nt=true;
+    commitSession();refreshPlanUI();return;
+  }
   if(!currentPlayerId||!name)return;
-  if(draftMode)return;
   if(!JB_NOTRACK[currentPlayerId])JB_NOTRACK[currentPlayerId]=[];
   var arr=JB_NOTRACK[currentPlayerId];
   var i=arr.indexOf(name);
-  if(i>=0)arr.splice(i,1);else arr.push(name);
+  if(i>=0){
+    arr.splice(i,1);
+    if(ex&&ex.nt){delete ex.nt;commitSession();}
+  } else if(ex&&ex.nt){
+    delete ex.nt;commitSession();
+  } else arr.push(name);
   showSyncStatus('saving');
   sb.from('plans').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,no_track:arr,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('toggleTrack',r.error);});
   refreshPlanUI();
 }
 function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
-  var tracked=isTracked(exName);
+  var _exObj=_exAt(wIdx,dIdx,bi,ei);
+  var tracked=isTracked(exName,_exObj);
   var aL=getALoad(bi,ei);
   var nEsc=String(exName||'').replace(/"/g,'&quot;');
   if(isCoach){
-    var tBtn='<button onclick="event.stopPropagation();toggleTrack(this.dataset.n)" data-n="'+nEsc+'" title="'+(tracked?'Registro de carga: activado':'Registro de carga: desactivado')+'" style="width:26px;height:26px;flex:none;border-radius:7px;border:1px solid '+(tracked?'var(--mob)':'var(--border2)')+';background:'+(tracked?'rgba(168,224,99,0.10)':'transparent')+';color:'+(tracked?'var(--mob)':'var(--muted2)')+';display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></button>';
+    var tBtn='<button onclick="event.stopPropagation();toggleTrack(this.dataset.n,this.dataset.w,this.dataset.d,this.dataset.b,this.dataset.e)" data-n="'+nEsc+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" title="'+(tracked?'Registro de carga: activado':'Registro de carga: desactivado')+'" style="width:26px;height:26px;flex:none;border-radius:7px;border:1px solid '+(tracked?'var(--mob)':'var(--border2)')+';background:'+(tracked?'rgba(168,224,99,0.10)':'transparent')+';color:'+(tracked?'var(--mob)':'var(--muted2)')+';display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></button>';
     return '<div style="display:flex;align-items:flex-start;gap:6px;"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><button class="exload-edit" style="cursor:pointer;min-height:26px;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();openPrescModal('+wIdx+','+dIdx+','+bi+','+ei+')">'+(objetivo||TT('definir'))+'</button>'+(tracked&&aL?'<div style="font-size:10px;font-weight:700;color:var(--cm);white-space:nowrap;">Hizo: '+aL+'</div>':'')+'</div>'+tBtn+'</div>';
   }
   if(!tracked)return '<div class="exload l-'+t+'">'+objetivo+'</div>';
