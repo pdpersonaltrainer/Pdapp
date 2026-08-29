@@ -1330,7 +1330,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260829-5';
+var APP_VERSION='20260829-6';
 (function(){
   try{
     setTimeout(function(){
@@ -1372,6 +1372,8 @@ var STATIC_I18N={
 'Cambiar ejercicio':['Swap exercise','Cambia esercizio'],
 'Eliminar registro':['Delete entry','Elimina registrazione'],
 'Borrar último registro':['Delete last entry','Elimina ultima registrazione'],
+'vs semana pasada':['vs last week','vs settimana scorsa'],
+'Perfil de la semana':['Week profile','Profilo della settimana'],
 '¿Borrar el último registro de':['Delete the last entry of','Eliminare l’ultima registrazione di'],
 'Este test no tiene registros.':['This test has no entries.','Questo test non ha registrazioni.'],
 '¿Borrar el registro de':['Delete the entry from','Eliminare la registrazione del'],
@@ -5055,6 +5057,39 @@ async function saveTest(){
 
 /* ===== INFORME PDF DEL ALUMNO ===== */
 function _rpEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+var _RP_MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function _rpDate(iso){
+  if(!iso)return '';
+  var d=isoToDate(iso);
+  if(!d||isNaN(d))return iso;
+  return d.getDate()+' '+_RP_MES[d.getMonth()]+' '+String(d.getFullYear()).slice(-2);
+}
+function _rpRadar(cur,prev){
+  if(!cur)return '';
+  var cx=100,cy=96,R=58;
+  var axes=[['fatiga',-90],['dolor',0],['estres',90],['motiv',180]];
+  var lbl={fatiga:'Fatiga',dolor:'Dolor',estres:'Estrés',motiv:'Ganas'};
+  function pt(v,ang){var a=ang*Math.PI/180;var r=(Math.max(0,Math.min(10,+v||0))/10)*R;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+  function poly(e){return axes.map(function(ax){var p=pt(e[ax[0]],ax[1]);return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');}
+  var outer=axes.map(function(ax){var p=pt(10,ax[1]);return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+  var mid=axes.map(function(ax){var p=pt(5,ax[1]);return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+  var s='<svg viewBox="0 0 200 200" width="230" height="230">';
+  axes.forEach(function(ax){var p=pt(10,ax[1]);s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="#d8dce3" stroke-width="1"/>';});
+  s+='<polygon points="'+outer+'" fill="none" stroke="#c4cad3" stroke-width="1"/>';
+  s+='<polygon points="'+mid+'" fill="none" stroke="#d8dce3" stroke-width="0.8" stroke-dasharray="2 2"/>';
+  if(prev)s+='<polygon points="'+poly(prev)+'" fill="none" stroke="#9aa2ae" stroke-width="1.3" stroke-dasharray="3 3"/>';
+  s+='<polygon points="'+poly(cur)+'" fill="rgba(106,163,43,0.20)" stroke="#6aa32b" stroke-width="2"/>';
+  axes.forEach(function(ax){
+    var p=pt(cur[ax[0]],ax[1]);
+    s+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.6" fill="#4a7a1f"/>';
+    var q=pt(12.6,ax[1]);
+    var anc=ax[1]===0?'start':(ax[1]===180?'end':'middle');
+    var dy=ax[1]===-90?-2:(ax[1]===90?9:3.5);
+    s+='<text x="'+q[0].toFixed(1)+'" y="'+(q[1]+dy).toFixed(1)+'" text-anchor="'+anc+'" font-size="9.5" fill="#5b6270" font-family="Helvetica,Arial,sans-serif">'+tr(lbl[ax[0]])+' '+(cur[ax[0]]||0)+'</text>';
+  });
+  s+='</svg>';
+  return s;
+}
 function _rpRows(rows){
   if(!rows.length)return '<p class="empty">'+tr('Sin datos registrados.')+'</p>';
   return '<table>'+rows.map(function(r){
@@ -5091,7 +5126,7 @@ function buildPlayerReport(pid){
       var val=x.bi?('I '+e.l+' · D '+e.r+' '+x.u):(e.v+' '+x.u);
       var extra='';
       if(x.bi){var ai=asymInfo(x,e);if(ai&&ai.txt)extra=tr('asimetría')+' '+ai.txt;}
-      return [fmtDateShort(e.d),val,extra];
+      return [_rpDate(e.d),val,extra];
     });
     tSec+='<h3>'+tr(x.n)+'</h3>'+_rpRows(rows);
   });
@@ -5102,7 +5137,7 @@ function buildPlayerReport(pid){
   try{vol=weeklyVolHistory(p.id,p.maxes||{})||[];}catch(e){}
   var vRows=vol.filter(function(o){return o.v&&(o.v.sets||o.v.kg);}).slice().reverse().map(function(o){
     var v=o.v;
-    return [fmtDateShort(o.w),(v.kgKnown&&v.kg>0?Math.round(v.kg)+' kg':'—'),(v.sets||0)+' '+tr('series')+' · '+(v.reps||0)+' reps'];
+    return [_rpDate(o.w),(v.kgKnown&&v.kg>0?Math.round(v.kg)+' kg':'—'),(v.sets||0)+' '+tr('series')+' · '+(v.reps||0)+' reps'];
   });
   S.push('<section><h2>'+tr('Tonelaje por semana')+'</h2>'+_rpRows(vRows)+'</section>');
 
@@ -5120,7 +5155,7 @@ function buildPlayerReport(pid){
     var r=byDate[iso].rpes;
     var avg=Math.round(r.reduce(function(a,b){return a+b;},0)/r.length*10)/10;
     var ttl=(ss[iso]&&ss[iso].title)||'';
-    return [fmtDateShort(iso),'RPE '+avg,_rpEsc(ttl)];
+    return [_rpDate(iso),'RPE '+avg,_rpEsc(ttl)];
   });
   S.push('<section><h2>'+tr('RPE por sesión')+'</h2>'+_rpRows(rRows)+'</section>');
 
@@ -5128,7 +5163,7 @@ function buildPlayerReport(pid){
   var acc={};
   try{acc=painsHeat(p,90)||{};}catch(e){}
   var mRows=Object.keys(acc).sort(function(a,b){return acc[b].n-acc[a].n;}).map(function(z){
-    return [tr(BODY_LBL[z]||z),acc[z].n+' '+tr('reportes'),acc[z].last?fmtDateShort(acc[z].last):''];
+    return [tr(BODY_LBL[z]||z),acc[z].n+' '+tr('reportes'),acc[z].last?_rpDate(acc[z].last):''];
   });
   S.push('<section><h2>'+tr('Molestias (90 días)')+'</h2>'+_rpRows(mRows)+'</section>');
 
@@ -5137,14 +5172,17 @@ function buildPlayerReport(pid){
   try{wh=weeklyHistory(p)||[];}catch(e){}
   var wRows=wh.slice().reverse().slice(0,12).map(function(o){
     var e=o.e||{};
-    return [fmtDateShort(o.w),tr('Fatiga')+' '+(e.fatiga||'—')+' · '+tr('Dolor')+' '+(e.dolor||'—')+' · '+tr('Estrés')+' '+(e.estres||'—')+' · '+tr('Ganas')+' '+(e.motiv||'—'),_rpEsc(e.note||'')];
+    return [_rpDate(o.w),tr('Fatiga')+' '+(e.fatiga||'—')+' · '+tr('Dolor')+' '+(e.dolor||'—')+' · '+tr('Estrés')+' '+(e.estres||'—')+' · '+tr('Ganas')+' '+(e.motiv||'—'),_rpEsc(e.note||'')];
   });
-  S.push('<section><h2>'+tr('Autoevaluación semanal')+'</h2>'+_rpRows(wRows)+'</section>');
+  var _last=wh.length?wh[wh.length-1].e:null;
+  var _prev=wh.length>1?wh[wh.length-2].e:null;
+  var _radar=_last?('<div class="radar"><div class="radar-cap">'+tr('Perfil de la semana')+' · '+_rpDate(wh[wh.length-1].w)+(_prev?' <span class="dash">'+tr('vs semana pasada')+'</span>':'')+'</div>'+_rpRadar(_last,_prev)+'</div>'):'';
+  S.push('<section><h2>'+tr('Autoevaluación semanal')+'</h2>'+_radar+_rpRows(wRows)+'</section>');
 
   // ── Notas
   var nRows=[];
   Object.keys(byDate).sort().reverse().forEach(function(iso){
-    byDate[iso].notes.forEach(function(n){nRows.push([fmtDateShort(iso),_rpEsc(n),'']);});
+    byDate[iso].notes.forEach(function(n){nRows.push([_rpDate(iso),_rpEsc(n),'']);});
   });
   if(nRows.length)S.push('<section><h2>'+tr('Notas del alumno')+'</h2>'+_rpRows(nRows.slice(0,25))+'</section>');
 
@@ -5175,7 +5213,7 @@ function exportPlayerPDF(pid){
     +'td:last-child{color:#5b6270;}'
     +'.big{font-size:17pt;font-weight:700;margin:0;color:#4a7a1f;}'
     +'.small{font-size:10pt;font-weight:400;color:#5b6270;}'
-    +'.empty{color:#8b919c;font-style:italic;font-size:10pt;margin:2px 0;}'
+    +'.empty{color:#8b919c;font-style:italic;font-size:10pt;margin:2px 0;}'+'.radar{text-align:center;margin:4px 0 12px;page-break-inside:avoid;}'+'.radar-cap{font-size:9pt;color:#5b6270;margin-bottom:2px;}'+'.radar-cap .dash{color:#9aa2ae;}'
     +'footer{margin-top:22px;padding-top:8px;border-top:1px solid #d8dce3;color:#8b919c;font-size:8.5pt;text-align:center;}';
   var hdrLogo='<img class="logo" src="'+logo+'" onerror="this.style.display=\'none\'"/>';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"/><title>'+_rpEsc(p.name)+'</title><style>'+css+'</style></head><body>'
