@@ -1338,7 +1338,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260829-8';
+var APP_VERSION='20260830-1';
 (function(){
   try{
     setTimeout(function(){
@@ -1423,6 +1423,9 @@ var STATIC_I18N={
 'Abrir sesión':['Open session','Apri sessione'],
 'Este video se abre fuera de la app.':['This video opens outside the app.','Questo video si apre fuori dall’app.'],
 'Abrir video':['Open video','Apri video'],
+'Ver plan de':['View plan of','Vedi il piano di'],
+'Ver sesión de':['View session of','Vedi la sessione di'],
+'Abrir sesión de':['Open session of','Apri la sessione di'],
 'Marcar como completado':['Mark as completed','Segna come completato'],
 'Mover a otra fecha':['Move to another date','Sposta ad altra data'],
 'Guardar como modelo':['Save as template','Salva come modello'],
@@ -1664,7 +1667,7 @@ var STATIC_I18N={
 function applyLang(){
   function st(id,k){var e=document.getElementById(id);if(e)e.textContent=t(k);}
   function sp(id,k){var e=document.getElementById(id);if(e)e.placeholder=t(k);}
-  st('welcome-sub','planPersonal');st('wl-btn','verMiPlan');
+  st('welcome-sub','planPersonal');try{var _wb2=document.getElementById('wl-btn');if(_wb2)_wb2.textContent=wlBtnTxt('verMiPlan');}catch(e){}
   st('w-q-title','wQTitle');st('w-lb-sleep','wSleep');st('w-lo-sleep','wMal');st('w-hi-sleep','wExc');
   st('w-lb-energy','wEnergy');st('w-lo-energy','wBajo');st('w-hi-energy','wAlto');st('w-lb-pain','wPain');
   st('w-pain-no-btn','no');st('w-pain-yes-btn','si');sp('w-pain-note','wPainPh');
@@ -3661,6 +3664,18 @@ function doSelectPlayer(pid){
   document.getElementById('screen-select').style.display='none';
   try{renderAthleteHome();}catch(e){console.error('athleteHome',e);}
 }
+function wlBtnTxt(key){
+  var nm='';
+  if(isCoach&&currentPlayerId){
+    var _p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
+    if(_p&&_p.name)nm=String(_p.name).trim().split(/\s+/)[0];
+  }
+  if(!nm)return TT(key);
+  if(key==='verMiPlan')return TT('Ver plan de')+' '+nm;
+  if(key==='verMiSesion')return TT('Ver sesión de')+' '+nm;
+  if(key==='empezar')return TT('Abrir sesión de')+' '+nm;
+  return TT(key);
+}
 function renderAthleteHome(){
   var pid=currentPlayerId;if(!pid)return;
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
@@ -3671,23 +3686,23 @@ function renderAthleteHome(){
   // racha
   var stk=getStreak(pid);
   var se=document.getElementById('wl-streak');
-  if(stk>=2){se.style.display='block';se.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stk+' '+t('enRacha')+'</span>';}
+  if(stk>=2){se.style.display='block';se.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stk+' '+TT('enRacha')+'</span>';}
   else se.style.display='none';
   // panel de hoy
   var t=document.getElementById('wl-today');
   if(has){
     var nb=s.blocks.length;
-    t.innerHTML='<div style="background:var(--s1);border:1px solid '+(doneToday?'var(--mob)':'var(--border)')+';border-radius:var(--r);padding:14px 16px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.28);"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+t('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.02em;color:'+(doneToday?'var(--mob)':'var(--text)')+';">'+(doneToday?'\u2713 ':'')+(s.title||t('entrenamiento'))+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+nb+' '+(nb!==1?t('bloques'):t('bloque'))+(doneToday?' \u00b7 '+t('completado'):'')+'</div></div>';
-    document.getElementById('wl-btn').textContent=doneToday?t('verMiSesion'):t('empezar');
+    t.innerHTML='<div style="background:var(--s1);border:1px solid '+(doneToday?'var(--mob)':'var(--border)')+';border-radius:var(--r);padding:14px 16px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.28);"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+TT('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.02em;color:'+(doneToday?'var(--mob)':'var(--text)')+';">'+(doneToday?'\u2713 ':'')+(s.title||TT('entrenamiento'))+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+nb+' '+(nb!==1?TT('bloques'):TT('bloque'))+(doneToday?' \u00b7 '+TT('completado'):'')+'</div></div>';
+    document.getElementById('wl-btn').textContent=doneToday?wlBtnTxt('verMiSesion'):wlBtnTxt('empezar');
   }else{
-    t.innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:left;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+t('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;color:var(--muted);">'+t('diaLibre')+'</div><div style="font-size:12px;color:var(--muted2);margin-top:2px;">'+t('sinEntreno')+'</div></div>';
-    document.getElementById('wl-btn').textContent=t('verMiPlan');
+    t.innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:left;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+TT('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;color:var(--muted);">'+TT('diaLibre')+'</div><div style="font-size:12px;color:var(--muted2);margin-top:2px;">'+TT('sinEntreno')+'</div></div>';
+    document.getElementById('wl-btn').textContent=wlBtnTxt('verMiPlan');
   }
   // mini calendario del mes
   var d=isoToDate(today);var y=d.getFullYear(),mo=d.getMonth();
   var first=new Date(y,mo,1);var dow=first.getDay();var off=(dow===0?6:dow-1);
   var dim=new Date(y,mo+1,0).getDate();
-  var labels=t('dowL');
+  var labels=TT('dowL');
   var head=labels.map(function(l){return '<div style="text-align:center;font-size:9px;font-weight:700;color:var(--muted2);">'+l+'</div>';}).join('');
   var cells='';
   for(var i=0;i<off;i++)cells+='<div></div>';
