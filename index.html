@@ -369,7 +369,7 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .empty-state .emi{font-size:36px;margin-bottom:8px;}
 .empty-state p{font-size:13px;}
 #loading-overlay{position:fixed;inset:0;z-index:999;background:#0a0b0e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
-#loading-spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.12);border-top-color:#a8e063;border-radius:50%;animation:spin 0.8s linear infinite;}
+#loading-spinner{width:76px;height:76px;object-fit:contain;display:block;animation:pdpulse 1.5s ease-in-out infinite;will-change:opacity,transform;}@keyframes pdpulse{0%,100%{opacity:0.35;transform:scale(0.92);}50%{opacity:1;transform:scale(1.04);}}@media (prefers-reduced-motion:reduce){#loading-spinner{animation:pdfade 1.6s ease-in-out infinite;}@keyframes pdfade{0%,100%{opacity:0.45;}50%{opacity:1;}}}
 @keyframes spin{to{transform:rotate(360deg);}}
 #loading-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#eef0f5;}
 #loading-error{display:none;font-size:12px;color:#ff4d4d;text-align:center;max-width:260px;line-height:1.6;}
@@ -444,7 +444,7 @@ body{overflow-x:hidden;}
 
 <!-- LOADING OVERLAY -->
 <div id="loading-overlay">
-  <div id="loading-spinner"></div>
+  <img id="loading-spinner" src="logo-bg.png" alt="PDapp"/>
   <div id="loading-title">Cargando PDapp…</div>
   <div id="loading-error">
     No se pudo conectar.<br/>Revisá tu conexión e intentá de nuevo.<br/><br/>
@@ -1338,7 +1338,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260830-2';
+var APP_VERSION='20260830-3';
 (function(){
   try{
     setTimeout(function(){
