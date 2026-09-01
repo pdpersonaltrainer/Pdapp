@@ -395,6 +395,7 @@ body{overflow-x:hidden;}
       <input id="login-pass" type="password" placeholder="Contrase&#241;a" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();login();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <button onclick="login()" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
       <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;font-size:12.5px;color:#6b7280;line-height:1.55;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
       <button onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Ten&#233;s c&#243;digo de invitaci&#243;n? Registrate &#8594;</button>
       <button onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
     </div>
@@ -1341,7 +1342,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260901-5';
+var APP_VERSION='20260902-1';
 (function(){
   try{
     setTimeout(function(){
@@ -1430,6 +1431,7 @@ var STATIC_I18N={
 'Notificaciones':['Notifications','Notifiche'],
 'Activar avisos':['Turn on notifications','Attiva avvisi'],
 'Probar aviso':['Send test','Prova avviso'],
+'Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.':['If you’re an athlete you don’t need an account: use the personal link your coach sent you.','Se sei un atleta non serve un account: entra con il link personale che ti ha inviato il tuo coach.'],
 'Reportó dolor fuerte:':['Reported severe pain:','Ha segnalato dolore forte:'],
 'Si ves esto, los avisos funcionan.':['If you see this, notifications work.','Se vedi questo, gli avvisi funzionano.'],
 'Enviada. Debería llegarte en unos segundos.':['Sent. It should arrive in a few seconds.','Inviato. Dovrebbe arrivare tra pochi secondi.'],
@@ -2320,6 +2322,7 @@ async function loadPlayerData(tid){
 }
 async function bootAthlete(tk){
   ATH_TOKEN=tk;PLAYER_MODE=true;isCoach=false;
+  try{dropManifestForAthlete();}catch(e){}
   document.getElementById('screen-login').style.display='none';
   var ct=document.getElementById('coach-toggle');if(ct)ct.style.display='none';
   var lo=document.getElementById('logout-btn');if(lo)lo.style.display='none';
@@ -5369,6 +5372,19 @@ function _u8(b64){
   var raw=atob(s);var out=new Uint8Array(raw.length);
   for(var i=0;i<raw.length;i++)out[i]=raw.charCodeAt(i);
   return out;
+}
+/* iOS: el almacenamiento de la PWA está aislado del de Safari, así que el token
+   guardado no viaja al agregar a pantalla de inicio. Sin <link rel="manifest">,
+   iOS usa la URL abierta (con el token) para crear el ícono. La etiqueta
+   apple-mobile-web-app-capable mantiene la pantalla completa. */
+function dropManifestForAthlete(){
+  try{
+    if(!ATH_TOKEN)return;
+    if(!/iPad|iPhone|iPod/.test(navigator.userAgent))return;
+    if(window.navigator.standalone===true)return; // ya está instalada
+    var l=document.querySelector('link[rel="manifest"]');
+    if(l&&l.parentNode)l.parentNode.removeChild(l);
+  }catch(e){}
 }
 function pushSupported(){
   return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
