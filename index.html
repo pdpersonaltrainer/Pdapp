@@ -1341,7 +1341,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260901-3';
+var APP_VERSION='20260901-4';
 (function(){
   try{
     setTimeout(function(){
@@ -1429,6 +1429,10 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Activar avisos':['Turn on notifications','Attiva avvisi'],
+'Probar aviso':['Send test','Prova avviso'],
+'Si ves esto, los avisos funcionan.':['If you see this, notifications work.','Se vedi questo, gli avvisi funzionano.'],
+'Enviada. Debería llegarte en unos segundos.':['Sent. It should arrive in a few seconds.','Inviato. Dovrebbe arrivare tra pochi secondi.'],
+'No hay dispositivos suscritos todavía.':['No subscribed devices yet.','Nessun dispositivo iscritto per ora.'],
 'Avisos activados':['Notifications on','Avvisi attivi'],
 'Avisos desactivados':['Notifications off','Avvisi disattivati'],
 'Recibí un aviso cuando haya novedades.':['Get notified when something happens.','Ricevi un avviso quando ci sono novità.'],
@@ -5448,6 +5452,20 @@ async function renderWlPush(){
       +tr('Activar avisos')+'</button>';
   }
 }
+async function testPush(){
+  var btn=document.getElementById('push-test-btn');
+  if(btn){btn.disabled=true;btn.textContent=tr('Enviando...');}
+  try{
+    var r=await sb.functions.invoke('send-push',{body:{to:'self',title:'PDapp',body:tr('Si ves esto, los avisos funcionan.'),url:'/'}});
+    if(r.error)throw r.error;
+    var n=(r.data&&r.data.sent)||0;
+    if(n>0)showInfo(tr('Enviada. Debería llegarte en unos segundos.'));
+    else showInfo(tr('No hay dispositivos suscritos todavía.'));
+  }catch(e){
+    showInfo('Error: '+((e&&e.message)||e));
+  }
+  if(btn){btn.disabled=false;btn.textContent=tr('Probar aviso');}
+}
 async function renderPushBox(){
   var box=document.getElementById('push-box');if(!box)return;
   if(!pushSupported()){
@@ -5467,7 +5485,8 @@ async function renderPushBox(){
     +'<div style="flex:1;min-width:0;"><div style="font-size:13px;color:var(--text);">'+(on?tr('Avisos activados'):tr('Avisos desactivados'))+'</div>'
     +'<div style="font-size:11.5px;color:var(--muted2);margin-top:2px;line-height:1.45;">'+tr('Recibí un aviso cuando haya novedades.')+'</div></div>'
     +'<button onclick="'+(on?'disablePush()':'enablePush()')+'" style="flex:none;background:'+(on?'var(--s2)':'var(--mob)')+';color:'+(on?'var(--text)':'#0a0b0e')+';border:1px solid '+(on?'var(--border2)':'var(--mob)')+';border-radius:8px;padding:8px 14px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'
-    +(on?tr('Desactivar'):tr('Activar'))+'</button></div>';
+    +(on?tr('Desactivar'):tr('Activar'))+'</button></div>'
+    +(on?'<button id="push-test-btn" onclick="testPush()" style="width:100%;box-sizing:border-box;margin-top:10px;background:transparent;border:1px dashed var(--border2);color:var(--muted);border-radius:8px;padding:9px;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'+tr('Probar aviso')+'</button>':'');
 }
 /* ===== fin push ===== */
 
