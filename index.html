@@ -296,7 +296,7 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .pnl-card:active{border-color:var(--mob);}
 .pnl-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.03em;text-transform:uppercase;color:var(--text);}
 .pnl-meta{font-size:11.5px;color:var(--muted2);margin-top:1px;}
-.pnl-ok-hdr{display:flex;align-items:center;gap:8px;padding:11px 4px;margin-top:6px;cursor:pointer;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;}
+.pnl-add{width:100%;box-sizing:border-box;padding:11px;margin-bottom:12px;border-radius:var(--rsm);border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}.pnl-add:active{border-color:var(--mob);color:var(--mob);}.pnl-ok-hdr{display:flex;align-items:center;gap:8px;padding:11px 4px;margin-top:6px;cursor:pointer;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;}
 .exnote-coach{display:flex;align-items:flex-start;gap:6px;margin-top:6px;padding:7px 9px;background:rgba(168,224,99,0.08);border-left:2px solid var(--mob);border-radius:0 6px 6px 0;font-size:12.5px;line-height:1.45;color:var(--text);}
 .exnote-coach svg{width:13px;height:13px;flex:none;color:var(--mob);margin-top:2px;}
 .sum-sec-title{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--text);}
@@ -1338,7 +1338,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260830-3';
+var APP_VERSION='20260901-1';
 (function(){
   try{
     setTimeout(function(){
@@ -1423,6 +1423,7 @@ var STATIC_I18N={
 'Abrir sesión':['Open session','Apri sessione'],
 'Este video se abre fuera de la app.':['This video opens outside the app.','Questo video si apre fuori dall’app.'],
 'Abrir video':['Open video','Apri video'],
+'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Algunos alumnos ya tienen sesiones en esos días. ¿Qué hago con esos días? (cerrá este aviso para cancelar)':['Some athletes already have sessions on those days. What should I do with them? (close this notice to cancel)','Alcuni atleti hanno già sessioni in quei giorni. Cosa faccio con quei giorni? (chiudi questo avviso per annullare)'],
 'Nombre de la sesión':['Session name','Nome della sessione'],
 'Nombre de tu copia':['Name of your copy','Nome della tua copia'],
@@ -3317,7 +3318,11 @@ function togglePanelOk(){
 }
 function renderPanel(){
   var el=document.getElementById('panel-view');if(!el)return;
-  if(!PLAYERS.length){el.innerHTML='<div class="empty-state"><p>'+tr('Todavía no tenés alumnos.')+'</p></div>';return;}
+  if(!PLAYERS.length){
+    el.innerHTML='<div class="empty-state"><p>'+tr('Todavía no tenés alumnos.')+'</p></div>'
+      +(isCoach?'<button class="pnl-add" onclick="openPlayerModal()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'+tr('Agregar alumno')+'</button>':'');
+    return;
+  }
   var _fp=filteredPlayers();
   if(!_fp.length){el.innerHTML=noMatchHtml();return;}
   var rows=_fp.map(function(p){var al=panelAlerts(p);return {p:p,al:al,r:panelRank(al)};});
@@ -3329,6 +3334,11 @@ function renderPanel(){
     +'<div class="pnl-stat"><div class="pnl-stat-n" style="color:'+(conAlerta.length?'#ffb020':'var(--mob)')+';">'+conAlerta.length+'</div><div class="pnl-stat-l">'+tr('Con alerta')+'</div></div>'
     +'<div class="pnl-stat"><div class="pnl-stat-n" style="color:'+(nAlta?'#ff6b6b':'var(--mob)')+';">'+nAlta+'</div><div class="pnl-stat-l">'+tr('Urgentes')+'</div></div>'
     +'</div>';
+  if(isCoach){
+    head+='<button class="pnl-add" onclick="openPlayerModal()">'
+      +'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+      +tr('Agregar alumno')+'</button>';
+  }
   var body='';
   if(conAlerta.length){
     body+=conAlerta.map(function(x){return panelCard(x.p,x.al);}).join('');
