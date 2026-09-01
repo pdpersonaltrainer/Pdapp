@@ -983,6 +983,21 @@ body{overflow-x:hidden;}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-folder" onclick="if(event.target===this)closeFolderModal()">
+  <div class="modal" style="max-width:400px;">
+    <h3>Mover a carpeta</h3>
+    <div id="fold-name" style="font-size:12.5px;color:var(--muted2);margin:-4px 0 14px;"></div>
+    <input type="hidden" id="fold-target"/>
+    <div id="fold-list" style="max-height:38vh;overflow-y:auto;margin-bottom:12px;"></div>
+    <div class="form-row"><label>Nueva carpeta</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="fold-new" placeholder="Ej: Fuerza" onkeydown="if(event.key==='Enter'){event.preventDefault();createFolderFor();}" style="flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/>
+        <button onclick="createFolderFor()" style="flex:none;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:10px 15px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">Crear</button>
+      </div>
+    </div>
+    <div class="modal-btns"><button class="mbtn mbtn-cancel" onclick="closeFolderModal()">Cancelar</button></div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-tplpick" onclick="if(event.target===this)closeTplPick()">
   <div class="modal" style="max-width:440px;">
     <h3>Cargar entrenamiento</h3>
@@ -1350,7 +1365,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260902-3';
+var APP_VERSION='20260902-4';
 (function(){
   try{
     setTimeout(function(){
@@ -1434,6 +1449,16 @@ var STATIC_I18N={
 'Eliminar sesión':['Delete session','Elimina sessione'],
 'Abrir sesión':['Open session','Apri sessione'],
 'Crear entrenamiento':['Create workout','Crea allenamento'],
+'Carpeta':['Folder','Cartella'],
+'Mover a carpeta':['Move to folder','Sposta in cartella'],
+'Nueva carpeta':['New folder','Nuova cartella'],
+'Sin carpeta':['No folder','Senza cartella'],
+'Todas':['All','Tutte'],
+'Crear':['Create','Crea'],
+'Buscar sesión...':['Search session...','Cerca sessione...'],
+'Ninguna sesión coincide.':['No session matches.','Nessuna sessione corrisponde.'],
+'Escribí un nombre de carpeta.':['Type a folder name.','Scrivi un nome per la cartella.'],
+'Ej: Fuerza':['E.g.: Strength','Es: Forza'],
 'Cargar entrenamiento':['Load workout','Carica allenamento'],
 'Todavía no tenés sesiones guardadas.':['You don’t have saved sessions yet.','Non hai ancora sessioni salvate.'],
 'ejercicios':['exercises','esercizi'],
@@ -3041,7 +3066,7 @@ function openTemplatesFromHome(){
 }
 async function loadTemplates(){
   var r=await sb.from('session_templates').select('*').order('created_at',{ascending:false});
-  if(!r.error)TEMPLATES=(r.data||[]).map(function(t){return {id:t.id,name:t.name,data:t.data||{},is_base:t.is_base,trainer_id:t.trainer_id};});
+  if(!r.error)TEMPLATES=(r.data||[]).map(function(t){return {id:t.id,name:t.name,data:t.data||{},is_base:t.is_base,trainer_id:t.trainer_id,folder:t.folder||null};});
 }
 function previewTemplate(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
@@ -3065,18 +3090,94 @@ function previewTemplate(id){
   }
 }
 function closeTplPreview(){document.getElementById('modal-tpl-preview').classList.remove('open');}
+var tplFolder='__all__', tplQuery='';
+function tplFolders(){
+  var own=TEMPLATES.filter(function(t){return t.trainer_id===MY_UID;});
+  var set={};
+  own.forEach(function(t){var f=(t.folder||'').trim();if(f)set[f]=1;});
+  return Object.keys(set).sort(function(a,b){return a.localeCompare(b,'es');});
+}
+function setTplFolder(f){tplFolder=f;renderTemplates();}
+function onTplSearch(){
+  var el=document.getElementById('tpl-search');
+  tplQuery=el?el.value.trim():'';
+  renderTemplates();
+}
+async function assignFolder(id){
+  var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
+  var fs=tplFolders();
+  var opts=fs.map(function(f){
+    return '<button onclick="doAssignFolder(this.dataset.id,this.dataset.f)" data-id="'+id+'" data-f="'+String(f).replace(/"/g,'&quot;')+'" style="width:100%;box-sizing:border-box;text-align:left;background:'+((t.folder||'')===f?'rgba(168,224,99,0.12)':'var(--s2)')+';border:1px solid '+((t.folder||'')===f?'var(--mob)':'var(--border2)')+';color:var(--text);border-radius:var(--rsm);padding:10px 13px;margin-bottom:7px;cursor:pointer;font-family:\'Barlow\',sans-serif;font-size:14px;">'+f+'</button>';
+  }).join('');
+  document.getElementById('fold-list').innerHTML=opts
+    +'<button onclick="doAssignFolder(this.dataset.id,\'\')" data-id="'+id+'" style="width:100%;box-sizing:border-box;text-align:left;background:var(--s2);border:1px solid var(--border2);color:var(--muted);border-radius:var(--rsm);padding:10px 13px;margin-bottom:7px;cursor:pointer;font-family:\'Barlow\',sans-serif;font-size:14px;">'+tr('Sin carpeta')+'</button>';
+  document.getElementById('fold-new').value='';
+  document.getElementById('fold-target').value=id;
+  document.getElementById('fold-name').textContent=t.name;
+  document.getElementById('modal-folder').classList.add('open');
+}
+function closeFolderModal(){document.getElementById('modal-folder').classList.remove('open');}
+function createFolderFor(){
+  var id=document.getElementById('fold-target').value;
+  var n=(document.getElementById('fold-new').value||'').trim();
+  if(!n){showInfo(tr('Escribí un nombre de carpeta.'));return;}
+  doAssignFolder(id,n);
+}
+async function doAssignFolder(id,folder){
+  var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
+  var val=(folder||'').trim()||null;
+  showSyncStatus('saving');
+  var r=await sb.from('session_templates').update({folder:val}).eq('id',id).eq('trainer_id',MY_UID);
+  if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+  showSyncStatus('ok');
+  t.folder=val;
+  closeFolderModal();
+  renderTemplates();
+}
+function _tplNorm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
 function renderTemplates(){
   var el=document.getElementById('tpl-list');if(!el)return;
   var own=TEMPLATES.filter(function(t){return t.trainer_id===MY_UID;});
-  if(!own.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);padding:30px 0;font-size:13px;">'+t('tplEmpty')+'</div>';return;}
-  el.innerHTML=own.map(function(t){
+  if(!own.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);padding:30px 0;font-size:13px;">'+TT('tplEmpty')+'</div>';return;}
+
+  var folders=tplFolders();
+  var chips='';
+  if(folders.length){
+    var mk=function(key,label,n){
+      var on=(tplFolder===key);
+      return '<button onclick="setTplFolder(this.dataset.k)" data-k="'+String(key).replace(/"/g,'&quot;')+'" style="flex:none;background:'+(on?'var(--mob)':'var(--s2)')+';color:'+(on?'#0a0b0e':'var(--muted)')+';border:1px solid '+(on?'var(--mob)':'var(--border2)')+';border-radius:999px;padding:7px 14px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">'+label+(n!=null?' ('+n+')':'')+'</button>';
+    };
+    var sinC=own.filter(function(x){return !(x.folder||'').trim();}).length;
+    chips='<div style="display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:10px;">'
+      +mk('__all__',tr('Todas'),own.length)
+      +folders.map(function(f){return mk(f,f,own.filter(function(x){return (x.folder||'').trim()===f;}).length);}).join('')
+      +(sinC?mk('__none__',tr('Sin carpeta'),sinC):'')
+      +'</div>';
+  }
+  var searchBox=(own.length>=5)?'<div style="position:relative;margin-bottom:12px;">'
+    +'<span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted2);display:flex;pointer-events:none;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>'
+    +'<input type="text" id="tpl-search" value="'+String(tplQuery).replace(/"/g,'&quot;')+'" oninput="onTplSearch()" placeholder="'+tr('Buscar sesión...')+'" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px 10px 34px;font-family:\'Barlow\',sans-serif;font-size:14px;color:var(--text);outline:none;"></div>':'';
+
+  var list=own.filter(function(x){
+    if(tplFolder==='__none__'&&(x.folder||'').trim())return false;
+    if(tplFolder!=='__all__'&&tplFolder!=='__none__'&&(x.folder||'').trim()!==tplFolder)return false;
+    if(tplQuery&&_tplNorm(x.name).indexOf(_tplNorm(tplQuery))<0)return false;
+    return true;
+  });
+  if(!list.length){
+    el.innerHTML=chips+searchBox+'<div style="text-align:center;color:var(--muted2);padding:26px 0;font-size:13px;">'+tr('Ninguna sesión coincide.')+'</div>';
+    var _si=document.getElementById('tpl-search');if(_si&&tplQuery){_si.focus();_si.setSelectionRange(_si.value.length,_si.value.length);}
+    return;
+  }
+  el.innerHTML=chips+searchBox+list.map(function(t){
     var bl=(t.data.blocks||[]);var nEx=bl.reduce(function(a,b){return a+((b.exs||[]).length);},0);
     var mine=t.trainer_id===MY_UID;
     var baseTag=t.is_base&&!mine?'<span style="font-size:9px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--cm);border:1px solid var(--cm);border-radius:4px;padding:1px 6px;margin-left:8px;">Base</span>':'';
     var pdTag=t.is_base&&mine?'<span style="font-size:9px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--mob);border:1px solid var(--mob);border-radius:4px;padding:1px 6px;margin-left:8px;">Metodología PD</span>':'';
+    var foldBtn=mine?'<button onclick="assignFolder(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:var(--rsm);font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:8px 12px;font-family:\'Barlow Condensed\',sans-serif;">'+tr('Carpeta')+'</button>':'';
     var delBtn=mine?'<button onclick="delTemplate(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:none;color:#ff6b6b;font-size:12px;font-weight:700;cursor:pointer;padding:6px 10px;">Eliminar</button>':'';
     var pubBtn=(mine&&isAdmin)?'<button onclick="togglePDBase(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:1px solid '+(t.is_base?'var(--muted2)':'var(--mob)')+';color:'+(t.is_base?'var(--muted)':'var(--mob)')+';border-radius:var(--rsm);font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:8px 12px;">'+(t.is_base?'Quitar de PD':'Publicar como PD')+'</button>':'';
-    return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;cursor:pointer;" onclick="previewTemplate(this.dataset.id)" data-id="'+t.id+'">'+t.name+baseTag+pdTag+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+bl.length+' '+(bl.length!==1?TT('bloques'):TT('bloque'))+' &#183; '+nEx+' '+(nEx!==1?TT('ejercicios'):TT('ejercicio'))+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;flex-wrap:wrap;"><button onclick="previewTemplate(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:90px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Ver</button><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:130px;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button>'+pubBtn+delBtn+'</div></div>';
+    return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;cursor:pointer;" onclick="previewTemplate(this.dataset.id)" data-id="'+t.id+'">'+t.name+baseTag+pdTag+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+((t.folder||'').trim()?'<span style="color:var(--mob);">'+t.folder+'</span> &#183; ':'')+bl.length+' '+(bl.length!==1?TT('bloques'):TT('bloque'))+' &#183; '+nEx+' '+(nEx!==1?TT('ejercicios'):TT('ejercicio'))+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;flex-wrap:wrap;"><button onclick="previewTemplate(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:90px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Ver</button><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:130px;background:var(--mob);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button>'+foldBtn+pubBtn+delBtn+'</div></div>';
   }).join('');
 }
 function renderPDMethod(){
