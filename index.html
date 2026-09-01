@@ -1350,7 +1350,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260902-2';
+var APP_VERSION='20260902-3';
 (function(){
   try{
     setTimeout(function(){
@@ -4855,10 +4855,15 @@ function emptyDayCreate(){
   if(!i)return;
   curDate=i;openDate(i);createTraining();
 }
-function emptyDayTemplate(){
+async function emptyDayTemplate(){
   var i=calMenuIso;closeDayMenu();
   if(!i)return;
   curDate=i;
+  if(!TEMPLATES||!TEMPLATES.length){
+    showSyncStatus('saving');
+    try{await loadTemplates();}catch(e){console.error('loadTemplates',e);}
+    showSyncStatus('ok');
+  }
   if(!TEMPLATES||!TEMPLATES.length){showInfo(tr('Todavía no tenés sesiones guardadas.'));return;}
   var lst=TEMPLATES.map(function(t){
     var nb=((t.data&&t.data.blocks)||[]).length;
