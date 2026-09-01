@@ -1341,7 +1341,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260901-4';
+var APP_VERSION='20260901-5';
 (function(){
   try{
     setTimeout(function(){
@@ -1430,6 +1430,7 @@ var STATIC_I18N={
 'Notificaciones':['Notifications','Notifiche'],
 'Activar avisos':['Turn on notifications','Attiva avvisi'],
 'Probar aviso':['Send test','Prova avviso'],
+'Reportó dolor fuerte:':['Reported severe pain:','Ha segnalato dolore forte:'],
 'Si ves esto, los avisos funcionan.':['If you see this, notifications work.','Se vedi questo, gli avvisi funzionano.'],
 'Enviada. Debería llegarte en unos segundos.':['Sent. It should arrive in a few seconds.','Inviato. Dovrebbe arrivare tra pochi secondi.'],
 'No hay dispositivos suscritos todavía.':['No subscribed devices yet.','Nessun dispositivo iscritto per ora.'],
@@ -1876,6 +1877,14 @@ async function saveBodyPains(){
   btn.disabled=false;btn.textContent=tr('Guardar');
   if(r.error){msg.style.color='#ff6b6b';msg.textContent='Error: '+r.error.message;return;}
   if(p)p.pains=all;
+  try{
+    var _fuertes=arr.filter(function(x){return x.lvl===3;});
+    if(_fuertes.length&&ATH_TOKEN){
+      var _z=_fuertes.slice(0,2).map(function(x){return tr(BODY_LBL[x.z]||x.z);}).join(', ');
+      if(_fuertes.length>2)_z+=' +'+(_fuertes.length-2);
+      notifyCoach((p&&p.name)||'PDapp',tr('Reportó dolor fuerte:')+' '+_z);
+    }
+  }catch(e){}
   closeBodyModal();
   try{renderTestsAthlete();}catch(e){}
   try{renderSummary();}catch(e){}
@@ -1951,6 +1960,14 @@ async function submitWeekly(){
   btn.disabled=false;btn.textContent=tr('Listo \u2192');
   if(r.error){msgEl.style.color='#ff6b6b';msgEl.textContent='Error: '+r.error.message;return;}
   if(p)p.weekly=all;
+  try{
+    if(entry.dolor<=3||entry.fatiga<=3){
+      var _d=[];
+      if(entry.fatiga<=3)_d.push(tr('fatiga')+' '+entry.fatiga);
+      if(entry.dolor<=3)_d.push(tr('dolor')+' '+entry.dolor);
+      notifyCoach((p&&p.name)||'PDapp',tr('Autoevaluación en rojo')+' ('+_d.join(' · ')+')');
+    }
+  }catch(e){}
   document.getElementById('screen-weekly').style.display='none';
   doSelectPlayer(currentPlayerId);
 }
@@ -5451,6 +5468,13 @@ async function renderWlPush(){
       +'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>'
       +tr('Activar avisos')+'</button>';
   }
+}
+function notifyCoach(title,text){
+  try{
+    if(!ATH_TOKEN)return;
+    sb.functions.invoke('send-push',{body:{to:'my_coach',athlete_token:ATH_TOKEN,title:title,body:text,url:'/'}})
+      .then(function(){},function(e){console.error('notifyCoach',e);});
+  }catch(e){console.error('notifyCoach',e);}
 }
 async function testPush(){
   var btn=document.getElementById('push-test-btn');
