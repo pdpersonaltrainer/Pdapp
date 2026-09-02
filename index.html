@@ -395,7 +395,15 @@ body{overflow-x:hidden;}
       <input id="login-pass" type="password" placeholder="Contrase&#241;a" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();login();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <button onclick="login()" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
       <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;font-size:12.5px;color:#6b7280;line-height:1.55;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;">
+        <div style="font-size:12.5px;color:#6b7280;line-height:1.55;margin-bottom:9px;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
+        <button onclick="toggleAthLink()" id="athlink-toggle" style="width:100%;padding:0;border:none;background:none;color:#a8e063;font-size:13px;font-weight:700;cursor:pointer;text-align:left;">Pegar mi enlace de alumno →</button>
+        <div id="athlink-box" style="display:none;margin-top:10px;">
+          <input id="athlink-input" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Pegá acá el enlace que te pasaron" onkeydown="if(event.key==='Enter'){event.preventDefault();enterWithLink();}" style="width:100%;padding:13px;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
+          <button onclick="enterWithLink()" style="width:100%;padding:13px;margin-top:8px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
+          <div id="athlink-err" style="color:#ff4d4d;font-size:12.5px;margin-top:8px;min-height:16px;"></div>
+        </div>
+      </div>
       <button onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Ten&#233;s c&#243;digo de invitaci&#243;n? Registrate &#8594;</button>
       <button onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
     </div>
@@ -1365,7 +1373,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260902-4';
+var APP_VERSION='20260902-5';
 (function(){
   try{
     setTimeout(function(){
@@ -1450,6 +1458,10 @@ var STATIC_I18N={
 'Abrir sesión':['Open session','Apri sessione'],
 'Crear entrenamiento':['Create workout','Crea allenamento'],
 'Carpeta':['Folder','Cartella'],
+'Pegar mi enlace de alumno →':['Paste my athlete link →','Incolla il mio link atleta →'],
+'Ocultar':['Hide','Nascondi'],
+'Pegá acá el enlace que te pasaron':['Paste the link you were sent','Incolla qui il link che ti hanno inviato'],
+'Ese enlace no parece válido. Copialo completo del mensaje de tu profe.':['That link doesn’t look valid. Copy the whole link from your coach’s message.','Il link non sembra valido. Copia il link completo dal messaggio del tuo coach.'],
 'Mover a carpeta':['Move to folder','Sposta in cartella'],
 'Nueva carpeta':['New folder','Nuova cartella'],
 'Sin carpeta':['No folder','Senza cartella'],
@@ -5540,11 +5552,52 @@ function _u8(b64){
 function dropManifestForAthlete(){
   try{
     if(!ATH_TOKEN)return;
-    if(!/iPad|iPhone|iPod/.test(navigator.userAgent))return;
     if(window.navigator.standalone===true)return; // ya está instalada
     var l=document.querySelector('link[rel="manifest"]');
-    if(l&&l.parentNode)l.parentNode.removeChild(l);
+    if(!l)return;
+    // 1) Intento fino: manifest generado al vuelo con el token en start_url.
+    try{
+      var mf={
+        name:'PDapp · Pablo PT', short_name:'PDapp',
+        start_url: location.pathname + '?t=' + encodeURIComponent(ATH_TOKEN),
+        scope:'/', display:'standalone',
+        background_color:'#0a0b0e', theme_color:'#0a0b0e', orientation:'portrait',
+        icons:[{src:'/icon.png',sizes:'192x192',type:'image/png'},
+               {src:'/icon.png',sizes:'512x512',type:'image/png'}]
+      };
+      var b=new Blob([JSON.stringify(mf)],{type:'application/manifest+json'});
+      l.setAttribute('href',URL.createObjectURL(b));
+      return;
+    }catch(e){}
+    // 2) Respaldo: sin manifest, iOS usa la URL abierta (con el token).
+    if(l.parentNode)l.parentNode.removeChild(l);
   }catch(e){}
+}
+function toggleAthLink(){
+  var b=document.getElementById('athlink-box');
+  var t=document.getElementById('athlink-toggle');
+  if(!b)return;
+  var open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  if(t)t.textContent=open?tr('Pegar mi enlace de alumno →'):tr('Ocultar');
+  if(!open){var i=document.getElementById('athlink-input');if(i)setTimeout(function(){i.focus();},80);}
+}
+function extractAthToken(s){
+  s=String(s||'').trim();
+  if(!s)return '';
+  // acepta el enlace completo, o solo el token pegado
+  var m=s.match(/[?&]t=([^&#\s]+)/);
+  if(m)return decodeURIComponent(m[1]);
+  m=s.match(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/);
+  return m?m[0]:'';
+}
+async function enterWithLink(){
+  var err=document.getElementById('athlink-err');
+  var v=(document.getElementById('athlink-input')||{}).value||'';
+  var tk=extractAthToken(v);
+  if(!tk){if(err)err.textContent=tr('Ese enlace no parece válido. Copialo completo del mensaje de tu profe.');return;}
+  if(err)err.textContent='';
+  await bootAthlete(tk);
 }
 function pushSupported(){
   return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
