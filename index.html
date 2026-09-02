@@ -7,7 +7,22 @@
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
 <title>PDapp · Pablo PT</title>
-<link rel="manifest" href="manifest.json"/>
+<script>
+/* El manifest se agrega SOLO si no hay token de alumno en la URL.
+   iOS lee el manifest al cargar la página, antes de que corra el resto del JS:
+   si existe, "Añadir a pantalla de inicio" usa su start_url y se pierde el ?t=...
+   Sin manifest, iOS usa la dirección abierta (con el token) y la etiqueta
+   apple-mobile-web-app-capable mantiene la pantalla completa. */
+(function(){
+  try{
+    var tieneToken = /[?&]t=/.test(location.search);
+    if(tieneToken) return;
+    var l=document.createElement('link');
+    l.rel='manifest'; l.href='manifest.json';
+    document.head.appendChild(l);
+  }catch(e){}
+})();
+</script>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -1373,7 +1388,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260902-5';
+var APP_VERSION='20260902-6';
 (function(){
   try{
     setTimeout(function(){
@@ -5550,11 +5565,15 @@ function _u8(b64){
    iOS usa la URL abierta (con el token) para crear el ícono. La etiqueta
    apple-mobile-web-app-capable mantiene la pantalla completa. */
 function dropManifestForAthlete(){
+  /* El manifest ya no se agrega cuando la URL trae token (ver script del <head>).
+     Esto queda como red de seguridad por si alguna vía lo hubiera insertado. */
   try{
     if(!ATH_TOKEN)return;
     if(window.navigator.standalone===true)return; // ya está instalada
     var l=document.querySelector('link[rel="manifest"]');
     if(!l)return;
+    if(l.parentNode)l.parentNode.removeChild(l);
+    return;
     // 1) Intento fino: manifest generado al vuelo con el token en start_url.
     try{
       var mf={
