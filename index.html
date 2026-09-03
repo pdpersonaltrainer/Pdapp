@@ -410,15 +410,8 @@ body{overflow-x:hidden;}
       <input id="login-pass" type="password" placeholder="Contrase&#241;a" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();login();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <button onclick="login()" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
       <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;">
-        <div style="font-size:12.5px;color:#6b7280;line-height:1.55;margin-bottom:9px;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
-        <button onclick="toggleAthLink()" id="athlink-toggle" style="width:100%;padding:0;border:none;background:none;color:#a8e063;font-size:13px;font-weight:700;cursor:pointer;text-align:left;">Pegar mi enlace de alumno →</button>
-        <div id="athlink-box" style="display:none;margin-top:10px;">
-          <input id="athlink-input" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Pegá acá el enlace que te pasaron" onkeydown="if(event.key==='Enter'){event.preventDefault();enterWithLink();}" style="width:100%;padding:13px;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-          <button onclick="enterWithLink()" style="width:100%;padding:13px;margin-top:8px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
-          <div id="athlink-err" style="color:#ff4d4d;font-size:12.5px;margin-top:8px;min-height:16px;"></div>
-        </div>
-      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;font-size:12.5px;color:#6b7280;line-height:1.55;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
+      
       <button onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Ten&#233;s c&#243;digo de invitaci&#243;n? Registrate &#8594;</button>
       <button onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
     </div>
@@ -1388,7 +1381,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260902-6';
+var APP_VERSION='20260903-1';
 (function(){
   try{
     setTimeout(function(){
@@ -2885,7 +2878,7 @@ function executeProgAssign(){
   document.getElementById('pa-confirm-btn').textContent='Asignar';
   closeProgAssign();
   showInfo('\u2705 Programa "'+curProgram.name+'" asignado a '+pname+'.\n'+Object.keys(targets).length+' sesiones cargadas desde el '+fmtDateShort(start)+'.');
-  if(pid===currentPlayerId){renderPlan();}
+  if(pid===currentPlayerId){refreshAfterChange();}
 }
 function openProgramsFromHome(){
   openSideScreen('screen-programs');
@@ -3266,7 +3259,7 @@ function executeTplInsert(){
   var pname=(PLAYERS.find(function(x){return x.id===pid;})||{}).name||'';
   closeTplInsert();
   showInfo('\u2705 "'+tplToInsert.name+'" insertada en '+pname+' \u00b7 '+fmtDateLong(date));
-  if(pid===currentPlayerId){curDate=date;renderPlan();}
+  if(pid===currentPlayerId){curDate=date;refreshAfterChange();}
 }
 function togglePDBase(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t||!isAdmin)return;
@@ -3714,7 +3707,7 @@ function gaCommit(mode){
   gaPending=null;
   closeGroupAssign();
   showInfo('\u2705 "'+item.name+'" asignado al grupo '+gname+'.\n'+members.length+' alumnos \u00b7 '+count+' sesiones cargadas desde el '+fmtDateShort(start)+'.');
-  if(isMember){renderPlan();}
+  if(isMember){refreshAfterChange();}
 }
 function renderWeekOverview(){
   var wo=document.getElementById('week-overview');
@@ -4220,7 +4213,7 @@ function createTraining(){
   if(!isCoach||!currentPlayerId)return;
   getCurSession(true);
   saveSessions(currentPlayerId);
-  renderPlan();
+  refreshAfterChange();
   openDayEditModal();
 }
 
@@ -4817,6 +4810,12 @@ async function delLibEx(id){
 
 
 var _monthPid=null;
+/* Refresca la pantalla que el usuario está mirando (plan o calendario).
+   Sin esto, insertar desde el calendario actualizaba el plan pero no la grilla. */
+function refreshAfterChange(){
+  try{renderPlan();}catch(e){console.error('renderPlan',e);}
+  try{if(currentTab==='week')renderWeekView();}catch(e){console.error('renderWeekView',e);}
+}
 function renderWeekView(){
   if(!currentPlayerId)return;
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
@@ -4907,7 +4906,7 @@ function renderWeekList(p,cont){
 }
 function openDayEditModal(){if(!isCoach||!currentPlayerId)return;var sObj=getCurSession(false)||{title:'',pattern:'',pills:[]};document.getElementById('f-day-name').value=sObj.title||'';document.getElementById('f-day-pattern').value=sObj.pattern||'';document.getElementById('f-day-pills').value=(sObj.pills||[]).join(', ');document.getElementById('modal-edit-day').classList.add('open');}
 function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');}
-function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);sObj.title=document.getElementById('f-day-name').value.trim()||'Entrenamiento';sObj.pattern=document.getElementById('f-day-pattern').value.trim();var pr=document.getElementById('f-day-pills').value.trim();sObj.pills=pr?pr.split(',').map(function(x){return x.trim();}).filter(Boolean):[];PLAN[0][0]=sObj;commitSession();closeDayEditModal();renderPlan();}
+function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);sObj.title=document.getElementById('f-day-name').value.trim()||'Entrenamiento';sObj.pattern=document.getElementById('f-day-pattern').value.trim();var pr=document.getElementById('f-day-pills').value.trim();sObj.pills=pr?pr.split(',').map(function(x){return x.trim();}).filter(Boolean):[];PLAN[0][0]=sObj;commitSession();closeDayEditModal();refreshAfterChange();}
 function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfirm('\u00bfBorrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.',function(){var ss=sessionsOf(currentPlayerId);delete ss[curDate];var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();renderPlan();if(currentTab==='week')renderWeekView();},{danger:true,okLabel:'Borrar'});}
 var calMenuIso=null,_dmClose=null;
 function dmEl(){
@@ -5591,32 +5590,6 @@ function dropManifestForAthlete(){
     // 2) Respaldo: sin manifest, iOS usa la URL abierta (con el token).
     if(l.parentNode)l.parentNode.removeChild(l);
   }catch(e){}
-}
-function toggleAthLink(){
-  var b=document.getElementById('athlink-box');
-  var t=document.getElementById('athlink-toggle');
-  if(!b)return;
-  var open=b.style.display!=='none';
-  b.style.display=open?'none':'block';
-  if(t)t.textContent=open?tr('Pegar mi enlace de alumno →'):tr('Ocultar');
-  if(!open){var i=document.getElementById('athlink-input');if(i)setTimeout(function(){i.focus();},80);}
-}
-function extractAthToken(s){
-  s=String(s||'').trim();
-  if(!s)return '';
-  // acepta el enlace completo, o solo el token pegado
-  var m=s.match(/[?&]t=([^&#\s]+)/);
-  if(m)return decodeURIComponent(m[1]);
-  m=s.match(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/);
-  return m?m[0]:'';
-}
-async function enterWithLink(){
-  var err=document.getElementById('athlink-err');
-  var v=(document.getElementById('athlink-input')||{}).value||'';
-  var tk=extractAthToken(v);
-  if(!tk){if(err)err.textContent=tr('Ese enlace no parece válido. Copialo completo del mensaje de tu profe.');return;}
-  if(err)err.textContent='';
-  await bootAthlete(tk);
 }
 function pushSupported(){
   return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
