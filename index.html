@@ -1381,7 +1381,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260903-1';
+var APP_VERSION='20260903-2';
 (function(){
   try{
     setTimeout(function(){
@@ -2192,7 +2192,11 @@ function savePlan(pid,plan){
 // \u2500\u2500 CALENDARIO REAL: sesiones por fecha (Fase 1: fundaci\u00f3n) \u2500\u2500
 function addDaysISO(iso,n){var p=String(iso).split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);dt.setDate(dt.getDate()+n);var y=dt.getFullYear(),m=('0'+(dt.getMonth()+1)).slice(-2),d=('0'+dt.getDate()).slice(-2);return y+'-'+m+'-'+d;}
 function buildSessionsFromWeeks(weeks,startISO){var out={};if(!startISO||!weeks)return out;for(var w=0;w<weeks.length;w++){for(var d=0;d<weeks[w].length;d++){var iso=addDaysISO(startISO,w*7+d);out[iso]=JSON.parse(JSON.stringify(weeks[w][d]));}}return out;}
-function saveSessions(pid){showSyncStatus('saving');sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);});}
+function saveSessions(pid){
+  /* Cualquier guardado de sesiones refresca la vista visible del alumno abierto.
+     Así no depende de que cada función que inserta se acuerde de refrescar. */
+  try{if(pid&&pid===currentPlayerId)setTimeout(function(){try{refreshAfterChange();}catch(e){}},0);}catch(e){}
+  showSyncStatus('saving');sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);});}
 async function migrateAllSessions(){for(var i=0;i<PLAYERS.length;i++){var pp=PLAYERS[i];var ex=JB_SESSIONS[pp.id];if(ex&&Object.keys(ex).length)continue;if(!pp.startDate)continue;var weeks=JB_PLANS[pp.id];if(!weeks)continue;var sess=buildSessionsFromWeeks(weeks,pp.startDate);JB_SESSIONS[pp.id]=sess;try{await sb.from('plans').update({sessions:sess,updated_at:new Date().toISOString()}).eq('player_id',pp.id);}catch(e){console.error('migrate',e);}}}
 var MES_ES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var DOW_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -4812,9 +4816,13 @@ async function delLibEx(id){
 var _monthPid=null;
 /* Refresca la pantalla que el usuario está mirando (plan o calendario).
    Sin esto, insertar desde el calendario actualizaba el plan pero no la grilla. */
+var _refreshing=false;
 function refreshAfterChange(){
+  if(_refreshing)return;
+  _refreshing=true;
   try{renderPlan();}catch(e){console.error('renderPlan',e);}
   try{if(currentTab==='week')renderWeekView();}catch(e){console.error('renderWeekView',e);}
+  _refreshing=false;
 }
 function renderWeekView(){
   if(!currentPlayerId)return;
