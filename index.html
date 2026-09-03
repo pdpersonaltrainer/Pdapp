@@ -1381,7 +1381,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260903-2';
+var APP_VERSION='20260903-3';
 (function(){
   try{
     setTimeout(function(){
@@ -1466,6 +1466,13 @@ var STATIC_I18N={
 'Abrir sesión':['Open session','Apri sessione'],
 'Crear entrenamiento':['Create workout','Crea allenamento'],
 'Carpeta':['Folder','Cartella'],
+'Entrenamiento creado':['Workout created','Allenamento creato'],
+'Entrenamiento modificado':['Workout updated','Allenamento modificato'],
+'Entrenamiento eliminado':['Workout deleted','Allenamento eliminato'],
+'Entrenamiento movido a':['Workout moved to','Allenamento spostato al'],
+'Día marcado como completado':['Day marked as completed','Giorno segnato come completato'],
+'Duplicado a':['Duplicated to','Duplicato in'],
+'Semana copiada a':['Week copied to','Settimana copiata in'],
 'Pegar mi enlace de alumno →':['Paste my athlete link →','Incolla il mio link atleta →'],
 'Ocultar':['Hide','Nascondi'],
 'Pegá acá el enlace que te pasaron':['Paste the link you were sent','Incolla qui il link che ti hanno inviato'],
@@ -3262,7 +3269,7 @@ function executeTplInsert(){
   saveSessions(pid);
   var pname=(PLAYERS.find(function(x){return x.id===pid;})||{}).name||'';
   closeTplInsert();
-  showInfo('\u2705 "'+tplToInsert.name+'" insertada en '+pname+' \u00b7 '+fmtDateLong(date));
+  toast('"'+tplToInsert.name+'" \u00b7 '+pname);
   if(pid===currentPlayerId){curDate=date;refreshAfterChange();}
 }
 function togglePDBase(id){
@@ -4218,6 +4225,7 @@ function createTraining(){
   getCurSession(true);
   saveSessions(currentPlayerId);
   refreshAfterChange();
+  toast(tr('Entrenamiento creado'));
   openDayEditModal();
 }
 
@@ -4748,13 +4756,13 @@ function executeDuplicate(){
     }
     if(!copied){showInfo('Esta semana no tiene entrenamientos para copiar.');return;}
     saveSessions(tgtPid);closeDuplicateModal();
-    showInfo('\u2705 Semana copiada a '+pname+' ('+copied+' d\u00eda'+(copied>1?'s':'')+') \u00b7 semana del '+fmtDateShort(tgtMon));
+    toast(tr('Semana copiada a')+' '+pname+' ('+copied+' d\u00eda'+(copied>1?'s':'')+') \u00b7 semana del '+fmtDateShort(tgtMon));
   }else{
     var d=srcSs[curDate];
     if(!d||!d.blocks||!d.blocks.length){showInfo('Este d\u00eda no tiene entrenamiento para duplicar.');return;}
     ss[tgtDate]=cloneSessionNoNotes(d);
     saveSessions(tgtPid);closeDuplicateModal();
-    showInfo('\u2705 Duplicado a '+pname+' \u00b7 '+fmtDateLong(tgtDate));
+    toast(tr('Duplicado a')+' '+pname+' \u00b7 '+fmtDateLong(tgtDate));
   }
   if(tgtPid===currentPlayerId){if(currentTab==='week')renderWeekView();else renderPlan();}
 }
@@ -4816,6 +4824,37 @@ async function delLibEx(id){
 var _monthPid=null;
 /* Refresca la pantalla que el usuario está mirando (plan o calendario).
    Sin esto, insertar desde el calendario actualizaba el plan pero no la grilla. */
+/* Aviso breve que se cierra solo (no bloquea, no pide confirmación) */
+var _toastT=null;
+function toast(msg,kind){
+  try{
+    var el=document.getElementById('pd-toast');
+    if(!el){
+      el=document.createElement('div');
+      el.id='pd-toast';
+      document.body.appendChild(el);
+    }
+    var col=(kind==='del')?'#ff6b6b':'var(--mob)';
+    var ic=(kind==='del')
+      ? '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    el.innerHTML='<span style="color:'+col+';display:flex;flex:none;">'+ic+'</span><span>'+msg+'</span>';
+    el.style.cssText='position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);transform:translateX(-50%) translateY(10px);'
+      +'z-index:9998;display:flex;align-items:center;gap:9px;max-width:min(90vw,420px);'
+      +'background:var(--s2);border:1px solid var(--border2);border-left:3px solid '+col+';'
+      +'border-radius:10px;padding:12px 16px;box-shadow:0 10px 30px rgba(0,0,0,0.55);'
+      +'font-family:\'Barlow\',sans-serif;font-size:13.5px;color:var(--text);line-height:1.4;'
+      +'opacity:0;transition:opacity .18s ease,transform .18s ease;pointer-events:none;';
+    void el.offsetHeight;
+    el.style.opacity='1';
+    el.style.transform='translateX(-50%) translateY(0)';
+    if(_toastT)clearTimeout(_toastT);
+    _toastT=setTimeout(function(){
+      el.style.opacity='0';
+      el.style.transform='translateX(-50%) translateY(10px)';
+    },2000);
+  }catch(e){}
+}
 var _refreshing=false;
 function refreshAfterChange(){
   if(_refreshing)return;
@@ -4914,8 +4953,8 @@ function renderWeekList(p,cont){
 }
 function openDayEditModal(){if(!isCoach||!currentPlayerId)return;var sObj=getCurSession(false)||{title:'',pattern:'',pills:[]};document.getElementById('f-day-name').value=sObj.title||'';document.getElementById('f-day-pattern').value=sObj.pattern||'';document.getElementById('f-day-pills').value=(sObj.pills||[]).join(', ');document.getElementById('modal-edit-day').classList.add('open');}
 function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');}
-function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);sObj.title=document.getElementById('f-day-name').value.trim()||'Entrenamiento';sObj.pattern=document.getElementById('f-day-pattern').value.trim();var pr=document.getElementById('f-day-pills').value.trim();sObj.pills=pr?pr.split(',').map(function(x){return x.trim();}).filter(Boolean):[];PLAN[0][0]=sObj;commitSession();closeDayEditModal();refreshAfterChange();}
-function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfirm('\u00bfBorrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.',function(){var ss=sessionsOf(currentPlayerId);delete ss[curDate];var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();renderPlan();if(currentTab==='week')renderWeekView();},{danger:true,okLabel:'Borrar'});}
+function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);sObj.title=document.getElementById('f-day-name').value.trim()||'Entrenamiento';sObj.pattern=document.getElementById('f-day-pattern').value.trim();var pr=document.getElementById('f-day-pills').value.trim();sObj.pills=pr?pr.split(',').map(function(x){return x.trim();}).filter(Boolean):[];PLAN[0][0]=sObj;commitSession();closeDayEditModal();refreshAfterChange();toast(tr('Entrenamiento modificado'));}
+function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfirm('\u00bfBorrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.',function(){var ss=sessionsOf(currentPlayerId);delete ss[curDate];var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();refreshAfterChange();toast(tr('Entrenamiento eliminado'),'del');},{danger:true,okLabel:'Borrar'});}
 var calMenuIso=null,_dmClose=null;
 function dmEl(){
   var el=document.getElementById('daymenu-pop');
@@ -5044,7 +5083,7 @@ function dayMenuComplete(){
   if(curDate===iso){checkState={};Object.keys(ch).forEach(function(k){if(k.indexOf(iso+'-')===0)checkState['0-0-'+k.slice(iso.length+1)]=ch[k];});}
   persistChecks(currentPlayerId);
   renderPlan();if(currentTab==='week')renderWeekView();
-  showInfo('✅ Día marcado como completado.');
+  toast(tr('Día marcado como completado'));
 }
 function dayMenuTemplate(){
   var iso=calMenuIso;closeDayMenu();
@@ -5082,7 +5121,7 @@ function executeMove(){
     checkState={};
     closeMoveModal();
     renderPlan();if(currentTab==='week')renderWeekView();
-    showInfo('✅ Movido a '+fmtDateLong(tgt));
+    toast(tr('Entrenamiento movido a')+' '+fmtDateLong(tgt));
     moveIso=null;
   };
   if(occ){
