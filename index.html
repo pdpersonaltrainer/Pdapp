@@ -1381,7 +1381,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260903-7';
+var APP_VERSION='20260908-2';
 (function(){
   try{
     setTimeout(function(){
@@ -1466,6 +1466,7 @@ var STATIC_I18N={
 'Abrir sesión':['Open session','Apri sessione'],
 'Crear entrenamiento':['Create workout','Crea allenamento'],
 'Carpeta':['Folder','Cartella'],
+'Bloqueaste los avisos. Activalos desde Ajustes del teléfono → PDapp → Notificaciones.':['You blocked notifications. Enable them in your phone Settings → PDapp → Notifications.','Hai bloccato gli avvisi. Attivali da Impostazioni del telefono → PDapp → Notifiche.'],
 'No':['No','No'],
 'Condiciones de salud, medicación, alergias u otro dato relevante...':['Health conditions, medication, allergies or other relevant info...','Condizioni di salute, farmaci, allergie o altre informazioni rilevanti...'],
 'Nada cansado':['Not tired','Per nulla stanco'],
@@ -1474,6 +1475,7 @@ var STATIC_I18N={
 'Sin ganas':['No motivation','Nessuna voglia'],
 'Muchas ganas':['Very motivated','Molta voglia'],
 'Entrenamiento creado':['Workout created','Allenamento creato'],
+'Nuevo entrenamiento':['New workout','Nuovo allenamento'],
 'Ejercicio eliminado':['Exercise deleted','Esercizio eliminato'],
 'Bloque eliminado':['Block deleted','Blocco eliminato'],
 'Ejercicio cambiado':['Exercise swapped','Esercizio cambiato'],
@@ -3306,6 +3308,7 @@ function executeTplInsert(){
   var pname=(PLAYERS.find(function(x){return x.id===pid;})||{}).name||'';
   closeTplInsert();
   toast('"'+tplToInsert.name+'" \u00b7 '+pname);
+  try{notifyPlayer(pid,tr('Nuevo entrenamiento'),(tplToInsert.name||'')+' · '+fmtDateLong(date));}catch(e){}
   if(pid===currentPlayerId){curDate=date;refreshAfterChange();}
 }
 function togglePDBase(id){
@@ -4823,6 +4826,7 @@ function executeDuplicate(){
     ss[tgtDate]=cloneSessionNoNotes(d);
     saveSessions(tgtPid);closeDuplicateModal();
     toast(tr('Duplicado a')+' '+pname+' \u00b7 '+fmtDateLong(tgtDate));
+    try{notifyPlayer(tgtPid,tr('Nuevo entrenamiento'),(d.title||tr('Entrenamiento'))+' · '+fmtDateLong(tgtDate));}catch(e){}
   }
   if(tgtPid===currentPlayerId){if(currentTab==='week')renderWeekView();else renderPlan();}
 }
@@ -5783,9 +5787,19 @@ async function pushIsOn(){
 }
 async function renderWlPush(){
   var box=document.getElementById('wl-push');if(!box)return;
-  if(isCoach||!pushSupported()){box.innerHTML='';return;}
-  if(/iPad|iPhone|iPod/.test(navigator.userAgent)&&!isStandalone()){box.innerHTML='';return;}
-  if(Notification.permission==='denied'){box.innerHTML='';return;}
+  if(isCoach){box.innerHTML='';return;}
+  /* Antes estos tres casos se ocultaban en silencio y no se podía saber
+     por qué no aparecía el botón. Ahora cada uno explica qué falta. */
+  var nota=function(txt){
+    return '<div style="text-align:center;font-size:11.5px;color:var(--muted2);line-height:1.5;padding:9px 12px;border:1px dashed var(--border2);border-radius:10px;">'+txt+'</div>';
+  };
+  if(!pushSupported()){box.innerHTML=nota(tr('Tu dispositivo no admite notificaciones.'));return;}
+  if(/iPad|iPhone|iPod/.test(navigator.userAgent)&&!isStandalone()){
+    box.innerHTML=nota(tr('Para recibir avisos, agregá PDapp a la pantalla de inicio y abrila desde ahí.'));return;
+  }
+  if(Notification.permission==='denied'){
+    box.innerHTML=nota(tr('Bloqueaste los avisos. Activalos desde Ajustes del teléfono → PDapp → Notificaciones.'));return;
+  }
   var on=await pushIsOn();
   if(on){
     box.innerHTML='<div style="display:flex;align-items:center;justify-content:center;gap:7px;font-size:11.5px;color:var(--muted2);">'
@@ -5796,6 +5810,15 @@ async function renderWlPush(){
       +'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>'
       +tr('Activar avisos')+'</button>';
   }
+}
+/* Aviso del profe hacia un alumno (sesión suelta cargada o duplicada).
+   No se usa al asignar programas: ahí serían decenas de avisos de golpe. */
+function notifyPlayer(pid,title,text,url){
+  try{
+    if(!isCoach||!pid)return;
+    sb.functions.invoke('send-push',{body:{to:'player',player_id:pid,title:title,body:text,url:url||'/'}})
+      .then(function(){},function(e){console.error('notifyPlayer',e);});
+  }catch(e){console.error('notifyPlayer',e);}
 }
 function notifyCoach(title,text){
   try{
