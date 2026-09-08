@@ -1381,7 +1381,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260908-2';
+var APP_VERSION='20260908-3';
 (function(){
   try{
     setTimeout(function(){
@@ -3306,9 +3306,12 @@ function executeTplInsert(){
   ss[date]=JSON.parse(JSON.stringify(tplToInsert.data));
   saveSessions(pid);
   var pname=(PLAYERS.find(function(x){return x.id===pid;})||{}).name||'';
+  /* Guardamos el nombre ANTES de cerrar: closeTplInsert() pone tplToInsert=null
+     y leerlo después rompía el aviso al alumno sin dejar rastro. */
+  var tplName=tplToInsert.name||tr('Entrenamiento');
   closeTplInsert();
-  toast('"'+tplToInsert.name+'" \u00b7 '+pname);
-  try{notifyPlayer(pid,tr('Nuevo entrenamiento'),(tplToInsert.name||'')+' · '+fmtDateLong(date));}catch(e){}
+  toast('"'+tplName+'" \u00b7 '+pname);
+  notifyPlayer(pid,tr('Nuevo entrenamiento'),tplName+' · '+fmtDateLong(date));
   if(pid===currentPlayerId){curDate=date;refreshAfterChange();}
 }
 function togglePDBase(id){
@@ -4826,7 +4829,7 @@ function executeDuplicate(){
     ss[tgtDate]=cloneSessionNoNotes(d);
     saveSessions(tgtPid);closeDuplicateModal();
     toast(tr('Duplicado a')+' '+pname+' \u00b7 '+fmtDateLong(tgtDate));
-    try{notifyPlayer(tgtPid,tr('Nuevo entrenamiento'),(d.title||tr('Entrenamiento'))+' · '+fmtDateLong(tgtDate));}catch(e){}
+    notifyPlayer(tgtPid,tr('Nuevo entrenamiento'),(d.title||tr('Entrenamiento'))+' · '+fmtDateLong(tgtDate));
   }
   if(tgtPid===currentPlayerId){if(currentTab==='week')renderWeekView();else renderPlan();}
 }
@@ -5814,11 +5817,14 @@ async function renderWlPush(){
 /* Aviso del profe hacia un alumno (sesión suelta cargada o duplicada).
    No se usa al asignar programas: ahí serían decenas de avisos de golpe. */
 function notifyPlayer(pid,title,text,url){
+  if(!isCoach||!pid){console.warn('notifyPlayer: sin coach o sin pid',isCoach,pid);return;}
   try{
-    if(!isCoach||!pid)return;
     sb.functions.invoke('send-push',{body:{to:'player',player_id:pid,title:title,body:text,url:url||'/'}})
-      .then(function(){},function(e){console.error('notifyPlayer',e);});
-  }catch(e){console.error('notifyPlayer',e);}
+      .then(function(r){
+        if(r&&r.error)console.error('notifyPlayer error',r.error);
+        else console.log('notifyPlayer ok',r&&r.data);
+      },function(e){console.error('notifyPlayer fallo',e);});
+  }catch(e){console.error('notifyPlayer excepcion',e);}
 }
 function notifyCoach(title,text){
   try{
