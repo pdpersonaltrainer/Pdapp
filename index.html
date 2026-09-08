@@ -1381,7 +1381,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260903-6';
+var APP_VERSION='20260903-7';
 (function(){
   try{
     setTimeout(function(){
@@ -3795,9 +3795,26 @@ function updatePlayerCount(){
   }else{el.style.display='none';}
 }
 var sharePid=null;
-function playerLink(pid){var p=PLAYERS.find(function(x){return x.id===pid;});var tk=p&&p.token?p.token:'';return location.origin+location.pathname+(tk?('?t='+tk):('?profe='+(TRAINER_ID||MY_UID||'')+'&a='+pid));}
-function shareAccess(pid){
+function playerLink(pid){
+  /* Solo el formato con token. El viejo ?profe= ya no es válido y generaba
+     enlaces rotos cuando el token todavía no estaba en memoria. */
+  var p=PLAYERS.find(function(x){return x.id===pid;});
+  var tk=p&&p.token?p.token:'';
+  return tk?(location.origin+location.pathname+'?t='+tk):'';
+}
+async function shareAccess(pid){
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
+  /* Si el token no está en memoria (alumno recién creado), lo traemos.
+     Sin esto el enlace caía al formato viejo ?profe=, que ya no funciona. */
+  if(!p.token){
+    showSyncStatus('saving');
+    try{
+      var _r=await sb.from('players').select('access_token').eq('id',pid).single();
+      if(!_r.error&&_r.data&&_r.data.access_token)p.token=_r.data.access_token;
+    }catch(e){console.error('shareAccess token',e);}
+    showSyncStatus('ok');
+  }
+  if(!p.token){showInfo(tr('No se pudo obtener el link.'));return;}
   sharePid=pid;
   document.getElementById('sh-name').textContent=p.name;
   document.getElementById('sh-link').value=playerLink(pid);
@@ -3813,6 +3830,7 @@ function copyShareLink(){
 }
 function shareWhatsApp(){
   var p=PLAYERS.find(function(x){return x.id===sharePid;});if(!p)return;
+  if(!playerLink(p.id)){showInfo(tr('No se pudo obtener el link.'));return;}
   var prof=(MY_PROFILE&&MY_PROFILE.display_name)?MY_PROFILE.display_name:'tu profe';
   var txt='Hola '+p.name+' \ud83d\udc4b\n\nAc\u00e1 ten\u00e9s tu acceso a la app de entrenamiento:\n\ud83d\udc49 '+playerLink(p.id)+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 '+prof;
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
@@ -4112,9 +4130,9 @@ async function savePlayer(){
     if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=club;PLAYERS[idx].pos=pos;if(pSport)PLAYERS[idx].questionnaire=q;if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=photo;PLAYERS[idx].activeWeek=aw;PLAYERS[idx].startDate=startDate;}
   }else{
     var qNew=pSport?{sport:pSport,position:pPosition||null}:null;
-    var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw,start_date:startDate,questionnaire:qNew}).select('id').single();
+    var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw,start_date:startDate,questionnaire:qNew}).select('id,access_token').single();
     if(ins.error){showSyncStatus('error');showInfo('Error al crear: '+ins.error.message);return;}
-    PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw,startDate:startDate,questionnaire:qNew,wellness:{}});
+    PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw,startDate:startDate,questionnaire:qNew,wellness:{},token:ins.data.access_token||null,tests:{},tests_enabled:[]});
   }
   showSyncStatus('ok');closePlayerModal();renderSelect();
 }
