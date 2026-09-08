@@ -1381,7 +1381,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260908-4';
+var APP_VERSION='20260908-5';
 (function(){
   try{
     setTimeout(function(){
@@ -1476,6 +1476,7 @@ var STATIC_I18N={
 'Muchas ganas':['Very motivated','Molta voglia'],
 'Entrenamiento creado':['Workout created','Allenamento creato'],
 'Nuevo entrenamiento':['New workout','Nuovo allenamento'],
+'Tu profe':['Your coach','Il tuo coach'],
 'Ejercicio eliminado':['Exercise deleted','Esercizio eliminato'],
 'Bloque eliminado':['Block deleted','Blocco eliminato'],
 'Ejercicio cambiado':['Exercise swapped','Esercizio cambiato'],
@@ -5274,6 +5275,15 @@ async function sendChat(){
   if(r.error){showInfo('No se pudo enviar: '+r.error.message);return;}
   CHAT.push(r.data);
   renderChatThread();
+  /* Aviso al otro lado. Recorta el texto para que entre en la notificación. */
+  var prev=body.length>90?(body.slice(0,90)+'…'):body;
+  if(sender==='coach'){
+    var _prof=(MY_PROFILE&&MY_PROFILE.display_name)?MY_PROFILE.display_name:tr('Tu profe');
+    notifyPlayer(chatPlayerId,_prof,prev,'/');
+  } else {
+    var _p=PLAYERS.find(function(x){return x.id===chatPlayerId;});
+    notifyCoach((_p&&_p.name)||'PDapp',prev);
+  }
 }
 function renderMessages(){
   if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
@@ -5827,11 +5837,14 @@ function notifyPlayer(pid,title,text,url){
   }catch(e){console.error('notifyPlayer excepcion',e);}
 }
 function notifyCoach(title,text){
+  if(!ATH_TOKEN){console.warn('notifyCoach: sin token de alumno');return;}
   try{
-    if(!ATH_TOKEN)return;
     sb.functions.invoke('send-push',{body:{to:'my_coach',athlete_token:ATH_TOKEN,title:title,body:text,url:'/'}})
-      .then(function(){},function(e){console.error('notifyCoach',e);});
-  }catch(e){console.error('notifyCoach',e);}
+      .then(function(r){
+        if(r&&r.error)console.error('notifyCoach error',r.error);
+        else console.log('notifyCoach ok',r&&r.data);
+      },function(e){console.error('notifyCoach fallo',e);});
+  }catch(e){console.error('notifyCoach excepcion',e);}
 }
 async function testPush(){
   var btn=document.getElementById('push-test-btn');
