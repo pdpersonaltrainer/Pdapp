@@ -237,7 +237,16 @@ header::after{content:'';position:absolute;left:50%;transform:translateX(-50%);b
 .hero-w1{background:linear-gradient(135deg,#111a08,#131f0a);}.hero-w1::before{background:radial-gradient(circle at 90% 10%,var(--w1),transparent 55%);}
 .hero-w2{background:linear-gradient(135deg,#081a18,#081e1c);}.hero-w2::before{background:radial-gradient(circle at 90% 10%,var(--w2),transparent 55%);}
 .hero-w3{background:linear-gradient(135deg,#1a0d08,#20100a);}.hero-w3::before{background:radial-gradient(circle at 90% 10%,var(--w3),transparent 55%);}
-.hero-w4{background:linear-gradient(135deg,#080f1a,#0a1222);}.hero-w4::before{background:radial-gradient(circle at 90% 10%,var(--w4),transparent 55%);}
+.hero-w4{background:linear-gradient(135deg,#080f1a,#0a1222);}
+/* Encabezado del día: los degradados de arriba son oscuros fijos.
+   En el tema claro se reemplazan por versiones tintadas suaves. */
+html[data-theme="papel"] .hero-w1{background:linear-gradient(135deg,#eaf3dc,#e2eecf);}
+html[data-theme="papel"] .hero-w2{background:linear-gradient(135deg,#dff0ed,#d3ebe6);}
+html[data-theme="papel"] .hero-w3{background:linear-gradient(135deg,#fbe8de,#f7dccd);}
+html[data-theme="papel"] .hero-w4{background:linear-gradient(135deg,#e3ecf9,#d7e4f6);}
+html[data-theme="papel"] .hero-over{opacity:0.85;}
+/* Fondo de la pantalla del alumno: degradado oscuro con tinte verde */
+html[data-theme="papel"] .welcome-bg{background:linear-gradient(160deg,#f7f5f0,#eaf3dc 55%,#f7f5f0)!important;}.hero-w4::before{background:radial-gradient(circle at 90% 10%,var(--w4),transparent 55%);}
 .hero-over{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6;margin-bottom:4px;}
 .hero-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;text-transform:uppercase;line-height:1.05;margin-bottom:3px;}
 .hero-pat{font-size:12px;color:var(--muted);margin-bottom:12px;}
@@ -1495,7 +1504,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260909-4';
+var APP_VERSION='20260909-5';
 (function(){
   try{
     setTimeout(function(){
