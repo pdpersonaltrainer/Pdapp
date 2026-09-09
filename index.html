@@ -704,6 +704,7 @@ body{overflow-x:hidden;}
     <div id="wl-today" style="width:100%;max-width:420px;margin:0 auto 16px;"></div>
     <button class="welcome-btn" id="wl-btn" onclick="enterPlan()">Ver mi plan</button>
     <div id="wl-cal" style="width:100%;max-width:420px;margin:20px auto 0;"></div>
+    <div id="wl-install" style="width:100%;max-width:420px;margin:16px auto 0;"></div>
     <div id="wl-push" style="width:100%;max-width:420px;margin:18px auto 0;"></div>
     <div id="lang-sel-ath" style="display:flex;justify-content:center;gap:8px;margin-top:22px;"></div>
   </div>
@@ -1100,6 +1101,13 @@ body{overflow-x:hidden;}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-install" onclick="if(event.target===this)closeInstallGuide()">
+  <div class="modal" style="max-width:430px;">
+    <h3 id="ig-title">Instalar PDapp</h3>
+    <div id="ig-body" style="max-height:60vh;overflow-y:auto;margin:8px 0 14px;"></div>
+    <div class="modal-btns"><button class="mbtn mbtn-cancel" onclick="closeInstallGuide()">Entendido</button></div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-athset" onclick="if(event.target===this)closeAthSettings()">
   <div class="modal" style="max-width:400px;">
     <h3>Mis ajustes</h3>
@@ -1504,7 +1512,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260909-6';
+var APP_VERSION='20260909-7';
 (function(){
   try{
     setTimeout(function(){
@@ -1630,6 +1638,22 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Instalar PDapp en mi teléfono':['Install PDapp on my phone','Installa PDapp sul mio telefono'],
+'Instalar en Android':['Install on Android','Installa su Android'],
+'Instalar en iPhone o iPad':['Install on iPhone or iPad','Installa su iPhone o iPad'],
+'Así tenés PDapp como una app más en tu teléfono: entrás con un toque y recibís los avisos de tu profe.':['This way PDapp works like any other app: one tap to open, and you get your coach’s notifications.','Così PDapp funziona come le altre app: entri con un tocco e ricevi gli avvisi del tuo coach.'],
+'Abriste el enlace dentro de otra app. Primero abrilo en el navegador del teléfono y desde ahí seguí los pasos.':['You opened the link inside another app. Open it in your phone’s browser first, then follow the steps.','Hai aperto il link dentro un’altra app. Aprilo prima nel browser del telefono e poi segui i passaggi.'],
+'Abrí este enlace en <b>Chrome</b>, no dentro de WhatsApp.':['Open this link in <b>Chrome</b>, not inside WhatsApp.','Apri questo link in <b>Chrome</b>, non dentro WhatsApp.'],
+'Abrí este enlace en <b>Safari</b>, no dentro de WhatsApp.':['Open this link in <b>Safari</b>, not inside WhatsApp.','Apri questo link in <b>Safari</b>, non dentro WhatsApp.'],
+'Tocá los <b>tres puntos</b> arriba a la derecha.':['Tap the <b>three dots</b> at the top right.','Tocca i <b>tre puntini</b> in alto a destra.'],
+'Elegí <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.':['Choose <b>Install app</b> or <b>Add to Home screen</b>.','Scegli <b>Installa app</b> o <b>Aggiungi a schermata Home</b>.'],
+'Confirmá y listo: ya tenés el ícono en tu pantalla.':['Confirm and done: the icon is on your screen.','Conferma e fatto: l’icona è sulla tua schermata.'],
+'Tocá el botón <b>Compartir</b> en la barra de abajo.':['Tap the <b>Share</b> button in the bottom bar.','Tocca il pulsante <b>Condividi</b> nella barra in basso.'],
+'Deslizá y tocá <b>Añadir a pantalla de inicio</b>.':['Scroll and tap <b>Add to Home Screen</b>.','Scorri e tocca <b>Aggiungi a schermata Home</b>.'],
+'Tocá <b>Añadir</b> arriba a la derecha. Listo.':['Tap <b>Add</b> at the top right. Done.','Tocca <b>Aggiungi</b> in alto a destra. Fatto.'],
+'Después entrá siempre desde ese ícono, no desde el navegador.':['From now on, always open it from that icon, not from the browser.','D’ora in poi apri sempre da quell’icona, non dal browser.'],
+'Instalar PDapp':['Install PDapp','Installa PDapp'],
+'Entendido':['Got it','Ho capito'],
 'Mis ajustes':['My settings','Le mie impostazioni'],
 'Cambiar foto':['Change photo','Cambia foto'],
 'Poné tu nombre.':['Enter your name.','Inserisci il tuo nome.'],
@@ -4077,6 +4101,7 @@ function wlBtnTxt(key){
 }
 function renderAthleteHome(){
   var pid=currentPlayerId;if(!pid)return;
+  try{renderInstallBanner();}catch(e){}
   try{renderWlPush();}catch(e){}
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
   var today=isoToday();
@@ -5848,6 +5873,66 @@ function dropManifestForAthlete(){
     }catch(e){}
     // 2) Respaldo: sin manifest, iOS usa la URL abierta (con el token).
     if(l.parentNode)l.parentNode.removeChild(l);
+  }catch(e){}
+}
+/* ===== INSTRUCTIVO: AGREGAR A PANTALLA DE INICIO ===== */
+function isAndroid(){return /Android/i.test(navigator.userAgent);}
+function isIOSdev(){return /iPad|iPhone|iPod/.test(navigator.userAgent);}
+/* Navegador embebido de WhatsApp/Instagram: ahí NO se puede instalar,
+   hay que abrir el enlace en Safari o Chrome primero. */
+function isInAppBrowser(){
+  var u=navigator.userAgent||'';
+  return /FBAN|FBAV|Instagram|Line\//i.test(u)||/; wv\)/i.test(u);
+}
+function _igStep(n,txt,svg){
+  return '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;">'
+    +'<div style="flex:none;width:26px;height:26px;border-radius:50%;background:var(--mobfill);color:#0a0b0e;display:flex;align-items:center;justify-content:center;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;">'+n+'</div>'
+    +'<div style="flex:1;min-width:0;font-size:14px;line-height:1.5;color:var(--text);">'+txt+'</div>'
+    +(svg?('<div style="flex:none;width:44px;height:44px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);display:flex;align-items:center;justify-content:center;color:var(--mob);">'+svg+'</div>'):'')
+    +'</div>';
+}
+function openInstallGuide(){
+  var box=document.getElementById('ig-body');if(!box)return;
+  var and=isAndroid();
+  var ICO_SHARE='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m8 7 4-4 4 4"/><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/></svg>';
+  var ICO_PLUS='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>';
+  var ICO_DOTS='<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>';
+  var ICO_PHONE='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M11 18h2"/></svg>';
+  var html='';
+  if(isInAppBrowser()){
+    html+='<div style="background:rgba(249,200,70,0.12);border:1px solid rgba(249,200,70,0.35);border-radius:var(--rsm);padding:12px 14px;margin-bottom:18px;font-size:13px;line-height:1.5;color:var(--act);">'
+      +tr('Abriste el enlace dentro de otra app. Primero abrilo en el navegador del teléfono y desde ahí seguí los pasos.')+'</div>';
+  }
+  html+='<div style="font-size:12.5px;color:var(--muted2);margin-bottom:16px;line-height:1.5;">'
+    +tr('Así tenés PDapp como una app más en tu teléfono: entrás con un toque y recibís los avisos de tu profe.')+'</div>';
+  if(and){
+    html+=_igStep(1,tr('Abrí este enlace en <b>Chrome</b>, no dentro de WhatsApp.'),ICO_PHONE);
+    html+=_igStep(2,tr('Tocá los <b>tres puntos</b> arriba a la derecha.'),ICO_DOTS);
+    html+=_igStep(3,tr('Elegí <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.'),ICO_PLUS);
+    html+=_igStep(4,tr('Confirmá y listo: ya tenés el ícono en tu pantalla.'),'');
+  } else {
+    html+=_igStep(1,tr('Abrí este enlace en <b>Safari</b>, no dentro de WhatsApp.'),ICO_PHONE);
+    html+=_igStep(2,tr('Tocá el botón <b>Compartir</b> en la barra de abajo.'),ICO_SHARE);
+    html+=_igStep(3,tr('Deslizá y tocá <b>Añadir a pantalla de inicio</b>.'),ICO_PLUS);
+    html+=_igStep(4,tr('Tocá <b>Añadir</b> arriba a la derecha. Listo.'),'');
+  }
+  html+='<div style="margin-top:6px;padding-top:14px;border-top:1px solid var(--border2);font-size:12px;color:var(--muted2);line-height:1.5;">'
+    +tr('Después entrá siempre desde ese ícono, no desde el navegador.')+'</div>';
+  box.innerHTML=html;
+  var ti=document.getElementById('ig-title');
+  if(ti)ti.textContent=and?tr('Instalar en Android'):tr('Instalar en iPhone o iPad');
+  document.getElementById('modal-install').classList.add('open');
+  try{localStorage.setItem('pdapp_ig_seen','1');}catch(e){}
+}
+function closeInstallGuide(){document.getElementById('modal-install').classList.remove('open');}
+function renderInstallBanner(){
+  var box=document.getElementById('wl-install');if(!box)return;
+  if(isCoach||isStandalone()){box.innerHTML='';return;}
+  box.innerHTML='<button onclick="openInstallGuide()" style="width:100%;box-sizing:border-box;background:rgba(168,224,99,0.10);border:1px dashed var(--mob);color:var(--mob);border-radius:12px;padding:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'
+    +'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 8v7M9 12l3 3 3-3"/></svg>'
+    +tr('Instalar PDapp en mi teléfono')+'</button>';
+  try{
+    if(!localStorage.getItem('pdapp_ig_seen'))setTimeout(openInstallGuide,900);
   }catch(e){}
 }
 /* ===== AJUSTES DEL ALUMNO ===== */
