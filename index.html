@@ -126,7 +126,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .pd-side{position:fixed;top:0;left:0;bottom:0;width:64px;background:var(--veil);border-right:1px solid var(--border);z-index:400;display:none;flex-direction:column;padding:calc(16px + env(safe-area-inset-top)) 0 16px;transition:width .22s ease;overflow:hidden;}
 .pd-side.expanded,.pd-side.hovering{width:210px;box-shadow:8px 0 30px rgba(0,0,0,0.45);}
 .pd-side-logo{display:flex;align-items:center;gap:11px;padding:2px 17px 16px;min-width:210px;cursor:pointer;}
-.pd-side-logo img{width:34px;height:34px;object-fit:contain;flex:none;}
+.pd-side-logo img{width:34px;height:34px;object-fit:cover;border-radius:10px;flex:none;}
 .pd-side-logo span,.pd-nav-item span{opacity:0;transition:opacity .18s ease;}
 .pd-side.expanded .pd-side-logo span,.pd-side.expanded .pd-nav-item span,.pd-side.hovering .pd-side-logo span,.pd-side.hovering .pd-nav-item span{opacity:1;}
 .pd-side-logo span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:0.05em;text-transform:uppercase;background:linear-gradient(90deg,var(--mob),#d4f59a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
@@ -480,9 +480,9 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .empty-state .emi{font-size:36px;margin-bottom:8px;}
 .empty-state p{font-size:13px;}
 #loading-overlay{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
-#loading-spinner{width:76px;height:76px;object-fit:contain;display:block;animation:pdpulse 1.5s ease-in-out infinite;will-change:opacity,transform;}@keyframes pdpulse{0%,100%{opacity:0.35;transform:scale(0.92);}50%{opacity:1;transform:scale(1.04);}}@media (prefers-reduced-motion:reduce){#loading-spinner{animation:pdfade 1.6s ease-in-out infinite;}@keyframes pdfade{0%,100%{opacity:0.45;}50%{opacity:1;}}}
+#loading-spinner{width:76px;height:76px;object-fit:cover;border-radius:22px;display:block;animation:pdpulse 1.5s ease-in-out infinite;will-change:opacity,transform;}@keyframes pdpulse{0%,100%{opacity:0.35;transform:scale(0.92);}50%{opacity:1;transform:scale(1.04);}}@media (prefers-reduced-motion:reduce){#loading-spinner{animation:pdfade 1.6s ease-in-out infinite;}@keyframes pdfade{0%,100%{opacity:0.45;}50%{opacity:1;}}}
 @keyframes spin{to{transform:rotate(360deg);}}
-#loading-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#eef0f5;}
+#loading-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);}
 #loading-error{display:none;font-size:12px;color:#ff4d4d;text-align:center;max-width:260px;line-height:1.6;}
 
 @media(max-width:640px){
@@ -496,7 +496,7 @@ body{overflow-x:hidden;}
 <!-- LOGIN PROFE -->
 <div id="screen-login" style="position:fixed;inset:0;z-index:700;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
   <div style="width:100%;max-width:340px;text-align:center;">
-    <img src="logo-bg.png" alt="PDapp" style="width:110px;height:110px;object-fit:contain;display:block;margin:0 auto 14px;" onerror="this.style.display='none'">
+    <img src="icon.png" alt="PDapp" style="width:96px;height:96px;object-fit:cover;border-radius:26px;display:block;margin:0 auto 14px;" onerror="this.style.display='none'">
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">PDapp</div>
 
     <!-- PANEL LOGIN -->
@@ -557,7 +557,7 @@ body{overflow-x:hidden;}
 
 <!-- LOADING OVERLAY -->
 <div id="loading-overlay">
-  <img id="loading-spinner" src="logo-bg.png" alt="PDapp"/>
+  <img id="loading-spinner" src="icon.png" alt="PDapp"/>
   <div id="loading-title">Cargando PDapp…</div>
   <div id="loading-error">
     No se pudo conectar.<br/>Revisá tu conexión e intentá de nuevo.<br/><br/>
@@ -567,7 +567,7 @@ body{overflow-x:hidden;}
 
 <!-- SELECT -->
   <nav class="pd-side" id="pd-sidebar">
-    <div class="pd-side-logo" onclick="toggleSidebar()"><img src="logo-bg.png" alt="PDapp" onerror="this.style.display='none'"><span>PDapp</span></div>
+    <div class="pd-side-logo" onclick="toggleSidebar()"><img src="icon.png" alt="PDapp" onerror="this.style.display='none'"><span>PDapp</span></div>
     <div class="pd-nav">
       <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Alumnos</span></button>
       <button class="pd-nav-item" id="side-chat" onclick="sideNav('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Chat</span><span id="side-chat-dot" style="display:none;position:absolute;left:32px;top:9px;width:9px;height:9px;border-radius:50%;background:#ff7043;border:2px solid var(--bg);"></span></button>
@@ -1504,7 +1504,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260909-5';
+var APP_VERSION='20260909-6';
 (function(){
   try{
     setTimeout(function(){
@@ -4012,7 +4012,7 @@ function renderSelect(){
   showSelectContent();
   var g=document.getElementById('players-grid');
   if(ONLY_PLAYER_ID&&!isCoach){var _one=PLAYERS.filter(function(x){return x.id===ONLY_PLAYER_ID;});if(_one.length){g.innerHTML=_one.map(renderPlayerCard).join('');document.getElementById('add-player-btn').classList.add('hidden');updatePlayerCount();return;}}
-  if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><img src="logo-bg.png" style="width:60px;height:60px;object-fit:contain;opacity:0.18;display:block;margin:0 auto 10px;" onerror="this.style.display=\'none\'"><p>'+(isCoach?'Sin alumnos. Agrega\u0301 el primero.':'Sin alumnos cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);updatePlayerCount();return;}
+  if(!PLAYERS.length){g.innerHTML='<div class="empty-state"><img src="icon.png" style="width:60px;height:60px;object-fit:cover;border-radius:17px;opacity:0.22;display:block;margin:0 auto 10px;" onerror="this.style.display=\'none\'"><p>'+(isCoach?'Sin alumnos. Agrega\u0301 el primero.':'Sin alumnos cargados.')+'</p></div>';document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);updatePlayerCount();return;}
   var _fp=filteredPlayers();
   g.innerHTML=_fp.length?_fp.map(renderPlayerCard).join(''):noMatchHtml();
   document.getElementById('add-player-btn').classList.toggle('hidden',!isCoach);updatePlayerCount();
