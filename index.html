@@ -15,7 +15,7 @@
     if(t==='grafito'){
       document.documentElement.setAttribute('data-theme','grafito');
       var m=document.querySelector('meta[name="theme-color"]');
-      if(m)m.setAttribute('content','#15171a');
+      if(m)m.setAttribute('content','#1c1f23');
     }
   }catch(e){}
 })();
@@ -57,9 +57,11 @@
    Material Design y Apple recomiendan gris oscuro antes que negro puro:
    el contraste extremo cansa la vista y borronea el texto en astigmatismo. */
 html[data-theme="grafito"]{
-  --bg:#15171a;--s1:#1f2225;--s2:#292d31;--s3:#35393f;
-  --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.15);
-  --muted:#a3abb6;--muted2:#79808c;
+  --bg:#1c1f23;--s1:#272b30;--s2:#32363c;--s3:#3e434a;
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.16);
+  /* Grises de texto aclarados junto con el fondo: si no, el más tenue
+     caía por debajo del mínimo de contraste sobre las tarjetas. */
+  --muted:#adb4bf;--muted2:#8f96a2;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
@@ -1405,7 +1407,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260908-6';
+var APP_VERSION='20260908-7';
 (function(){
   try{
     setTimeout(function(){
@@ -5753,7 +5755,7 @@ function setTheme(t){
   if(g)document.documentElement.setAttribute('data-theme','grafito');
   else document.documentElement.removeAttribute('data-theme');
   var m=document.querySelector('meta[name="theme-color"]');
-  if(m)m.setAttribute('content',g?'#15171a':'#0a0b0e');
+  if(m)m.setAttribute('content',g?'#1c1f23':'#0a0b0e');
   try{renderThemeBox();}catch(e){}
 }
 function renderThemeBox(){
@@ -5767,7 +5769,7 @@ function renderThemeBox(){
   };
   box.innerHTML='<div style="display:flex;gap:9px;">'
     +opt('noche',tr('Noche'),'#0e1015','#20242e')
-    +opt('grafito',tr('Grafito'),'#15171a','#292d31')
+    +opt('grafito',tr('Grafito'),'#1c1f23','#32363c')
     +'</div>';
 }
 function pushSupported(){
