@@ -136,6 +136,25 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 .welcome-avatar-inner{width:110px;height:110px;border-radius:50%;overflow:hidden;border:3px solid var(--w1);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--muted2);}
 .welcome-avatar-inner img{width:100%;height:100%;object-fit:cover;}
 .welcome-ring{position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(168,224,99,0.25);animation:pulse-ring 2.5s ease-in-out infinite;}
+/* En celulares el contenido no entraba y había que deslizar para ver el idioma.
+   Achicamos avatar, título y separaciones cuando la pantalla es baja. */
+@media (max-height:820px){
+  #screen-welcome{padding-top:calc(env(safe-area-inset-top,0px) + 54px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 18px);}
+  .welcome-avatar-wrap,.welcome-avatar-inner{width:84px;height:84px;}
+  .welcome-avatar-wrap{margin-bottom:12px;}
+  .welcome-name{font-size:30px;}
+  .welcome-footer{margin-top:12px;}
+  #wl-today{margin-bottom:12px!important;}
+  #wl-cal{margin-top:14px!important;}
+  #wl-push{margin-top:12px!important;}
+  #lang-sel-ath{margin-top:14px!important;}
+}
+@media (max-height:720px){
+  .welcome-avatar-wrap,.welcome-avatar-inner{width:68px;height:68px;}
+  .welcome-name{font-size:26px;}
+  .welcome-btn{padding:12px;font-size:15px;}
+  #wl-cal{margin-top:10px!important;}
+}
 @keyframes pulse-ring{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:0.8;transform:scale(1.04);}}
 .welcome-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--w1);background:rgba(168,224,99,0.10);border:1px solid rgba(168,224,99,0.20);border-radius:4px;padding:3px 10px;margin-bottom:12px;}
 .welcome-name{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:800;text-transform:uppercase;line-height:1;margin-bottom:6px;}
@@ -616,6 +635,9 @@ body{overflow-x:hidden;}
 
 <!-- WELCOME -->
 <div id="screen-welcome" class="gone">
+  <button id="wl-set" onclick="openAthSettings()" title="Mis ajustes" style="display:none;position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:18px;z-index:5;background:var(--s2);border:1px solid var(--border2);color:var(--muted);border-radius:var(--rsm);width:38px;height:38px;cursor:pointer;align-items:center;justify-content:center;padding:0;">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6h.09A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
   <button id="wl-back" onclick="welcomeBack()" style="position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);left:18px;z-index:5;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:var(--rsm);padding:9px 15px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;display:none;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Volver</button>
   <div class="welcome-bg"></div>
   <div class="welcome-content">
@@ -1025,6 +1047,28 @@ body{overflow-x:hidden;}
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-athset" onclick="if(event.target===this)closeAthSettings()">
+  <div class="modal" style="max-width:400px;">
+    <h3>Mis ajustes</h3>
+    <div style="text-align:center;margin-bottom:16px;">
+      <div id="as-av" style="width:88px;height:88px;border-radius:50%;overflow:hidden;border:3px solid var(--mob);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:34px;color:var(--muted2);margin:0 auto 10px;"></div>
+      <label style="display:inline-block;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:var(--rsm);padding:8px 14px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">
+        Cambiar foto
+        <input type="file" accept="image/*" onchange="asPhoto(event)" style="display:none;">
+      </label>
+    </div>
+    <div class="form-row"><label>Nombre</label>
+      <input type="text" id="as-name" maxlength="40" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-family:'Barlow',sans-serif;font-size:15px;color:var(--text);outline:none;"/>
+    </div>
+    <div style="font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;">Apariencia</div>
+    <div id="as-theme" style="margin-bottom:6px;"></div>
+    <div id="as-msg" style="font-size:12.5px;color:#ff6b6b;min-height:16px;margin-top:8px;"></div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAthSettings()">Cancelar</button>
+      <button class="mbtn mbtn-save" onclick="saveAthSettings()">Guardar</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-folder" onclick="if(event.target===this)closeFolderModal()">
   <div class="modal" style="max-width:400px;">
     <h3>Mover a carpeta</h3>
@@ -1407,7 +1451,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260908-7';
+var APP_VERSION='20260909-1';
 (function(){
   try{
     setTimeout(function(){
@@ -1533,6 +1577,10 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Mis ajustes':['My settings','Le mie impostazioni'],
+'Cambiar foto':['Change photo','Cambia foto'],
+'Poné tu nombre.':['Enter your name.','Inserisci il tuo nome.'],
+'Ajustes guardados':['Settings saved','Impostazioni salvate'],
 'Noche':['Night','Notte'],
 'Grafito':['Graphite','Grafite'],
 'Activar avisos':['Turn on notifications','Attiva avvisi'],
@@ -3560,7 +3608,9 @@ function panelCard(p,al){
       +'<span style="color:'+c+';display:flex;flex:none;font-size:13px;">'+ICON(a.ic)+'</span>'
       +'<span style="font-size:12.5px;color:var(--text);flex:1;min-width:0;">'+a.txt+'</span></div>';
   }).join('');
-  var bar=al.length?PANEL_SEV[al[0].sev].c:'var(--border2)';
+  /* Solo los urgentes llevan barra de color: los íconos de cada alerta ya
+     indican la gravedad y repetirlo en la barra saturaba la lista. */
+  var bar=(al.length&&al[0].sev==='alta')?PANEL_SEV.alta.c:'transparent';
   return '<div class="pnl-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)" style="border-left:3px solid '+bar+';">'
     +'<div style="display:flex;align-items:center;gap:11px;">'+av
     +'<div style="flex:1;min-width:0;"><div class="pnl-name">'+p.name+'</div>'
@@ -3955,6 +4005,7 @@ function doSelectPlayer(pid){
   document.getElementById('welcome-sub').textContent=sub;
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');
   var wb=document.getElementById('wl-back');if(wb)wb.style.display=isCoach?'flex':'none';
+  var wsg=document.getElementById('wl-set');if(wsg)wsg.style.display=isCoach?'none':'flex';
   document.getElementById('screen-select').style.display='none';
   try{renderAthleteHome();}catch(e){console.error('athleteHome',e);}
 }
@@ -5744,6 +5795,65 @@ function dropManifestForAthlete(){
     // 2) Respaldo: sin manifest, iOS usa la URL abierta (con el token).
     if(l.parentNode)l.parentNode.removeChild(l);
   }catch(e){}
+}
+/* ===== AJUSTES DEL ALUMNO ===== */
+var asPhotoData=null;
+function openAthSettings(){
+  var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});if(!p)return;
+  asPhotoData=p.photo||null;
+  document.getElementById('as-name').value=p.name||'';
+  document.getElementById('as-msg').textContent='';
+  document.getElementById('as-av').innerHTML=p.photo?'<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover;"/>':'\ud83d\udc64';
+  renderAsTheme();
+  document.getElementById('modal-athset').classList.add('open');
+}
+function closeAthSettings(){document.getElementById('modal-athset').classList.remove('open');}
+function renderAsTheme(){
+  var box=document.getElementById('as-theme');if(!box)return;
+  var cur=currentTheme();
+  var opt=function(k,label,c1,c2){
+    var on=(cur===k);
+    return '<button onclick="setTheme(this.dataset.k);renderAsTheme();" data-k="'+k+'" style="flex:1;min-width:0;background:'+(on?'rgba(168,224,99,0.10)':'transparent')+';border:1px solid '+(on?'var(--mob)':'var(--border2)')+';border-radius:var(--rsm);padding:10px;cursor:pointer;display:flex;align-items:center;gap:8px;">'
+      +'<span style="flex:none;width:22px;height:22px;border-radius:6px;border:1px solid var(--border2);background:linear-gradient(135deg,'+c1+' 50%,'+c2+' 50%);"></span>'
+      +'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:12.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:'+(on?'var(--mob)':'var(--muted)')+';">'+label+'</span></button>';
+  };
+  box.innerHTML='<div style="display:flex;gap:8px;">'+opt('noche',tr('Noche'),'#0e1015','#20242e')+opt('grafito',tr('Grafito'),'#1c1f23','#32363c')+'</div>';
+}
+function asPhoto(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var size=160,cv=document.createElement('canvas');cv.width=size;cv.height=size;
+      var ctx=cv.getContext('2d');
+      var min=Math.min(img.width,img.height);
+      var sx=(img.width-min)/2, sy=(img.height-min)/2;
+      ctx.drawImage(img,sx,sy,min,min,0,0,size,size);
+      asPhotoData=cv.toDataURL('image/jpeg',0.7);
+      document.getElementById('as-av').innerHTML='<img src="'+asPhotoData+'" style="width:100%;height:100%;object-fit:cover;"/>';
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+async function saveAthSettings(){
+  var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});if(!p)return;
+  var msg=document.getElementById('as-msg');
+  var nm=(document.getElementById('as-name').value||'').trim();
+  if(!nm){msg.textContent=tr('Poné tu nombre.');return;}
+  msg.textContent='';
+  showSyncStatus('saving');
+  var r=ATH_TOKEN
+    ? await sb.rpc('athlete_save_profile',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_name:nm,p_photo:asPhotoData})
+    : await sb.from('players').update({name:nm,photo_url:asPhotoData}).eq('id',p.id);
+  if(r.error){showSyncStatus('error');msg.textContent='Error: '+r.error.message;return;}
+  showSyncStatus('ok');
+  p.name=nm;p.photo=asPhotoData||'';
+  closeAthSettings();
+  try{renderAthleteHome();}catch(e){}
+  try{doSelectPlayer(currentPlayerId);}catch(e){}
+  toast(tr('Ajustes guardados'));
 }
 /* ===== TEMA ===== */
 function currentTheme(){
