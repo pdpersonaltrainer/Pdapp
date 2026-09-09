@@ -12,10 +12,10 @@
 (function(){
   try{
     var t=localStorage.getItem('pdapp_theme');
-    if(t==='grafito'){
-      document.documentElement.setAttribute('data-theme','grafito');
+    if(t==='grafito'||t==='papel'){
+      document.documentElement.setAttribute('data-theme',t);
       var m=document.querySelector('meta[name="theme-color"]');
-      if(m)m.setAttribute('content','#1c1f23');
+      if(m)m.setAttribute('content',t==='papel'?'#f7f5f0':'#1c1f23');
     }
   }catch(e){}
 })();
@@ -56,6 +56,38 @@
 /* Tema "Grafito": gris neutro, más suave para leer.
    Material Design y Apple recomiendan gris oscuro antes que negro puro:
    el contraste extremo cansa la vista y borronea el texto en astigmatismo. */
+/* Tema "Papel": claro pero cálido, no blanco puro.
+   El blanco puro cansa igual que el negro puro. Los acentos se oscurecen:
+   el verde de marca sobre fondo claro tiene 1,4:1 y sería ilegible como texto,
+   así que el verde claro queda solo para rellenos (botones) y para texto
+   se usa una versión oscura. */
+html[data-theme="papel"]{
+  --bg:#f7f5f0;--s1:#ffffff;--s2:#efece5;--s3:#e4e0d7;
+  --border:rgba(20,22,26,0.10);--border2:rgba(20,22,26,0.18);
+  --text:#1c1e22;--muted:#4a4f57;--muted2:#5f656e;
+  /* Acentos legibles sobre claro (los rellenos siguen usando --mob) */
+  --w1:#a8e063;--w2:#0f9484;--w3:#c2410c;--w4:#1971c2;
+  --mob:#4a7318;--act:#8a5200;--fza:#c2410c;--exp:#7c3aed;--cam:#0f9484;--cm:#1971c2;--est:#be3455;
+  --danger:#c92a2a;
+}
+html[data-theme="papel"] body{background:var(--bg);}
+/* Rellenos: siguen con el verde de marca y texto oscuro encima.
+   --mob quedó oscuro para poder usarse como TEXTO; los fondos verdes
+   se fuerzan al verde claro para no volverlos manchas oscuras. */
+html[data-theme="papel"] .welcome-btn,
+html[data-theme="papel"] .mbtn-save,
+html[data-theme="papel"] .cv-btn.cv-active,
+html[data-theme="papel"] .pr-type.pr-on,
+html[data-theme="papel"] .pr-eff.pr-on,
+html[data-theme="papel"] .day-card.done .day-card-status,
+html[data-theme="papel"] .badge{background:#a8e063!important;color:#0a0b0e!important;border-color:#a8e063!important;}
+/* Pantalla de ingreso: tenía colores oscuros fijos */
+html[data-theme="papel"] #screen-login input{background:var(--s1)!important;border-color:var(--border2)!important;color:var(--text)!important;}
+html[data-theme="papel"] #screen-login{background:var(--bg)!important;}
+/* Sombras: en claro las fuertes ensucian */
+html[data-theme="papel"] .sum-card,
+html[data-theme="papel"] .pnl-card,
+html[data-theme="papel"] .modal{box-shadow:0 2px 10px rgba(20,22,26,0.08)!important;}
 html[data-theme="grafito"]{
   --bg:#1c1f23;--s1:#272b30;--s2:#32363c;--s3:#3e434a;
   --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.16);
@@ -1451,7 +1483,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260909-1';
+var APP_VERSION='20260909-2';
 (function(){
   try{
     setTimeout(function(){
@@ -1582,6 +1614,7 @@ var STATIC_I18N={
 'Poné tu nombre.':['Enter your name.','Inserisci il tuo nome.'],
 'Ajustes guardados':['Settings saved','Impostazioni salvate'],
 'Noche':['Night','Notte'],
+'Papel':['Paper','Carta'],
 'Grafito':['Graphite','Grafite'],
 'Activar avisos':['Turn on notifications','Attiva avvisi'],
 'Probar aviso':['Send test','Prova avviso'],
@@ -5817,7 +5850,7 @@ function renderAsTheme(){
       +'<span style="flex:none;width:22px;height:22px;border-radius:6px;border:1px solid var(--border2);background:linear-gradient(135deg,'+c1+' 50%,'+c2+' 50%);"></span>'
       +'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:12.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:'+(on?'var(--mob)':'var(--muted)')+';">'+label+'</span></button>';
   };
-  box.innerHTML='<div style="display:flex;gap:8px;">'+opt('noche',tr('Noche'),'#0e1015','#20242e')+opt('grafito',tr('Grafito'),'#1c1f23','#32363c')+'</div>';
+  box.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;">'+opt('noche',tr('Noche'),'#0e1015','#20242e')+opt('grafito',tr('Grafito'),'#1c1f23','#32363c')+opt('papel',tr('Papel'),'#f7f5f0','#e4e0d7')+'</div>';
 }
 function asPhoto(e){
   var file=e.target.files[0];if(!file)return;
@@ -5856,17 +5889,22 @@ async function saveAthSettings(){
   toast(tr('Ajustes guardados'));
 }
 /* ===== TEMA ===== */
+var THEME_BAR={noche:'#0a0b0e',grafito:'#1c1f23',papel:'#f7f5f0'};
 function currentTheme(){
-  try{return localStorage.getItem('pdapp_theme')==='grafito'?'grafito':'noche';}catch(e){return 'noche';}
+  try{
+    var t=localStorage.getItem('pdapp_theme');
+    return (t==='grafito'||t==='papel')?t:'noche';
+  }catch(e){return 'noche';}
 }
 function setTheme(t){
-  var g=(t==='grafito');
-  try{localStorage.setItem('pdapp_theme',g?'grafito':'noche');}catch(e){}
-  if(g)document.documentElement.setAttribute('data-theme','grafito');
-  else document.documentElement.removeAttribute('data-theme');
+  if(t!=='grafito'&&t!=='papel')t='noche';
+  try{localStorage.setItem('pdapp_theme',t);}catch(e){}
+  if(t==='noche')document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme',t);
   var m=document.querySelector('meta[name="theme-color"]');
-  if(m)m.setAttribute('content',g?'#1c1f23':'#0a0b0e');
+  if(m)m.setAttribute('content',THEME_BAR[t]||'#0a0b0e');
   try{renderThemeBox();}catch(e){}
+  try{renderAsTheme();}catch(e){}
 }
 function renderThemeBox(){
   var box=document.getElementById('theme-box');if(!box)return;
@@ -5877,9 +5915,10 @@ function renderThemeBox(){
       +'<span style="flex:none;width:26px;height:26px;border-radius:7px;border:1px solid var(--border2);background:linear-gradient(135deg,'+c1+' 50%,'+c2+' 50%);"></span>'
       +'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:'+(on?'var(--mob)':'var(--muted)')+';">'+label+'</span></button>';
   };
-  box.innerHTML='<div style="display:flex;gap:9px;">'
+  box.innerHTML='<div style="display:flex;gap:9px;flex-wrap:wrap;">'
     +opt('noche',tr('Noche'),'#0e1015','#20242e')
     +opt('grafito',tr('Grafito'),'#1c1f23','#32363c')
+    +opt('papel',tr('Papel'),'#f7f5f0','#e4e0d7')
     +'</div>';
 }
 function pushSupported(){
