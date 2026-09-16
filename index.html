@@ -1537,7 +1537,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260910-4';
+var APP_VERSION='20260910-5';
 (function(){
   try{
     setTimeout(function(){
@@ -1564,9 +1564,9 @@ var LANG=(function(){
   return 'es';
 })();
 var I18N={
-es:{planPersonal:'Plan personalizado',verMiPlan:'Ver mi plan',verMiSesion:'Ver mi sesi\u00f3n',empezar:'Empezar entrenamiento',hoy:'Hoy',diaLibre:'D\u00eda libre',sinEntreno:'Sin entrenamiento asignado',entrenamiento:'Entrenamiento',bloque:'bloque',bloques:'bloques',completado:'completado',enRacha:'en racha',wQTitle:'\u00bfC\u00f3mo lleg\u00e1s hoy?',wSleep:'\ud83d\ude34 \u00bfC\u00f3mo dormiste anoche?',wMal:'Mal',wExc:'Excelente',wEnergy:'\u26a1 \u00bfC\u00f3mo te sent\u00eds hoy?',wBajo:'Bajo',wAlto:'Alto',wPain:'\ud83e\ude79 \u00bfAlg\u00fan dolor o molestia?',no:'No',si:'S\u00ed',wPainPh:'\u00bfD\u00f3nde y cu\u00e1nto? (Ej: rodilla derecha, leve)',listo:'Listo \u2192',saltar:'Saltar por ahora',wCompleta:'Complet\u00e1 c\u00f3mo dormiste.',pinMsg:'Ingres\u00e1 tu PIN para ver tu plan',verVideo:'Ver video',bloqueDone:'Bloque completado',marcarDone:'Marcar como completado',rpeBloque:'RPE del bloque',notaPh:'Nota... (c\u00f3mo te sentiste, peso usado)',chatEmpty:'Todav\u00eda no hay mensajes. \u00a1Escrib\u00ed el primero!',chatPh:'Escrib\u00ed un mensaje...',tabPlan:'Plan',tabCal:'Calendario',tabLib:'Biblioteca',tabMsg:'Mensajes',tabSum:'Resumen',idioma:'Idioma',volver:'Volver',ant:'Ant',sig:'Sig',sinEntrenoShort:'Sin entrenamiento',abrirConv:'Abrir conversaci\u00f3n',msgNuevo:'mensaje nuevo',msgsNuevos:'mensajes nuevos',pdEmpty:'Todav\u00eda no hay sesiones de metodolog\u00eda PD disponibles.',tplEmpty:'A\u00fan no guardaste ninguna sesi\u00f3n.',resumenCoach:'Resumen Coach',estadoAlumnos:'Estado de todos los alumnos',convPrivada:'Conversaci\u00f3n privada',conversaciones:'Conversaciones',tusAlumnos:'Tus alumnos',tusAlumnosSub:'Toc\u00e1 un nombre para abrir el plan, o sum\u00e1 uno nuevo.',sinSesSemana:'Sin sesiones esta semana',adherencia:'Adherencia 30d',sesionesLc:'sesiones',inactivoHace:'Inactivo hace',diasLc:'d\u00edas',semanas:'semanas',sesAsignadas:'sesiones asignadas',ejercicios:'ejercicios',ejercicio:'ejercicio',ejShort:'ej.',sinEjercicios:'Sin ejercicios',sinEjAccion:'Sin ejercicios en esta acci\u00f3n.',ficha:'Ficha',acceso:'Acceso',editar:'Editar',eliminar:'Eliminar',definir:'+ Definir',miProgreso:'Mi Progreso',evolRegistro:'Tu evoluci\u00f3n y registro',chatProfe:'Chat con tu profe',chatSub:'Escribile cuando quieras',rpeUltimas:'RPE \u00faltimas sesiones',sinRpe:'Sin datos de RPE a\u00fan',notasRec:'Notas recientes',sinNotas:'Sin notas registradas',evolCargas:'Evoluci\u00f3n de cargas',sinCargas:'Sin cargas registradas a\u00fan',dowL:['L','M','X','J','V','S','D'],dow3:['Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b','Dom']},
-en:{planPersonal:'Personalized plan',verMiPlan:'View my plan',verMiSesion:'View my session',empezar:'Start training',hoy:'Today',diaLibre:'Rest day',sinEntreno:'No training scheduled',entrenamiento:'Workout',bloque:'block',bloques:'blocks',completado:'completed',enRacha:'day streak',wQTitle:'How are you today?',wSleep:'\ud83d\ude34 How did you sleep last night?',wMal:'Poor',wExc:'Excellent',wEnergy:'\u26a1 How is your energy today?',wBajo:'Low',wAlto:'High',wPain:'\ud83e\ude79 Any pain or discomfort?',no:'No',si:'Yes',wPainPh:'Where and how much? (E.g.: right knee, mild)',listo:'Done \u2192',saltar:'Skip for now',wCompleta:'Please rate your sleep.',pinMsg:'Enter your PIN to view your plan',verVideo:'Watch video',bloqueDone:'Block completed',marcarDone:'Mark as completed',rpeBloque:'Block RPE',notaPh:'Note... (how it felt, weight used)',chatEmpty:'No messages yet. Write the first one!',chatPh:'Type a message...',tabPlan:'Plan',tabCal:'Calendar',tabLib:'Library',tabMsg:'Messages',tabSum:'Summary',idioma:'Language',volver:'Back',ant:'Prev',sig:'Next',sinEntrenoShort:'No training',abrirConv:'Open conversation',msgNuevo:'new message',msgsNuevos:'new messages',pdEmpty:'No PD Method sessions available yet.',tplEmpty:'You haven\u0027t saved any sessions yet.',resumenCoach:'Coach Summary',estadoAlumnos:'Status of all athletes',convPrivada:'Private conversation',conversaciones:'Conversations',tusAlumnos:'Your athletes',tusAlumnosSub:'Tap a name to open the plan, or add a new one.',sinSesSemana:'No sessions this week',adherencia:'30d adherence',sesionesLc:'sessions',inactivoHace:'Inactive for',diasLc:'days',semanas:'weeks',sesAsignadas:'sessions assigned',ejercicios:'exercises',ejercicio:'exercise',ejShort:'ex.',sinEjercicios:'No exercises',sinEjAccion:'No exercises in this action.',ficha:'Profile',acceso:'Access',editar:'Edit',eliminar:'Delete',definir:'+ Set',miProgreso:'My Progress',evolRegistro:'Your progress and history',chatProfe:'Chat with your coach',chatSub:'Message them anytime',rpeUltimas:'RPE \u2014 recent sessions',sinRpe:'No RPE data yet',notasRec:'Recent notes',sinNotas:'No notes recorded',evolCargas:'Load progression',sinCargas:'No loads recorded yet',dowL:['M','T','W','T','F','S','S'],dow3:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']},
-it:{planPersonal:'Piano personalizzato',verMiPlan:'Vedi il mio piano',verMiSesion:'Vedi la mia sessione',empezar:'Inizia l\u0027allenamento',hoy:'Oggi',diaLibre:'Giorno libero',sinEntreno:'Nessun allenamento assegnato',entrenamiento:'Allenamento',bloque:'blocco',bloques:'blocchi',completado:'completato',enRacha:'di fila',wQTitle:'Come stai oggi?',wSleep:'\ud83d\ude34 Come hai dormito stanotte?',wMal:'Male',wExc:'Eccellente',wEnergy:'\u26a1 Come ti senti oggi?',wBajo:'Bassa',wAlto:'Alta',wPain:'\ud83e\ude79 Qualche dolore o fastidio?',no:'No',si:'S\u00ec',wPainPh:'Dove e quanto? (Es: ginocchio destro, lieve)',listo:'Fatto \u2192',saltar:'Salta per ora',wCompleta:'Indica come hai dormito.',pinMsg:'Inserisci il tuo PIN per vedere il tuo piano',verVideo:'Guarda il video',bloqueDone:'Blocco completato',marcarDone:'Segna come completato',rpeBloque:'RPE del blocco',notaPh:'Nota... (come ti sei sentito, peso usato)',chatEmpty:'Ancora nessun messaggio. Scrivi il primo!',chatPh:'Scrivi un messaggio...',tabPlan:'Piano',tabCal:'Calendario',tabLib:'Libreria',tabMsg:'Messaggi',tabSum:'Riepilogo',idioma:'Lingua',volver:'Indietro',ant:'Prec',sig:'Succ',sinEntrenoShort:'Nessun allenamento',abrirConv:'Apri conversazione',msgNuevo:'nuovo messaggio',msgsNuevos:'nuovi messaggi',pdEmpty:'Ancora nessuna sessione del Metodo PD disponibile.',tplEmpty:'Non hai ancora salvato nessuna sessione.',resumenCoach:'Riepilogo Coach',estadoAlumnos:'Stato di tutti gli atleti',convPrivada:'Conversazione privata',conversaciones:'Conversazioni',tusAlumnos:'I tuoi atleti',tusAlumnosSub:'Tocca un nome per aprire il piano, o aggiungine uno nuovo.',sinSesSemana:'Nessuna sessione questa settimana',adherencia:'Aderenza 30gg',sesionesLc:'sessioni',inactivoHace:'Inattivo da',diasLc:'giorni',semanas:'settimane',sesAsignadas:'sessioni assegnate',ejercicios:'esercizi',ejercicio:'esercizio',ejShort:'es.',sinEjercicios:'Nessun esercizio',sinEjAccion:'Nessun esercizio in questa azione.',ficha:'Scheda',acceso:'Accesso',editar:'Modifica',eliminar:'Elimina',definir:'+ Definisci',miProgreso:'I miei progressi',evolRegistro:'La tua evoluzione e i tuoi dati',chatProfe:'Chat con il tuo coach',chatSub:'Scrivigli quando vuoi',rpeUltimas:'RPE ultime sessioni',sinRpe:'Ancora nessun dato RPE',notasRec:'Note recenti',sinNotas:'Nessuna nota registrata',evolCargas:'Evoluzione dei carichi',sinCargas:'Ancora nessun carico registrato',dowL:['L','M','M','G','V','S','D'],dow3:['Lun','Mar','Mer','Gio','Ven','Sab','Dom']}
+es:{planPersonal:'Plan personalizado',verMiPlan:'Ver mi plan',verMiSesion:'Ver mi sesi\u00f3n',empezar:'Empezar entrenamiento',hoy:'Hoy',diaLibre:'D\u00eda libre',sinEntreno:'Sin entrenamiento asignado',entrenamiento:'Entrenamiento',bloque:'bloque',bloques:'bloques',completado:'completado',enRacha:'en racha',wQTitle:'\u00bfC\u00f3mo lleg\u00e1s hoy?',wSleep:'\ud83d\ude34 \u00bfC\u00f3mo dormiste anoche?',wMal:'Mal',wExc:'Excelente',wEnergy:'\u26a1 \u00bfC\u00f3mo te sent\u00eds hoy?',wBajo:'Bajo',wAlto:'Alto',wPain:'\ud83e\ude79 \u00bfAlg\u00fan dolor o molestia?',no:'No',si:'S\u00ed',wPainPh:'\u00bfD\u00f3nde y cu\u00e1nto? (Ej: rodilla derecha, leve)',listo:'Listo \u2192',saltar:'Saltar por ahora',wCompleta:'Complet\u00e1 c\u00f3mo dormiste.',pinMsg:'Ingres\u00e1 tu PIN para ver tu plan',verVideo:'Ver video',bloqueDone:'Bloque completado',marcarDone:'Marcar como completado',rpeBloque:'RPE del bloque',notaPh:'Nota... (c\u00f3mo te sentiste, peso usado)',chatEmpty:'Todav\u00eda no hay mensajes. \u00a1Escrib\u00ed el primero!',chatPh:'Escrib\u00ed un mensaje...',tabPlan:'Plan',tabCal:'Calendario',tabLib:'Biblioteca',tabMsg:'Mensajes',tabSum:'Resumen',idioma:'Idioma',volver:'Volver',ant:'Ant',sig:'Sig',sinEntrenoShort:'Sin entrenamiento',abrirConv:'Abrir conversaci\u00f3n',msgNuevo:'mensaje nuevo',msgsNuevos:'mensajes nuevos',pdEmpty:'Todav\u00eda no hay sesiones de metodolog\u00eda PD disponibles.',tplEmpty:'A\u00fan no guardaste ninguna sesi\u00f3n.',resumenCoach:'Resumen Coach',estadoAlumnos:'Estado de todos los alumnos',convPrivada:'Conversaci\u00f3n privada',conversaciones:'Conversaciones',tusAlumnos:'Tus alumnos',tusAlumnosSub:'Toc\u00e1 un nombre para abrir el plan, o sum\u00e1 uno nuevo.',sinSesSemana:'Sin sesiones esta semana',adherencia:'Adherencia 30d',sesionesLc:'sesiones',inactivoHace:'Inactivo hace',diasLc:'d\u00edas',semanas:'semanas',sesAsignadas:'sesiones asignadas',ejercicios:'ejercicios',ejercicio:'ejercicio',ejShort:'ej.',sinEjercicios:'Sin ejercicios',sinEjAccion:'Sin ejercicios en esta acci\u00f3n.',ficha:'Ficha',acceso:'Acceso',editar:'Editar',eliminar:'Eliminar',definir:'+ Definir',miProgreso:'Mi Progreso',evolRegistro:'Tu evoluci\u00f3n y registro',chatProfe:'Chat con tu profe',chatSub:'Escribile cuando quieras',duracionProm:'Duración promedio:',rpeUltimas:'RPE \u00faltimas sesiones',sinRpe:'Sin datos de RPE a\u00fan',notasRec:'Notas recientes',sinNotas:'Sin notas registradas',evolCargas:'Evoluci\u00f3n de cargas',sinCargas:'Sin cargas registradas a\u00fan',dowL:['L','M','X','J','V','S','D'],dow3:['Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b','Dom']},
+en:{planPersonal:'Personalized plan',verMiPlan:'View my plan',verMiSesion:'View my session',empezar:'Start training',hoy:'Today',diaLibre:'Rest day',sinEntreno:'No training scheduled',entrenamiento:'Workout',bloque:'block',bloques:'blocks',completado:'completed',enRacha:'day streak',wQTitle:'How are you today?',wSleep:'\ud83d\ude34 How did you sleep last night?',wMal:'Poor',wExc:'Excellent',wEnergy:'\u26a1 How is your energy today?',wBajo:'Low',wAlto:'High',wPain:'\ud83e\ude79 Any pain or discomfort?',no:'No',si:'Yes',wPainPh:'Where and how much? (E.g.: right knee, mild)',listo:'Done \u2192',saltar:'Skip for now',wCompleta:'Please rate your sleep.',pinMsg:'Enter your PIN to view your plan',verVideo:'Watch video',bloqueDone:'Block completed',marcarDone:'Mark as completed',rpeBloque:'Block RPE',notaPh:'Note... (how it felt, weight used)',chatEmpty:'No messages yet. Write the first one!',chatPh:'Type a message...',tabPlan:'Plan',tabCal:'Calendar',tabLib:'Library',tabMsg:'Messages',tabSum:'Summary',idioma:'Language',volver:'Back',ant:'Prev',sig:'Next',sinEntrenoShort:'No training',abrirConv:'Open conversation',msgNuevo:'new message',msgsNuevos:'new messages',pdEmpty:'No PD Method sessions available yet.',tplEmpty:'You haven\u0027t saved any sessions yet.',resumenCoach:'Coach Summary',estadoAlumnos:'Status of all athletes',convPrivada:'Private conversation',conversaciones:'Conversations',tusAlumnos:'Your athletes',tusAlumnosSub:'Tap a name to open the plan, or add a new one.',sinSesSemana:'No sessions this week',adherencia:'30d adherence',sesionesLc:'sessions',inactivoHace:'Inactive for',diasLc:'days',semanas:'weeks',sesAsignadas:'sessions assigned',ejercicios:'exercises',ejercicio:'exercise',ejShort:'ex.',sinEjercicios:'No exercises',sinEjAccion:'No exercises in this action.',ficha:'Profile',acceso:'Access',editar:'Edit',eliminar:'Delete',definir:'+ Set',miProgreso:'My Progress',evolRegistro:'Your progress and history',chatProfe:'Chat with your coach',chatSub:'Message them anytime',duracionProm:'Average duration:',rpeUltimas:'RPE \u2014 recent sessions',sinRpe:'No RPE data yet',notasRec:'Recent notes',sinNotas:'No notes recorded',evolCargas:'Load progression',sinCargas:'No loads recorded yet',dowL:['M','T','W','T','F','S','S'],dow3:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']},
+it:{planPersonal:'Piano personalizzato',verMiPlan:'Vedi il mio piano',verMiSesion:'Vedi la mia sessione',empezar:'Inizia l\u0027allenamento',hoy:'Oggi',diaLibre:'Giorno libero',sinEntreno:'Nessun allenamento assegnato',entrenamiento:'Allenamento',bloque:'blocco',bloques:'blocchi',completado:'completato',enRacha:'di fila',wQTitle:'Come stai oggi?',wSleep:'\ud83d\ude34 Come hai dormito stanotte?',wMal:'Male',wExc:'Eccellente',wEnergy:'\u26a1 Come ti senti oggi?',wBajo:'Bassa',wAlto:'Alta',wPain:'\ud83e\ude79 Qualche dolore o fastidio?',no:'No',si:'S\u00ec',wPainPh:'Dove e quanto? (Es: ginocchio destro, lieve)',listo:'Fatto \u2192',saltar:'Salta per ora',wCompleta:'Indica come hai dormito.',pinMsg:'Inserisci il tuo PIN per vedere il tuo piano',verVideo:'Guarda il video',bloqueDone:'Blocco completato',marcarDone:'Segna come completato',rpeBloque:'RPE del blocco',notaPh:'Nota... (come ti sei sentito, peso usato)',chatEmpty:'Ancora nessun messaggio. Scrivi il primo!',chatPh:'Scrivi un messaggio...',tabPlan:'Piano',tabCal:'Calendario',tabLib:'Libreria',tabMsg:'Messaggi',tabSum:'Riepilogo',idioma:'Lingua',volver:'Indietro',ant:'Prec',sig:'Succ',sinEntrenoShort:'Nessun allenamento',abrirConv:'Apri conversazione',msgNuevo:'nuovo messaggio',msgsNuevos:'nuovi messaggi',pdEmpty:'Ancora nessuna sessione del Metodo PD disponibile.',tplEmpty:'Non hai ancora salvato nessuna sessione.',resumenCoach:'Riepilogo Coach',estadoAlumnos:'Stato di tutti gli atleti',convPrivada:'Conversazione privata',conversaciones:'Conversazioni',tusAlumnos:'I tuoi atleti',tusAlumnosSub:'Tocca un nome per aprire il piano, o aggiungine uno nuovo.',sinSesSemana:'Nessuna sessione questa settimana',adherencia:'Aderenza 30gg',sesionesLc:'sessioni',inactivoHace:'Inattivo da',diasLc:'giorni',semanas:'settimane',sesAsignadas:'sessioni assegnate',ejercicios:'esercizi',ejercicio:'esercizio',ejShort:'es.',sinEjercicios:'Nessun esercizio',sinEjAccion:'Nessun esercizio in questa azione.',ficha:'Scheda',acceso:'Accesso',editar:'Modifica',eliminar:'Elimina',definir:'+ Definisci',miProgreso:'I miei progressi',evolRegistro:'La tua evoluzione e i tuoi dati',chatProfe:'Chat con il tuo coach',chatSub:'Scrivigli quando vuoi',duracionProm:'Durata media:',rpeUltimas:'RPE ultime sessioni',sinRpe:'Ancora nessun dato RPE',notasRec:'Note recenti',sinNotas:'Nessuna nota registrata',evolCargas:'Evoluzione dei carichi',sinCargas:'Ancora nessun carico registrato',dowL:['L','M','M','G','V','S','D'],dow3:['Lun','Mar','Mer','Gio','Ven','Sab','Dom']}
 };
 function t(k){var d=I18N[LANG]||I18N.es;return (d&&d[k]!==undefined)?d[k]:(I18N.es[k]!==undefined?I18N.es[k]:k);}
 function TT(k){return t(k);}   // alias seguro: usar dentro de funciones que tengan una variable llamada t
@@ -1663,6 +1663,11 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Empezar mi entrenamiento':['Start my workout','Inizia il mio allenamento'],
+'Finalizar mi entrenamiento':['Finish my workout','Termina il mio allenamento'],
+'Entrenamiento finalizado':['Workout finished','Allenamento terminato'],
+'¡Arrancaste! Buen entrenamiento.':['You’re off! Have a good session.','Sei partito! Buon allenamento.'],
+'Este entrenamiento ya está finalizado.':['This workout is already finished.','Questo allenamento è già terminato.'],
 'Video no disponible':['Video unavailable','Video non disponibile'],
 'El video fue borrado o cambió de dirección. Avisale a tu profe para que lo actualice.':['The video was deleted or moved. Let your coach know so they can update it.','Il video è stato eliminato o spostato. Avvisa il tuo coach per aggiornarlo.'],
 'Intentar abrir igual':['Try opening anyway','Prova ad aprire comunque'],
@@ -2384,9 +2389,9 @@ async function loadAllFromSupabase(){
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track');
   if(plr.error)throw plr.error;
   JB_PLANS={};JB_SESSIONS={};JB_NOTRACK={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;JB_NOTRACK[r.player_id]=r.no_track||[];});
-  var pgr=await sb.from('progress').select('player_id,checks,loads');
+  var pgr=await sb.from('progress').select('player_id,checks,loads,times');
   if(pgr.error)throw pgr.error;
-  JB_CHECKS={};JB_LOADS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};});
+  JB_CHECKS={};JB_LOADS={};JB_TIMES={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};JB_TIMES[r.player_id]=r.times||{};});
   var exr=await sb.from('exercises').select('*').order('type');
   if(exr.error)throw exr.error;
   LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base};});
@@ -2608,9 +2613,9 @@ async function loadPlayerData(tid){
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
   JB_PLANS={};JB_SESSIONS={};JB_NOTRACK={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;JB_NOTRACK[r.player_id]=r.no_track||[];});
-  var pgr=await sb.from('progress').select('player_id,checks,loads').eq('trainer_id',tid);
+  var pgr=await sb.from('progress').select('player_id,checks,loads,times').eq('trainer_id',tid);
   if(pgr.error)throw pgr.error;
-  JB_CHECKS={};JB_LOADS={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};});
+  JB_CHECKS={};JB_LOADS={};JB_TIMES={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};JB_TIMES[r.player_id]=r.times||{};});
   LIB=[];
 }
 async function bootAthlete(tk){
@@ -2648,12 +2653,13 @@ async function bootAthlete(tk){
 function applyAthleteData(d){
   var p=d.player;
   PLAYERS=[{id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:'',activeWeek:0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},group_id:p.group_id||null,maxes:p.maxes||{}}];
-  JB_SESSIONS={};JB_PLANS={};JB_NOTRACK={};JB_CHECKS={};JB_LOADS={};
+  JB_SESSIONS={};JB_PLANS={};JB_NOTRACK={};JB_CHECKS={};JB_LOADS={};JB_TIMES={};
   JB_SESSIONS[p.id]=(d.plan&&d.plan.sessions)||null;
   JB_PLANS[p.id]=(d.plan&&d.plan.weeks)||null;
   JB_NOTRACK[p.id]=(d.plan&&d.plan.no_track)||[];
   JB_CHECKS[p.id]=(d.progress&&d.progress.checks)||{};
   JB_LOADS[p.id]=(d.progress&&d.progress.loads)||{};
+  JB_TIMES={};JB_TIMES[p.id]=(d.progress&&d.progress.times)||{};
   MY_PROFILE=d.trainer||{};
 }
 async function bootPlayer(){
@@ -4102,6 +4108,7 @@ function selectPlayer(pid){
   doSelectPlayer(pid);
 }
 function doSelectPlayer(pid){
+  try{if(!isCoach){currentPlayerId=pid;autoCloseStale();}}catch(e){console.error('autoCloseStale',e);}
   currentPlayerId=pid;activePid=pid;PLAN=loadPlan(pid);checkState={};lastCheckedDay=null;loadCheckState();
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
   if(!isCoach&&!p.questionnaire){showQuestionnaire(pid);return;}
@@ -4461,10 +4468,11 @@ function renderPlan(){
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
     var stkP=(!isCoach)?getStreak(currentPlayerId):0;
     var streakP=stkP>=2?'<div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stkP+' en racha</div>':'';
-    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div>'+streakP+'</div>'+(isCoach?volBarHtml(day.blocks,_mx):'')+blocksH+addBBtn;
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div>'+streakP+'</div>'+(isCoach?volBarHtml(day.blocks,_mx):'<div id="sess-timer" style="max-width:var(--cw);margin:12px auto 0;padding:0 13px;"></div>')+blocksH+addBBtn;
     if(isCoach&&sess){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;"><button onclick="openDayEditModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Editar día</button></div><div style="max-width:var(--cw);margin:0 auto;padding:0 13px 8px;display:flex;gap:8px;"><button onclick="openDuplicateModal()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a2 2 0 0 1 2-2h11"/></svg>Duplicar</button><button onclick="saveAsTemplate()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar como sesión</button></div>';}
   }
   document.getElementById('plan-content').innerHTML='<div class="fadein">'+body+'</div>';
+  try{renderTimer();}catch(e){console.error('renderTimer',e);}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function setW(i){}
@@ -4833,7 +4841,15 @@ function buildCheckArea(w,d,bi){
   var rpeBtns='';for(var r=1;r<=10;r++){var sCls='';if(state.rpe===r)sCls=r<=4?' sel-low':r<=6?' sel-mid':r<=8?' sel-high':' sel-max';rpeBtns+='<button class="rpe-btn'+sCls+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" data-r="'+r+'" onclick="setRpe(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.r)">'+r+'</button>';}
   return '<div class="block-check-area"><button class="block-check-btn'+dCls+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" onclick="toggleCheck(+this.dataset.w,+this.dataset.d,+this.dataset.b)"><div class="check-circle"><span style="font-size:12px;color:#0a0b0e;display:'+(state.done?'block':'none')+'">'+tick+'</span></div><span class="check-lbl">'+lbl+'</span></button><div class="rpe-area"><span class="rpe-lbl">'+TT('rpeBloque')+'</span><div class="rpe-grid">'+rpeBtns+'</div></div><textarea class="block-note" placeholder="'+TT('notaPh')+'" data-w="'+w+'" data-d="'+d+'" data-b="'+bi+'" onchange="saveNote(this)" onclick="event.stopPropagation()">'+( state.note||'')+'</textarea></div>';
 }
-function toggleCheck(w,d,b){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].done=!checkState[key].done;saveCheckState();refreshPlanUI();}
+function toggleCheck(w,d,b){
+  var key=w+'-'+d+'-'+b;
+  if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};
+  checkState[key].done=!checkState[key].done;
+  /* Guardamos la hora: si el alumno se olvida de finalizar, la sesión se cierra
+     con el último bloque completado en vez de quedar corriendo toda la noche. */
+  if(checkState[key].done)checkState[key].ts=new Date().toISOString();
+  saveCheckState();refreshPlanUI();
+}
 function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();refreshPlanUI();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
@@ -5926,6 +5942,122 @@ function dropManifestForAthlete(){
     if(l.parentNode)l.parentNode.removeChild(l);
   }catch(e){}
 }
+/* ===== CRONÓMETRO DE SESIÓN =====
+   Se guarda la hora de inicio, no un contador corriendo: así el tiempo sigue
+   bien aunque el alumno cierre la app, bloquee el teléfono o pierda señal. */
+var JB_TIMES={}, _tmTick=null;
+var TM_MAX_H=4; // a partir de acá se considera que se olvidó de finalizar
+function timesOf(pid){if(!JB_TIMES[pid])JB_TIMES[pid]={};return JB_TIMES[pid];}
+function curTime(){return (timesOf(currentPlayerId)||{})[curDate]||null;}
+/* Promedio de duración de las últimas N sesiones finalizadas */
+function avgDuration(pid,days){
+  var t=JB_TIMES[pid]||{}, lim=addDaysISO(isoToday(),-(days||30));
+  var arr=Object.keys(t).filter(function(iso){
+    return iso>=lim && t[iso] && t[iso].e && t[iso].m>0 && !t[iso].auto;
+  }).map(function(iso){return t[iso].m;});
+  if(!arr.length)return null;
+  return {avg:Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length),n:arr.length};
+}
+function fmtDur(min){
+  min=Math.max(0,Math.round(min));
+  var hh=Math.floor(min/60), mm=min%60;
+  return hh? (hh+'h '+(mm<10?'0':'')+mm+'m') : (mm+' min');
+}
+function fmtClock(sec){
+  sec=Math.max(0,Math.floor(sec));
+  var h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  var p=function(n){return (n<10?'0':'')+n;};
+  return h? (h+':'+p(m)+':'+p(s)) : (p(m)+':'+p(s));
+}
+function saveTimes(pid){
+  showSyncStatus('saving');
+  var val=JB_TIMES[pid]||{};
+  var p=ATH_TOKEN
+    ? sb.rpc('athlete_save_progress_times',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_times:val})
+    : sb.from('progress').upsert({player_id:pid,trainer_id:TRAINER_ID,times:val,updated_at:new Date().toISOString()},{onConflict:'player_id'});
+  p.then(function(r){showSyncStatus(r&&r.error?'error':'ok');if(r&&r.error)console.error('saveTimes',r.error);},
+         function(e){showSyncStatus('error');console.error('saveTimes',e);});
+}
+/* Última hora registrada entre los bloques completados de este día */
+function lastBlockTs(){
+  var last=null;
+  Object.keys(checkState||{}).forEach(function(k){
+    var c=checkState[k];
+    if(c&&c.done&&c.ts&&(!last||c.ts>last))last=c.ts;
+  });
+  return last;
+}
+function startSession(){
+  if(!currentPlayerId||!curDate)return;
+  var t=timesOf(currentPlayerId);
+  if(t[curDate]&&t[curDate].e){showInfo(tr('Este entrenamiento ya está finalizado.'));return;}
+  t[curDate]={s:new Date().toISOString()};
+  saveTimes(currentPlayerId);
+  refreshPlanUI();
+  toast(tr('¡Arrancaste! Buen entrenamiento.'));
+}
+function finishSession(auto){
+  if(!currentPlayerId||!curDate)return;
+  var t=timesOf(currentPlayerId), cur=t[curDate];
+  if(!cur||!cur.s||cur.e)return;
+  var endIso=auto?(lastBlockTs()||cur.s):new Date().toISOString();
+  var mins=(new Date(endIso)-new Date(cur.s))/60000;
+  if(mins<0)mins=0;
+  cur.e=endIso; cur.m=Math.round(mins);
+  saveTimes(currentPlayerId);
+  refreshPlanUI();
+  if(!auto)toast(tr('Entrenamiento finalizado')+' · '+fmtDur(cur.m));
+}
+/* Si quedó abierta de un día anterior, se cierra sola con el último bloque */
+function autoCloseStale(){
+  if(!currentPlayerId)return;
+  var t=timesOf(currentPlayerId);
+  Object.keys(t).forEach(function(iso){
+    var x=t[iso];
+    if(!x||!x.s||x.e)return;
+    var hrs=(Date.now()-new Date(x.s).getTime())/3600000;
+    if(hrs<TM_MAX_H)return;
+    var prevDate=curDate, prevChecks=checkState;
+    if(iso===curDate){finishSession(true);return;}
+    /* Días anteriores: sin sus checks en memoria, se cierra con el tope */
+    x.e=new Date(new Date(x.s).getTime()+TM_MAX_H*3600000).toISOString();
+    x.m=TM_MAX_H*60;
+    x.auto=true;
+  });
+  saveTimes(currentPlayerId);
+}
+function renderTimer(){
+  var box=document.getElementById('sess-timer');if(!box)return;
+  if(isCoach||draftMode){box.innerHTML='';return;}
+  var sess=getCurSession&&getCurSession();
+  if(!sess||!sess.blocks||!sess.blocks.length){box.innerHTML='';return;}
+  var cur=curTime();
+  if(_tmTick){clearInterval(_tmTick);_tmTick=null;}
+
+  if(cur&&cur.e){
+    box.innerHTML='<div style="display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(168,224,99,0.10);border:1px solid var(--mob);border-radius:12px;padding:12px;">'
+      +'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--mob)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'
+      +'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">'+tr('Duración')+': '+fmtDur(cur.m)+'</span></div>';
+    return;
+  }
+  if(cur&&cur.s){
+    box.innerHTML='<div style="background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;">'
+      +'<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;">'
+      +'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--mob)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'
+      +'<span id="tm-clock" style="font-family:\'Barlow Condensed\',sans-serif;font-size:26px;font-weight:800;letter-spacing:0.03em;color:var(--text);font-variant-numeric:tabular-nums;">'+fmtClock((Date.now()-new Date(cur.s).getTime())/1000)+'</span></div>'
+      +'<button onclick="finishSession(false)" style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--mobfill);color:#0a0b0e;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">'+tr('Finalizar mi entrenamiento')+'</button></div>';
+    _tmTick=setInterval(function(){
+      var el=document.getElementById('tm-clock');
+      var c=curTime();
+      if(!el||!c||!c.s||c.e){clearInterval(_tmTick);_tmTick=null;return;}
+      el.textContent=fmtClock((Date.now()-new Date(c.s).getTime())/1000);
+    },1000);
+    return;
+  }
+  box.innerHTML='<button onclick="startSession()" style="width:100%;padding:13px;border-radius:12px;border:1px dashed var(--mob);background:rgba(168,224,99,0.07);color:var(--mob);font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;">'
+    +'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'
+    +tr('Empezar mi entrenamiento')+'</button>';
+}
 /* ===== INSTRUCTIVO: AGREGAR A PANTALLA DE INICIO ===== */
 function isAndroid(){return /Android/i.test(navigator.userAgent);}
 function isIOSdev(){return /iPad|iPhone|iPod/.test(navigator.userAgent);}
@@ -6329,7 +6461,12 @@ function renderSummary(){
       return '<div style="padding:7px 0;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--cm);margin-bottom:3px;">'+ex.name+'</div><div style="font-size:12px;line-height:1.7;">'+chain+'</div></div>';
     }).join(''):'<div class="sum-empty">'+TT('sinCargas')+'</div>';
     var _volH=volTrendHtml(p.id,p.maxes||{});
-    var rpeInner=_volH+'<div class="sum-lbl"'+(_volH?'':' style="margin-top:0;"')+'>'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('evolCargas')+'</div>'+loadsH;
+    /* Promedio de duración de las sesiones finalizadas en 30 días */
+    var _dur=avgDuration(p.id,30);
+    var _durH=_dur?('<div style="display:flex;align-items:center;gap:9px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 13px;margin-bottom:12px;">'
+      +'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--mob)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'
+      +'<span style="font-size:12.5px;color:var(--muted);">'+TT('duracionProm')+' <b style="color:var(--text);">'+fmtDur(_dur.avg)+'</b> <span style="color:var(--muted2);">('+_dur.n+')</span></span></div>'):'';
+    var rpeInner=_durH+_volH+'<div class="sum-lbl"'+(_volH||_durH?'':' style="margin-top:0;"')+'>'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('evolCargas')+'</div>'+loadsH;
     var secs='';
     if(isCoach){var _wc=weeklyVizHtml(p);if(_wc)secs+=sumSec(ICON('pulse'),tr('Autoevaluación semanal'),_wc,true);}
     if(isCoach){var _pc=painsCoachHtml(p);if(_pc)secs+=sumSec(ICON('bandage'),tr('Molestias (30 días)'),stripLbl(_pc),false);}
