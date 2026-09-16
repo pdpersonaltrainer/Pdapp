@@ -344,6 +344,15 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .lib-topbar{position:sticky;top:55px;z-index:190;background:var(--veil);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:10px 16px;}
 .lib-topbar-inner{max-width:var(--cw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
 .lib-topbar h2{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;}
+/* En celular el título repite lo que ya dice el encabezado y deja sin lugar
+   a los tres botones. Se oculta y los botones reparten el ancho en partes iguales. */
+@media (max-width:560px){
+  .lib-topbar{padding:9px 11px;}
+  .lib-topbar h2{display:none;}
+  .lib-topbar-inner{gap:0;}
+  .lib-topbar-inner>div{flex:1;min-width:0;gap:7px!important;}
+  .lib-topbar .add-lib-btn{flex:1;min-width:0;padding:9px 4px;font-size:11px;letter-spacing:0.03em;white-space:nowrap;}
+}
 .add-lib-btn{background:var(--actfill);color:#0a0b0e;border:none;border-radius:8px;padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
 .add-lib-btn.hidden{display:none;}
 .lib-filters{max-width:var(--cw);margin:0 auto;padding:10px 13px 4px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
@@ -1524,7 +1533,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260910-2';
+var APP_VERSION='20260910-3';
 (function(){
   try{
     setTimeout(function(){
