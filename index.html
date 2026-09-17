@@ -1036,7 +1036,7 @@ body{overflow-x:hidden;}
     <h3 id="modal-lib-title">Nuevo Ejercicio</h3>
     <div class="form-row"><label>Nombre</label><input type="text" id="f-name" placeholder="Ej: Hip CARs"/></div>
     <div class="form-row"><label>Categoría</label>
-      <select id="f-type">
+      <select id="f-type" onchange="onExTypeChange()">
         <option value="mob">Movilidad</option>
         <option value="act">Activaci&#243;n y Prevenci&#243;n</option>
         <option value="fza">Fuerza</option>
@@ -1046,7 +1046,7 @@ body{overflow-x:hidden;}
         <option value="est">Estiramientos din&#225;micos</option>
       </select>
     </div>
-    <div class="form-row"><label>Acción / Patrón de movimiento</label><select id="f-pattern"><option value="">Sin categoría</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select></div>
+    <div class="form-row"><label>Acción / Patrón de movimiento</label><select id="f-pattern"></select></div>
     <div class="form-row"><label>Series / Reps / Carga</label><input type="text" id="f-load" placeholder="Ej: 4x6 @80kg"/></div>
     <div class="form-row"><label>Nota técnica</label><textarea id="f-note" placeholder="Descripción, cues técnicos..."></textarea></div>
     <div class="form-row"><label>Video / Link</label><input type="url" id="f-link" placeholder="https://... o sub&#237; un video"/>
@@ -1537,7 +1537,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260910-6';
+var APP_VERSION='20260917-1';
 (function(){
   try{
     setTimeout(function(){
@@ -1663,6 +1663,7 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Sin subcategorías':['No subcategories','Nessuna sottocategoria'],
 'Empezar mi entrenamiento':['Start my workout','Inizia il mio allenamento'],
 'Finalizar mi entrenamiento':['Finish my workout','Termina il mio allenamento'],
 'Entrenamiento finalizado':['Workout finished','Allenamento terminato'],
@@ -4636,11 +4637,76 @@ function editBlockField(el){
 }
 
 var PATTERNS=[['dr_bi','Dominante rodilla · Bi'],['dr_uni','Dominante rodilla · Uni'],['dc_bi','Dominante cadera · Bi'],['dc_uni','Dominante cadera · Uni'],['eh_bi','Empuje horizontal · Bi'],['eh_uni','Empuje horizontal · Uni'],['ev_bi','Empuje vertical · Bi'],['ev_uni','Empuje vertical · Uni'],['th','Tracción horizontal'],['tv','Tracción vertical'],['s2','Salto 2 piernas'],['s1','Salto 1 pierna']];
+/* Patrones nuevos por tipo. Los viejos (th, tv, s2, s1) se conservan como
+   legado para que los ejercicios ya clasificados no pierdan su etiqueta. */
+PATTERNS=PATTERNS.concat([
+  ['dt_bi','Dominante tobillo · Bi'],['dt_uni','Dominante tobillo · Uni'],
+  ['th_bi','Tracción horizontal · Bi'],['th_uni','Tracción horizontal · Uni'],
+  ['tv_bi','Tracción vertical · Bi'],['tv_uni','Tracción vertical · Uni'],
+  ['saltos','Saltos'],
+  ['mv_col','Columna'],['mv_cad','Cadera'],['mv_tob','Tobillo'],['mv_hom','Hombros'],['mv_dor','Dorsal'],
+  ['es_isq','Isquios'],['es_glu','Glúteos'],['es_abd','Abductores'],['es_cua','Cuádriceps'],
+  ['es_gem','Gemelo / Sóleo'],['es_pec','Pectoral'],['es_dor','Dorsal'],
+  ['cm_aext','Anti extensión'],['cm_afle','Anti flexión'],['cm_alat','Anti flexión lateral'],['cm_arot','Anti rotación']
+]);
 var PATLABEL={};PATTERNS.forEach(function(x){PATLABEL[x[0]]=x[1];});
+/* Qué patrones corresponden a cada tipo de ejercicio */
+var _PAT_FUERZA=['dr_bi','dr_uni','dc_bi','dc_uni','dt_bi','dt_uni','eh_bi','eh_uni','ev_bi','ev_uni','th_bi','th_uni','tv_bi','tv_uni'];
+var PAT_BY_TYPE={
+  mob:['mv_col','mv_cad','mv_tob','mv_hom','mv_dor'],
+  est:['es_isq','es_glu','es_abd','es_cua','es_gem','es_pec','es_dor'],
+  act:_PAT_FUERZA.slice(),
+  fza:_PAT_FUERZA.slice(),
+  exp:_PAT_FUERZA.concat(['saltos','s2','s1']),
+  cm :['cm_aext','cm_afle','cm_alat','cm_arot'],
+  cam:[]
+};
+/* Opciones del segundo desplegable según el tipo elegido.
+   Sin tipo elegido se listan todos; así el filtro sigue sirviendo suelto. */
+function fillExPatSelect(type,current){
+  var sel=document.getElementById('f-pattern');if(!sel)return;
+  var opts=patOptionsFor(type);
+  var html='<option value="">'+tr('Sin categoría')+'</option>';
+  opts.forEach(function(p){html+='<option value="'+p[0]+'"'+(current===p[0]?' selected':'')+'>'+p[1]+'</option>';});
+  /* Si el ejercicio ya tenía un patrón de otro tipo, se conserva visible
+     para no perderlo en silencio al editar. */
+  if(current&&opts.filter(function(p){return p[0]===current;}).length===0&&PATLABEL[current]){
+    html+='<option value="'+current+'" selected>'+PATLABEL[current]+'</option>';
+  }
+  sel.innerHTML=html;
+  if(!current)sel.value='';
+}
+function onExTypeChange(){
+  var t=(document.getElementById('f-type')||{}).value||'';
+  fillExPatSelect(t,'');
+}
+function patOptionsFor(type){
+  var ids=(type&&PAT_BY_TYPE[type])?PAT_BY_TYPE[type]:null;
+  if(!ids)return PATTERNS.slice();
+  return ids.map(function(id){return [id,PATLABEL[id]||id];});
+}
+function fillPatSelect(sel,type,current){
+  if(!sel)return;
+  var opts=patOptionsFor(type);
+  var lbl=(type&&PAT_BY_TYPE[type]&&!PAT_BY_TYPE[type].length)?tr('Sin subcategorías'):tr('Todas las acciones');
+  var html='<option value="">'+lbl+'</option>';
+  opts.forEach(function(p){
+    html+='<option value="'+p[0]+'"'+(current===p[0]?' selected':'')+'>'+p[1]+'</option>';
+  });
+  sel.innerHTML=html;
+  sel.disabled=!!(type&&PAT_BY_TYPE[type]&&!PAT_BY_TYPE[type].length);
+  if(current&&opts.filter(function(p){return p[0]===current;}).length===0)sel.value='';
+}
 var activePattern='',pickPattern='',pickTypeFilter='',pickSearch='';
 function filterLibSearch(){renderLib();}
 function setLibPattern(v){activePattern=v;renderLib();}
-function setPickType(v){pickTypeFilter=v;renderPickList();}
+function setPickType(v){
+  pickTypeFilter=v;
+  /* Las subcategorías dependen del tipo: se recargan y se limpia la elegida
+     si no pertenece al tipo nuevo. */
+  pickPattern='';
+  fillPatSelect(document.getElementById('pick-pat-filter'),v,'');
+  renderPickList();}
 function setPickSearch(v){pickSearch=v;renderPickList();}
 
 function exMoveBtns(w,d,b,e,total){
@@ -4853,7 +4919,7 @@ function toggleCheck(w,d,b){
 function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();refreshPlanUI();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
-function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';pickSearch='';var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';var ssel=document.getElementById('pick-search');if(ssel)ssel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
+function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';pickSearch='';fillPatSelect(document.getElementById('pick-pat-filter'),'','');var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';var ssel=document.getElementById('pick-search');if(ssel)ssel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
 function setPickPattern(v){pickPattern=v;renderPickList();}
 var pickSelected={};
 function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});if(pickSearch){var _q=pickSearch.trim().toLowerCase();if(_q)items=items.filter(function(e){return (e.name||'').toLowerCase().indexOf(_q)!==-1;});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mobfill);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
@@ -4985,7 +5051,7 @@ async function handleVideoUpload(e){
   }catch(err){st.style.color='#ff6b6b';st.textContent='Error de conexi\u00f3n al subir.';}
   e.target.value='';
 }
-function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=tr(ex?'Editar Ejercicio':'Nuevo Ejercicio');document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';document.getElementById('f-pattern').value=ex&&ex.pattern?ex.pattern:'';var vst=document.getElementById('f-video-status');if(vst)vst.textContent='';document.getElementById('modal-lib').classList.add('open');}
+function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=tr(ex?'Editar Ejercicio':'Nuevo Ejercicio');document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';fillExPatSelect((ex&&ex.type)||(document.getElementById('f-type')||{}).value||'',(ex&&ex.pattern)||'');var vst=document.getElementById('f-video-status');if(vst)vst.textContent='';document.getElementById('modal-lib').classList.add('open');}
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
 async function saveLibExercise(){
   var name=document.getElementById('f-name').value.trim();
