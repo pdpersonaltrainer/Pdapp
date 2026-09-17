@@ -1537,7 +1537,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260917-1';
+var APP_VERSION='20260917-2';
 (function(){
   try{
     setTimeout(function(){
@@ -4646,15 +4646,16 @@ PATTERNS=PATTERNS.concat([
   ['saltos','Saltos'],
   ['mv_col','Columna'],['mv_cad','Cadera'],['mv_tob','Tobillo'],['mv_hom','Hombros'],['mv_dor','Dorsal'],
   ['es_isq','Isquios'],['es_glu','Glúteos'],['es_abd','Abductores'],['es_cua','Cuádriceps'],
-  ['es_gem','Gemelo / Sóleo'],['es_pec','Pectoral'],['es_dor','Dorsal'],
+  ['es_gem','Gemelo / Sóleo'],['es_pec','Pectoral'],['es_dor','Dorsal'],['es_pso','Psoas'],
+  ['fc','Flexor de cadera'],
   ['cm_aext','Anti extensión'],['cm_afle','Anti flexión'],['cm_alat','Anti flexión lateral'],['cm_arot','Anti rotación']
 ]);
 var PATLABEL={};PATTERNS.forEach(function(x){PATLABEL[x[0]]=x[1];});
 /* Qué patrones corresponden a cada tipo de ejercicio */
-var _PAT_FUERZA=['dr_bi','dr_uni','dc_bi','dc_uni','dt_bi','dt_uni','eh_bi','eh_uni','ev_bi','ev_uni','th_bi','th_uni','tv_bi','tv_uni'];
+var _PAT_FUERZA=['dr_bi','dr_uni','dc_bi','dc_uni','dt_bi','dt_uni','fc','eh_bi','eh_uni','ev_bi','ev_uni','th_bi','th_uni','tv_bi','tv_uni'];
 var PAT_BY_TYPE={
   mob:['mv_col','mv_cad','mv_tob','mv_hom','mv_dor'],
-  est:['es_isq','es_glu','es_abd','es_cua','es_gem','es_pec','es_dor'],
+  est:['es_isq','es_glu','es_abd','es_cua','es_gem','es_pec','es_dor','es_pso'],
   act:_PAT_FUERZA.slice(),
   fza:_PAT_FUERZA.slice(),
   exp:_PAT_FUERZA.concat(['saltos','s2','s1']),
