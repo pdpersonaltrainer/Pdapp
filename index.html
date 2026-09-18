@@ -1529,15 +1529,45 @@ var MY_PROFILE={};
 var ONLY_PLAYER_ID=null;
 var ATH_TOKEN=null,ATH_PIN=null;
 var ATH_TK_KEY='pdapp_ath_token';
+var ATH_PIN_KEY='pdapp_ath_pin', ATH_TM_KEY='pdapp_ath_times';
+/* El PIN se recuerda 12 h: bloquear el teléfono en medio de un entrenamiento
+   no debería obligar a volver a ingresarlo ni cortar el cronómetro. */
+function savePin(pin){try{localStorage.setItem(ATH_PIN_KEY,JSON.stringify({p:pin,t:Date.now()}));}catch(e){}}
+function readPin(){
+  try{
+    var o=JSON.parse(localStorage.getItem(ATH_PIN_KEY)||'null');
+    if(!o||!o.p)return null;
+    if(Date.now()-o.t>12*3600000){localStorage.removeItem(ATH_PIN_KEY);return null;}
+    return o.p;
+  }catch(e){return null;}
+}
+function clearPin(){try{localStorage.removeItem(ATH_PIN_KEY);}catch(e){}}
+/* Respaldo local del cronómetro: si la función de la base todavía no devuelve
+   el campo, la sesión en curso no se pierde igual. */
+function cacheTimes(pid){try{localStorage.setItem(ATH_TM_KEY,JSON.stringify(JB_TIMES[pid]||{}));}catch(e){}}
+function mergeCachedTimes(pid){
+  try{
+    var loc=JSON.parse(localStorage.getItem(ATH_TM_KEY)||'{}');
+    var srv=JB_TIMES[pid]||{};
+    Object.keys(loc).forEach(function(iso){
+      var a=srv[iso], b=loc[iso];
+      if(!a){srv[iso]=b;return;}
+      /* Gana el que esté más avanzado: finalizado > en curso */
+      if(!a.e&&b.e)srv[iso]=b;
+    });
+    JB_TIMES[pid]=srv;
+  }catch(e){}
+}
 function saveAthToken(tk){try{if(tk)localStorage.setItem(ATH_TK_KEY,tk);}catch(e){}}
 function readAthToken(){try{return localStorage.getItem(ATH_TK_KEY)||null;}catch(e){return null;}}
-function clearAthToken(){try{localStorage.removeItem(ATH_TK_KEY);}catch(e){}}
+function clearAthToken(){
+  try{clearPin();localStorage.removeItem(ATH_TM_KEY);}catch(e){}try{localStorage.removeItem(ATH_TK_KEY);}catch(e){}}
 var pendingDate=null;
 var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260917-3';
+var APP_VERSION='20260917-4';
 (function(){
   try{
     setTimeout(function(){
@@ -1663,6 +1693,7 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Al empezar se habilitan los videos de cada ejercicio.':['Videos for each exercise unlock when you start.','I video di ogni esercizio si sbloccano quando inizi.'],
 'Duración promedio':['Average duration','Durata media'],
 'sesiones cronometradas':['timed sessions','sessioni cronometrate'],
 'Tonelaje':['Tonnage','Tonnellaggio'],
@@ -2664,6 +2695,7 @@ function applyAthleteData(d){
   JB_CHECKS[p.id]=(d.progress&&d.progress.checks)||{};
   JB_LOADS[p.id]=(d.progress&&d.progress.loads)||{};
   JB_TIMES={};JB_TIMES[p.id]=(d.progress&&d.progress.times)||{};
+  try{mergeCachedTimes(p.id);}catch(e){}
   MY_PROFILE=d.trainer||{};
 }
 async function bootPlayer(){
@@ -4234,18 +4266,32 @@ function updatePinDots(){for(var i=0;i<4;i++){var d=document.getElementById('pd'
 function checkPin(){if(pinBuffer===COACH_PIN){closePinModal();activateCoach();}else{for(var i=0;i<4;i++)document.getElementById('pd'+i).classList.add('error');var box=document.getElementById('pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');pinBuffer='';updatePinDots();},450);}}
 
 // \u2500\u2500 PLAYER PIN \u2500\u2500
-function openPlayerPinModal(p){playerPinBuffer='';updatePlayerPinDots();document.getElementById('player-pin-player-name').textContent=p.name;var av=document.getElementById('player-pin-av');av.innerHTML=p.photo?'<img src="'+p.photo+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;"/>':'\ud83d\udc64';document.getElementById('modal-player-pin').classList.add('open');}
+function openPlayerPinModal(p){
+  /* Si el PIN sigue vigente, se entra directo: evita cortar un entrenamiento
+     en curso solo porque el alumno bloqueó el teléfono. */
+  if(ATH_TOKEN){
+    var _sp=readPin();
+    if(_sp&&String(_sp).length===4){
+      playerPinBuffer=String(_sp);
+      setTimeout(function(){try{checkAthletePin();}catch(e){}},0);
+      return;
+    }
+  }
+  playerPinBuffer='';updatePlayerPinDots();document.getElementById('player-pin-player-name').textContent=p.name;var av=document.getElementById('player-pin-av');av.innerHTML=p.photo?'<img src="'+p.photo+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;"/>':'\ud83d\udc64';document.getElementById('modal-player-pin').classList.add('open');}
 function closePlayerPinModal(){document.getElementById('modal-player-pin').classList.remove('open');pendingSelectPid=null;playerPinBuffer='';updatePlayerPinDots();}
 function playerPinPress(d){if(playerPinBuffer.length>=4)return;playerPinBuffer+=String(d);updatePlayerPinDots();if(playerPinBuffer.length===4)setTimeout(checkPlayerPin,120);}
 function playerPinDel(){playerPinBuffer=playerPinBuffer.slice(0,-1);updatePlayerPinDots();}
 function updatePlayerPinDots(){for(var i=0;i<4;i++){var d=document.getElementById('ppd'+i);d.classList.toggle('filled',i<playerPinBuffer.length);d.classList.remove('error');}}
-function pinFail(){for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}
+function pinFail(){
+  try{clearPin();}catch(e){}
+  try{var _m=document.getElementById('modal-player-pin');if(_m&&!_m.classList.contains('open')){playerPinBuffer='';updatePlayerPinDots();_m.classList.add('open');}}catch(e){}for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}
 async function checkAthletePin(){
   var entered=String(playerPinBuffer).trim();
   if(entered.length!==4){pinFail();return;}
   var r=await sb.rpc('athlete_bootstrap',{p_token:ATH_TOKEN,p_pin:entered});
   if(r.error||!r.data){pinFail();return;}
   ATH_PIN=entered;
+  savePin(entered);
   applyAthleteData(r.data);
   var pid=PLAYERS[0].id;
   closePlayerPinModal();
@@ -4611,7 +4657,10 @@ function renderBlock(b,bi,wIdx,dIdx){
     var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
     return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">'+BICONS.cam+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
   }
-  var exsH=b.exs.map(function(e,ei){var link=e.link?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=mediaThumbHtml(e.link,e.img,'exthumb');var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  /* El alumno ve los videos recién cuando arranca el entrenamiento: antes solo
+   tiene el resumen (nombre, series, reps y kg) para no distraerse. */
+  var _verVid=isC||draftMode||sessionStarted();
+  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -6033,6 +6082,10 @@ function dropManifestForAthlete(){
 var JB_TIMES={}, _tmTick=null;
 var TM_MAX_H=4; // a partir de acá se considera que se olvidó de finalizar
 function timesOf(pid){if(!JB_TIMES[pid])JB_TIMES[pid]={};return JB_TIMES[pid];}
+/* ¿El alumno ya tocó "Empezar mi entrenamiento" en este día? */
+function sessionStarted(){
+  try{var c=curTime();return !!(c&&c.s);}catch(e){return false;}
+}
 function curTime(){return (timesOf(currentPlayerId)||{})[curDate]||null;}
 /* Promedio de duración de las últimas N sesiones finalizadas */
 function avgDuration(pid,days){
@@ -6057,6 +6110,7 @@ function fmtClock(sec){
 function saveTimes(pid){
   showSyncStatus('saving');
   var val=JB_TIMES[pid]||{};
+  try{if(ATH_TOKEN)cacheTimes(pid);}catch(e){}
   var p=ATH_TOKEN
     ? sb.rpc('athlete_save_progress_times',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_times:val})
     : sb.from('progress').upsert({player_id:pid,trainer_id:TRAINER_ID,times:val,updated_at:new Date().toISOString()},{onConflict:'player_id'});
@@ -6139,7 +6193,8 @@ function renderTimer(){
     },1000);
     return;
   }
-  box.innerHTML='<button onclick="startSession()" style="width:100%;padding:13px;border-radius:12px;border:1px dashed var(--mob);background:rgba(168,224,99,0.07);color:var(--mob);font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;">'
+  box.innerHTML='<div style="text-align:center;font-size:11.5px;color:var(--muted2);margin-bottom:8px;line-height:1.45;">'+tr('Al empezar se habilitan los videos de cada ejercicio.')+'</div>'
+    +'<button onclick="startSession()" style="width:100%;padding:13px;border-radius:12px;border:1px dashed var(--mob);background:rgba(168,224,99,0.07);color:var(--mob);font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;">'
     +'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'
     +tr('Empezar mi entrenamiento')+'</button>';
 }
