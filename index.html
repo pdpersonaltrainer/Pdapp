@@ -1537,7 +1537,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260917-2';
+var APP_VERSION='20260917-3';
 (function(){
   try{
     setTimeout(function(){
@@ -1663,6 +1663,9 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Duración promedio':['Average duration','Durata media'],
+'sesiones cronometradas':['timed sessions','sessioni cronometrate'],
+'Tonelaje':['Tonnage','Tonnellaggio'],
 'Sin subcategorías':['No subcategories','Nessuna sottocategoria'],
 'Empezar mi entrenamiento':['Start my workout','Inizia il mio allenamento'],
 'Finalizar mi entrenamiento':['Finish my workout','Termina il mio allenamento'],
@@ -4389,6 +4392,15 @@ function sessionVol(blocks,maxes){
   });});
   return {sets:sets,reps:Math.round(reps),kg:Math.round(kg),kgKnown:kgKnown,pctMissing:pctMissing};
 }
+/* Celda de duración: solo si el alumno finalizó la sesión de ESTE día. */
+function _durCell(sep){
+  try{
+    var t=(JB_TIMES[currentPlayerId]||{})[curDate];
+    if(!t||!t.e||!t.m)return '';
+    var val='<span style="color:var(--mob);">'+fmtDur(t.m)+'</span>'+(t.auto?' <span style="font-size:10px;color:var(--muted2);">*</span>':'');
+    return sep+'<div style="flex:1;text-align:center;min-width:0;"><div style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;">'+tr('Duración')+'</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:19px;font-weight:800;line-height:1;white-space:nowrap;">'+val+'</div></div>';
+  }catch(e){return '';}
+}
 function volBarHtml(blocks,maxes){
   var v=sessionVol(blocks,maxes);
   if(!v.sets)return '';
@@ -4396,7 +4408,7 @@ function volBarHtml(blocks,maxes){
   var sep='<div style="width:1px;background:var(--border2);margin:2px;"></div>';
   var kgVal=v.kgKnown?'<span style="color:var(--mob);">'+_pnum(v.kg)+'</span> <span style="font-size:11px;color:var(--muted2);">kg</span>':'<span style="color:var(--muted2);">\u2014</span>';
   var hint=(!v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--act);margin-top:5px;">Carg\u00e1 el 1RM de los ejercicios para ver el tonelaje</div>':((v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--muted2);margin-top:5px;">'+v.pctMissing+' ejercicio'+(v.pctMissing>1?'s':'')+' sin 1RM cargado</div>':'');
-  return '<div style="position:sticky;top:55px;z-index:150;background:var(--bg);padding:8px 13px 6px;"><div style="max-width:var(--cw);margin:0 auto;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:9px 10px;box-shadow:0 6px 16px rgba(0,0,0,0.35);"><div style="display:flex;align-items:stretch;gap:6px;">'+cell('Series',_pnum(v.sets))+sep+cell('Reps',_pnum(v.reps))+sep+cell('Tonelaje',kgVal)+'</div>'+hint+'</div></div>';
+  return '<div style="position:sticky;top:55px;z-index:150;background:var(--bg);padding:8px 13px 6px;"><div style="max-width:var(--cw);margin:0 auto;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:9px 10px;box-shadow:0 6px 16px rgba(0,0,0,0.35);"><div style="display:flex;align-items:stretch;gap:6px;">'+cell(tr('Series'),_pnum(v.sets))+sep+cell(tr('Reps'),_pnum(v.reps))+sep+cell(tr('Tonelaje'),kgVal)+_durCell(sep)+'</div>'+hint+'</div></div>';
 }
 function weeklyVolHistory(pid,maxes){
   var sess=(typeof JB_SESSIONS!=='undefined'&&JB_SESSIONS[pid])?JB_SESSIONS[pid]:{};
@@ -5258,8 +5270,11 @@ function renderMonthView(p){
     if(day&&day.blocks&&day.blocks.length){
       var blocksList=day.blocks.map(function(b){var bt=b.t||'mob';var exs=(b.exs||[]).map(function(e){var ld=e.l?' <span style=\"color:var(--mob);font-weight:700;\">'+e.l+'</span>':'';return '<div style=\"font-size:12px;color:var(--muted);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">'+e.n+ld+'</div>';}).join('');return '<div style=\"margin-top:5px;\"><div style=\"font-size:12px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;color:#eef0f5;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">'+(b.title||'')+'</div>'+exs+'</div>';}).join('');
       var _ch=JB_CHECKS[p.id]||{};var _tot=day.blocks.length,_dn=0;for(var _bi=0;_bi<_tot;_bi++){if(_ch[iso+'-'+_bi]&&_ch[iso+'-'+_bi].done)_dn++;}var st=((_tot>0&&_dn===_tot)?'<span style="float:right;color:var(--mob);font-weight:800;">\u2713</span>':(_dn>0?'<span style="float:right;color:var(--act);font-weight:800;">~</span>':''));
+      /* Duración real de la sesión, si el alumno la cronometró */
+      var _tm=(JB_TIMES[p.id]||{})[iso];
+      var _tmH=(_tm&&_tm.e&&_tm.m)?('<div style="font-size:9px;color:var(--mob);letter-spacing:0.03em;margin-top:1px;">'+fmtDur(_tm.m)+'</div>'):'';
       var mn=(isCoach?'<span class="daymenu-btn" onclick="openDayMenu(\''+iso+'\',event,this)" onmouseenter="dmHover(\''+iso+'\',event,this)" onmouseleave="dmScheduleClose()" style="float:left;margin-right:6px;padding:0 4px;color:var(--muted2);font-weight:800;letter-spacing:1.5px;cursor:pointer;line-height:1;">\u22ef</span>':'');
-      cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:10px;padding:9px 10px;min-height:110px;min-width:0;overflow:hidden;'+tHi+'"><div style="font-weight:700;font-size:13px;margin-bottom:2px;">'+mn+dnum+st+'</div><div style="font-size:13px;font-weight:800;color:var(--mob);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.02em;">'+(day.title||'Entrenamiento')+'</div>'+blocksList+'</div>';
+      cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:10px;padding:9px 10px;min-height:110px;min-width:0;overflow:hidden;'+tHi+'"><div style="font-weight:700;font-size:13px;margin-bottom:2px;">'+mn+dnum+st+'</div><div style="font-size:13px;font-weight:800;color:var(--mob);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.02em;">'+(day.title||'Entrenamiento')+'</div>'+_tmH+blocksList+'</div>';
     } else if(isCoach){
       cells+='<div onclick="openEmptyDayMenu(\''+iso+'\',event,this)" style="cursor:pointer;background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'display:flex;flex-direction:column;">'+head+'<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:20px;opacity:0.45;">+</div></div>';
     } else {
@@ -5844,8 +5859,11 @@ function buildPlayerReport(pid){
 
   // ── Adherencia
   var ad=getAdherence(p.id);
-  if(ad&&ad.total){
-    S.push('<section><h2>'+tr('Adherencia')+'</h2><p class="big">'+ad.pct+'% <span class="small">('+ad.done+'/'+ad.total+' '+tr('en 30 días')+')</span></p></section>');
+  var _dur=avgDuration(p.id,30);
+  if((ad&&ad.total)||_dur){
+    var _adH=(ad&&ad.total)?('<p class="big">'+ad.pct+'% <span class="small">('+ad.done+'/'+ad.total+' '+tr('en 30 días')+')</span></p>'):'';
+    var _duH=_dur?('<p class="small" style="margin-top:6px;">'+tr('Duración promedio')+': <b>'+fmtDur(_dur.avg)+'</b> ('+_dur.n+' '+tr('sesiones cronometradas')+')</p>'):'';
+    S.push('<section><h2>'+tr('Adherencia')+'</h2>'+_adH+_duH+'</section>');
   }
 
   // ── Tests
