@@ -815,7 +815,9 @@ body{overflow-x:hidden;}
     </div>
   </header>
   <div style="max-width:560px;margin:0 auto;width:100%;padding:24px 16px;box-sizing:border-box;">
-    <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" class="sec-lbl">Apariencia</div>
+    <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" class="sec-lbl">Mi marca</div>
+    <div id="brand-box" style="margin-bottom:26px;"></div>
+        <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" class="sec-lbl">Apariencia</div>
     <div id="theme-box" style="margin-bottom:26px;"></div>
     <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" class="sec-lbl">Notificaciones</div>
     <div id="push-box" style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:26px;"></div>
@@ -1567,7 +1569,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260917-4';
+var APP_VERSION='20260917-5';
 (function(){
   try{
     setTimeout(function(){
@@ -1693,6 +1695,18 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Mi marca':['My brand','Il mio brand'],
+'Gratis':['Free','Gratis'],
+'Alumnos ilimitados':['Unlimited athletes','Atleti illimitati'],
+'Hasta':['Up to','Fino a'],
+'alumnos':['athletes','atleti'],
+'Con el plan Pro tus alumnos ven tu nombre y tu logo en lugar de PDapp, y no tenés límite de alumnos.':['With the Pro plan your athletes see your name and logo instead of PDapp, and you get unlimited athletes.','Con il piano Pro i tuoi atleti vedono il tuo nome e logo invece di PDapp, senza limite di atleti.'],
+'Nombre que ven tus alumnos':['Name your athletes see','Nome che vedono i tuoi atleti'],
+'Subir logo':['Upload logo','Carica logo'],
+'Guardar marca':['Save brand','Salva brand'],
+'Marca guardada':['Brand saved','Brand salvato'],
+'Poné el nombre que verán tus alumnos.':['Enter the name your athletes will see.','Inserisci il nome che vedranno i tuoi atleti.'],
+'con tecnología de PDapp':['powered by PDapp','con tecnologia PDapp'],
 'Al empezar se habilitan los videos de cada ejercicio.':['Videos for each exercise unlock when you start.','I video di ogni esercizio si sbloccano quando inizi.'],
 'Duración promedio':['Average duration','Durata media'],
 'sesiones cronometradas':['timed sessions','sessioni cronometrate'],
@@ -3566,6 +3580,7 @@ function delTemplate(id){
 function openTemplatesFromHomeStub(){}
 function openSettingsFromHome(){
   openSideScreen('screen-ajustes');
+  try{renderBrandBox();}catch(e){console.error('brandBox',e);}
   try{renderThemeBox();}catch(e){console.error('themeBox',e);}
   try{renderPushBox();}catch(e){console.error('pushBox',e);}
   document.getElementById('set-pass1').value='';
@@ -4175,6 +4190,7 @@ function wlBtnTxt(key){
 }
 function renderAthleteHome(){
   var pid=currentPlayerId;if(!pid)return;
+  try{applyBrand();}catch(e){}
   try{renderInstallBanner();}catch(e){}
   try{renderWlPush();}catch(e){}
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
@@ -5904,7 +5920,7 @@ function buildPlayerReport(pid){
   S.push('<header><div class="who"><h1>'+_rpEsc(p.name)+'</h1>'
     +(meta?'<div class="sub">'+_rpEsc(meta)+'</div>':'')
     +'<div class="sub">'+tr('Informe generado el')+' '+fecha+'</div></div>'
-    +'<div class="brand"><b>PDapp</b>'+_rpEsc((MY_PROFILE&&MY_PROFILE.display_name)||'')+'</div></header>');
+    +'<div class="brand"><b>'+_rpEsc(isPaid()?brandName():'PDapp')+'</b>'+_rpEsc(isPaid()?'':((MY_PROFILE&&MY_PROFILE.display_name)||''))+'</div></header>');
 
   // ── Adherencia
   var ad=getAdherence(p.id);
@@ -6319,6 +6335,91 @@ async function saveAthSettings(){
 }
 /* ===== TEMA ===== */
 var THEME_BAR={noche:'#0a0b0e',grafito:'#1c1f23',papel:'#f7f5f0'};
+/* ===== MARCA POR PROFE =====
+   Plan gratis → el alumno ve PDapp. Plan pago → ve la marca de su profe,
+   con un crédito discreto abajo. */
+function myPlan(){return (MY_PROFILE&&MY_PROFILE.plan)||'free';}
+function isPaid(){var p=myPlan();return p==='pro'||p==='club';}
+function brandName(){
+  var b=MY_PROFILE&&MY_PROFILE.brand_name;
+  if(b&&String(b).trim())return String(b).trim();
+  if(isPaid()&&MY_PROFILE&&MY_PROFILE.display_name)return MY_PROFILE.display_name;
+  return 'PDapp';
+}
+function brandLogo(){
+  var l=MY_PROFILE&&MY_PROFILE.brand_logo;
+  return (isPaid()&&l)?l:'icon.png';
+}
+/* Pie de la pantalla del alumno */
+function brandFooter(){
+  if(!isPaid())return 'PDapp by '+((MY_PROFILE&&MY_PROFILE.display_name)||'Pablo PT');
+  return brandName()+' · <span style="opacity:0.6;">'+tr('con tecnología de PDapp')+'</span>';
+}
+function renderBrandBox(){
+  var box=document.getElementById('brand-box');if(!box)return;
+  var PLAN_LBL={free:tr('Gratis'),pro:'Pro',club:'Club'};
+  var lim=isPaid()?tr('Alumnos ilimitados'):(tr('Hasta')+' '+((MY_PROFILE&&MY_PROFILE.max_players)||5)+' '+tr('alumnos'));
+  var head='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;margin-bottom:10px;">'
+    +'<div style="min-width:0;"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:'+(isPaid()?'var(--mob)':'var(--text)')+';">'+tr('Plan')+' '+(PLAN_LBL[myPlan()]||myPlan())+'</div>'
+    +'<div style="font-size:11.5px;color:var(--muted2);margin-top:2px;">'+lim+'</div></div></div>';
+  if(!isPaid()){
+    box.innerHTML=head+'<div style="font-size:12.5px;color:var(--muted);line-height:1.55;padding:11px 13px;border:1px dashed var(--border2);border-radius:var(--rsm);">'
+      +tr('Con el plan Pro tus alumnos ven tu nombre y tu logo en lugar de PDapp, y no tenés límite de alumnos.')+'</div>';
+    return;
+  }
+  box.innerHTML=head
+    +'<div class="form-row"><label>'+tr('Nombre que ven tus alumnos')+'</label>'
+    +'<input type="text" id="brand-name" maxlength="40" value="'+String((MY_PROFILE&&MY_PROFILE.brand_name)||(MY_PROFILE&&MY_PROFILE.display_name)||'').replace(/"/g,'&quot;')+'" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-family:\'Barlow\',sans-serif;font-size:15px;color:var(--text);outline:none;"/></div>'
+    +'<div style="display:flex;align-items:center;gap:12px;margin:10px 0 12px;">'
+    +'<div id="brand-logo-prev" style="width:52px;height:52px;border-radius:14px;overflow:hidden;border:1px solid var(--border2);background:var(--s2);flex:none;">'+((MY_PROFILE&&MY_PROFILE.brand_logo)?'<img src="'+MY_PROFILE.brand_logo+'" style="width:100%;height:100%;object-fit:cover;"/>':'')+'</div>'
+    +'<label style="background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:var(--rsm);padding:9px 14px;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'+tr('Subir logo')
+    +'<input type="file" accept="image/*" onchange="brandLogoPick(event)" style="display:none;"></label></div>'
+    +'<button onclick="saveBrand()" style="width:100%;padding:12px;border-radius:var(--rsm);border:none;background:var(--mobfill);color:#0a0b0e;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">'+tr('Guardar marca')+'</button>'
+    +'<div id="brand-msg" style="font-size:12.5px;color:#ff6b6b;min-height:16px;margin-top:8px;"></div>';
+}
+var _brandLogoData=null;
+function brandLogoPick(e){
+  var f=e.target.files[0];if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(ev){
+    var img=new Image();
+    img.onload=function(){
+      var s=192,cv=document.createElement('canvas');cv.width=s;cv.height=s;
+      var ctx=cv.getContext('2d');
+      var mn=Math.min(img.width,img.height);
+      ctx.drawImage(img,(img.width-mn)/2,(img.height-mn)/2,mn,mn,0,0,s,s);
+      _brandLogoData=cv.toDataURL('image/png');
+      document.getElementById('brand-logo-prev').innerHTML='<img src="'+_brandLogoData+'" style="width:100%;height:100%;object-fit:cover;"/>';
+    };
+    img.src=ev.target.result;
+  };
+  rd.readAsDataURL(f);
+}
+async function saveBrand(){
+  var msg=document.getElementById('brand-msg');
+  var nm=(document.getElementById('brand-name')||{}).value||'';
+  nm=nm.trim();
+  if(!nm){if(msg)msg.textContent=tr('Poné el nombre que verán tus alumnos.');return;}
+  if(msg)msg.textContent='';
+  showSyncStatus('saving');
+  var upd={brand_name:nm};
+  if(_brandLogoData)upd.brand_logo=_brandLogoData;
+  var r=await sb.from('trainers').update(upd).eq('id',MY_UID);
+  if(r.error){showSyncStatus('error');if(msg)msg.textContent='Error: '+r.error.message;return;}
+  showSyncStatus('ok');
+  MY_PROFILE.brand_name=nm;
+  if(_brandLogoData)MY_PROFILE.brand_logo=_brandLogoData;
+  _brandLogoData=null;
+  toast(tr('Marca guardada'));
+}
+function applyBrand(){
+  try{
+    var f=document.querySelector('.welcome-footer');
+    if(f&&!isCoach)f.innerHTML=brandFooter();
+    var lg=document.getElementById('loading-spinner');
+    if(lg&&!isCoach&&isPaid())lg.src=brandLogo();
+  }catch(e){}
+}
 function currentTheme(){
   try{
     var t=localStorage.getItem('pdapp_theme');
