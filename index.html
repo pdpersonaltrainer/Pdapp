@@ -529,7 +529,7 @@ body{overflow-x:hidden;}
       <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;font-size:12.5px;color:#6b7280;line-height:1.55;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
       
-      <button onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Ten&#233;s c&#243;digo de invitaci&#243;n? Registrate &#8594;</button>
+      <button onclick="showRegister()" style="width:100%;padding:11px;margin-top:14px;border:1px solid rgba(168,224,99,0.35);background:rgba(168,224,99,0.08);color:#a8e063;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">&#191;Sos profe? Cre&#225; tu cuenta gratis &#8594;</button>
       <button onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
     </div>
 
@@ -541,7 +541,10 @@ body{overflow-x:hidden;}
       <input id="reg-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <input id="reg-pass" type="password" placeholder="Contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <input id="reg-pass2" type="password" placeholder="Confirmar contrase&#241;a" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <input id="reg-code" type="text" placeholder="C&#243;digo de invitaci&#243;n" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){event.preventDefault();registerCoach();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;font-family:monospace;letter-spacing:0.1em;">
+      <input id="reg-code" type="text" placeholder="C&#243;digo de invitaci&#243;n (opcional)" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){event.preventDefault();registerCoach();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;font-family:monospace;letter-spacing:0.1em;">
+      <div style="background:rgba(168,224,99,0.08);border:1px solid rgba(168,224,99,0.28);border-radius:10px;padding:11px 13px;margin:12px 0 4px;font-size:12.5px;color:#9aa3b2;line-height:1.5;text-align:left;">
+        <b style="color:#a8e063;">Empez&#225; gratis</b><br>Hasta 5 alumnos, sin tarjeta y sin vencimiento. Cuando crezcas, pas&#225;s a Pro y tus alumnos ven tu marca.
+      </div>
       <button onclick="registerCoach()" id="btn-register" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Crear cuenta</button>
       <div id="reg-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
       <button onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Ya ten&#233;s cuenta? Ingres&#225;</button>
@@ -769,6 +772,7 @@ body{overflow-x:hidden;}
   <input type="text" id="lib-search" placeholder="Buscar ejercicio..." oninput="filterLibSearch()" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);padding:11px 14px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;" />
 </div>
 <div style="max-width:var(--cw);margin:0 auto;padding:8px 13px 0;"><select id="lib-pat-filter" onchange="setLibPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla · Bi</option><option value="dr_uni">Dominante rodilla · Uni</option><option value="dc_bi">Dominante cadera · Bi</option><option value="dc_uni">Dominante cadera · Uni</option><option value="eh_bi">Empuje horizontal · Bi</option><option value="eh_uni">Empuje horizontal · Uni</option><option value="ev_bi">Empuje vertical · Bi</option><option value="ev_uni">Empuje vertical · Uni</option><option value="th">Tracción horizontal</option><option value="tv">Tracción vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select></div>
+<div class="lib-filters" id="lib-source-row" style="display:none;"></div>
 <div class="lib-filters">
     <div class="filter-chip active" onclick="filterLib('all',this)">Todos</div>
     <div class="filter-chip" onclick="filterLib('mob',this)">ED + Movilidad</div>
@@ -1049,6 +1053,12 @@ body{overflow-x:hidden;}
       </select>
     </div>
     <div class="form-row"><label>Acción / Patrón de movimiento</label><select id="f-pattern"></select></div>
+    <div class="form-row" id="f-share-row" style="display:none;">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;">
+        <input type="checkbox" id="f-share" style="width:18px;height:18px;accent-color:#a8e063;flex:none;">
+        <span id="f-share-lbl" style="font-size:13px;color:var(--text);text-transform:none;letter-spacing:0;font-weight:500;"></span>
+      </label>
+    </div>
     <div class="form-row"><label>Series / Reps / Carga</label><input type="text" id="f-load" placeholder="Ej: 4x6 @80kg"/></div>
     <div class="form-row"><label>Nota técnica</label><textarea id="f-note" placeholder="Descripción, cues técnicos..."></textarea></div>
     <div class="form-row"><label>Video / Link</label><input type="url" id="f-link" placeholder="https://... o sub&#237; un video"/>
@@ -1569,7 +1579,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260917-5';
+var APP_VERSION='20260917-7';
 (function(){
   try{
     setTimeout(function(){
@@ -1695,6 +1705,10 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Mi equipo':['My team','La mia squadra'],
+'Míos':['Mine','I miei'],
+'Compartir con':['Share with','Condividi con'],
+'Completá nombre, email y contraseña.':['Fill in name, email and password.','Inserisci nome, email e password.'],
 'Mi marca':['My brand','Il mio brand'],
 'Gratis':['Free','Gratis'],
 'Alumnos ilimitados':['Unlimited athletes','Atleti illimitati'],
@@ -2443,8 +2457,8 @@ async function loadAllFromSupabase(){
   JB_CHECKS={};JB_LOADS={};JB_TIMES={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};JB_TIMES[r.player_id]=r.times||{};});
   var exr=await sb.from('exercises').select('*').order('type');
   if(exr.error)throw exr.error;
-  LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base};});
-  if(MY_UID){var tr=await sb.from('trainers').select('*').eq('id',MY_UID).single();if(!tr.error&&tr.data){isAdmin=!!tr.data.is_template;MY_PROFILE=tr.data;}}
+  LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base,org_id:e.org_id||null,trainer_id:e.trainer_id||null};});
+  if(MY_UID){var tr=await sb.from('trainers').select('*').eq('id',MY_UID).single();if(!tr.error&&tr.data){isAdmin=!!tr.data.is_template;MY_PROFILE=tr.data;try{await loadOrg();}catch(e){console.error('loadOrg',e);}}}
   if(!isAdmin&&MY_PROFILE&&MY_PROFILE.is_active===false){throw new Error('__SUSPENDED__');}
 }
 
@@ -2638,7 +2652,7 @@ async function registerCoach(){
   var msgEl=document.getElementById('reg-msg');
   var btn=document.getElementById('btn-register');
   msgEl.style.color='#6b7280';
-  if(!name||!email||!pass||!pass2||!code){msgEl.style.color='#ff4d4d';msgEl.textContent='Complet\u00e1 todos los campos.';return;}
+  if(!name||!email||!pass||!pass2){msgEl.style.color='#ff4d4d';msgEl.textContent=tr('Completá nombre, email y contraseña.');return;}
   if(pass!==pass2){msgEl.style.color='#ff4d4d';msgEl.textContent='Las contrase\u00f1as no coinciden.';return;}
   if(pass.length<6){msgEl.style.color='#ff4d4d';msgEl.textContent='La contrase\u00f1a debe tener al menos 6 caracteres.';return;}
   btn.disabled=true;btn.textContent='Creando cuenta...';
@@ -5045,9 +5059,11 @@ function addFromLib(id){
 }
 
 function renderLib(){
+  try{renderLibSource();}catch(e){}
   var labels={mob:'ED + Movilidad',act:'Activaci\u00f3n',fza:'Fuerza',exp:'Explosivos',cam:'Campo',cm:'Control Motor',est:'Estiramientos din\u00e1micos'};
   var qEl=document.getElementById('lib-search');var q=qEl?qEl.value.toLowerCase().trim():'';
   var items=LIB.slice();
+  if(libSource!=='all')items=items.filter(function(e){return srcOf(e)===libSource;});
   if(activeLibFilter!=='all')items=items.filter(function(e){return e.type===activeLibFilter;});
   if(activePattern)items=items.filter(function(e){return e.pattern===activePattern;});
   if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.note||'').toLowerCase().indexOf(q)>=0;});
@@ -5129,12 +5145,25 @@ async function handleVideoUpload(e){
   }catch(err){st.style.color='#ff6b6b';st.textContent='Error de conexi\u00f3n al subir.';}
   e.target.value='';
 }
-function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=tr(ex?'Editar Ejercicio':'Nuevo Ejercicio');document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';fillExPatSelect((ex&&ex.type)||(document.getElementById('f-type')||{}).value||'',(ex&&ex.pattern)||'');var vst=document.getElementById('f-video-status');if(vst)vst.textContent='';document.getElementById('modal-lib').classList.add('open');}
+function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){return e.id===id;}):null;document.getElementById('modal-lib-title').textContent=tr(ex?'Editar Ejercicio':'Nuevo Ejercicio');document.getElementById('f-name').value=ex?ex.name:'';document.getElementById('f-type').value=ex?ex.type:'mob';document.getElementById('f-load').value=ex?ex.load:'';document.getElementById('f-note').value=ex?ex.note:'';document.getElementById('f-link').value=ex?ex.link:'';document.getElementById('f-img').value=ex?ex.img:'';fillExPatSelect((ex&&ex.type)||(document.getElementById('f-type')||{}).value||'',(ex&&ex.pattern)||'');
+  try{
+    var _sr=document.getElementById('f-share-row');
+    if(_sr){
+      _sr.style.display=hasOrg()?'block':'none';
+      document.getElementById('f-share-lbl').textContent=tr('Compartir con')+' '+orgName();
+      document.getElementById('f-share').checked=!!(ex&&ex.org_id&&ex.org_id===orgId());
+    }
+  }catch(e){}var vst=document.getElementById('f-video-status');if(vst)vst.textContent='';document.getElementById('modal-lib').classList.add('open');}
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
 async function saveLibExercise(){
   var name=document.getElementById('f-name').value.trim();
   if(!name){showInfo('El nombre es obligatorio.');return;}
   var fields={name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim(),pattern:document.getElementById('f-pattern').value||null};
+  /* Compartir con la organización: el ejercicio pasa a verlo todo el equipo */
+  try{
+    var _sh=document.getElementById('f-share');
+    if(hasOrg())obj.org_id=(_sh&&_sh.checked)?orgId():null;
+  }catch(e){}
   showSyncStatus('saving');
   if(editingLibId){
     var r=await sb.from('exercises').update(fields).eq('id',editingLibId);
@@ -5226,7 +5255,7 @@ async function doImportLib(arr){
   var ins=await sb.from('exercises').insert(payload).select('id');
   if(ins.error){showSyncStatus('error');showInfo('Error al importar: '+ins.error.message);return;}
   var exr=await sb.from('exercises').select('*').order('type');
-  if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base};});
+  if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base,org_id:e.org_id||null,trainer_id:e.trainer_id||null};});
   showSyncStatus('ok');renderLib();
   showInfo('Listo! Biblioteca actualizada: '+payload.length+' ejercicios.');
 }
@@ -6338,6 +6367,37 @@ var THEME_BAR={noche:'#0a0b0e',grafito:'#1c1f23',papel:'#f7f5f0'};
 /* ===== MARCA POR PROFE =====
    Plan gratis → el alumno ve PDapp. Plan pago → ve la marca de su profe,
    con un crédito discreto abajo. */
+var MY_ORG=null, libSource='all';
+/* Organización: gimnasio, club o academia. El nombre lo define cada una,
+   así que en pantalla se usa el suyo y no la palabra "club". */
+function orgId(){return (MY_PROFILE&&MY_PROFILE.org_id)||null;}
+function orgName(){return (MY_ORG&&MY_ORG.name)||tr('Mi equipo');}
+function hasOrg(){return !!orgId();}
+async function loadOrg(){
+  if(!orgId()){MY_ORG=null;return;}
+  try{
+    var r=await sb.from('orgs').select('id,name,owner_id').eq('id',orgId()).single();
+    MY_ORG=r.error?null:r.data;
+  }catch(e){MY_ORG=null;}
+}
+function isOrgOwner(){return !!(MY_ORG&&MY_ORG.owner_id===MY_UID);}
+function srcOf(x){
+  if(x.is_base)return 'pd';
+  if(x.org_id&&x.org_id===orgId())return 'org';
+  return 'mine';
+}
+function setLibSource(s){libSource=s;renderLib();}
+/* Fila de origen: solo aparece si el profe pertenece a una organización.
+   Usa el nombre real (Gimnasio Roma, Estudiantes...), no la palabra "club". */
+function renderLibSource(){
+  var row=document.getElementById('lib-source-row');if(!row)return;
+  if(!hasOrg()){row.style.display='none';row.innerHTML='';return;}
+  var chip=function(k,lbl){
+    return '<div class="filter-chip'+(libSource===k?' active':'')+'" onclick="setLibSource(\''+k+'\')">'+lbl+'</div>';
+  };
+  row.style.display='flex';
+  row.innerHTML=chip('all',tr('Todos'))+chip('pd','PD')+chip('org',orgName())+chip('mine',tr('Míos'));
+}
 function myPlan(){return (MY_PROFILE&&MY_PROFILE.plan)||'free';}
 function isPaid(){var p=myPlan();return p==='pro'||p==='club';}
 function brandName(){
