@@ -1579,7 +1579,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260917-7';
+var APP_VERSION='20260917-8';
 (function(){
   try{
     setTimeout(function(){
@@ -1705,6 +1705,7 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Equipo':['Team','Squadra'],
 'Mi equipo':['My team','La mia squadra'],
 'Míos':['Mine','I miei'],
 'Compartir con':['Share with','Condividi con'],
@@ -6399,7 +6400,7 @@ function renderLibSource(){
   row.innerHTML=chip('all',tr('Todos'))+chip('pd','PD')+chip('org',orgName())+chip('mine',tr('Míos'));
 }
 function myPlan(){return (MY_PROFILE&&MY_PROFILE.plan)||'free';}
-function isPaid(){var p=myPlan();return p==='pro'||p==='club';}
+function isPaid(){var p=myPlan();return p==='pro'||p==='team'||p==='club';}
 function brandName(){
   var b=MY_PROFILE&&MY_PROFILE.brand_name;
   if(b&&String(b).trim())return String(b).trim();
@@ -6417,8 +6418,8 @@ function brandFooter(){
 }
 function renderBrandBox(){
   var box=document.getElementById('brand-box');if(!box)return;
-  var PLAN_LBL={free:tr('Gratis'),pro:'Pro',club:'Club'};
-  var lim=isPaid()?tr('Alumnos ilimitados'):(tr('Hasta')+' '+((MY_PROFILE&&MY_PROFILE.max_players)||5)+' '+tr('alumnos'));
+  var PLAN_LBL={free:tr('Gratis'),pro:'Pro',team:tr('Equipo'),club:tr('Equipo')};
+  var lim=(isPaid()||isAdmin)?tr('Alumnos ilimitados'):(tr('Hasta')+' '+((MY_PROFILE&&MY_PROFILE.max_players)||5)+' '+tr('alumnos'));
   var head='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;margin-bottom:10px;">'
     +'<div style="min-width:0;"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:'+(isPaid()?'var(--mob)':'var(--text)')+';">'+tr('Plan')+' '+(PLAN_LBL[myPlan()]||myPlan())+'</div>'
     +'<div style="font-size:11.5px;color:var(--muted2);margin-top:2px;">'+lim+'</div></div></div>';
