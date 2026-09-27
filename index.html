@@ -819,6 +819,10 @@ body{overflow-x:hidden;}
     </div>
   </header>
   <div style="max-width:560px;margin:0 auto;width:100%;padding:24px 16px;box-sizing:border-box;">
+    <div id="team-sec" style="display:none;">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" class="sec-lbl">Mi equipo</div>
+      <div id="team-box" style="margin-bottom:26px;"></div>
+    </div>
     <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" class="sec-lbl">Mi marca</div>
     <div id="brand-box" style="margin-bottom:26px;"></div>
         <div style="font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;" class="sec-lbl">Apariencia</div>
@@ -1579,7 +1583,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260917-8';
+var APP_VERSION='20260917-9';
 (function(){
   try{
     setTimeout(function(){
@@ -1705,6 +1709,25 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Creá tu equipo para compartir ejercicios y sesiones con los demás profes.':['Create your team to share exercises and sessions with the other coaches.','Crea la tua squadra per condividere esercizi e sessioni con gli altri coach.'],
+'Ej: Gimnasio Roma':['E.g.: Roma Gym','Es: Palestra Roma'],
+'Sos el dueño':['You are the owner','Sei il proprietario'],
+'Sos miembro':['You are a member','Sei un membro'],
+'Dueño':['Owner','Proprietario'],
+'Sacar':['Remove','Rimuovi'],
+'Email del profe':['Coach email','Email del coach'],
+'Sumar':['Add','Aggiungi'],
+'El profe tiene que tener su cuenta creada en PDapp.':['The coach needs a PDapp account first.','Il coach deve avere già un account PDapp.'],
+'Poné un nombre.':['Enter a name.','Inserisci un nome.'],
+'Poné el email del profe.':['Enter the coach email.','Inserisci l’email del coach.'],
+'Equipo creado':['Team created','Squadra creata'],
+'Nuevo nombre del equipo':['New team name','Nuovo nome della squadra'],
+'Nombre actualizado':['Name updated','Nome aggiornato'],
+'Profe sumado al equipo':['Coach added to the team','Coach aggiunto alla squadra'],
+'Profe sacado del equipo':['Coach removed from the team','Coach rimosso dalla squadra'],
+'¿Sacar a':['Remove','Rimuovere'],
+'del equipo?':['from the team?','dalla squadra?'],
+'Sus alumnos siguen siendo suyos. El contenido compartido queda en el equipo.':['Their athletes stay with them. Shared content stays in the team.','I suoi atleti restano suoi. I contenuti condivisi restano nella squadra.'],
 'Equipo':['Team','Squadra'],
 'Mi equipo':['My team','La mia squadra'],
 'Míos':['Mine','I miei'],
@@ -3595,6 +3618,7 @@ function delTemplate(id){
 function openTemplatesFromHomeStub(){}
 function openSettingsFromHome(){
   openSideScreen('screen-ajustes');
+  try{loadMembers().then(renderTeamBox);}catch(e){console.error('teamBox',e);}
   try{renderBrandBox();}catch(e){console.error('brandBox',e);}
   try{renderThemeBox();}catch(e){console.error('themeBox',e);}
   try{renderPushBox();}catch(e){console.error('pushBox',e);}
@@ -6415,6 +6439,96 @@ function brandLogo(){
 function brandFooter(){
   if(!isPaid())return 'PDapp by '+((MY_PROFILE&&MY_PROFILE.display_name)||'Pablo PT');
   return brandName()+' · <span style="opacity:0.6;">'+tr('con tecnología de PDapp')+'</span>';
+}
+/* ===== PANEL DE EQUIPO ===== */
+var ORG_MEMBERS=[];
+async function renderTeamBox(){
+  var sec=document.getElementById('team-sec'), box=document.getElementById('team-box');
+  if(!sec||!box)return;
+  /* Solo para planes Equipo (y la cuenta admin) */
+  if(!(myPlan()==='team'||myPlan()==='club'||isAdmin)){sec.style.display='none';return;}
+  sec.style.display='block';
+
+  if(!hasOrg()){
+    box.innerHTML='<div style="font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:10px;">'
+      +tr('Creá tu equipo para compartir ejercicios y sesiones con los demás profes.')+'</div>'
+      +'<div style="display:flex;gap:8px;">'
+      +'<input type="text" id="org-new-name" maxlength="40" placeholder="'+tr('Ej: Gimnasio Roma')+'" style="flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-family:\'Barlow\',sans-serif;font-size:15px;color:var(--text);outline:none;"/>'
+      +'<button onclick="createOrg()" style="flex:none;background:var(--mobfill);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:11px 16px;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'+tr('Crear')+'</button></div>'
+      +'<div id="org-msg" style="font-size:12.5px;color:#ff6b6b;min-height:16px;margin-top:8px;"></div>';
+    return;
+  }
+
+  var owner=isOrgOwner();
+  var head='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;margin-bottom:12px;">'
+    +'<div style="min-width:0;"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.03em;color:var(--mob);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+orgName()+'</div>'
+    +'<div style="font-size:11.5px;color:var(--muted2);margin-top:2px;">'+(owner?tr('Sos el dueño'):tr('Sos miembro'))+'</div></div>'
+    +(owner?'<button onclick="renameOrg()" style="flex:none;background:none;border:1px solid var(--border2);color:var(--muted);border-radius:var(--rsm);padding:7px 12px;font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;">'+tr('Renombrar')+'</button>':'')
+    +'</div>';
+
+  var lista=ORG_MEMBERS.map(function(m){
+    var badge=m.is_owner?'<span style="font-size:9.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--mob);border:1px solid var(--mob);border-radius:5px;padding:2px 6px;margin-left:7px;">'+tr('Dueño')+'</span>':'';
+    var del=(owner&&!m.is_owner)?'<button onclick="removeMember(this.dataset.id,this.dataset.n)" data-id="'+m.id+'" data-n="'+String(m.display_name||'').replace(/"/g,'&quot;')+'" style="flex:none;background:none;border:none;color:#ff6b6b;font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;">'+tr('Sacar')+'</button>':'';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2);">'
+      +'<div style="min-width:0;"><div style="font-size:13.5px;color:var(--text);">'+(m.display_name||'—')+badge+'</div>'
+      +'<div style="font-size:11px;color:var(--muted2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(m.email||'')+' · '+m.players_count+' '+tr('alumnos')+'</div></div>'+del+'</div>';
+  }).join('');
+
+  var add=owner?('<div style="display:flex;gap:8px;margin-top:12px;">'
+    +'<input type="email" id="org-add-mail" inputmode="email" autocapitalize="off" placeholder="'+tr('Email del profe')+'" style="flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-family:\'Barlow\',sans-serif;font-size:15px;color:var(--text);outline:none;"/>'
+    +'<button onclick="addMember()" style="flex:none;background:var(--mobfill);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:11px 16px;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'+tr('Sumar')+'</button></div>'
+    +'<div style="font-size:11px;color:var(--muted2);margin-top:6px;line-height:1.45;">'+tr('El profe tiene que tener su cuenta creada en PDapp.')+'</div>'):'';
+
+  box.innerHTML=head+'<div>'+lista+'</div>'+add+'<div id="org-msg" style="font-size:12.5px;color:#ff6b6b;min-height:16px;margin-top:8px;"></div>';
+}
+async function loadMembers(){
+  try{
+    var r=await sb.rpc('org_members');
+    ORG_MEMBERS=(r.error?[]:(r.data||[]));
+  }catch(e){ORG_MEMBERS=[];}
+}
+function _orgMsg(t){var e=document.getElementById('org-msg');if(e)e.textContent=t||'';}
+async function createOrg(){
+  var nm=((document.getElementById('org-new-name')||{}).value||'').trim();
+  if(!nm){_orgMsg(tr('Poné un nombre.'));return;}
+  showSyncStatus('saving');
+  var r=await sb.rpc('org_create',{p_name:nm});
+  if(r.error){showSyncStatus('error');_orgMsg('Error: '+r.error.message);return;}
+  showSyncStatus('ok');
+  MY_PROFILE.org_id=r.data;
+  await loadOrg(); await loadMembers(); renderTeamBox();
+  toast(tr('Equipo creado'));
+}
+async function renameOrg(){
+  var nm=prompt(tr('Nuevo nombre del equipo'),orgName());
+  if(nm===null)return;
+  nm=String(nm).trim(); if(!nm)return;
+  showSyncStatus('saving');
+  var r=await sb.rpc('org_rename',{p_name:nm});
+  if(r.error){showSyncStatus('error');_orgMsg('Error: '+r.error.message);return;}
+  showSyncStatus('ok');
+  await loadOrg(); renderTeamBox(); try{renderLib();}catch(e){}
+  toast(tr('Nombre actualizado'));
+}
+async function addMember(){
+  var em=((document.getElementById('org-add-mail')||{}).value||'').trim();
+  if(!em){_orgMsg(tr('Poné el email del profe.'));return;}
+  showSyncStatus('saving');
+  var r=await sb.rpc('org_add_member',{p_email:em});
+  if(r.error){showSyncStatus('error');_orgMsg('Error: '+r.error.message);return;}
+  showSyncStatus('ok');
+  await loadMembers(); renderTeamBox();
+  toast(tr('Profe sumado al equipo'));
+}
+function removeMember(id,name){
+  askConfirm(tr('¿Sacar a')+' '+(name||'')+' '+tr('del equipo?')+'\n'+tr('Sus alumnos siguen siendo suyos. El contenido compartido queda en el equipo.'),async function(){
+    showSyncStatus('saving');
+    var r=await sb.rpc('org_remove_member',{p_trainer:id});
+    if(r.error){showSyncStatus('error');_orgMsg('Error: '+r.error.message);return;}
+    showSyncStatus('ok');
+    await loadMembers(); renderTeamBox();
+    toast(tr('Profe sacado del equipo'),'del');
+  },{danger:true,okLabel:tr('Sacar')});
 }
 function renderBrandBox(){
   var box=document.getElementById('brand-box');if(!box)return;
