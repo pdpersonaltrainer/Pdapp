@@ -1583,7 +1583,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260917-9';
+var APP_VERSION='20260918-1';
 (function(){
   try{
     setTimeout(function(){
@@ -1709,6 +1709,9 @@ var STATIC_I18N={
 'Agregar alumno':['Add athlete','Aggiungi atleta'],
 'Notificaciones':['Notifications','Notifiche'],
 'Apariencia':['Appearance','Aspetto'],
+'Entrenamiento completado':['Workout completed','Allenamento completato'],
+'Cargas que usaste':['Loads you used','Carichi che hai usato'],
+'Este entrenamiento ya está cerrado. Mirá el calendario para tu próxima sesión.':['This workout is closed. Check the calendar for your next session.','Questo allenamento è chiuso. Guarda il calendario per la prossima sessione.'],
 'Creá tu equipo para compartir ejercicios y sesiones con los demás profes.':['Create your team to share exercises and sessions with the other coaches.','Crea la tua squadra per condividere esercizi e sessioni con gli altri coach.'],
 'Ej: Gimnasio Roma':['E.g.: Roma Gym','Es: Palestra Roma'],
 'Sos el dueño':['You are the owner','Sei il proprietario'],
@@ -4493,6 +4496,63 @@ function sessionVol(blocks,maxes){
   });});
   return {sets:sets,reps:Math.round(reps),kg:Math.round(kg),kgKnown:kgKnown,pctMissing:pctMissing};
 }
+/* ===== ENTRENAMIENTO FINALIZADO: RESUMEN EN LUGAR DEL DETALLE =====
+   Una vez que el alumno finaliza, no puede volver a abrir la sesión: solo ve
+   qué hizo. Los pendientes quedan accesibles hasta que los haga o el profe
+   los borre. El profe siempre ve el detalle completo. */
+function sessionLocked(){
+  try{
+    if(isCoach||draftMode)return false;
+    var c=curTime();
+    return !!(c&&c.e);
+  }catch(e){return false;}
+}
+function doneSummaryHtml(day){
+  var c=curTime()||{};
+  var mx=(PLAYERS.find(function(x){return x.id===currentPlayerId;})||{}).maxes||{};
+  var v=sessionVol(day.blocks,mx);
+  /* RPE promedio de los bloques */
+  var rp=[],ks=Object.keys(checkState||{});
+  ks.forEach(function(k){var s=checkState[k];if(s&&s.rpe>0)rp.push(s.rpe);});
+  var rpeAvg=rp.length?Math.round(rp.reduce(function(a,b){return a+b;},0)/rp.length*10)/10:null;
+  /* Cargas registradas ese día, para saber con qué arrancar la próxima */
+  var loads=[];
+  (day.blocks||[]).forEach(function(b,bi){
+    (b.exs||[]).forEach(function(e,ei){
+      var L=getALoad(bi,ei);
+      if(L&&String(L).trim())loads.push({n:e.n,l:String(L).trim()});
+    });
+  });
+
+  var stat=function(lbl,val){
+    return '<div style="flex:1;min-width:0;text-align:center;"><div style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+lbl+'</div>'
+      +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:20px;font-weight:800;line-height:1;white-space:nowrap;">'+val+'</div></div>';
+  };
+  var sep='<div style="width:1px;background:var(--border2);margin:2px 0;"></div>';
+  var stats=stat(tr('Duración'),'<span style="color:var(--mob);">'+(c.m?fmtDur(c.m):'—')+'</span>')
+    +sep+stat(tr('Series'),_pnum(v.sets))
+    +(v.kgKnown?(sep+stat(tr('Tonelaje'),'<span style="color:var(--mob);">'+_pnum(v.kg)+'</span> <span style="font-size:11px;color:var(--muted2);">kg</span>')):'')
+    +(rpeAvg?(sep+stat('RPE',String(rpeAvg))):'');
+
+  var loadsH=loads.length?('<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2);">'
+    +'<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted2);margin-bottom:8px;">'+tr('Cargas que usaste')+'</div>'
+    +loads.map(function(x){
+      return '<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:12.5px;">'
+        +'<span style="color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.n+'</span>'
+        +'<span style="color:var(--text);font-weight:700;flex:none;">'+x.l+'</span></div>';
+    }).join('')+'</div>'):'';
+
+  return '<div style="max-width:var(--cw);margin:14px auto 0;padding:0 13px;">'
+    +'<div style="background:var(--s1);border:1px solid var(--mob);border-radius:var(--r);padding:18px 16px;">'
+    +'<div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">'
+    +'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--mob)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+    +'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--mob);">'+tr('Entrenamiento completado')+'</span></div>'
+    +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:22px;font-weight:800;text-transform:uppercase;line-height:1.1;margin-bottom:16px;">'+(day.title||tr('Entrenamiento'))+'</div>'
+    +'<div style="display:flex;align-items:stretch;gap:8px;background:var(--s2);border-radius:var(--rsm);padding:12px 8px;">'+stats+'</div>'
+    +loadsH
+    +'<div style="margin-top:14px;font-size:11.5px;color:var(--muted2);line-height:1.5;text-align:center;">'+tr('Este entrenamiento ya está cerrado. Mirá el calendario para tu próxima sesión.')+'</div>'
+    +'</div></div>';
+}
 /* Celda de duración: solo si el alumno finalizó la sesión de ESTE día. */
 function _durCell(sep){
   try{
@@ -4582,7 +4642,10 @@ function renderPlan(){
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
     var stkP=(!isCoach)?getStreak(currentPlayerId):0;
     var streakP=stkP>=2?'<div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);border-radius:20px;padding:5px 14px;font-family:Barlow Condensed,sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);">\ud83d\udd25 '+stkP+' en racha</div>':'';
-    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div>'+streakP+'</div>'+(isCoach?volBarHtml(day.blocks,_mx):'<div id="sess-timer" style="max-width:var(--cw);margin:12px auto 0;padding:0 13px;"></div>')+blocksH+addBBtn;
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div>'+streakP+'</div>'
+      +(isCoach?volBarHtml(day.blocks,_mx):'<div id="sess-timer" style="max-width:var(--cw);margin:12px auto 0;padding:0 13px;"></div>')
+      /* Finalizado: el alumno ve el resumen, no el detalle */
+      +(sessionLocked()?doneSummaryHtml(day):(blocksH+addBBtn));
     if(isCoach&&sess){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;"><button onclick="openDayEditModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Editar día</button></div><div style="max-width:var(--cw);margin:0 auto;padding:0 13px 8px;display:flex;gap:8px;"><button onclick="openDuplicateModal()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a2 2 0 0 1 2-2h11"/></svg>Duplicar</button><button onclick="saveAsTemplate()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar como sesión</button></div>';}
   }
   document.getElementById('plan-content').innerHTML='<div class="fadein">'+body+'</div>';
