@@ -1065,13 +1065,8 @@ body{overflow-x:hidden;}
     </div>
     <div class="form-row"><label>Series / Reps / Carga</label><input type="text" id="f-load" placeholder="Ej: 4x6 @80kg"/></div>
     <div class="form-row"><label>Nota técnica</label><textarea id="f-note" placeholder="Descripción, cues técnicos..."></textarea></div>
-    <div class="form-row"><label>Video / Link</label><input type="url" id="f-link" placeholder="https://... o sub&#237; un video"/>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-        <label for="f-video-file" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rsm);border:1px solid var(--border);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir video</label>
-        <input type="file" id="f-video-file" accept="video/*" style="display:none;" onchange="handleVideoUpload(event)"/>
-        <span id="f-video-status" style="font-size:12px;color:var(--muted);"></span>
-      </div>
-      <div id="yt-hint" style="font-size:11.5px;color:var(--muted2);margin-top:6px;line-height:1.45;">💡 Si el video ya está en YouTube, pegá el link arriba: carga más rápido y no ocupa espacio.</div>
+    <div class="form-row"><label>Video (YouTube)</label><input type="url" id="f-link" placeholder="https://youtu.be/..."/>
+      <div id="yt-hint" style="font-size:11.5px;color:var(--muted2);margin-top:6px;line-height:1.45;">💡 Subí el video a YouTube como «No listado» y pegá el link acá.</div>
     </div>
     <div class="form-row"><label>Imagen (URL)</label><input type="text" id="f-img" placeholder="https://..."/></div>
     <div class="modal-btns">
@@ -1583,7 +1578,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260930-2';
+var APP_VERSION='20260930-4';
 (function(){
   try{
     setTimeout(function(){
@@ -5252,12 +5247,16 @@ function closeLibModal(){document.getElementById('modal-lib').classList.remove('
 async function saveLibExercise(){
   var name=document.getElementById('f-name').value.trim();
   if(!name){showInfo('El nombre es obligatorio.');return;}
+  /* Videos solo por YouTube. Los ya subidos antes se respetan si no se cambian. */
+  var _lk=document.getElementById('f-link').value.trim();
+  var _prev=editingLibId?((LIB.find(function(e){return e.id===editingLibId;})||{}).link||''):'';
+  if(_lk&&!ytId(_lk)&&_lk!==_prev){showInfo('El video tiene que ser un link de YouTube.');return;}
   var fields={name:name,type:document.getElementById('f-type').value,load:document.getElementById('f-load').value.trim(),note:document.getElementById('f-note').value.trim(),link:document.getElementById('f-link').value.trim(),img:document.getElementById('f-img').value.trim(),pattern:document.getElementById('f-pattern').value||null};
   /* Compartir con la organización: el ejercicio pasa a verlo todo el equipo */
   try{
     var _sh=document.getElementById('f-share');
-    if(hasOrg())obj.org_id=(_sh&&_sh.checked)?orgId():null;
-  }catch(e){}
+    if(hasOrg())fields.org_id=(_sh&&_sh.checked)?orgId():null;
+  }catch(e){console.error('share',e);}
   showSyncStatus('saving');
   if(editingLibId){
     var r=await sb.from('exercises').update(fields).eq('id',editingLibId);
@@ -6181,6 +6180,8 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['El video tiene que ser un link de YouTube.']=['The video must be a YouTube link.','Il video deve essere un link di YouTube.'];
+STATIC_I18N['Video (YouTube)']=['Video (YouTube)','Video (YouTube)'];
 STATIC_I18N['No se pudo cargar el generador de PDF. Revisá tu conexión.']=['Could not load the PDF generator. Check your connection.','Impossibile caricare il generatore PDF. Controlla la connessione.'];
 var _rpLibs=null;
 function _rpLoadScript(src){
@@ -6970,7 +6971,7 @@ async function renderPushBox(){
     +'<div style="font-size:11.5px;color:var(--muted2);margin-top:2px;line-height:1.45;">'+tr('Recibí un aviso cuando haya novedades.')+'</div></div>'
     +'<button onclick="'+(on?'disablePush()':'enablePush()')+'" style="flex:none;background:'+(on?'var(--s2)':'var(--mobfill)')+';color:'+(on?'var(--text)':'#0a0b0e')+';border:1px solid '+(on?'var(--border2)':'var(--mob)')+';border-radius:8px;padding:8px 14px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'
     +(on?tr('Desactivar'):tr('Activar'))+'</button></div>'
-    +(on?'<button id="push-test-btn" onclick="testPush()" style="width:100%;box-sizing:border-box;margin-top:10px;background:transparent;border:1px dashed var(--border2);color:var(--muted);border-radius:8px;padding:9px;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'+tr('Probar aviso')+'</button>':'');
+    +(on&&isAdmin?'<button id="push-test-btn" onclick="testPush()" style="width:100%;box-sizing:border-box;margin-top:10px;background:transparent;border:1px dashed var(--border2);color:var(--muted);border-radius:8px;padding:9px;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'+tr('Probar aviso')+'</button>':'');
 }
 /* ===== fin push ===== */
 
