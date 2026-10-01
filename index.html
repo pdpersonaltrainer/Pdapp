@@ -149,7 +149,7 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 .select-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;margin-bottom:4px;}
 .select-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
 .players-grid{display:flex;flex-direction:column;gap:12px;}
-.cv-btn{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+.cv-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;padding:9px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
 .cv-btn.cv-active{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
 .pr-lbl{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .pr-type,.pr-eff{flex:1;font-size:12px;padding:9px 4px;}
@@ -404,8 +404,8 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .msg-day-btn.active{background:rgba(168,224,99,0.12);border-color:var(--mob);color:var(--mob);}
 .msg-preview{background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;white-space:pre-wrap;}
 .msg-btns{display:flex;gap:8px;}
-.msg-copy{flex:1;padding:8px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;background:var(--s3);color:var(--text);}
-.msg-wa{flex:1;padding:8px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;background:#25D366;color:#fff;}
+.msg-copy{flex:1;display:inline-flex;align-items:center;justify-content:center;padding:8px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;background:var(--s3);color:var(--text);}
+.msg-wa{flex:1;display:inline-flex;align-items:center;justify-content:center;padding:8px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:none;background:#25D366;color:#fff;}
 .msg-copied{color:var(--mob);font-size:11px;text-align:center;margin-top:4px;height:16px;}
 #screen-summary{display:none;padding-bottom:80px;}
 .sum-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.28);}
@@ -1580,7 +1580,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261001-1';
+var APP_VERSION='20261001-2';
 (function(){
   try{
     setTimeout(function(){
@@ -5780,7 +5780,7 @@ function renderMsgTab(){
 function setMsgHeader(t,s){var a=document.getElementById('msg-title');if(a)a.textContent=tr(t);var b=document.getElementById('msg-sub');if(b)b.textContent=tr(s);}
 function setMsgView(v){msgView=v;chatPlayerId=null;renderMsgTab();}
 function renderMsgToggle(){
-  return '<div style="display:flex;gap:8px;margin-bottom:16px;"><button class="cv-btn'+(msgView==='chat'?' cv-active':'')+'" onclick="setMsgView(\'chat\')">\ud83d\udcac Chat</button><button class="cv-btn'+(msgView==='record'?' cv-active':'')+'" onclick="setMsgView(\'record\')">\ud83d\udce8 Recordatorios</button></div>';
+  return '<div style="display:flex;gap:8px;margin-bottom:16px;"><button class="cv-btn'+(msgView==='chat'?' cv-active':'')+'" onclick="setMsgView(\'chat\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg>'+tr('Chat')+'</button><button class="cv-btn'+(msgView==='record'?' cv-active':'')+'" onclick="setMsgView(\'record\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9\"/><path d=\"M13.73 21a2 2 0 0 1-3.46 0\"/></svg>'+tr('Recordatorios')+'</button></div>';
 }
 function renderMessagesInto(){renderMessages();var mc=document.getElementById('msg-content');mc.innerHTML=renderMsgToggle()+mc.innerHTML;}
 async function loadUnreadCounts(){
@@ -5793,7 +5793,7 @@ async function renderChatList(){
   var mc=document.getElementById(CHAT_CT);
   mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+'<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
   await loadUnreadCounts();
-  if(!PLAYERS.length){mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+'<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
+  if(!PLAYERS.length){mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+'<div class="empty-state"><div class="emi"><svg viewBox=\"0 0 24 24\" width=\"34\" height=\"34\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;flex:none;\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg></div><p>No hay alumnos.</p></div>';return;}
   var rows=PLAYERS.map(function(p){
     var un=CHAT_UNREAD[p.id]||0;
     var av=p.photo?'<img src="'+p.photo+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex:none;"/>':'<div style="width:40px;height:40px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;">\ud83d\udc64</div>';
@@ -5856,7 +5856,7 @@ async function sendChat(){
   }
 }
 function renderMessages(){
-  if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcac</div><p>No hay alumnos.</p></div>';return;}
+  if(!PLAYERS.length){document.getElementById('msg-content').innerHTML='<div class="empty-state"><div class="emi"><svg viewBox=\"0 0 24 24\" width=\"34\" height=\"34\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;flex:none;\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg></div><p>No hay alumnos.</p></div>';return;}
   var todayISO=isoToday();
   var html=PLAYERS.map(function(p){
     var ss=JB_SESSIONS[p.id]||{};
@@ -5866,7 +5866,7 @@ function renderMessages(){
     if(!dates.length){return '<div class="msg-card"><div class="msg-pname">'+p.name+'</div><div style="font-size:12px;color:var(--muted2);padding:8px 0;">Sin entrenamientos cargados</div></div>';}
     var selH='<select data-pid="'+p.id+'" onchange="selectMsgDay(this.dataset.pid,this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:10px;font-family:Barlow,sans-serif;font-size:13px;color:var(--text);outline:none;">'+dates.map(function(d){return '<option value="'+d+'"'+(d===sel?' selected':'')+'>'+fmtDateLong(d)+'</option>';}).join('')+'</select>';
     var msg=buildMsg(p,sel);
-    return '<div class="msg-card"><div class="msg-pname">'+p.name+'</div>'+selH+'<div class="msg-preview" id="msg-prev-'+p.id+'">'+msg+'</div><div class="msg-btns"><button class="msg-copy" data-pid="'+p.id+'" onclick="copyMsg(this.dataset.pid)">\ud83d\udccb Copiar</button><button class="msg-wa" data-pid="'+p.id+'" onclick="sendWA(this.dataset.pid)">\ud83d\udcac WhatsApp</button></div><div class="msg-copied" id="msg-cop-'+p.id+'"></div></div>';
+    return '<div class="msg-card"><div class="msg-pname">'+p.name+'</div>'+selH+'<div class="msg-preview" id="msg-prev-'+p.id+'">'+msg+'</div><div class="msg-btns"><button class="msg-copy" data-pid="'+p.id+'" onclick="copyMsg(this.dataset.pid)"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>'+tr('Copiar')+'</button><button class="msg-wa" data-pid="'+p.id+'" onclick="sendWA(this.dataset.pid)"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><path d=\"M22 2 11 13\"/><path d=\"M22 2 15 22l-4-9-9-4z\"/></svg>WhatsApp</button></div><div class="msg-copied" id="msg-cop-'+p.id+'"></div></div>';
   }).join('');
   document.getElementById('msg-content').innerHTML=html;
 }
