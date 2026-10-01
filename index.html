@@ -1333,10 +1333,12 @@ body{overflow-x:hidden;}
     <div class="modal-handle"></div>
     <h3>Insertar sesión</h3>
     <div style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12px;color:var(--muted);margin-bottom:14px;">Insertando: <b id="tpl-ins-name" style="color:var(--mob);"></b></div>
-    <div class="form-row"><label>Alumno</label><select id="tpl-ins-player" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"></select></div>
-    <div class="form-row"><label>Fecha destino</label><input type="date" id="tpl-ins-date" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);outline:none;"/></div>
-    <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;">Reemplaza lo que haya ese día en el alumno elegido.</div>
-    <div style="display:flex;gap:8px;"><button class="mbtn mbtn-cancel" style="flex:1;" onclick="closeTplInsert()">Cancelar</button><button class="mbtn mbtn-save" style="flex:1;" onclick="executeTplInsert()">Insertar</button></div>
+    <div class="form-row"><label>Fecha para todos</label><div style="display:flex;gap:8px;"><input type="date" id="tpl-ins-date" style="flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/><button class="mbtn mbtn-cancel" style="flex:none;padding:0 14px;" onclick="tplInsApplyAll()">Aplicar</button></div><div style="font-size:11px;color:var(--muted2);margin-top:5px;">Pone esta fecha a todos los marcados. Después podés cambiarla en cada alumno.</div></div>
+    <div class="form-row" style="margin-bottom:8px;"><label>Alumnos</label><input type="text" id="tpl-ins-q" placeholder="Buscar alumno..." oninput="tplInsSearch(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/></div>
+    <div id="tpl-ins-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
+    <div id="tpl-ins-list" style="max-height:42vh;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--rsm);margin-bottom:8px;"></div>
+    <div style="font-size:11px;color:var(--muted2);margin-bottom:12px;">Reemplaza lo que haya ese día en cada alumno marcado.</div>
+    <div style="display:flex;gap:8px;"><button class="mbtn mbtn-cancel" style="flex:1;" onclick="closeTplInsert()">Cancelar</button><button class="mbtn mbtn-save" style="flex:1;" id="tpl-ins-go" onclick="executeTplInsert()">Insertar</button></div>
   </div>
 </div>
 
@@ -1578,7 +1580,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20260930-4';
+var APP_VERSION='20261001-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3565,34 +3567,106 @@ function saveAsTemplate(){
     });
   });
 }
+var TPLI={sel:{},date:{},q:''};
+function _tie(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function pickTemplateTarget(id){
-  var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
-  tplToInsert=t;
-  var opts=PLAYERS.map(function(p){return '<option value="'+p.id+'"'+(p.id===currentPlayerId?' selected':'')+'>'+p.name+'</option>';}).join('');
-  document.getElementById('tpl-ins-player').innerHTML=opts;
-  document.getElementById('tpl-ins-date').value=curDate||isoToday();
-  document.getElementById('tpl-ins-name').textContent=t.name;
+  var tp=TEMPLATES.find(function(x){return x.id===id;});if(!tp)return;
+  tplToInsert=tp;
+  var d0=curDate||isoToday();
+  TPLI={sel:{},date:{},q:''};
+  PLAYERS.forEach(function(p){TPLI.date[p.id]=d0;});
+  if(currentPlayerId&&PLAYERS.some(function(p){return p.id===currentPlayerId;}))TPLI.sel[currentPlayerId]=true;
+  document.getElementById('tpl-ins-date').value=d0;
+  document.getElementById('tpl-ins-q').value='';
+  document.getElementById('tpl-ins-name').textContent=tp.name;
+  renderTplInsChips();renderTplInsList();
   try{closeTplPick();}catch(e){}
   document.getElementById('modal-tpl-insert').classList.add('open');
 }
 function closeTplInsert(){document.getElementById('modal-tpl-insert').classList.remove('open');tplToInsert=null;}
+function _tplInsVisible(){
+  var q=(TPLI.q||'').toLowerCase().trim();
+  return PLAYERS.filter(function(p){return !q||String(p.name||'').toLowerCase().indexOf(q)>=0;});
+}
+function _tplInsCount(){var n=0;PLAYERS.forEach(function(p){if(TPLI.sel[p.id])n++;});return n;}
+function _tplInsUpdBtn(){
+  var n=_tplInsCount(),b=document.getElementById('tpl-ins-go');
+  if(b)b.textContent=tr('Insertar')+(n?' ('+n+')':'');
+}
+function renderTplInsChips(){
+  var ch='background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:999px;padding:5px 11px;font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;';
+  var h='<button style="'+ch+'" onclick="tplInsMark(\'all\')">'+tr('Todos')+'</button>'
+       +'<button style="'+ch+'" onclick="tplInsMark(\'none\')">'+tr('Ninguno')+'</button>';
+  (GROUPS||[]).forEach(function(g){
+    if(!groupMembers(g.id).length)return;
+    h+='<button style="'+ch+'border-color:var(--mob);color:var(--mob);" data-g="'+g.id+'" onclick="tplInsMark(\'group\',this.dataset.g)">'+_tie(g.name)+'</button>';
+  });
+  document.getElementById('tpl-ins-chips').innerHTML=h;
+}
+function renderTplInsList(){
+  var list=_tplInsVisible(),box=document.getElementById('tpl-ins-list');
+  if(!list.length){box.innerHTML='<div style="padding:14px;font-size:12px;color:var(--muted2);text-align:center;">'+tr('Sin resultados')+'</div>';_tplInsUpdBtn();return;}
+  box.innerHTML=list.map(function(p,i){
+    var on=!!TPLI.sel[p.id];
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;'+(i?'border-top:1px solid var(--border2);':'')+'">'
+      +'<label style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer;margin:0;">'
+      +'<input type="checkbox" data-p="'+p.id+'" '+(on?'checked':'')+' onchange="tplInsToggle(this.dataset.p,this.checked)" style="width:18px;height:18px;flex:none;accent-color:#a8e063;">'
+      +'<span style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:none;letter-spacing:0;font-weight:500;">'+_tie(p.name)+'</span></label>'
+      +'<input type="date" data-p="'+p.id+'" value="'+(TPLI.date[p.id]||'')+'" onchange="tplInsDate(this.dataset.p,this.value)" '+(on?'':'disabled')+' style="flex:none;width:150px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:6px 8px;font-family:Barlow,sans-serif;font-size:12px;color:var(--text);outline:none;opacity:'+(on?'1':'0.4')+';">'
+      +'</div>';
+  }).join('');
+  _tplInsUpdBtn();
+}
+function tplInsToggle(pid,on){if(on)TPLI.sel[pid]=true;else delete TPLI.sel[pid];renderTplInsList();}
+function tplInsDate(pid,v){TPLI.date[pid]=v;}
+function tplInsSearch(v){TPLI.q=v||'';renderTplInsList();}
+function tplInsMark(mode,gid){
+  if(mode==='none'){TPLI.sel={};}
+  else if(mode==='all'){_tplInsVisible().forEach(function(p){TPLI.sel[p.id]=true;});}
+  else if(mode==='group'){groupMembers(gid).forEach(function(p){TPLI.sel[p.id]=true;});}
+  renderTplInsList();
+}
+function tplInsApplyAll(){
+  var v=document.getElementById('tpl-ins-date').value;
+  if(!v){showInfo('Eleg\u00ed una fecha.');return;}
+  var any=false;
+  PLAYERS.forEach(function(p){if(TPLI.sel[p.id]){TPLI.date[p.id]=v;any=true;}});
+  if(!any){showInfo('Marc\u00e1 al menos un alumno.');return;}
+  renderTplInsList();
+}
 function executeTplInsert(){
   if(!tplToInsert)return;
-  var pid=document.getElementById('tpl-ins-player').value;
-  var date=document.getElementById('tpl-ins-date').value;
-  if(!pid||!date){showInfo('Eleg\u00ed alumno y fecha.');return;}
-  var ss=sessionsOf(pid);
-  ss[date]=JSON.parse(JSON.stringify(tplToInsert.data));
-  saveSessions(pid);
-  var pname=(PLAYERS.find(function(x){return x.id===pid;})||{}).name||'';
-  /* Guardamos el nombre ANTES de cerrar: closeTplInsert() pone tplToInsert=null
-     y leerlo después rompía el aviso al alumno sin dejar rastro. */
+  var picks=PLAYERS.filter(function(p){return TPLI.sel[p.id];});
+  if(!picks.length){showInfo('Marc\u00e1 al menos un alumno.');return;}
+  var sinFecha=picks.filter(function(p){return !TPLI.date[p.id];});
+  if(sinFecha.length){showInfo(tr('Falta la fecha de:')+' '+sinFecha.map(function(p){return p.name;}).join(', '));return;}
+  /* Guardamos nombre y datos ANTES de cerrar: closeTplInsert() pone tplToInsert=null. */
   var tplName=tplToInsert.name||tr('Entrenamiento');
+  var tplData=tplToInsert.data;
+  var curHit=null;
+  picks.forEach(function(p){
+    var dt=TPLI.date[p.id];
+    var ss=sessionsOf(p.id);
+    ss[dt]=JSON.parse(JSON.stringify(tplData));
+    saveSessions(p.id);
+    notifyPlayer(p.id,tr('Nuevo entrenamiento'),tplName+' · '+fmtDateLong(dt));
+    if(p.id===currentPlayerId)curHit=dt;
+  });
   closeTplInsert();
-  toast('"'+tplName+'" \u00b7 '+pname);
-  notifyPlayer(pid,tr('Nuevo entrenamiento'),tplName+' · '+fmtDateLong(date));
-  if(pid===currentPlayerId){curDate=date;refreshAfterChange();}
+  toast('"'+tplName+'" \u00b7 '+(picks.length===1?picks[0].name:picks.length+' '+tr('alumnos')));
+  if(curHit){curDate=curHit;refreshAfterChange();}
 }
+STATIC_I18N['Fecha para todos']=['Date for all','Data per tutti'];
+STATIC_I18N['Aplicar']=['Apply','Applica'];
+STATIC_I18N['Pone esta fecha a todos los marcados. Después podés cambiarla en cada alumno.']=['Sets this date for everyone selected. You can then change it per athlete.','Imposta questa data per tutti i selezionati. Poi puoi cambiarla per ogni atleta.'];
+STATIC_I18N['Reemplaza lo que haya ese día en cada alumno marcado.']=['Replaces whatever is on that day for each selected athlete.','Sostituisce quanto presente quel giorno per ogni atleta selezionato.'];
+STATIC_I18N['Ninguno']=['None','Nessuno'];
+STATIC_I18N['Sin resultados']=['No results','Nessun risultato'];
+STATIC_I18N['Falta la fecha de:']=['Missing date for:','Manca la data per:'];
+STATIC_I18N['Marcá al menos un alumno.']=['Select at least one athlete.','Seleziona almeno un atleta.'];
+STATIC_I18N['Elegí una fecha.']=['Pick a date.','Scegli una data.'];
+STATIC_I18N['alumnos']=STATIC_I18N['alumnos']||['athletes','atleti'];
+STATIC_I18N['Todos']=STATIC_I18N['Todos']||['All','Tutti'];
 function togglePDBase(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t||!isAdmin)return;
   var nv=!t.is_base;
