@@ -476,6 +476,10 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .pick-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
 .pick-item:last-child{border-bottom:none;}
 .pick-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.pick-tw{position:relative;width:64px;height:42px;flex:none;border-radius:7px;overflow:hidden;background:var(--s2);border:1px solid var(--border2);padding:0;cursor:pointer;}
+.pick-tw-empty{cursor:default;opacity:0.35;}
+.pick-thumb{width:100%;height:100%;object-fit:cover;display:block;}
+.pick-play{position:absolute;right:4px;bottom:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.65);color:var(--mob);display:flex;align-items:center;justify-content:center;}
 .pick-info{flex:1;}.pick-name{font-size:13px;font-weight:600;color:var(--text);}.pick-load{font-size:11px;color:var(--muted);}
 .pick-add{font-size:18px;color:var(--mob);}
 .pin-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.80);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px;}
@@ -1580,7 +1584,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261001-2';
+var APP_VERSION='20261004-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3730,7 +3734,7 @@ function renderProfile(){
 function handleProfilePhoto(e){
   var file=e.target.files[0];if(!file)return;
   var reader=new FileReader();
-  reader.onload=function(ev){var img=new Image();img.onload=function(){var size=200;var c=document.createElement('canvas');c.width=size;c.height=size;var ctx=c.getContext('2d');var min=Math.min(img.width,img.height);ctx.drawImage(img,(img.width-min)/2,(img.height-min)/2,min,min,0,0,size,size);var comp=c.toDataURL('image/jpeg',0.75);profilePhotoData=comp;document.getElementById('prof-av').innerHTML='<img src="'+comp+'" style="width:100%;height:100%;object-fit:cover;"/>';};img.src=ev.target.result;};
+  reader.onload=function(ev){var img=new Image();img.onload=function(){var size=200;var c=document.createElement('canvas');c.width=size;c.height=size;var ctx=c.getContext('2d');var min=Math.min(img.width,img.height);ctx.drawImage(img,(img.width-min)/2,(img.height-min)*0.1,min,min,0,0,size,size);var comp=c.toDataURL('image/jpeg',0.75);profilePhotoData=comp;document.getElementById('prof-av').innerHTML='<img src="'+comp+'" style="width:100%;height:100%;object-fit:cover;"/>';};img.src=ev.target.result;};
   reader.readAsDataURL(file);
 }
 async function saveProfile(){
@@ -4458,7 +4462,7 @@ function handlePhotoUpload(e){
       // Recorte cuadrado centrado
       var min=Math.min(img.width,img.height);
       var sx=(img.width-min)/2;
-      var sy=(img.height-min)/2;
+      var sy=(img.height-min)*0.1; /* fotos verticales: la cara suele estar arriba */
       ctx.drawImage(img,sx,sy,min,min,0,0,size,size);
       // Exportar como JPEG calidad 0.7 (queda ~5-8KB)
       var compressed=canvas.toDataURL('image/jpeg',0.7);
@@ -5177,7 +5181,8 @@ function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var ke
 function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';pickSearch='';fillPatSelect(document.getElementById('pick-pat-filter'),'','');var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';var ssel=document.getElementById('pick-search');if(ssel)ssel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
 function setPickPattern(v){pickPattern=v;renderPickList();}
 var pickSelected={};
-function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});if(pickSearch){var _q=pickSearch.trim().toLowerCase();if(_q)items=items.filter(function(e){return (e.name||'').toLowerCase().indexOf(_q)!==-1;});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mobfill);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-dot" style="background:var(--'+e.type+')"></div><div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
+function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});if(pickSearch){var _q=pickSearch.trim().toLowerCase();if(_q)items=items.filter(function(e){return (e.name||'').toLowerCase().indexOf(_q)!==-1;});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mobfill);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';var _th=e.link?mediaThumbHtml(e.link,e.img,'pick-thumb'):(e.img?'<img class="pick-thumb" src="'+e.img+'" loading="lazy" />':'');var tw=_th?'<button class="pick-tw" data-lid="'+e.id+'" onclick="event.stopPropagation();pickPreview(this.dataset.lid)" title="'+tr('Ver video')+'">'+_th+(e.link?'<span class="pick-play"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</button>':'<div class="pick-tw pick-tw-empty"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-dot" style="background:var(--'+e.type+')"></div>'+tw+'<div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
+function pickPreview(id){var ex=LIB.find(function(x){return x.id===id;});if(!ex)return;if(ex.link)openVideoModal(ex.link,ex.name);}
 function togglePickSel(id){if(pickSelected[id])delete pickSelected[id];else pickSelected[id]=true;renderPickList();}
 function updatePickBtn(){var n=Object.keys(pickSelected).length;var b=document.getElementById('pick-add-btn');if(!b)return;b.textContent='Agregar ('+n+')';if(n){b.style.background='var(--mobfill)';b.style.color='#0a0b0e';}else{b.style.background='var(--border2)';b.style.color='var(--muted2)';}}
 function addSelectedFromLib(){
@@ -6614,7 +6619,7 @@ function asPhoto(e){
       var size=160,cv=document.createElement('canvas');cv.width=size;cv.height=size;
       var ctx=cv.getContext('2d');
       var min=Math.min(img.width,img.height);
-      var sx=(img.width-min)/2, sy=(img.height-min)/2;
+      var sx=(img.width-min)/2, sy=(img.height-min)*0.1; /* fotos verticales: la cara suele estar arriba */
       ctx.drawImage(img,sx,sy,min,min,0,0,size,size);
       asPhotoData=cv.toDataURL('image/jpeg',0.7);
       document.getElementById('as-av').innerHTML='<img src="'+asPhotoData+'" style="width:100%;height:100%;object-fit:cover;"/>';
