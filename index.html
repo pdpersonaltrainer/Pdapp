@@ -1569,6 +1569,9 @@ function mergeCachedTimes(pid){
     Object.keys(loc).forEach(function(iso){
       var a=srv[iso], b=loc[iso];
       if(!a){srv[iso]=b;return;}
+      /* El profe reemplazó el entrenamiento de ese día: solo vale lo que
+         el alumno haya empezado DESPUÉS de esa marca */
+      if(a.r){if(b&&b.s&&b.s>a.r)srv[iso]=b;return;}
       /* Gana el que esté más avanzado: finalizado > en curso */
       if(!a.e&&b.e)srv[iso]=b;
     });
@@ -1584,7 +1587,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261004-1';
+var APP_VERSION='20261005-1';
 (function(){
   try{
     setTimeout(function(){
@@ -2535,7 +2538,7 @@ function isoToDate(iso){var pp=String(iso).split('-');return new Date(+pp[0],+pp
 function fmtDateLong(iso){var dt=isoToDate(iso);return DOW_ES[dt.getDay()]+' '+dt.getDate()+' '+MES_ES_L[dt.getMonth()]+' '+dt.getFullYear();}
 function fmtDateShort(iso){var dt=isoToDate(iso);return (DOW_ES[dt.getDay()]+' '+dt.getDate()).toUpperCase();}
 function sessionsOf(pid){if(!JB_SESSIONS[pid])JB_SESSIONS[pid]={};return JB_SESSIONS[pid];}
-function getCurSession(create){var ss=sessionsOf(currentPlayerId);var sObj=ss[curDate];if(!sObj&&create){sObj={title:'Entrenamiento',pattern:'',pills:[],blocks:[]};ss[curDate]=sObj;}return sObj;}
+function getCurSession(create){var ss=sessionsOf(currentPlayerId);var sObj=ss[curDate];if(!sObj&&create){sObj={title:'Entrenamiento',pattern:'',pills:[],blocks:[]};ss[curDate]=sObj;if((JB_TIMES[currentPlayerId]||{})[curDate])resetDayProgress(currentPlayerId,curDate);}return sObj;}
 function commitSession(){if(draftMode){draftSession=PLAN[0][0];return;}if(!currentPlayerId||!curDate)return;var ss=sessionsOf(currentPlayerId);ss[curDate]=PLAN[0][0];saveSessions(currentPlayerId);}
 function firstSessionDate(pid){var ss=JB_SESSIONS[pid];if(!ss)return null;var ks=Object.keys(ss).filter(function(k){return ss[k]&&ss[k].blocks&&ss[k].blocks.length;}).sort();return ks.length?ks[0]:null;}
 function migrateAllChecks(){
@@ -3205,7 +3208,7 @@ function executeProgAssign(){
     document.getElementById('pa-confirm-btn').textContent='Sobrescribir y asignar';
     return;
   }
-  Object.keys(targets).forEach(function(iso){ss[iso]=JSON.parse(JSON.stringify(targets[iso]));});
+  Object.keys(targets).forEach(function(iso){ss[iso]=JSON.parse(JSON.stringify(targets[iso]));resetDayProgress(pid,iso);});
   saveSessions(pid);
   var pname=(PLAYERS.find(function(x){return x.id===pid;})||{}).name||'';
   var warn2=document.getElementById('pa-warn');warn2.style.display='none';delete warn2.dataset.confirmed;
@@ -3652,6 +3655,7 @@ function executeTplInsert(){
     var dt=TPLI.date[p.id];
     var ss=sessionsOf(p.id);
     ss[dt]=JSON.parse(JSON.stringify(tplData));
+    resetDayProgress(p.id,dt);
     saveSessions(p.id);
     notifyPlayer(p.id,tr('Nuevo entrenamiento'),tplName+' · '+fmtDateLong(dt));
     if(p.id===currentPlayerId)curHit=dt;
@@ -4115,7 +4119,7 @@ function gaCommit(mode){
       var iso=addDaysISO(start,r.off);
       var occupied=ss[iso]&&ss[iso].blocks&&ss[iso].blocks.length;
       if(mode==='skip'&&occupied)return;
-      ss[iso]=JSON.parse(JSON.stringify(r.data));changed=true;count++;
+      ss[iso]=JSON.parse(JSON.stringify(r.data));resetDayProgress(p.id,iso);changed=true;count++;
     });
     if(changed)saveSessions(p.id);
   });
@@ -5391,7 +5395,7 @@ function executeDuplicate(){
     var srcMon=weekMondayISO(curDate),tgtMon=weekMondayISO(tgtDate),copied=0;
     for(var i=0;i<7;i++){
       var sObj=srcSs[addDaysISO(srcMon,i)];
-      if(sObj&&sObj.blocks&&sObj.blocks.length){ss[addDaysISO(tgtMon,i)]=cloneSessionNoNotes(sObj);copied++;}
+      if(sObj&&sObj.blocks&&sObj.blocks.length){ss[addDaysISO(tgtMon,i)]=cloneSessionNoNotes(sObj);resetDayProgress(tgtPid,addDaysISO(tgtMon,i));copied++;}
     }
     if(!copied){showInfo('Esta semana no tiene entrenamientos para copiar.');return;}
     saveSessions(tgtPid);closeDuplicateModal();
@@ -5399,7 +5403,7 @@ function executeDuplicate(){
   }else{
     var d=srcSs[curDate];
     if(!d||!d.blocks||!d.blocks.length){showInfo('Este d\u00eda no tiene entrenamiento para duplicar.');return;}
-    ss[tgtDate]=cloneSessionNoNotes(d);
+    ss[tgtDate]=cloneSessionNoNotes(d);resetDayProgress(tgtPid,tgtDate);
     saveSessions(tgtPid);closeDuplicateModal();
     toast(tr('Duplicado a')+' '+pname+' \u00b7 '+fmtDateLong(tgtDate));
     notifyPlayer(tgtPid,tr('Nuevo entrenamiento'),(d.title||tr('Entrenamiento'))+' · '+fmtDateLong(tgtDate));
@@ -5597,7 +5601,7 @@ function renderWeekList(p,cont){
 function openDayEditModal(){if(!isCoach||!currentPlayerId)return;var sObj=getCurSession(false)||{title:'',pattern:'',pills:[]};document.getElementById('f-day-name').value=sObj.title||'';document.getElementById('f-day-pattern').value=sObj.pattern||'';document.getElementById('f-day-pills').value=(sObj.pills||[]).join(', ');document.getElementById('modal-edit-day').classList.add('open');}
 function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');}
 function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);sObj.title=document.getElementById('f-day-name').value.trim()||'Entrenamiento';sObj.pattern=document.getElementById('f-day-pattern').value.trim();var pr=document.getElementById('f-day-pills').value.trim();sObj.pills=pr?pr.split(',').map(function(x){return x.trim();}).filter(Boolean):[];PLAN[0][0]=sObj;commitSession();closeDayEditModal();refreshAfterChange();toast(tr('Entrenamiento modificado'));}
-function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfirm('\u00bfBorrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.',function(){var ss=sessionsOf(currentPlayerId);delete ss[curDate];var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();refreshAfterChange();toast(tr('Entrenamiento eliminado'),'del');},{danger:true,okLabel:'Borrar'});}
+function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfirm('\u00bfBorrar el entrenamiento de '+fmtDateLong(curDate)+'? No se puede deshacer.',function(){var ss=sessionsOf(currentPlayerId);delete ss[curDate];resetDayProgress(currentPlayerId,curDate,true);var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();refreshAfterChange();toast(tr('Entrenamiento eliminado'),'del');},{danger:true,okLabel:'Borrar'});}
 var calMenuIso=null,_dmClose=null;
 function dmEl(){
   var el=document.getElementById('daymenu-pop');
@@ -5753,7 +5757,7 @@ function executeMove(){
   var occ=ss[tgt]&&ss[tgt].blocks&&ss[tgt].blocks.length;
   var run=function(){
     var ch=JB_CHECKS[currentPlayerId]||{};
-    ss[tgt]=ss[moveIso];delete ss[moveIso];
+    ss[tgt]=ss[moveIso];delete ss[moveIso];resetDayProgress(currentPlayerId,tgt,true);
     Object.keys(ch).forEach(function(k){if(k.indexOf(tgt+'-')===0)delete ch[k];});
     Object.keys(ch).forEach(function(k){
       if(k.indexOf(moveIso+'-')===0){ch[tgt+'-'+k.slice(moveIso.length+1)]=ch[k];delete ch[k];}
@@ -6410,6 +6414,20 @@ function dropManifestForAthlete(){
    bien aunque el alumno cierre la app, bloquee el teléfono o pierda señal. */
 var JB_TIMES={}, _tmTick=null;
 var TM_MAX_H=4; // a partir de acá se considera que se olvidó de finalizar
+/* Cuando el profe pone un entrenamiento NUEVO en un día (insertar, duplicar,
+   asignar programa o grupo, mover, borrar), el estado "finalizado" y los
+   bloques marcados de ese día quedan viejos: se limpian para que el alumno
+   pueda hacer el nuevo. Editar la sesión existente NO los toca.
+   En "times" queda una marca {r:fecha} para que el respaldo local del celular
+   del alumno no vuelva a traer el finalizado viejo. */
+function resetDayProgress(pid,iso,keepChecks){
+  try{
+    if(!isCoach||!pid||!iso)return;
+    var t=JB_TIMES[pid];if(t&&t[iso])t[iso]={r:new Date().toISOString()};
+    if(!keepChecks){var ch=JB_CHECKS[pid];if(ch)Object.keys(ch).forEach(function(k){if(k.indexOf(iso+'-')===0)delete ch[k];});}
+    sb.rpc('coach_reset_day',{p_player:pid,p_date:iso,p_checks:!keepChecks}).then(function(r){if(r&&r.error)console.error('resetDay',r.error);},function(e){console.error('resetDay',e);});
+  }catch(e){console.error('resetDay',e);}
+}
 function timesOf(pid){if(!JB_TIMES[pid])JB_TIMES[pid]={};return JB_TIMES[pid];}
 /* ¿El alumno ya tocó "Empezar mi entrenamiento" en este día? */
 function sessionStarted(){
