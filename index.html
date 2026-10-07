@@ -1587,7 +1587,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261005-1';
+var APP_VERSION='20261005-2';
 (function(){
   try{
     setTimeout(function(){
@@ -4296,6 +4296,16 @@ function doSelectPlayer(pid){
   var wsg=document.getElementById('wl-set');if(wsg)wsg.style.display=isCoach?'none':'flex';
   document.getElementById('screen-select').style.display='none';
   try{renderAthleteHome();}catch(e){console.error('athleteHome',e);}
+  /* iOS cierra la app en segundo plano: si el alumno tenía un entrenamiento
+     en curso, al volver entra directo a esa sesión en vez de la bienvenida. */
+  if(!isCoach){
+    try{
+      var _tm=JB_TIMES[pid]||{},_run=null;
+      Object.keys(_tm).forEach(function(iso){var x=_tm[iso];if(x&&x.s&&!x.e&&(!_run||x.s>_tm[_run].s))_run=iso;});
+      var _ss=(JB_SESSIONS[pid]||{})[_run];
+      if(_run&&_ss&&_ss.blocks&&_ss.blocks.length){pendingDate=_run;enterPlan();}
+    }catch(e){console.error('resume',e);}
+  }
 }
 function wlBtnTxt(key){
   var nm='';
