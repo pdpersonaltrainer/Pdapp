@@ -151,9 +151,10 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 .players-grid{display:flex;flex-direction:column;gap:12px;}
 .cv-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;padding:9px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
 .cv-btn.cv-active{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
+.pr-st{width:100%;border-collapse:collapse;font-size:13px;}.pr-st td{padding:4px 4px;border-top:1px solid var(--border2);vertical-align:middle;}.pr-st tr:first-child td{border-top:none;}.pr-st input{width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:7px;font-size:14px;color:var(--text);outline:none;text-align:center;}.ex-sets{margin-top:6px;display:inline-grid;grid-template-columns:auto auto auto;gap:2px 12px;font-size:12px;color:var(--muted);background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;}.ex-sets b{color:var(--text);font-weight:600;}
 .pr-lbl{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .pr-type,.pr-eff{flex:1;font-size:12px;padding:9px 4px;}
-.pr-type.pr-on,.pr-eff.pr-on{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
+.pr-type.pr-on,.pr-eff.pr-on,.pr-var.pr-on{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
 .player-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.15s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.28);}
 .player-card:active{transform:scale(0.985);}
 .player-card-inner{display:flex;align-items:center;gap:14px;padding:16px;}
@@ -1224,11 +1225,16 @@ body{overflow-x:hidden;}
       <button class="pr-type cv-btn" id="pr-type-dist" onclick="setPrescType('dist')">📏 Distancia</button>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:14px;">
-      <div style="flex:1;"><div class="pr-lbl">Series</div><input type="number" id="pr-sets" inputmode="numeric" oninput="updatePrescPreview()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
+      <div style="flex:1;"><div class="pr-lbl">Series</div><input type="number" id="pr-sets" inputmode="numeric" oninput="updatePrescPreview();renderPrescSets()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
       <div style="flex:1;" id="pr-reps-wrap"><div class="pr-lbl">Reps</div><input type="number" id="pr-reps" inputmode="numeric" oninput="updatePrescPreview()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
       <div style="flex:1.3;display:none;" id="pr-time-wrap"><div class="pr-lbl">Duración</div><div style="display:flex;gap:5px;"><input type="number" id="pr-dur" inputmode="numeric" oninput="updatePrescPreview()" style="flex:1;min-width:0;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/><button id="pr-durunit" onclick="togglePrescDurUnit()" style="flex:none;padding:0 12px;border-radius:var(--rsm);border:1px solid var(--border);background:var(--s2);color:var(--mob);font-weight:800;cursor:pointer;">s</button></div></div>
       <div style="flex:1;display:none;" id="pr-dist-wrap"><div class="pr-lbl">Metros</div><input type="number" id="pr-dist" inputmode="numeric" oninput="updatePrescPreview()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
     </div>
+    <div style="display:flex;gap:10px;margin-bottom:12px;">
+      <div style="flex:1;"><div class="pr-lbl" id="pr-vq-lbl">Reps por serie</div><div style="display:flex;gap:6px;"><button class="pr-var cv-btn" id="pr-vq-same" onclick="setPrescVar('q','same')">Iguales</button><button class="pr-var cv-btn" id="pr-vq-var" onclick="setPrescVar('q','var')">Distintas</button></div></div>
+      <div style="flex:1;"><div class="pr-lbl">Carga por serie</div><div style="display:flex;gap:6px;"><button class="pr-var cv-btn" id="pr-vl-same" onclick="setPrescVar('l','same')">Igual</button><button class="pr-var cv-btn" id="pr-vl-var" onclick="setPrescVar('l','var')">Distinta</button></div></div>
+    </div>
+    <div id="pr-set-table" style="display:none;margin-bottom:14px;"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:8px 0;border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);">
       <span style="font-size:13px;color:var(--text);font-weight:600;">Por lado (c/l)</span>
       <button id="pr-perside" onclick="togglePrescSide()" style="padding:6px 16px;border-radius:14px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;cursor:pointer;">No</button>
@@ -1587,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261005-2';
+var APP_VERSION='20261007-1';
 (function(){
   try{
     setTimeout(function(){
@@ -4578,6 +4584,23 @@ function sessionVol(blocks,maxes){
   maxes=maxes||{};
   var sets=0,reps=0,kg=0,kgKnown=false,pctMissing=0;
   (blocks||[]).forEach(function(b){(b.exs||[]).forEach(function(e){
+    var pp=e.p;
+    if(pp&&(pp.repsMode==='var'||pp.loadMode==='var')){
+      var n=parseInt(pp.sets,10)||0;if(!n)return;
+      var m2=pp.perSide?2:1,_nm=function(x){var v=parseFloat(String(x||'').replace(',','.'));return isNaN(v)?0:v;};
+      for(var si=0;si<n;si++){
+        sets++;
+        if(pp.type!=='reps')continue;
+        var r=_nm(pp.repsMode==='var'?(pp.repsList||[])[si]:pp.reps);
+        reps+=r*m2;
+        var ld=_nm(pp.loadMode==='var'?(pp.loadList||[])[si]:pp.load);
+        if(r>0&&ld>0){
+          if(pp.loadUnit==='kg'){kg+=r*m2*ld;kgKnown=true;}
+          else if(pp.loadUnit==='%'){var mx2=maxes[e.n];if(mx2){kg+=r*m2*(ld/100*mx2);kgKnown=true;}else pctMissing++;}
+        }
+      }
+      return;
+    }
     var rx=parseRx(e.l);if(!rx)return;
     var mult=rx.perSide?2:1;
     sets+=rx.sets;
@@ -4780,6 +4803,20 @@ function toggleTrack(name,w,d,b,e){
   refreshPlanUI();
   toast(ex.tk?tr('Registro de carga activado'):tr('Registro de carga desactivado'));
 }
+function setsTableHtml(e){
+  var p=e&&e.p;if(!p||(p.repsMode!=='var'&&p.loadMode!=='var'))return '';
+  var n=parseInt(p.sets,10)||0;if(!n)return '';
+  var qU=p.type==='time'?(p.durUnit||'s'):p.type==='dist'?'m':tr('reps');
+  var mq=p.type==='time'?p.dur:p.type==='dist'?p.dist:p.reps;
+  var h='';
+  for(var i=0;i<n;i++){
+    var q=p.repsMode==='var'?(p.repsList||[])[i]:mq;
+    var l=p.loadMode==='var'?(p.loadList||[])[i]:p.load;
+    q=String(q||'').trim();l=String(l||'').trim();
+    h+='<span>'+tr('Serie')+' '+(i+1)+'</span><span><b>'+(q||'–')+'</b> '+qU+'</span><span>'+(l?'<b>'+l+'</b> '+(p.loadUnit||''):'')+'</span>';
+  }
+  return '<div class="ex-sets">'+h+'</div>';
+}
 function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
   var _exObj=_exAt(wIdx,dIdx,bi,ei);
   var tracked=isTracked(exName,_exObj);
@@ -4871,7 +4908,7 @@ function renderBlock(b,bi,wIdx,dIdx){
   /* El alumno ve los videos recién cuando arranca el entrenamiento: antes solo
    tiene el resumen (nombre, series, reps y kg) para no distraerse. */
   var _verVid=isC||draftMode||sessionStarted();
-  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e)+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -5089,7 +5126,7 @@ function openPrescModal(w,d,b,e){
   prescTarget={w:w,d:d,b:b,e:e};
   var ex=PLAN[w][d].blocks[b].exs[e];
   var p=ex.p||{};
-  prescState={type:p.type||'reps',sets:p.sets||'',reps:p.reps||'',dur:p.dur||'',durUnit:p.durUnit||'s',dist:p.dist||'',perSide:!!p.perSide,load:p.load||'',loadUnit:p.loadUnit||'kg',effType:p.effType||'',eff:p.eff||'',rest:p.rest||''};
+  prescState={type:p.type||'reps',sets:p.sets||'',reps:p.reps||'',dur:p.dur||'',durUnit:p.durUnit||'s',dist:p.dist||'',perSide:!!p.perSide,load:p.load||'',loadUnit:p.loadUnit||'kg',effType:p.effType||'',eff:p.eff||'',rest:p.rest||'',repsMode:p.repsMode||'same',loadMode:p.loadMode||'same',repsList:(p.repsList||[]).slice(),loadList:(p.loadList||[]).slice()};
   document.getElementById('pr-sets').value=prescState.sets;
   document.getElementById('pr-reps').value=prescState.reps;
   document.getElementById('pr-dur').value=prescState.dur;
@@ -5102,6 +5139,7 @@ function openPrescModal(w,d,b,e){
   document.getElementById('pr-loadunit').textContent=prescState.loadUnit;
   setPrescType(prescState.type,true);
   setPrescEff(prescState.effType,true);
+  setPrescVar('q',prescState.repsMode,true);setPrescVar('l',prescState.loadMode,true);
   togglePrescSideSet(prescState.perSide);
   updatePrescPreview();
   document.getElementById('modal-presc').classList.add('open');
@@ -5110,10 +5148,12 @@ function closePrescModal(){document.getElementById('modal-presc').classList.remo
 function setPrescType(t,keep){
   prescState.type=t;
   ['reps','time','dist'].forEach(function(x){document.getElementById('pr-type-'+x).classList.toggle('pr-on',x===t);});
-  document.getElementById('pr-reps-wrap').style.display=t==='reps'?'':'none';
-  document.getElementById('pr-time-wrap').style.display=t==='time'?'':'none';
-  document.getElementById('pr-dist-wrap').style.display=t==='dist'?'':'none';
-  updatePrescPreview();
+  var _v=prescState.repsMode==='var';
+  document.getElementById('pr-reps-wrap').style.display=(t==='reps'&&!_v)?'':'none';
+  document.getElementById('pr-time-wrap').style.display=(t==='time'&&!_v)?'':'none';
+  document.getElementById('pr-dist-wrap').style.display=(t==='dist'&&!_v)?'':'none';
+  var _ql=document.getElementById('pr-vq-lbl');if(_ql)_ql.textContent=tr(t==='time'?'Tiempo por serie':t==='dist'?'Metros por serie':'Reps por serie');
+  updatePrescPreview();renderPrescSets();
 }
 function setPrescEff(t,keep){
   prescState.effType=t;
@@ -5123,8 +5163,49 @@ function setPrescEff(t,keep){
 }
 function togglePrescSide(){togglePrescSideSet(!prescState.perSide);updatePrescPreview();}
 function togglePrescSideSet(v){prescState.perSide=v;var b=document.getElementById('pr-perside');b.textContent=v?'Sí':'No';if(v){b.style.background='var(--mobfill)';b.style.color='#0a0b0e';b.style.borderColor='var(--mobfill)';}else{b.style.background='var(--s2)';b.style.color='var(--muted)';b.style.borderColor='var(--border2)';}}
-function togglePrescDurUnit(){prescState.durUnit=prescState.durUnit==='s'?'min':'s';document.getElementById('pr-durunit').textContent=prescState.durUnit;updatePrescPreview();}
-function togglePrescLoadUnit(){var seq={'kg':'%','%':'','':'kg'};prescState.loadUnit=seq[prescState.loadUnit];document.getElementById('pr-loadunit').textContent=prescState.loadUnit||'—';updatePrescPreview();}
+function togglePrescDurUnit(){prescState.durUnit=prescState.durUnit==='s'?'min':'s';document.getElementById('pr-durunit').textContent=prescState.durUnit;updatePrescPreview();renderPrescSets();}
+function togglePrescLoadUnit(){var seq={'kg':'%','%':'','':'kg'};prescState.loadUnit=seq[prescState.loadUnit];document.getElementById('pr-loadunit').textContent=prescState.loadUnit||'—';updatePrescPreview();renderPrescSets();}
+function _prescN(){var n=parseInt(document.getElementById('pr-sets').value,10);return (n>0&&n<=15)?n:0;}
+function _prescMainQ(){var t=prescState.type;return t==='time'?prescState.dur:t==='dist'?prescState.dist:prescState.reps;}
+function setPrescVar(which,mode,keep){
+  if(which==='q')prescState.repsMode=mode;else prescState.loadMode=mode;
+  var pre=which==='q'?'pr-vq-':'pr-vl-';
+  document.getElementById(pre+'same').classList.toggle('pr-on',mode!=='var');
+  document.getElementById(pre+'var').classList.toggle('pr-on',mode==='var');
+  if(which==='l'){var li=document.getElementById('pr-load');if(li)li.style.display=mode==='var'?'none':'';}
+  /* Al pasar a "distintas", cada serie arranca con el valor común */
+  if(mode==='var'){
+    readPresc();var n=_prescN()||0;
+    var lst=which==='q'?prescState.repsList:prescState.loadList, base=which==='q'?_prescMainQ():prescState.load;
+    for(var i=0;i<n;i++){if(lst[i]===undefined||lst[i]==='')lst[i]=base||'';}
+  }
+  if(which==='q')setPrescType(prescState.type,true);
+  else {updatePrescPreview();renderPrescSets();}
+}
+function renderPrescSets(){
+  var box=document.getElementById('pr-set-table');if(!box)return;
+  var qv=prescState.repsMode==='var', lv=prescState.loadMode==='var';
+  if(!qv&&!lv){box.style.display='none';box.innerHTML='';return;}
+  box.style.display='';
+  var n=_prescN();
+  if(!n){box.innerHTML='<div style="font-size:12px;color:var(--muted2);text-align:center;padding:8px;">'+tr('Poné la cantidad de series (hasta 15).')+'</div>';return;}
+  readPresc();
+  var t=prescState.type, qU=t==='time'?(prescState.durUnit||'s'):t==='dist'?'m':tr('reps'), lU=prescState.loadUnit||'';
+  var mq=_prescMainQ(), ml=prescState.load;
+  var th='font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.05em;';
+  var h='<table class="pr-st"><tr><td style="'+th+'">'+tr('Serie')+'</td><td style="'+th+'text-align:center;">'+qU+'</td><td style="'+th+'text-align:center;">'+(lU||tr('Carga'))+'</td></tr>';
+  for(var i=0;i<n;i++){
+    var qc=qv?'<input type="text" inputmode="decimal" value="'+String(prescState.repsList[i]||'').replace(/"/g,'&quot;')+'" oninput="prescSetInput(\'q\','+i+',this.value)">':'<div style="text-align:center;color:var(--muted);">'+(mq||'–')+'</div>';
+    var lc=lv?'<input type="text" inputmode="decimal" value="'+String(prescState.loadList[i]||'').replace(/"/g,'&quot;')+'" oninput="prescSetInput(\'l\','+i+',this.value)">':'<div style="text-align:center;color:var(--muted);">'+(ml||'–')+'</div>';
+    h+='<tr><td style="width:56px;font-weight:700;color:var(--text);">'+(i+1)+'</td><td>'+qc+'</td><td>'+lc+'</td></tr>';
+  }
+  box.innerHTML=h+'</table>';
+}
+function prescSetInput(which,i,v){
+  var lst=which==='q'?prescState.repsList:prescState.loadList;
+  lst[i]=String(v||'').trim();
+  updatePrescPreview();
+}
 function readPresc(){
   prescState.sets=document.getElementById('pr-sets').value.trim();
   prescState.reps=document.getElementById('pr-reps').value.trim();
@@ -5133,17 +5214,22 @@ function readPresc(){
   prescState.load=document.getElementById('pr-load').value.trim();
   prescState.rest=document.getElementById('pr-rest').value.trim();
   prescState.eff=document.getElementById('pr-eff-val').value.trim();
+  var _n=_prescN();
+  if(_n){prescState.repsList=(prescState.repsList||[]).slice(0,_n);prescState.loadList=(prescState.loadList||[]).slice(0,_n);}
   return prescState;
 }
 function buildPrescString(p){
   if(!p)return '';
   var core='';var s=p.sets||'';
-  if(p.type==='reps')core=s+(p.reps?'×'+p.reps:'');
-  else if(p.type==='time')core=s+(p.dur?'×'+p.dur+(p.durUnit||'s'):'');
-  else if(p.type==='dist')core=s+(p.dist?'×'+p.dist+'m':'');
+  var _qv=p.repsMode==='var'&&(p.repsList||[]).length, _lv=p.loadMode==='var'&&(p.loadList||[]).length;
+  var _j=function(a){return a.map(function(x){return String(x||'').trim()||'–';}).join('/');};
+  if(p.type==='reps')core=s+(_qv?'×'+_j(p.repsList):(p.reps?'×'+p.reps:''));
+  else if(p.type==='time')core=s+(_qv?'×'+_j(p.repsList)+(p.durUnit||'s'):(p.dur?'×'+p.dur+(p.durUnit||'s'):''));
+  else if(p.type==='dist')core=s+(_qv?'×'+_j(p.repsList)+'m':(p.dist?'×'+p.dist+'m':''));
   var out=core;
   if(p.perSide&&core)out+=' c/l';
-  if(p.load)out+=' @'+p.load+(p.loadUnit||'');
+  if(_lv&&p.loadList.some(function(x){return String(x||'').trim();}))out+=' @'+_j(p.loadList)+(p.loadUnit||'');
+  else if(!_lv&&p.load)out+=' @'+p.load+(p.loadUnit||'');
   if(p.effType&&p.eff)out+=' · '+(p.effType==='rpe'?'RPE':'RIR')+p.eff;
   if(p.rest)out+=' · desc '+p.rest+'s';
   return out.trim();
@@ -6273,6 +6359,18 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['Poné la cantidad de series (hasta 15).']=STATIC_I18N['Poné la cantidad de series (hasta 15).']||['Enter the number of sets (up to 15).', 'Inserisci il numero di serie (fino a 15).'];
+STATIC_I18N['reps']=STATIC_I18N['reps']||['reps', 'rip'];
+STATIC_I18N['Carga']=STATIC_I18N['Carga']||['Load', 'Carico'];
+STATIC_I18N['Serie']=STATIC_I18N['Serie']||['Set', 'Serie'];
+STATIC_I18N['Distinta']=STATIC_I18N['Distinta']||['Different', 'Diversa'];
+STATIC_I18N['Igual']=STATIC_I18N['Igual']||['Same', 'Uguale'];
+STATIC_I18N['Distintas']=STATIC_I18N['Distintas']||['Different', 'Diverse'];
+STATIC_I18N['Iguales']=STATIC_I18N['Iguales']||['Same', 'Uguali'];
+STATIC_I18N['Carga por serie']=STATIC_I18N['Carga por serie']||['Load per set', 'Carico per serie'];
+STATIC_I18N['Metros por serie']=STATIC_I18N['Metros por serie']||['Meters per set', 'Metri per serie'];
+STATIC_I18N['Tiempo por serie']=STATIC_I18N['Tiempo por serie']||['Time per set', 'Tempo per serie'];
+STATIC_I18N['Reps por serie']=STATIC_I18N['Reps por serie']||['Reps per set', 'Ripetizioni per serie'];
 STATIC_I18N['El video tiene que ser un link de YouTube.']=['The video must be a YouTube link.','Il video deve essere un link di YouTube.'];
 STATIC_I18N['Video (YouTube)']=['Video (YouTube)','Video (YouTube)'];
 STATIC_I18N['No se pudo cargar el generador de PDF. Revisá tu conexión.']=['Could not load the PDF generator. Check your connection.','Impossibile caricare il generatore PDF. Controlla la connessione.'];
