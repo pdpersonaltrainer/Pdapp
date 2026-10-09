@@ -294,9 +294,9 @@ video.exthumb::-webkit-media-controls,video.lib-card-thumb::-webkit-media-contro
   .exname{font-size:13.5px;}
   .exnote{font-size:11.5px;}
 }
-.exload{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;}
+.exload{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;text-align:right;max-width:170px;}
 .l-mob{background:rgba(168,224,99,0.10);color:var(--mob);}.l-act{background:rgba(249,200,70,0.10);color:var(--act);}.l-fza{background:rgba(255,112,67,0.10);color:var(--fza);}.l-exp{background:rgba(199,125,255,0.10);color:var(--exp);}.l-cam{background:rgba(56,217,192,0.10);color:var(--cam);}.l-cm{background:rgba(77,171,247,0.10);color:var(--cm);}.l-est{background:rgba(240,101,149,0.10);color:var(--est);}.l-gen{background:rgba(168,224,99,0.10);color:var(--mob);}
-.exload-edit{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid var(--act);background:var(--s2);color:var(--text);outline:none;width:90px;text-align:center;}
+.exload-edit{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:3px 8px;border-radius:4px;border:1px solid var(--act);background:var(--s2);color:var(--text);outline:none;min-width:90px;max-width:170px;text-align:center;}
 .ex-grip{background:rgba(255,255,255,0.05);color:var(--muted);border:none;border-radius:4px;width:22px;height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;touch-action:none;padding:0;}
 .ex-grip:active{cursor:grabbing;background:rgba(168,224,99,0.18);color:var(--mob);}
 .ex-swap{background:rgba(168,224,99,0.10);color:var(--mob);border:none;border-radius:4px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261007-1';
+var APP_VERSION='20261009-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3438,7 +3438,7 @@ function previewTemplate(id){
   document.getElementById('tp-body').innerHTML=bl.length?bl.map(function(b,bi){
     var bt=b.t||'mob';
     var exs=(b.exs||[]).map(function(e){
-      var ld=e.l?'<span style="color:var(--mob);font-weight:700;white-space:nowrap;margin-left:10px;">'+e.l+'</span>':'';
+      var ld=e.l?'<span style="color:var(--mob);font-weight:700;text-align:right;margin-left:10px;">'+fmtDose(e.l)+'</span>':'';
       return '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text);">'+e.n+'</span>'+ld+'</div>';
     }).join('');
     return '<div style="margin-bottom:16px;"><div style="display:flex;align-items:center;gap:7px;font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:14px;letter-spacing:0.04em;text-transform:uppercase;color:#eef0f5;margin-bottom:5px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--mobfill);flex:none;"></span>'+(b.title||'Bloque '+(bi+1))+'</div>'+(exs||'<div style="font-size:12px;color:var(--muted2);padding:2px 0;">'+TT('sinEjercicios')+'</div>')+'</div>';
@@ -4818,6 +4818,7 @@ function setsTableHtml(e){
   return '<div class="ex-sets">'+h+'</div>';
 }
 function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
+  objetivo=fmtDose(objetivo);
   var _exObj=_exAt(wIdx,dIdx,bi,ei);
   var tracked=isTracked(exName,_exObj);
   var aL=getALoad(bi,ei);
@@ -5218,6 +5219,24 @@ function readPresc(){
   if(_n){prescState.repsList=(prescState.repsList||[]).slice(0,_n);prescState.loadList=(prescState.loadList||[]).slice(0,_n);}
   return prescState;
 }
+/* Dosis en formato largo para mostrar ("4 series × 6 reps c/lado · 75 kg").
+   Lo guardado sigue en formato corto (4×6 c/l @75kg), que es lo que se usa
+   para calcular volumen y en las celdas chicas del calendario. */
+function fmtDose(str){
+  var s=String(str||'').trim();if(!s)return s;
+  var m=s.match(/^(\d+)\s*[×xX*]\s*([\d.,]+(?:\s*[-\/]\s*[\d.,–]+)*)\s*(s|seg|min|m)?(?=\s|$|@|·)(.*)$/);
+  if(!m)return s;
+  var n=+m[1], q=m[2].replace(/\s+/g,''), u=(m[3]||'').toLowerCase(), rest=m[4]||'';
+  var out=n+' '+(n===1?tr('serie'):tr('series'))+' × '+q+' ';
+  out+=u==='s'||u==='seg'?'s':u==='min'?'min':u==='m'?'m':tr('reps');
+  var side=/(^|\s)c\s*\/\s*l(ado)?\b/i.test(rest);
+  if(side){out+=' '+tr('c/lado');rest=rest.replace(/(^|\s)c\s*\/\s*l(ado)?\b/i,' ');}
+  var lm=rest.match(/@\s*([\d.,–\/]+)\s*(kg|%)?/i);
+  if(lm){out+=' · '+lm[1]+((lm[2]||'').toLowerCase()==='%'?'%':(lm[2]?' kg':''));rest=rest.replace(lm[0],' ');}
+  rest=rest.replace(/^\s*·\s*/,'').replace(/\s+/g,' ').trim();
+  if(rest)out+=' · '+rest.replace(/^·\s*/,'');
+  return out;
+}
 function buildPrescString(p){
   if(!p)return '';
   var core='';var s=p.sets||'';
@@ -5234,7 +5253,7 @@ function buildPrescString(p){
   if(p.rest)out+=' · desc '+p.rest+'s';
   return out.trim();
 }
-function updatePrescPreview(){readPresc();var str=buildPrescString(prescState);document.getElementById('pr-preview').textContent=str||'—';}
+function updatePrescPreview(){readPresc();var str=fmtDose(buildPrescString(prescState));document.getElementById('pr-preview').textContent=str||'—';}
 function stripNotes(blocks){
   var c=JSON.parse(JSON.stringify(blocks||[]));
   c.forEach(function(b){(b.exs||[]).forEach(function(e){delete e.note;});});
@@ -5681,7 +5700,7 @@ function renderWeekList(p,cont){
       hdr+='</div>';
       var body=day.blocks.map(function(b){
         var exs=(b.exs||[]).map(function(e){
-          var ld=e.l?' <span style="color:var(--mob);font-weight:700;">'+e.l+'</span>':'';
+          var ld=e.l?' <span style="color:var(--mob);font-weight:700;">'+fmtDose(e.l)+'</span>':'';
           return '<div style="font-size:12.5px;color:var(--muted);padding:2px 0 2px 10px;">'+e.n+ld+'</div>';
         }).join('');
         return '<div style="margin-top:7px;"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--cm);">'+(b.title||'')+'</div>'+exs+'</div>';
@@ -6359,6 +6378,9 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['c/lado']=STATIC_I18N['c/lado']||['each side','per lato'];
+STATIC_I18N['series']=STATIC_I18N['series']||['sets','serie'];
+STATIC_I18N['serie']=STATIC_I18N['serie']||['set','serie'];
 STATIC_I18N['Poné la cantidad de series (hasta 15).']=STATIC_I18N['Poné la cantidad de series (hasta 15).']||['Enter the number of sets (up to 15).', 'Inserisci il numero di serie (fino a 15).'];
 STATIC_I18N['reps']=STATIC_I18N['reps']||['reps', 'rip'];
 STATIC_I18N['Carga']=STATIC_I18N['Carga']||['Load', 'Carico'];
