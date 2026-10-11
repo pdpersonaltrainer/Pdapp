@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261011-1';
+var APP_VERSION='20261011-3';
 (function(){
   try{
     setTimeout(function(){
@@ -2272,7 +2272,9 @@ async function saveBodyPains(){
     if(_fuertes.length&&ATH_TOKEN){
       var _z=_fuertes.slice(0,2).map(function(x){return tr(BODY_LBL[x.z]||x.z);}).join(', ');
       if(_fuertes.length>2)_z+=' +'+(_fuertes.length-2);
-      notifyCoach((p&&p.name)||'PDapp',tr('Reportó dolor fuerte:')+' '+_z);
+      var _hasS=(function(){var s=(JB_SESSIONS[p.id]||{})[isoToday()];return !!(s&&s.blocks&&s.blocks.length&&!s.bDec);})();
+      notifyCoach((p&&p.name)||'PDapp',tr('Reportó dolor fuerte:')+' '+_z+(_hasS?' · '+tr('se le recomienda la versión suave'):''));
+      try{if(currentPlayerId===p.id)renderPlan();}catch(e){}
     }
   }catch(e){}
   closeBodyModal();
@@ -2545,7 +2547,7 @@ function fmtDateLong(iso){var dt=isoToDate(iso);return DOW_ES[dt.getDay()]+' '+d
 function fmtDateShort(iso){var dt=isoToDate(iso);return (DOW_ES[dt.getDay()]+' '+dt.getDate()).toUpperCase();}
 function sessionsOf(pid){if(!JB_SESSIONS[pid])JB_SESSIONS[pid]={};return JB_SESSIONS[pid];}
 function getCurSession(create){var ss=sessionsOf(currentPlayerId);var sObj=ss[curDate];if(!sObj&&create){sObj={title:'Entrenamiento',pattern:'',pills:[],blocks:[]};ss[curDate]=sObj;if((JB_TIMES[currentPlayerId]||{})[curDate])resetDayProgress(currentPlayerId,curDate);}return sObj;}
-function commitSession(){if(draftMode){draftSession=PLAN[0][0];return;}if(!currentPlayerId||!curDate)return;var ss=sessionsOf(currentPlayerId);ss[curDate]=PLAN[0][0];saveSessions(currentPlayerId);}
+function commitSession(){if(draftMode){draftSession=PLAN[0][0];return;}if(!currentPlayerId||!curDate)return;var ss=sessionsOf(currentPlayerId);if(PLAN_VARIANT==='b'&&isCoach&&ss[curDate]){ss[curDate].b={blocks:PLAN[0][0].blocks};saveSessions(currentPlayerId);return;}if(!isCoach&&ss[curDate]&&PLAN[0][0]&&PLAN[0][0].blocks!==ss[curDate].blocks)return;ss[curDate]=PLAN[0][0];saveSessions(currentPlayerId);}
 function firstSessionDate(pid){var ss=JB_SESSIONS[pid];if(!ss)return null;var ks=Object.keys(ss).filter(function(k){return ss[k]&&ss[k].blocks&&ss[k].blocks.length;}).sort();return ks.length?ks[0]:null;}
 function migrateAllChecks(){
   Object.keys(JB_CHECKS).forEach(function(pid){
@@ -3897,6 +3899,9 @@ function panelAlerts(p){
       out.push({p:2,sev:'alta',ic:'pulse',txt:tr('Autoevaluación en rojo')+(det.length?' ('+det.join(' · ')+')':'')});
     }
   }
+  // 2a) Molestia fuerte hoy con sesión: falta decidir el Plan B
+  try{if(planBState(p.id,isoToday())==='pending')out.push({p:1,sev:'alta',ic:'bandage',txt:tr('Molestia fuerte hoy: todavía no eligió sesión')});
+  else{var _bs=planBState(p.id,isoToday());if(_bs==='b'||_bs==='a'){var _zz=strongPainZones(p.id,isoToday());if(_zz.length)out.push({p:1,sev:'alta',ic:'bandage',txt:tr('Molestia fuerte hoy')+' · '+(_bs==='b'?tr('versión suave'):tr('sesión normal'))});}}}catch(e){}
   // 2b) Carga de entrenamiento
   try{
     var _ls=loadStatus(p.id);
@@ -4316,6 +4321,7 @@ function selectPlayer(pid){
   doSelectPlayer(pid);
 }
 function doSelectPlayer(pid){
+  PLAN_VARIANT='a';
   try{if(!isCoach){currentPlayerId=pid;autoCloseStale();}}catch(e){console.error('autoCloseStale',e);}
   currentPlayerId=pid;activePid=pid;PLAN=loadPlan(pid);checkState={};lastCheckedDay=null;loadCheckState();
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
@@ -4761,6 +4767,150 @@ function refreshPlanUI(){
     });
   }
 }
+/* ===== PLAN B: VERSIÓN SUAVE =====
+   Si el alumno marca una molestia FUERTE el mismo día que tiene sesión, la
+   app le recomienda la versión suave y él elige antes de empezar. Al profe
+   le llega el aviso con lo que eligió, y puede cambiarlo mientras el alumno
+   no haya empezado.
+   La versión suave se genera sola (una serie menos y 20% menos de carga en
+   cada ejercicio) y el profe la puede editar. Se guarda en la sesión:
+     s.b    = {blocks:[...]}  versión suave editada por el profe (opcional)
+     s.bDec = {d:'b'|'a', ts}  decisión del profe (pisa la del alumno)
+   La elección del alumno va en sus tiempos: times[fecha].v = 'b'|'a'. */
+var PLAN_VARIANT='a';
+function _pbRound(v,unit){return unit==='%'?Math.round(v):Math.round(v*2)/2;}
+function _pbNum(x){var v=parseFloat(String(x||'').replace(',','.'));return isNaN(v)?null:v;}
+function genPlanB(blocks){
+  var c=JSON.parse(JSON.stringify(blocks||[]));
+  c.forEach(function(b){(b.exs||[]).forEach(function(e){
+    if(e.p){
+      var p=e.p, n=parseInt(p.sets,10)||0;
+      if(n>1){p.sets=String(n-1);if(p.repsList)p.repsList=p.repsList.slice(0,n-1);if(p.loadList)p.loadList=p.loadList.slice(0,n-1);}
+      var u=p.loadUnit||'';
+      if(p.loadMode==='var'&&p.loadList)p.loadList=p.loadList.map(function(x){var v=_pbNum(x);return v===null?x:String(_pbRound(v*0.8,u));});
+      else{var v=_pbNum(p.load);if(v!==null)p.load=String(_pbRound(v*0.8,u));}
+      e.l=buildPrescString(p);
+    }else if(e.l){
+      e.l=String(e.l).replace(/^(\d+)(\s*[×xX*])/,function(m,n,x){n=+n;return (n>1?n-1:n)+x;})
+        .replace(/@\s*(\d+(?:[.,]\d+)?)\s*(kg|%)?/i,function(m,v,u){var x=_pbNum(v)*0.8;return '@'+_pbRound(x,(u||'').toLowerCase()==='%'?'%':'kg')+(u||'');});
+    }
+  });});
+  return c;
+}
+function planBBlocks(s){return (s&&s.b&&s.b.blocks)?s.b.blocks:genPlanB(s&&s.blocks);}
+/* Molestia fuerte (nivel 3) reportada ese día */
+function strongPainZones(pid,iso){
+  var p=PLAYERS.find(function(x){return x.id===pid;});
+  var arr=(painsOf(p)[iso])||[];
+  return arr.filter(function(x){return x&&x.lvl===3;}).map(function(x){return x.z;});
+}
+/* Estado del Plan B para un alumno y una fecha: null | 'pending' | 'b' | 'a' */
+function planBState(pid,iso){
+  var s=(JB_SESSIONS[pid]||{})[iso];
+  if(!s||!s.blocks||!s.blocks.length)return null;
+  if(s.bDec&&(s.bDec.d==='b'||s.bDec.d==='a'))return s.bDec.d;
+  var t=(JB_TIMES[pid]||{})[iso];
+  if(t&&(t.v==='b'||t.v==='a'))return t.v;
+  if(iso!==isoToday())return null;
+  if(t&&t.s)return null; /* ya había empezado */
+  return strongPainZones(pid,iso).length?'pending':null;
+}
+function planBWho(pid,iso){
+  var s=(JB_SESSIONS[pid]||{})[iso];if(s&&s.bDec)return 'coach';
+  var t=(JB_TIMES[pid]||{})[iso];return (t&&t.v)?'athlete':null;
+}
+function planBStarted(pid,iso){var t=(JB_TIMES[pid]||{})[iso];return !!(t&&t.s);}
+/* El alumno elige (antes de empezar) */
+function choosePlanB(v){
+  if(isCoach||!currentPlayerId||!curDate)return;
+  if(planBStarted(currentPlayerId,curDate))return;
+  var t=timesOf(currentPlayerId);
+  t[curDate]=Object.assign({},t[curDate]||{},{v:v});delete t[curDate].r;
+  saveTimes(currentPlayerId);
+  renderPlan();
+  var p=PLAYERS.find(function(x){return x.id===currentPlayerId;})||{};
+  var zs=strongPainZones(currentPlayerId,curDate).slice(0,2).map(function(z){return tr(BODY_LBL[z]||z);}).join(', ');
+  notifyCoach(p.name||'PDapp',tr('Molestia fuerte')+(zs?' ('+zs+')':'')+' · '+(v==='b'?tr('eligió la versión suave'):tr('eligió la sesión normal')));
+}
+function changePlanBChoice(){
+  if(isCoach||planBStarted(currentPlayerId,curDate))return;
+  var t=timesOf(currentPlayerId);if(t[curDate]){delete t[curDate].v;saveTimes(currentPlayerId);}
+  renderPlan();
+}
+function decidePlanB(d){
+  if(!isCoach||!currentPlayerId||!curDate)return;
+  if(planBStarted(currentPlayerId,curDate)){showInfo(tr('El alumno ya empezó la sesión: no se puede cambiar.'));return;}
+  var ss=sessionsOf(currentPlayerId), s=ss[curDate];if(!s)return;
+  s.bDec={d:d,ts:new Date().toISOString()};
+  if(d==='b'&&!s.b)s.b={blocks:genPlanB(s.blocks)};
+  saveSessions(currentPlayerId);
+  PLAN_VARIANT='a';renderPlan();
+  notifyPlayer(currentPlayerId,tr('Tu sesión de hoy'),d==='b'?tr('Tu profe indicó la versión suave.'):tr('Tu profe indicó la sesión normal.'));
+  toast(d==='b'?tr('Versión suave indicada'):tr('Sesión normal confirmada'));
+}
+function undoPlanB(){
+  if(!isCoach||!currentPlayerId||!curDate)return;
+  var s=sessionsOf(currentPlayerId)[curDate];if(!s)return;
+  delete s.bDec;saveSessions(currentPlayerId);renderPlan();
+}
+function editPlanB(){
+  if(!isCoach||!currentPlayerId||!curDate)return;
+  var s=sessionsOf(currentPlayerId)[curDate];if(!s)return;
+  if(!s.b)s.b={blocks:genPlanB(s.blocks)};
+  PLAN_VARIANT='b';renderPlan();
+}
+function exitPlanB(){PLAN_VARIANT='a';renderPlan();}
+function resetPlanB(){
+  var s=sessionsOf(currentPlayerId)[curDate];if(!s)return;
+  askConfirm(tr('¿Volver a generar la versión suave desde la sesión normal? Se pierden tus cambios en la versión suave.'),function(){
+    s.b={blocks:genPlanB(s.blocks)};saveSessions(currentPlayerId);renderPlan();
+  },{okLabel:tr('Regenerar')});
+}
+function _pbBox(border,bg,inner){return '<div style="max-width:var(--cw);margin:12px auto 0;padding:0 13px;"><div style="border:1px solid '+border+';background:'+bg+';border-radius:12px;padding:12px 14px;">'+inner+'</div></div>';}
+var _pbBtn='flex:1;padding:10px;border-radius:9px;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;';
+function planBBannerHtml(){
+  if(!currentPlayerId||!curDate)return '';
+  var pid=currentPlayerId, iso=curDate;
+  var st=planBState(pid,iso), who=planBWho(pid,iso), started=planBStarted(pid,iso);
+  var zs=strongPainZones(pid,iso).slice(0,2).map(function(z){return tr(BODY_LBL[z]||z);}).join(', ');
+  var pain=tr('Molestia fuerte hoy')+(zs?': '+zs:'');
+  var small='background:none;border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;';
+  if(isCoach){
+    if(PLAN_VARIANT==='b')return _pbBox('#ffb020','rgba(255,176,32,0.08)',
+      '<div style="font-size:13px;font-weight:700;color:#ffb020;margin-bottom:4px;">'+tr('Editando la versión suave')+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.45;">'+tr('Los cambios que hagas acá solo afectan a la versión suave.')+'</div>'
+      +'<div style="display:flex;gap:8px;"><button onclick="exitPlanB()" style="'+_pbBtn+'border:none;background:var(--mobfill);color:#0a0b0e;">'+tr('Listo')+'</button><button onclick="resetPlanB()" style="'+_pbBtn+'border:1px solid var(--border2);background:var(--s2);color:var(--muted);">'+tr('Regenerar')+'</button></div>');
+    if(!st)return '';
+    var editB='<button onclick="editPlanB()" style="'+small+'color:var(--mob);">'+tr('Editar versión suave')+'</button>';
+    if(st==='pending')return _pbBox('#ff6b6b','rgba(255,107,107,0.08)',
+      '<div style="font-size:13px;font-weight:700;color:#ff6b6b;margin-bottom:4px;">'+pain+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.45;">'+tr('Se le recomienda la versión suave y todavía no eligió. Si querés, podés elegir vos.')+'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;"><button onclick="decidePlanB(\'b\')" style="'+_pbBtn+'border:none;background:#ffb020;color:#0a0b0e;">'+tr('Versión suave')+'</button><button onclick="decidePlanB(\'a\')" style="'+_pbBtn+'border:1px solid var(--border2);background:var(--s2);color:var(--text);">'+tr('Sesión normal')+'</button></div>'
+      +'<div style="margin-top:8px;text-align:center;">'+editB+'</div>');
+    var what=st==='b'?tr('la versión suave'):tr('la sesión normal');
+    var line=(who==='coach'?tr('Indicaste'):tr('Eligió'))+' '+what+(started?' · '+tr('ya empezó'):'')+'.';
+    var other=st==='b'?'a':'b';
+    var acts=(!started?'<button onclick="decidePlanB(\''+other+'\')" style="'+small+'color:var(--text);">'+(other==='b'?tr('Cambiar a suave'):tr('Cambiar a normal'))+'</button>':'')
+      +(!started&&who==='coach'?'<button onclick="undoPlanB()" style="'+small+'color:var(--muted);">'+tr('Deshacer')+'</button>':'')
+      +editB;
+    return _pbBox(st==='b'?'#ffb020':'var(--border2)',st==='b'?'rgba(255,176,32,0.08)':'var(--s2)',
+      (zs?'<div style="font-size:12px;font-weight:700;color:#ff6b6b;margin-bottom:3px;">'+pain+'</div>':'')
+      +'<div style="font-size:12.5px;color:var(--text);margin-bottom:8px;">'+line+'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'+acts+'</div>');
+  }
+  /* Alumno */
+  if(st==='pending')return _pbBox('#ffb020','rgba(255,176,32,0.08)',
+    '<div style="font-size:13px;font-weight:700;color:#ffb020;margin-bottom:4px;">'+tr('Reportaste una molestia fuerte')+(zs?': '+zs:'')+'</div>'
+    +'<div style="font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:10px;">'+tr('Te recomendamos hacer hoy la versión suave: una serie menos y menos carga. Elegí antes de empezar.')+'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;"><button onclick="choosePlanB(\'b\')" style="'+_pbBtn+'border:none;background:#ffb020;color:#0a0b0e;">'+tr('Versión suave')+'</button><button onclick="choosePlanB(\'a\')" style="'+_pbBtn+'border:1px solid var(--border2);background:var(--s2);color:var(--text);">'+tr('Sesión normal')+'</button></div>');
+  if(!st)return '';
+  if(!zs&&who!=='coach'&&st==='a')return '';
+  var txt=st==='b'?tr('Hoy hacés la versión suave'):tr('Hoy hacés la sesión normal');
+  var sub=who==='coach'?tr('Indicada por tu profe.'):tr('La elegiste vos.');
+  var chg=(who==='athlete'&&!started)?'<button onclick="changePlanBChoice()" style="'+small+'color:var(--muted);margin-top:8px;">'+tr('Cambiar')+'</button>':'';
+  return _pbBox(st==='b'?'#ffb020':'var(--border2)',st==='b'?'rgba(255,176,32,0.08)':'var(--s2)',
+    '<div style="font-size:13px;font-weight:700;color:'+(st==='b'?'#ffb020':'var(--text)')+';">'+txt+'</div><div style="font-size:12px;color:var(--muted);margin-top:3px;">'+sub+'</div>'+chg);
+}
 function renderPlan(){
   if(draftMode){renderDraft();return;}
   if(!curDate)curDate=isoToday();
@@ -4770,6 +4920,10 @@ function renderPlan(){
   var badge=document.getElementById('hdr-badge');if(badge){badge.textContent=fmtDateShort(curDate);badge.style.background='var(--mobfill)';badge.style.color='#0a0b0e';}
   var sess=getCurSession(false);
   var day=sess||{title:'Entrenamiento',pattern:'',pills:[],blocks:[]};
+  /* Plan B: el profe editando la versión suave, o el alumno con versión suave indicada */
+  if(sess&&isCoach&&PLAN_VARIANT==='b'){if(!sess.b)sess.b={blocks:genPlanB(sess.blocks)};day=Object.assign({},sess,{blocks:sess.b.blocks});}
+  else if(sess&&!isCoach&&planBState(currentPlayerId,curDate)==='b'){day=Object.assign({},sess,{blocks:planBBlocks(sess)});}
+  else if(isCoach&&PLAN_VARIANT==='b')PLAN_VARIANT='a';
   var _mx=(PLAYERS.find(function(x){return x.id===currentPlayerId;})||{}).maxes||{};
   PLAN=[[day]];cW=0;cD=0;
   var nw=document.getElementById('nwlbl');if(nw)nw.textContent=fmtDateLong(curDate);
@@ -4791,6 +4945,7 @@ function renderPlan(){
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title"'+te+'>'+day.title+'</div><div class="hero-pat">'+(day.pattern||'')+'</div><div class="hero-pills">'+pillsH+'</div>'+streakP+'</div>'
       +(isCoach?volBarHtml(day.blocks,_mx):'<div id="sess-timer" style="max-width:var(--cw);margin:12px auto 0;padding:0 13px;"></div>')
       /* Finalizado: el alumno ve el resumen, no el detalle */
+      +planBBannerHtml()
       +(sessionLocked()?doneSummaryHtml(day):(blocksH+addBBtn));
     if(isCoach&&sess){body+='<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;"><button onclick="openDayEditModal()" style="width:100%;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Editar día</button></div><div style="max-width:var(--cw);margin:0 auto;padding:0 13px 8px;display:flex;gap:8px;"><button onclick="openDuplicateModal()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a2 2 0 0 1 2-2h11"/></svg>Duplicar</button><button onclick="saveAsTemplate()" style="flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Guardar como sesión</button></div>';}
   }
@@ -4800,8 +4955,8 @@ function renderPlan(){
 }
 function setW(i){}
 function setD(j){}
-function navigate(dir){curDate=addDaysISO(curDate||isoToday(),dir);lastCheckedDay=null;renderPlan();}
-function openDate(iso){curDate=iso;lastCheckedDay=null;showTab('plan');renderPlan();}
+function navigate(dir){PLAN_VARIANT='a';curDate=addDaysISO(curDate||isoToday(),dir);lastCheckedDay=null;renderPlan();}
+function openDate(iso){PLAN_VARIANT='a';curDate=iso;lastCheckedDay=null;showTab('plan');renderPlan();}
 function editSessionTitle(){openDayEditModal();}
 function createTraining(){
   if(!isCoach||!currentPlayerId)return;
@@ -6419,6 +6574,58 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['Molestia fuerte']=STATIC_I18N['Molestia fuerte']||['Strong pain','Dolore forte'];
+STATIC_I18N['eligió la versión suave']=STATIC_I18N['eligió la versión suave']||['chose the lighter version','ha scelto la versione leggera'];
+STATIC_I18N['eligió la sesión normal']=STATIC_I18N['eligió la sesión normal']||['chose the normal session','ha scelto la sessione normale'];
+STATIC_I18N['El alumno ya empezó la sesión: no se puede cambiar.']=STATIC_I18N['El alumno ya empezó la sesión: no se puede cambiar.']||['The athlete already started: it can’t be changed.','L’atleta ha già iniziato: non si può cambiare.'];
+STATIC_I18N['Tu profe indicó la sesión normal.']=STATIC_I18N['Tu profe indicó la sesión normal.']||['Your coach set the normal session.','Il tuo coach ha indicato la sessione normale.'];
+STATIC_I18N['Editar versión suave']=STATIC_I18N['Editar versión suave']||['Edit lighter version','Modifica versione leggera'];
+STATIC_I18N['Se le recomienda la versión suave y todavía no eligió. Si querés, podés elegir vos.']=STATIC_I18N['Se le recomienda la versión suave y todavía no eligió. Si querés, podés elegir vos.']||['The lighter version is recommended and they haven’t chosen yet. You can choose for them.','Si consiglia la versione leggera e non ha ancora scelto. Puoi scegliere tu.'];
+STATIC_I18N['la versión suave']=STATIC_I18N['la versión suave']||['the lighter version','la versione leggera'];
+STATIC_I18N['la sesión normal']=STATIC_I18N['la sesión normal']||['the normal session','la sessione normale'];
+STATIC_I18N['Indicaste']=STATIC_I18N['Indicaste']||['You set','Hai indicato'];
+STATIC_I18N['Eligió']=STATIC_I18N['Eligió']||['Chose','Ha scelto'];
+STATIC_I18N['ya empezó']=STATIC_I18N['ya empezó']||['already started','ha già iniziato'];
+STATIC_I18N['Cambiar a suave']=STATIC_I18N['Cambiar a suave']||['Switch to lighter','Passa a leggera'];
+STATIC_I18N['Cambiar a normal']=STATIC_I18N['Cambiar a normal']||['Switch to normal','Passa a normale'];
+STATIC_I18N['Te recomendamos hacer hoy la versión suave: una serie menos y menos carga. Elegí antes de empezar.']=STATIC_I18N['Te recomendamos hacer hoy la versión suave: una serie menos y menos carga. Elegí antes de empezar.']||['We recommend the lighter version today: one set less and less load. Choose before starting.','Oggi ti consigliamo la versione leggera: una serie in meno e meno carico. Scegli prima di iniziare.'];
+STATIC_I18N['Hoy hacés la sesión normal']=STATIC_I18N['Hoy hacés la sesión normal']||['Today you do the normal session','Oggi fai la sessione normale'];
+STATIC_I18N['La elegiste vos.']=STATIC_I18N['La elegiste vos.']||['You chose it.','L’hai scelta tu.'];
+STATIC_I18N['Cambiar']=STATIC_I18N['Cambiar']||['Change','Cambia'];
+STATIC_I18N['Elegí arriba qué sesión hacés']=STATIC_I18N['Elegí arriba qué sesión hacés']||['Choose your session above','Scegli la sessione sopra'];
+STATIC_I18N['Elegí arriba qué sesión hacés hoy.']=STATIC_I18N['Elegí arriba qué sesión hacés hoy.']||['Choose today’s session above.','Scegli sopra la sessione di oggi.'];
+STATIC_I18N['se le recomienda la versión suave']=STATIC_I18N['se le recomienda la versión suave']||['lighter version recommended','consigliata la versione leggera'];
+STATIC_I18N['Molestia fuerte hoy: todavía no eligió sesión']=STATIC_I18N['Molestia fuerte hoy: todavía no eligió sesión']||['Strong pain today: no session chosen yet','Dolore forte oggi: sessione non ancora scelta'];
+STATIC_I18N['versión suave']=STATIC_I18N['versión suave']||['lighter version','versione leggera'];
+STATIC_I18N['sesión normal']=STATIC_I18N['sesión normal']||['normal session','sessione normale'];
+
+STATIC_I18N['Tu sesión de hoy']=STATIC_I18N['Tu sesión de hoy']||['Your session today','La tua sessione di oggi'];
+STATIC_I18N['Tu profe indicó la versión suave.']=STATIC_I18N['Tu profe indicó la versión suave.']||['Your coach chose the lighter version.','Il tuo coach ha indicato la versione leggera.'];
+STATIC_I18N['Tu profe confirmó la sesión normal.']=STATIC_I18N['Tu profe confirmó la sesión normal.']||['Your coach confirmed the normal session.','Il tuo coach ha confermato la sessione normale.'];
+STATIC_I18N['Versión suave indicada']=STATIC_I18N['Versión suave indicada']||['Lighter version set','Versione leggera indicata'];
+STATIC_I18N['Sesión normal confirmada']=STATIC_I18N['Sesión normal confirmada']||['Normal session confirmed','Sessione normale confermata'];
+STATIC_I18N['¿Volver a generar la versión suave desde la sesión normal? Se pierden tus cambios en la versión suave.']=STATIC_I18N['¿Volver a generar la versión suave desde la sesión normal? Se pierden tus cambios en la versión suave.']||['Regenerate the lighter version from the normal session? Your changes to the lighter version will be lost.','Rigenerare la versione leggera dalla sessione normale? Le tue modifiche andranno perse.'];
+STATIC_I18N['Regenerar']=STATIC_I18N['Regenerar']||['Regenerate','Rigenera'];
+STATIC_I18N['Editando la versión suave']=STATIC_I18N['Editando la versión suave']||['Editing the lighter version','Modifica della versione leggera'];
+STATIC_I18N['Los cambios que hagas acá solo afectan a la versión suave.']=STATIC_I18N['Los cambios que hagas acá solo afectan a la versión suave.']||['Changes here only affect the lighter version.','Le modifiche qui riguardano solo la versione leggera.'];
+STATIC_I18N['Listo']=STATIC_I18N['Listo']||['Done','Fatto'];
+STATIC_I18N['Molestia fuerte hoy']=STATIC_I18N['Molestia fuerte hoy']||['Strong pain today','Dolore forte oggi'];
+STATIC_I18N['El alumno no puede empezar hasta que elijas qué sesión hace hoy.']=STATIC_I18N['El alumno no puede empezar hasta que elijas qué sesión hace hoy.']||['The athlete can’t start until you choose today’s session.','L’atleta non può iniziare finché non scegli la sessione di oggi.'];
+STATIC_I18N['Versión suave']=STATIC_I18N['Versión suave']||['Lighter version','Versione leggera'];
+STATIC_I18N['Sesión normal']=STATIC_I18N['Sesión normal']||['Normal session','Sessione normale'];
+STATIC_I18N['Ver / editar la versión suave']=STATIC_I18N['Ver / editar la versión suave']||['View / edit lighter version','Vedi / modifica versione leggera'];
+STATIC_I18N['Indicaste la versión suave para este día.']=STATIC_I18N['Indicaste la versión suave para este día.']||['You set the lighter version for this day.','Hai indicato la versione leggera per questo giorno.'];
+STATIC_I18N['Confirmaste la sesión normal para este día.']=STATIC_I18N['Confirmaste la sesión normal para este día.']||['You confirmed the normal session for this day.','Hai confermato la sessione normale per questo giorno.'];
+STATIC_I18N['Editar']=STATIC_I18N['Editar']||['Edit','Modifica'];
+STATIC_I18N['Deshacer']=STATIC_I18N['Deshacer']||['Undo','Annulla'];
+STATIC_I18N['Reportaste una molestia fuerte']=STATIC_I18N['Reportaste una molestia fuerte']||['You reported strong pain','Hai segnalato un dolore forte'];
+STATIC_I18N['Tu profe va a decidir si hoy hacés la versión suave. Esperá su respuesta antes de empezar; te llega un aviso.']=STATIC_I18N['Tu profe va a decidir si hoy hacés la versión suave. Esperá su respuesta antes de empezar; te llega un aviso.']||['Your coach will decide whether you do the lighter version today. Wait for their reply before starting; you’ll get a notification.','Il tuo coach deciderà se oggi fai la versione leggera. Aspetta la risposta prima di iniziare; riceverai un avviso.'];
+STATIC_I18N['Hoy hacés la versión suave']=STATIC_I18N['Hoy hacés la versión suave']||['Today you do the lighter version','Oggi fai la versione leggera'];
+STATIC_I18N['Indicada por tu profe.']=STATIC_I18N['Indicada por tu profe.']||['Set by your coach.','Indicata dal tuo coach.'];
+STATIC_I18N['Esperando a tu profe']=STATIC_I18N['Esperando a tu profe']||['Waiting for your coach','In attesa del coach'];
+STATIC_I18N['Molestia fuerte hoy: elegí su sesión']=STATIC_I18N['Molestia fuerte hoy: elegí su sesión']||['Strong pain today: choose their session','Dolore forte oggi: scegli la sessione'];
+STATIC_I18N['Elegí su sesión de hoy']=STATIC_I18N['Elegí su sesión de hoy']||['Choose today’s session','Scegli la sessione di oggi'];
+
 STATIC_I18N['Pico de carga']=STATIC_I18N['Pico de carga']||['Load spike','Picco di carico'];
 STATIC_I18N['Carga en aumento']=STATIC_I18N['Carga en aumento']||['Load rising','Carico in aumento'];
 STATIC_I18N['Carga estable']=STATIC_I18N['Carga estable']||['Load stable','Carico stabile'];
@@ -6761,9 +6968,11 @@ function lastBlockTs(){
 }
 function startSession(){
   if(!currentPlayerId||!curDate)return;
+  if(planBState(currentPlayerId,curDate)==='pending'){showInfo(tr('Elegí arriba qué sesión hacés hoy.'));return;}
   var t=timesOf(currentPlayerId);
   if(t[curDate]&&t[curDate].e){showInfo(tr('Este entrenamiento ya está finalizado.'));return;}
-  t[curDate]={s:new Date().toISOString()};
+  var _v=t[curDate]&&t[curDate].v;
+  t[curDate]={s:new Date().toISOString()};if(_v)t[curDate].v=_v;
   saveTimes(currentPlayerId);
   refreshPlanUI();
   toast(tr('¡Arrancaste! Buen entrenamiento.'));
@@ -6827,6 +7036,7 @@ function renderTimer(){
     },1000);
     return;
   }
+  if(planBState(currentPlayerId,curDate)==='pending'){box.innerHTML='<button disabled style="width:100%;padding:13px;border-radius:12px;border:1px dashed var(--border2);background:var(--s2);color:var(--muted2);font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'+tr('Elegí arriba qué sesión hacés')+'</button>';return;}
   box.innerHTML='<div style="text-align:center;font-size:11.5px;color:var(--muted2);margin-bottom:8px;line-height:1.45;">'+tr('Al empezar se habilitan los videos de cada ejercicio.')+'</div>'
     +'<button onclick="startSession()" style="width:100%;padding:13px;border-radius:12px;border:1px dashed var(--mob);background:rgba(168,224,99,0.07);color:var(--mob);font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;">'
     +'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'
