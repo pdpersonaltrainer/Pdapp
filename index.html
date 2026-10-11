@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261009-2';
+var APP_VERSION='20261011-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3897,6 +3897,13 @@ function panelAlerts(p){
       out.push({p:2,sev:'alta',ic:'pulse',txt:tr('Autoevaluación en rojo')+(det.length?' ('+det.join(' · ')+')':'')});
     }
   }
+  // 2b) Carga de entrenamiento
+  try{
+    var _ls=loadStatus(p.id);
+    if(_ls&&_ls.zone==='hi')out.push({p:2,sev:'alta',ic:'flame',txt:tr('Pico de carga')+' ('+tr('ratio')+' '+_ls.ratio.toFixed(2)+')'});
+    else if(_ls&&_ls.zone==='up')out.push({p:3,sev:'media',ic:'flame',txt:tr('Carga en aumento')+' ('+tr('ratio')+' '+_ls.ratio.toFixed(2)+')'});
+    else if(_ls&&_ls.zone==='lo')out.push({p:4,sev:'baja',ic:'battery',txt:tr('Carga baja')+' ('+tr('ratio')+' '+_ls.ratio.toFixed(2)+')'});
+  }catch(e){console.error('loadAlert',e);}
   // 3) Molestia recurrente
   var acc=painsHeat(p,30);
   var rec=Object.keys(acc).filter(function(z){return acc[z].n>=3;});
@@ -6290,6 +6297,17 @@ function buildPlayerReport(pid){
   });
   if(tSec)S.push('<section><h2>'+tr('Tests')+'</h2>'+tSec+'</section>');
 
+  // ── Carga de entrenamiento
+  try{
+    var _ls2=loadStatus(p.id);
+    if(_ls2){
+      var _lr=[];
+      if(_ls2.ready){var _z=LOAD_ZONE[_ls2.zone]||{};_lr.push([tr('Estado'),(_z.t?tr(_z.t):'—')+' · '+tr('ratio')+' '+_ls2.ratio.toFixed(2),tr('7 días')+': '+_pnum(_ls2.acute)+' · '+tr('promedio semanal')+': '+_pnum(_ls2.chronic)]);}
+      Object.keys(_ls2.weeks).sort().slice(-8).reverse().forEach(function(w){_lr.push([_rpDate(w),_pnum(_ls2.weeks[w]),tr('RPE × minutos')]);});
+      S.push('<section><h2>'+tr('Carga de entrenamiento')+'</h2>'+_rpRows(_lr)+'</section>');
+    }
+  }catch(e){}
+
   // ── Tonelaje por semana
   var vol=[];
   try{vol=weeklyVolHistory(p.id,p.maxes||{})||[];}catch(e){}
@@ -6401,6 +6419,24 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['Pico de carga']=STATIC_I18N['Pico de carga']||['Load spike','Picco di carico'];
+STATIC_I18N['Carga en aumento']=STATIC_I18N['Carga en aumento']||['Load rising','Carico in aumento'];
+STATIC_I18N['Carga estable']=STATIC_I18N['Carga estable']||['Load stable','Carico stabile'];
+STATIC_I18N['Carga baja']=STATIC_I18N['Carga baja']||['Low load','Carico basso'];
+STATIC_I18N['ratio']=STATIC_I18N['ratio']||['ratio','ratio'];
+STATIC_I18N['Carga de entrenamiento']=STATIC_I18N['Carga de entrenamiento']||['Training load','Carico di allenamento'];
+STATIC_I18N['por semana']=STATIC_I18N['por semana']||['per week','a settimana'];
+STATIC_I18N['Últimos 7 días']=STATIC_I18N['Últimos 7 días']||['Last 7 days','Ultimi 7 giorni'];
+STATIC_I18N['promedio semanal']=STATIC_I18N['promedio semanal']||['weekly average','media settimanale'];
+STATIC_I18N['7 días']=STATIC_I18N['7 días']||['7 days','7 giorni'];
+STATIC_I18N['Estado']=STATIC_I18N['Estado']||['Status','Stato'];
+STATIC_I18N['RPE × minutos']=STATIC_I18N['RPE × minutos']||['RPE × minutes','RPE × minuti'];
+STATIC_I18N['días']=STATIC_I18N['días']||['days','giorni'];
+STATIC_I18N['Todavía no hay datos: la carga se calcula con el RPE de cada bloque y la duración de la sesión.']=STATIC_I18N['Todavía no hay datos: la carga se calcula con el RPE de cada bloque y la duración de la sesión.']||['No data yet: load is calculated from each block’s RPE and session duration.','Ancora nessun dato: il carico si calcola con l’RPE di ogni blocco e la durata della sessione.'];
+STATIC_I18N['Hacen falta 3 semanas de datos para comparar la carga. Llevamos']=STATIC_I18N['Hacen falta 3 semanas de datos para comparar la carga. Llevamos']||['3 weeks of data are needed to compare load. So far','Servono 3 settimane di dati per confrontare il carico. Finora'];
+STATIC_I18N['RPE × minutos. Ratio = últimos 7 días ÷ promedio semanal de 4 semanas. Más de 1,5 = pico; entre 1,3 y 1,5 = en aumento; menos de 0,8 = baja.']=STATIC_I18N['RPE × minutos. Ratio = últimos 7 días ÷ promedio semanal de 4 semanas. Más de 1,5 = pico; entre 1,3 y 1,5 = en aumento; menos de 0,8 = baja.']||['RPE × minutes. Ratio = last 7 days ÷ 4-week weekly average. Above 1.5 = spike; 1.3–1.5 = rising; below 0.8 = low.','RPE × minuti. Ratio = ultimi 7 giorni ÷ media settimanale di 4 settimane. Oltre 1,5 = picco; tra 1,3 e 1,5 = in aumento; sotto 0,8 = basso.'];
+STATIC_I18N['sesiones sin duración registrada se estimaron con su promedio.']=STATIC_I18N['sesiones sin duración registrada se estimaron con su promedio.']||['sessions without recorded duration were estimated from the average.','sessioni senza durata registrata sono state stimate con la media.'];
+
 STATIC_I18N['Duplicar']=STATIC_I18N['Duplicar']||['Duplicate','Duplica'];
 STATIC_I18N['Nombre de la copia']=['Copy name','Nome della copia'];
 STATIC_I18N['Sesión duplicada']=['Session duplicated','Sessione duplicata'];
@@ -6590,6 +6626,100 @@ function sessionStarted(){
   try{var c=curTime();return !!(c&&c.s);}catch(e){return false;}
 }
 function curTime(){return (timesOf(currentPlayerId)||{})[curDate]||null;}
+/* ===== CARGA DE ENTRENAMIENTO (RPE × minutos) =====
+   Carga de cada sesión = RPE promedio de sus bloques × duración en minutos.
+   Aguda = carga de los últimos 7 días. Crónica = promedio semanal de los
+   últimos 28 días. Ratio = aguda / crónica.
+   Si la sesión no tiene duración registrada (antes del cronómetro o cerrada
+   sola), se estima con la duración promedio del alumno (o 60 min). */
+var LOAD_HI=1.5, LOAD_UP=1.3, LOAD_LO=0.8, LOAD_MIN_DAYS=21;
+function dailyLoads(pid){
+  var ch=JB_CHECKS[pid]||{}, tm=JB_TIMES[pid]||{}, byDay={};
+  Object.keys(ch).forEach(function(k){
+    var m=k.match(/^(\d{4}-\d{2}-\d{2})-\d+$/);if(!m)return;
+    var c=ch[k];if(!c||!c.done||!(c.rpe>0))return;
+    (byDay[m[1]]=byDay[m[1]]||[]).push(+c.rpe);
+  });
+  var avg=null;try{var a=avgDuration(pid,90);avg=a?a.avg:null;}catch(e){}
+  var out={};
+  Object.keys(byDay).forEach(function(iso){
+    var r=byDay[iso], rpe=r.reduce(function(a,b){return a+b;},0)/r.length;
+    var t=tm[iso], real=!!(t&&t.e&&t.m>0&&!t.auto);
+    var min=real?t.m:(avg||60);
+    out[iso]={rpe:rpe,min:min,load:Math.round(rpe*min),est:!real};
+  });
+  return out;
+}
+function loadStatus(pid,refIso){
+  var d=dailyLoads(pid), days=Object.keys(d).sort();
+  if(!days.length)return null;
+  var today=refIso||isoToday();
+  var a7=addDaysISO(today,-6), a28=addDaysISO(today,-27);
+  var acute=0, chronic28=0;
+  days.forEach(function(iso){
+    if(iso>today)return;
+    if(iso>=a7)acute+=d[iso].load;
+    if(iso>=a28)chronic28+=d[iso].load;
+  });
+  var chronic=chronic28/4;
+  var span=Math.round((isoToDate(today)-isoToDate(days[0]))/86400000);
+  var ok=span>=LOAD_MIN_DAYS&&chronic>0;
+  var ratio=ok?Math.round(acute/chronic*100)/100:null;
+  var zone=null;
+  if(ratio!==null){
+    if(ratio>=LOAD_HI)zone='hi';else if(ratio>=LOAD_UP)zone='up';
+    else if(ratio<LOAD_LO&&acute>0)zone='lo';else if(acute>0)zone='ok';
+  }
+  /* Semanas (lunes) para el gráfico */
+  var weeks={};
+  days.forEach(function(iso){if(iso>today)return;var w=weekMondayISO(iso);weeks[w]=(weeks[w]||0)+d[iso].load;});
+  var est=days.filter(function(iso){return iso>=a28&&iso<=today&&d[iso].est;}).length;
+  return {acute:Math.round(acute),chronic:Math.round(chronic),ratio:ratio,zone:zone,ready:ok,daysOfData:span,weeks:weeks,est:est};
+}
+var LOAD_ZONE={
+  hi:{c:'#ff6b6b',t:'Pico de carga'},
+  up:{c:'#ffb020',t:'Carga en aumento'},
+  ok:{c:'var(--mob)',t:'Carga estable'},
+  lo:{c:'#4dabf7',t:'Carga baja'}
+};
+function loadSectionHtml(p){
+  var st=loadStatus(p.id);
+  if(!st)return '<div class="sum-lbl" style="margin-top:0;">'+tr('Carga de entrenamiento')+'</div><div style="font-size:12px;color:var(--muted2);padding:6px 0 10px;line-height:1.5;">'+tr('Todavía no hay datos: la carga se calcula con el RPE de cada bloque y la duración de la sesión.')+'</div>';
+  var z=st.zone?LOAD_ZONE[st.zone]:null;
+  var head;
+  if(!st.ready){
+    head='<div style="font-size:12px;color:var(--muted2);padding:4px 0 10px;line-height:1.5;">'+tr('Hacen falta 3 semanas de datos para comparar la carga. Llevamos')+' '+st.daysOfData+' '+tr('días')+'.</div>';
+  }else{
+    var pc=st.chronic>0?Math.round((st.acute/st.chronic-1)*100):0;
+    head='<div style="display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid '+(z?z.c:'var(--border2)')+';border-radius:var(--rsm);padding:11px 13px;margin-bottom:10px;">'
+      +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:28px;font-weight:800;line-height:1;color:'+(z?z.c:'var(--text)')+';">'+st.ratio.toFixed(2)+'</div>'
+      +'<div style="min-width:0;"><div style="font-size:13px;font-weight:700;color:'+(z?z.c:'var(--text)')+';">'+(z?tr(z.t):'—')+'</div>'
+      +'<div style="font-size:11.5px;color:var(--muted);margin-top:2px;">'+tr('Últimos 7 días')+': <b style="color:var(--text);">'+_pnum(st.acute)+'</b> · '+tr('promedio semanal')+': <b style="color:var(--text);">'+_pnum(st.chronic)+'</b> ('+(pc>=0?'+':'')+pc+'%)</div></div></div>';
+  }
+  var wk=Object.keys(st.weeks).sort().slice(-8), mx=Math.max.apply(null,wk.map(function(w){return st.weeks[w];}).concat([1]));
+  var cur=weekMondayISO(isoToday());
+  var bars=wk.map(function(w){
+    var v=st.weeks[w], h=Math.max(3,Math.round(v/mx*54)), d=isoToDate(w);
+    return '<div style="width:40px;flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="font-size:8px;color:var(--muted2);white-space:nowrap;">'+_pnum(v)+'</div>'
+      +'<div style="width:22px;height:'+h+'px;background:'+(w===cur&&z?z.c:'var(--mobfill)')+';border-radius:3px 3px 0 0;"></div>'
+      +'<div style="font-size:8.5px;color:var(--muted2);white-space:nowrap;">'+d.getDate()+'/'+(d.getMonth()+1)+'</div></div>';
+  }).join('');
+  var chart=wk.length?'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><div style="display:flex;align-items:flex-end;gap:4px;height:78px;width:max-content;margin:0 auto;">'+bars+'</div></div>':'';
+  var foot='<div style="font-size:10.5px;color:var(--muted2);line-height:1.5;margin:8px 0 12px;">'+tr('RPE × minutos. Ratio = últimos 7 días ÷ promedio semanal de 4 semanas. Más de 1,5 = pico; entre 1,3 y 1,5 = en aumento; menos de 0,8 = baja.')
+    +(st.est?' '+st.est+' '+tr('sesiones sin duración registrada se estimaron con su promedio.'):'')+'</div>';
+  return '<div class="sum-lbl" style="margin-top:0;">'+tr('Carga de entrenamiento')+' <span style="text-transform:none;letter-spacing:0;color:var(--muted2);">('+tr('por semana')+')</span></div>'+head+chart+foot;
+}
+/* Al finalizar, si el alumno queda en pico, se le avisa al profe una vez por semana */
+function maybeNotifyLoadPeak(pid){
+  try{
+    if(isCoach||!ATH_TOKEN)return;
+    var st=loadStatus(pid);if(!st||st.zone!=='hi')return;
+    var key='pd_loadpk_'+pid+'_'+weekMondayISO(isoToday());
+    try{if(localStorage.getItem(key))return;localStorage.setItem(key,'1');}catch(e){}
+    var p=PLAYERS.find(function(x){return x.id===pid;})||{};
+    notifyCoach(p.name||'PDapp',tr('Pico de carga')+': '+tr('ratio')+' '+st.ratio.toFixed(2));
+  }catch(e){console.error('loadPeak',e);}
+}
 /* Promedio de duración de las últimas N sesiones finalizadas */
 function avgDuration(pid,days){
   var t=JB_TIMES[pid]||{}, lim=addDaysISO(isoToday(),-(days||30));
@@ -6649,6 +6779,7 @@ function finishSession(auto){
   saveTimes(currentPlayerId);
   refreshPlanUI();
   if(!auto)toast(tr('Entrenamiento finalizado')+' · '+fmtDur(cur.m));
+  maybeNotifyLoadPeak(currentPlayerId);
 }
 /* Si quedó abierta de un día anterior, se cierra sola con el último bloque */
 function autoCloseStale(){
@@ -7320,7 +7451,8 @@ function renderSummary(){
     var _durH=_dur?('<div style="display:flex;align-items:center;gap:9px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 13px;margin-bottom:12px;">'
       +'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--mob)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'
       +'<span style="font-size:12.5px;color:var(--muted);">'+TT('duracionProm')+' <b style="color:var(--text);">'+fmtDur(_dur.avg)+'</b> <span style="color:var(--muted2);">('+_dur.n+')</span></span></div>'):'';
-    var rpeInner=_durH+_volH+'<div class="sum-lbl"'+(_volH||_durH?'':' style="margin-top:0;"')+'>'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('evolCargas')+'</div>'+loadsH;
+    var _ldH=isCoach?loadSectionHtml(p):'';
+    var rpeInner=_ldH+_durH+_volH+'<div class="sum-lbl"'+(_volH||_durH||_ldH?'':' style="margin-top:0;"')+'>'+TT('rpeUltimas')+'</div>'+(hasData?'<div class="rpe-chart">'+bars+'</div>':'<div style="font-size:12px;color:var(--muted2);padding:8px 0;">'+TT('sinRpe')+'</div>')+'<div class="sum-lbl">'+TT('evolCargas')+'</div>'+loadsH;
     var secs='';
     if(isCoach){var _wc=weeklyVizHtml(p);if(_wc)secs+=sumSec(ICON('pulse'),tr('Autoevaluación semanal'),_wc,true);}
     if(isCoach){var _pc=painsCoachHtml(p);if(_pc)secs+=sumSec(ICON('bandage'),tr('Molestias (30 días)'),stripLbl(_pc),false);}
