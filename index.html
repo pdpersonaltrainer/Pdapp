@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261012-5';
+var APP_VERSION='20261012-6';
 (function(){
   try{
     setTimeout(function(){
@@ -6278,10 +6278,19 @@ function _smWhen(iso){
   var d=new Date(iso), loc=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
   return fmtDateLong(loc)+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
 }
+var sideChatView='chat';
+function sideToggleHtml(){
+  var ic={chat:'<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/>',sched:'<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>'};
+  var b=function(v,l){return '<button class="cv-btn'+(sideChatView===v?' cv-active':'')+'" onclick="setSideChatView(\''+v+'\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\">'+ic[v]+'</svg>'+tr(l)+'</button>';};
+  return '<div style="display:flex;gap:8px;margin-bottom:16px;">'+b('chat','Chat')+b('sched','Programados')+'</div>';
+}
+function setSideChatView(v){sideChatView=v;chatPlayerId=null;if(v==='sched')renderSchedInto();else renderChatList();}
+function _schedToggle(){return CHAT_CT==='chat-content'?sideToggleHtml():renderMsgToggle();}
 async function renderSchedInto(){
-  setMsgHeader('Programados','Mensajes que se mandan solos');
-  var mc=document.getElementById('msg-content');
-  mc.innerHTML=renderMsgToggle()+'<div style="font-size:12.5px;color:var(--muted2);padding:10px 0;">'+tr('Cargando...')+'</div>';
+  if(CHAT_CT==='chat-content'){var _t=document.getElementById('chat-hdr-title');if(_t)_t.textContent=tr('Mensajes programados');}
+  else setMsgHeader('Programados','Mensajes que se mandan solos');
+  var mc=document.getElementById(CHAT_CT);
+  mc.innerHTML=_schedToggle()+'<div style="font-size:12.5px;color:var(--muted2);padding:10px 0;">'+tr('Cargando...')+'</div>';
   await loadSched();
   var inp='width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;font-family:\'Barlow\',sans-serif;';
   var opts='<option value="all">'+tr('Todos tus alumnos')+'</option>'
@@ -6296,7 +6305,7 @@ async function renderSchedInto(){
       +'<button data-id="'+s.id+'" onclick="delSched(this.dataset.id)" style="flex:none;background:none;border:none;color:#ff6b6b;font-size:12px;font-weight:700;cursor:pointer;padding:4px 6px;">'+tr('Eliminar')+'</button></div>'
       +'<div style="font-size:13px;color:var(--text);margin-top:8px;white-space:pre-wrap;line-height:1.45;">'+String(s.body).replace(/</g,'&lt;')+'</div></div>';
   }).join(''):'<div style="font-size:12.5px;color:var(--muted2);padding:4px 0 10px;">'+tr('No tenés mensajes programados.')+'</div>';
-  mc.innerHTML=renderMsgToggle()
+  mc.innerHTML=_schedToggle()
     +'<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:16px;">'
     +'<div class="pr-lbl">'+tr('Nuevo mensaje programado')+'</div>'
     +'<select id="sm-to" style="'+inp+'margin-bottom:8px;">'+opts+'</select>'
@@ -6345,7 +6354,8 @@ async function loadUnreadCounts(){
 async function renderChatList(){
   if(CHAT_CT==='msg-content')setMsgHeader('Chat','Conversaciones con tus alumnos');
   var mc=document.getElementById(CHAT_CT);
-  mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+'<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
+  if(CHAT_CT==='chat-content'){sideChatView='chat';var _ht=document.getElementById('chat-hdr-title');if(_ht)_ht.textContent='Chat';}
+  mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():(isCoach?sideToggleHtml():''))+'<div style="text-align:center;color:var(--muted2);padding:16px 0;font-size:13px;">Cargando...</div>';
   await loadUnreadCounts();
   if(!PLAYERS.length){mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+'<div class="empty-state"><div class="emi"><svg viewBox=\"0 0 24 24\" width=\"34\" height=\"34\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;flex:none;\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg></div><p>No hay alumnos.</p></div>';return;}
   var rows=PLAYERS.map(function(p){
@@ -6354,7 +6364,7 @@ async function renderChatList(){
     var badge=un?'<span style="flex:none;min-width:22px;height:22px;border-radius:11px;background:var(--mobfill);color:#0a0b0e;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 6px;">'+un+'</span>':'<span style="color:var(--muted2);font-size:16px;">\u203a</span>';
     return '<div onclick="openChatThread(\''+p.id+'\')" style="display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--border'+(un?';border-color:var(--mob)':'')+');border-radius:var(--r);padding:12px 14px;margin-bottom:8px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.28);">'+av+'<div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;letter-spacing:0.02em;">'+p.name+'</div><div style="font-size:11px;color:var(--muted);">'+(un?un+' '+(un>1?TT('msgsNuevos'):TT('msgNuevo')):TT('abrirConv'))+'</div></div>'+badge+'</div>';
   }).join('');
-  mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():'')+rows;
+  mc.innerHTML=(CHAT_CT==='msg-content'?renderMsgToggle():(isCoach?sideToggleHtml():''))+rows;
 }
 async function openChatThread(pid){
   chatPlayerId=pid;
@@ -6819,6 +6829,7 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['Mensajes programados']=STATIC_I18N['Mensajes programados']||['Scheduled messages','Messaggi programmati'];
 STATIC_I18N['Todos tus alumnos']=STATIC_I18N['Todos tus alumnos']||['All your athletes','Tutti i tuoi atleti'];
 STATIC_I18N['Grupo']=STATIC_I18N['Grupo']||['Group','Gruppo'];
 STATIC_I18N['Programados']=STATIC_I18N['Programados']||['Scheduled','Programmati'];
