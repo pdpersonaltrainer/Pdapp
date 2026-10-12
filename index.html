@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261012-3';
+var APP_VERSION='20261012-4';
 (function(){
   try{
     setTimeout(function(){
@@ -2599,7 +2599,7 @@ async function loadAllFromSupabase(){
   var exr=await sb.from('exercises').select('*').order('type');
   if(exr.error)throw exr.error;
   LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base,org_id:e.org_id||null,trainer_id:e.trainer_id||null};});
-  if(MY_UID){var tr=await sb.from('trainers').select('*').eq('id',MY_UID).single();if(!tr.error&&tr.data){isAdmin=!!tr.data.is_template;MY_PROFILE=tr.data;try{await loadOrg();}catch(e){console.error('loadOrg',e);}}}
+  if(MY_UID){var tr=await sb.from('trainers').select('*').eq('id',MY_UID).single();if(!tr.error&&tr.data){isAdmin=!!tr.data.is_template;MY_PROFILE=tr.data;try{await loadOrg();if(hasOrg())await loadMembers();}catch(e){console.error('loadOrg',e);}}}
   if(!isAdmin&&MY_PROFILE&&MY_PROFILE.is_active===false){throw new Error('__SUSPENDED__');}
 }
 
@@ -4417,7 +4417,7 @@ function renderPlayerCard(p){
     var stk=isCoach?getStreak(p.id):0;
     var streakBadge=stk>=2?'<div style="font-size:10px;font-weight:800;letter-spacing:0.03em;margin-top:4px;color:var(--mob);">\ud83d\udd25 '+stk+' en racha</div>':'';
     var todayBadge=todaySess?'<div style="font-size:11px;color:var(--act);font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hoy: '+todaySess+'</div>':'';
-    var actions=isCoach?'<div class="player-card-actions"><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openFicha(this.dataset.pid)" style="color:var(--cm);">'+t('ficha')+''+(p.questionnaire?'':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff7043;margin-left:4px;vertical-align:middle;"></span>')+'</button><div class="pca-sep"></div><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();shareAccess(this.dataset.pid)" style="color:var(--mob);">'+t('acceso')+'</button><div class="pca-sep"></div><button class="pca-btn pca-edit" data-pid="'+p.id+'" onclick="event.stopPropagation();editPlayer(this.dataset.pid)">'+t('editar')+'</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="event.stopPropagation();delPlayer(this.dataset.pid)">'+t('eliminar')+'</button></div>':'';
+    var actions=isCoach?'<div class="player-card-actions"><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openFicha(this.dataset.pid)" style="color:var(--cm);">'+t('ficha')+''+(p.questionnaire?'':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff7043;margin-left:4px;vertical-align:middle;"></span>')+'</button><div class="pca-sep"></div><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();shareAccess(this.dataset.pid)" style="color:var(--mob);">'+t('acceso')+'</button><div class="pca-sep"></div><button class="pca-btn pca-edit" data-pid="'+p.id+'" onclick="event.stopPropagation();editPlayer(this.dataset.pid)">'+t('editar')+'</button>'+(canTransfer()?'<div class="pca-sep"></div><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openTransfer(this.dataset.pid)">'+tr('Pasar')+'</button>':'')+'<div class="pca-sep"></div><button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="event.stopPropagation();delPlayer(this.dataset.pid)">'+t('eliminar')+'</button></div>':'';
     return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+strip+adhBadge+streakBadge+inactBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
   }
 }
@@ -6746,6 +6746,24 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['No hay otros profes en tu equipo.']=STATIC_I18N['No hay otros profes en tu equipo.']||['There are no other coaches in your team.','Non ci sono altri coach nel tuo team.'];
+STATIC_I18N['Pasar alumno']=STATIC_I18N['Pasar alumno']||['Transfer athlete','Trasferisci atleta'];
+STATIC_I18N['pasa con todo su historial: plan, sesiones, cargas, molestias, chat y partidos. Sigue entrando con el mismo enlace y PIN.']=STATIC_I18N['pasa con todo su historial: plan, sesiones, cargas, molestias, chat y partidos. Sigue entrando con el mismo enlace y PIN.']||['moves with their full history: plan, sessions, loads, pain, chat and matches. They keep the same link and PIN.','passa con tutto lo storico: piano, sessioni, carichi, dolori, chat e partite. Mantiene lo stesso link e PIN.'];
+STATIC_I18N['Profe nuevo']=STATIC_I18N['Profe nuevo']||['New coach','Nuovo coach'];
+STATIC_I18N['Pasar']=STATIC_I18N['Pasar']||['Transfer','Trasferisci'];
+STATIC_I18N['Elegí el profe nuevo.']=STATIC_I18N['Elegí el profe nuevo.']||['Choose the new coach.','Scegli il nuovo coach.'];
+STATIC_I18N['¿Pasar a']=STATIC_I18N['¿Pasar a']||['Transfer','Trasferire'];
+STATIC_I18N['a']=STATIC_I18N['a']||['to','a'];
+STATIC_I18N['Vas a dejar de verlo en tu lista.']=STATIC_I18N['Vas a dejar de verlo en tu lista.']||['You will no longer see them in your list.','Non lo vedrai più nella tua lista.'];
+STATIC_I18N['Cambio de profe']=STATIC_I18N['Cambio de profe']||['New coach','Cambio di coach'];
+STATIC_I18N['Desde hoy te acompaña']=STATIC_I18N['Desde hoy te acompaña']||['From today your coach is','Da oggi il tuo coach è'];
+STATIC_I18N['Seguís entrando igual.']=STATIC_I18N['Seguís entrando igual.']||['You log in the same way.','Accedi come sempre.'];
+STATIC_I18N['Nuevo alumno']=STATIC_I18N['Nuevo alumno']||['New athlete','Nuovo atleta'];
+STATIC_I18N['ahora es tu alumno.']=STATIC_I18N['ahora es tu alumno.']||['is now your athlete.','ora è tuo atleta.'];
+STATIC_I18N['Cargando...']=STATIC_I18N['Cargando...']||['Loading...','Caricamento...'];
+STATIC_I18N['No tiene alumnos.']=STATIC_I18N['No tiene alumnos.']||['No athletes.','Nessun atleta.'];
+STATIC_I18N['Ver alumnos']=STATIC_I18N['Ver alumnos']||['View athletes','Vedi atleti'];
+
 STATIC_I18N['Partido']=STATIC_I18N['Partido']||['Match','Partita'];
 STATIC_I18N['local']=STATIC_I18N['local']||['home','casa'];
 STATIC_I18N['visitante']=STATIC_I18N['visitante']||['away','trasferta'];
@@ -7420,6 +7438,66 @@ function brandFooter(){
   return brandName()+' · <span style="opacity:0.6;">'+tr('con tecnología de PDapp')+'</span>';
 }
 /* ===== PANEL DE EQUIPO ===== */
+/* ===== PASAR UN ALUMNO A OTRO PROFE DEL EQUIPO =====
+   Lo puede hacer su profe o el dueño del equipo. Se lleva todo el historial.
+   Al alumno le llega un aviso y sigue entrando con el mismo enlace y PIN. */
+var _tfPid=null,_tfFrom=null,_tfName='';
+function canTransfer(){return hasOrg()&&(ORG_MEMBERS||[]).length>1;}
+function _tfEl(){
+  var el=document.getElementById('modal-transfer');
+  if(!el){el=document.createElement('div');el.id='modal-transfer';el.className='modal-overlay';el.onclick=function(e){if(e.target===el)closeTransfer();};el.innerHTML='<div class="modal" id="tf-body"></div>';document.body.appendChild(el);}
+  return el;
+}
+function openTransfer(pid,fromId,name){
+  _tfPid=pid;_tfFrom=fromId||MY_UID;_tfName=name||((PLAYERS.find(function(x){return x.id===pid;})||{}).name)||'';
+  var opts=(ORG_MEMBERS||[]).filter(function(m){return m.id!==_tfFrom;});
+  if(!opts.length){showInfo(tr('No hay otros profes en tu equipo.'));return;}
+  _tfEl();
+  document.getElementById('tf-body').innerHTML='<div class="modal-handle"></div><h3 style="margin-top:0;">'+tr('Pasar alumno')+'</h3>'
+    +'<div style="background:var(--s2);border-radius:var(--rsm);padding:10px 12px;font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.5;"><b style="color:var(--text);">'+String(_tfName).replace(/</g,'&lt;')+'</b> '+tr('pasa con todo su historial: plan, sesiones, cargas, molestias, chat y partidos. Sigue entrando con el mismo enlace y PIN.')+'</div>'
+    +'<div class="pr-lbl">'+tr('Profe nuevo')+'</div>'
+    +opts.map(function(m){return '<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500;margin:0;"><input type="radio" name="tf-to" value="'+m.id+'" style="width:18px;height:18px;accent-color:#a8e063;"><span style="font-size:13.5px;color:var(--text);">'+String(m.display_name||m.email||'—').replace(/</g,'&lt;')+'</span><span style="margin-left:auto;font-size:11px;color:var(--muted2);">'+m.players_count+' '+tr('alumnos')+'</span></label>';}).join('')
+    +'<div style="display:flex;gap:8px;margin-top:14px;"><button class="mbtn mbtn-cancel" style="flex:1;" onclick="closeTransfer()">'+tr('Cancelar')+'</button><button class="mbtn mbtn-save" style="flex:1;" onclick="doTransfer()">'+tr('Pasar')+'</button></div>';
+  document.getElementById('modal-transfer').classList.add('open');
+}
+function closeTransfer(){var el=document.getElementById('modal-transfer');if(el)el.classList.remove('open');}
+function doTransfer(){
+  var sel=document.querySelector('input[name="tf-to"]:checked');
+  if(!sel){showInfo(tr('Elegí el profe nuevo.'));return;}
+  var to=sel.value, m=(ORG_MEMBERS||[]).find(function(x){return x.id===to;})||{}, toName=m.display_name||m.email||'';
+  askConfirm(tr('¿Pasar a')+' '+_tfName+' '+tr('a')+' '+toName+'? '+tr('Vas a dejar de verlo en tu lista.'),async function(){
+    var pid=_tfPid;
+    /* Aviso al alumno antes del cambio (después ya no es nuestro) */
+    try{await sb.functions.invoke('send-push',{body:{to:'player',player_id:pid,title:tr('Cambio de profe'),body:tr('Desde hoy te acompaña')+' '+toName+'. '+tr('Seguís entrando igual.'),url:'/'}});}catch(e){}
+    showSyncStatus('saving');
+    var r=await sb.rpc('coach_transfer_player',{p_player:pid,p_to:to});
+    if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+    showSyncStatus('ok');
+    try{sb.functions.invoke('send-push',{body:{to:'teammate',trainer_id:to,title:tr('Nuevo alumno'),body:_tfName+' '+tr('ahora es tu alumno.'),url:'/'}});}catch(e){}
+    closeTransfer();
+    PLAYERS=PLAYERS.filter(function(x){return x.id!==pid;});
+    if(currentPlayerId===pid){currentPlayerId=null;activePid=null;try{goBack();}catch(e){}}
+    try{renderSelect();}catch(e){}
+    try{await loadMembers();renderTeamBox();}catch(e){}
+    try{var ml=document.getElementById('modal-member-players');if(ml&&ml.classList.contains('open'))openMemberPlayers(_tfFrom);}catch(e){}
+    toast(_tfName+' → '+toName);
+  },{okLabel:tr('Pasar')});
+}
+/* Dueño del equipo: alumnos de otro profe */
+async function openMemberPlayers(tid){
+  var m=(ORG_MEMBERS||[]).find(function(x){return x.id===tid;})||{};
+  var el=document.getElementById('modal-member-players');
+  if(!el){el=document.createElement('div');el.id='modal-member-players';el.className='modal-overlay';el.onclick=function(e){if(e.target===el)el.classList.remove('open');};el.innerHTML='<div class="modal" id="mp-body"></div>';document.body.appendChild(el);}
+  var body=document.getElementById('mp-body');
+  body.innerHTML='<div class="modal-handle"></div><h3 style="margin-top:0;">'+String(m.display_name||'—').replace(/</g,'&lt;')+'</h3><div style="font-size:12px;color:var(--muted2);padding:10px 0;">'+tr('Cargando...')+'</div>';
+  el.classList.add('open');
+  var r=await sb.rpc('org_member_players',{p_trainer:tid});
+  if(r.error){body.innerHTML+='<div style="color:#ff6b6b;font-size:12.5px;">Error: '+r.error.message+'</div>';return;}
+  var rows=(r.data||[]);
+  body.innerHTML='<div class="modal-handle"></div><h3 style="margin-top:0;">'+String(m.display_name||'—').replace(/</g,'&lt;')+'</h3>'
+    +(rows.length?rows.map(function(pl){return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border2);"><span style="flex:1;min-width:0;font-size:13.5px;color:var(--text);">'+String(pl.name||'').replace(/</g,'&lt;')+'</span><button data-id="'+pl.id+'" data-n="'+String(pl.name||'').replace(/"/g,'&quot;')+'" onclick="openTransfer(this.dataset.id,\''+tid+'\',this.dataset.n)" style="flex:none;background:none;border:1px solid var(--border2);color:var(--mob);border-radius:7px;padding:6px 11px;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;">'+tr('Pasar')+'</button></div>';}).join(''):'<div style="font-size:12.5px;color:var(--muted2);padding:8px 0;">'+tr('No tiene alumnos.')+'</div>')
+    +'<button class="mbtn mbtn-cancel" style="width:100%;margin-top:14px;" onclick="document.getElementById(\'modal-member-players\').classList.remove(\'open\')">'+tr('Cerrar')+'</button>';
+}
 var ORG_MEMBERS=[];
 async function renderTeamBox(){
   var sec=document.getElementById('team-sec'), box=document.getElementById('team-box');
@@ -7449,7 +7527,7 @@ async function renderTeamBox(){
     var badge=m.is_owner?'<span style="font-size:9.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--mob);border:1px solid var(--mob);border-radius:5px;padding:2px 6px;margin-left:7px;">'+tr('Dueño')+'</span>':'';
     var del=(owner&&!m.is_owner)?'<button onclick="removeMember(this.dataset.id,this.dataset.n)" data-id="'+m.id+'" data-n="'+String(m.display_name||'').replace(/"/g,'&quot;')+'" style="flex:none;background:none;border:none;color:#ff6b6b;font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;">'+tr('Sacar')+'</button>':'';
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2);">'
-      +'<div style="min-width:0;"><div style="font-size:13.5px;color:var(--text);">'+(m.display_name||'—')+badge+'</div>'
+      +'<div style="min-width:0;'+((owner&&m.id!==MY_UID)?'cursor:pointer;':'')+'"'+((owner&&m.id!==MY_UID)?' onclick="openMemberPlayers(\''+m.id+'\')"':'')+'><div style="font-size:13.5px;color:var(--text);">'+(m.display_name||'—')+badge+((owner&&m.id!==MY_UID)?' <span style="font-size:11px;color:var(--mob);">'+tr('Ver alumnos')+' ›</span>':'')+'</div>'
       +'<div style="font-size:11px;color:var(--muted2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(m.email||'')+' · '+m.players_count+' '+tr('alumnos')+'</div></div>'+del+'</div>';
   }).join('');
 
