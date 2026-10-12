@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261011-3';
+var APP_VERSION='20261012-1';
 (function(){
   try{
     setTimeout(function(){
@@ -4819,6 +4819,34 @@ function planBWho(pid,iso){
   var s=(JB_SESSIONS[pid]||{})[iso];if(s&&s.bDec)return 'coach';
   var t=(JB_TIMES[pid]||{})[iso];return (t&&t.v)?'athlete':null;
 }
+function softTagHtml(pid,iso){
+  try{if(planBState(pid,iso)!=='b')return '';}catch(e){return '';}
+  return '<span style="display:inline-block;font-family:\'Barlow Condensed\',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#0a0b0e;background:#ffb020;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle;">'+tr('Suave')+'</span>';
+}
+/* Días (últimos N) con molestia fuerte en un día de sesión, o con versión suave */
+function planBHistory(pid,days){
+  var ss=JB_SESSIONS[pid]||{}, lim=addDaysISO(isoToday(),-(days||60)), out=[];
+  Object.keys(ss).forEach(function(iso){
+    if(iso<lim||iso>isoToday())return;
+    var s=ss[iso];if(!s||!s.blocks||!s.blocks.length)return;
+    var zs=strongPainZones(pid,iso), st=planBState(pid,iso);
+    if(!zs.length&&st!=='b')return;
+    out.push({iso:iso,zones:zs,st:st,who:planBWho(pid,iso),done:planBStarted(pid,iso)});
+  });
+  return out.sort(function(a,b){return a.iso<b.iso?1:-1;});
+}
+function planBHistoryHtml(p){
+  var h=planBHistory(p.id,60);if(!h.length)return '';
+  return h.map(function(x){
+    var z=x.zones.slice(0,2).map(function(k){return tr(BODY_LBL[k]||k);}).join(', ')||'—';
+    var what=x.st==='b'?'<b style="color:#ffb020;">'+tr('Versión suave')+'</b>':x.st==='a'?'<b style="color:var(--text);">'+tr('Sesión normal')+'</b>':(x.st==='pending'?'<span style="color:var(--muted2);">'+tr('Sin elegir todavía')+'</span>':'<span style="color:var(--muted2);">'+tr('Sin elegir')+'</span>');
+    var who=x.who==='coach'?tr('la indicaste vos'):x.who==='athlete'?tr('la eligió el alumno'):'';
+    return '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--border2);font-size:12px;cursor:pointer;" onclick="openPlayerAtDate(\''+p.id+'\',\''+x.iso+'\')">'
+      +'<div style="min-width:0;"><div style="color:var(--text);font-weight:600;">'+fmtDateShort(x.iso)+' · <span style="color:#ff6b6b;">'+z+'</span></div>'
+      +(who?'<div style="color:var(--muted2);font-size:11px;margin-top:1px;">'+who+'</div>':'')+'</div>'
+      +'<div style="flex:none;text-align:right;">'+what+'</div></div>';
+  }).join('');
+}
 function planBStarted(pid,iso){var t=(JB_TIMES[pid]||{})[iso];return !!(t&&t.s);}
 /* El alumno elige (antes de empezar) */
 function choosePlanB(v){
@@ -4880,7 +4908,7 @@ function planBBannerHtml(){
       '<div style="font-size:13px;font-weight:700;color:#ffb020;margin-bottom:4px;">'+tr('Editando la versión suave')+'</div>'
       +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.45;">'+tr('Los cambios que hagas acá solo afectan a la versión suave.')+'</div>'
       +'<div style="display:flex;gap:8px;"><button onclick="exitPlanB()" style="'+_pbBtn+'border:none;background:var(--mobfill);color:#0a0b0e;">'+tr('Listo')+'</button><button onclick="resetPlanB()" style="'+_pbBtn+'border:1px solid var(--border2);background:var(--s2);color:var(--muted);">'+tr('Regenerar')+'</button></div>');
-    if(!st)return '';
+    if(!st)return '<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;text-align:right;"><button onclick="editPlanB()" style="background:none;border:1px solid var(--border2);color:#ffb020;border-radius:8px;padding:7px 12px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'+tr('Ver versión suave')+'</button></div>';
     var editB='<button onclick="editPlanB()" style="'+small+'color:var(--mob);">'+tr('Editar versión suave')+'</button>';
     if(st==='pending')return _pbBox('#ff6b6b','rgba(255,107,107,0.08)',
       '<div style="font-size:13px;font-weight:700;color:#ff6b6b;margin-bottom:4px;">'+pain+'</div>'
@@ -5842,7 +5870,7 @@ function renderMonthView(p){
       var _ch=JB_CHECKS[p.id]||{};var _tot=day.blocks.length,_dn=0;for(var _bi=0;_bi<_tot;_bi++){if(_ch[iso+'-'+_bi]&&_ch[iso+'-'+_bi].done)_dn++;}var st=((_tot>0&&_dn===_tot)?'<span style="float:right;color:var(--mob);font-weight:800;">\u2713</span>':(_dn>0?'<span style="float:right;color:var(--act);font-weight:800;">~</span>':''));
       /* Duración real de la sesión, si el alumno la cronometró */
       var _tm=(JB_TIMES[p.id]||{})[iso];
-      var _tmH=(_tm&&_tm.e&&_tm.m)?('<div style="font-size:9px;color:var(--mob);letter-spacing:0.03em;margin-top:1px;">'+fmtDur(_tm.m)+'</div>'):'';
+      var _tmH=((_tm&&_tm.e&&_tm.m)?('<div style="font-size:9px;color:var(--mob);letter-spacing:0.03em;margin-top:1px;">'+fmtDur(_tm.m)+'</div>'):'')+(softTagHtml(p.id,iso)?'<div style="margin-top:2px;margin-left:-5px;">'+softTagHtml(p.id,iso)+'</div>':'');
       var mn=(isCoach?'<span class="daymenu-btn" onclick="openDayMenu(\''+iso+'\',event,this)" onmouseenter="dmHover(\''+iso+'\',event,this)" onmouseleave="dmScheduleClose()" style="float:left;margin-right:6px;padding:0 4px;color:var(--muted2);font-weight:800;letter-spacing:1.5px;cursor:pointer;line-height:1;">\u22ef</span>':'');
       cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:10px;padding:9px 10px;min-height:110px;min-width:0;overflow:hidden;'+tHi+'"><div style="font-weight:700;font-size:13px;margin-bottom:2px;">'+mn+dnum+st+'</div><div style="font-size:13px;font-weight:800;color:var(--mob);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.02em;">'+(day.title||'Entrenamiento')+'</div>'+_tmH+blocksList+'</div>';
     } else if(isCoach){
@@ -5879,7 +5907,7 @@ function renderWeekList(p,cont){
     if(day&&day.blocks&&day.blocks.length){
       var tot=day.blocks.length,dn=0;
       for(var bi=0;bi<tot;bi++){if(ch[iso+'-'+bi]&&ch[iso+'-'+bi].done)dn++;}
-      hdr+='<span style="font-size:14px;font-weight:700;color:var(--text);flex:1;min-width:0;">'+(day.title||TT('entrenamiento'))+'</span>';
+      hdr+='<span style="font-size:14px;font-weight:700;color:var(--text);flex:1;min-width:0;">'+(day.title||TT('entrenamiento'))+softTagHtml(p.id,iso)+'</span>';
       if(tot>0&&dn===tot)hdr+='<span style="color:var(--mob);font-size:14px;">\u2713</span>';
       else if(dn>0)hdr+='<span style="color:#ffb020;font-size:14px;">~</span>';
       hdr+='</div>';
@@ -6574,6 +6602,14 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['Suave']=STATIC_I18N['Suave']||['Light','Leggera'];
+STATIC_I18N['Sin elegir todavía']=STATIC_I18N['Sin elegir todavía']||['Not chosen yet','Non ancora scelta'];
+STATIC_I18N['Sin elegir']=STATIC_I18N['Sin elegir']||['Not chosen','Non scelta'];
+STATIC_I18N['la indicaste vos']=STATIC_I18N['la indicaste vos']||['set by you','indicata da te'];
+STATIC_I18N['la eligió el alumno']=STATIC_I18N['la eligió el alumno']||['chosen by the athlete','scelta dall’atleta'];
+STATIC_I18N['Ver versión suave']=STATIC_I18N['Ver versión suave']||['View lighter version','Vedi versione leggera'];
+STATIC_I18N['Versión suave (60 días)']=STATIC_I18N['Versión suave (60 días)']||['Lighter version (60 days)','Versione leggera (60 giorni)'];
+
 STATIC_I18N['Molestia fuerte']=STATIC_I18N['Molestia fuerte']||['Strong pain','Dolore forte'];
 STATIC_I18N['eligió la versión suave']=STATIC_I18N['eligió la versión suave']||['chose the lighter version','ha scelto la versione leggera'];
 STATIC_I18N['eligió la sesión normal']=STATIC_I18N['eligió la sesión normal']||['chose the normal session','ha scelto la sessione normale'];
@@ -7666,6 +7702,7 @@ function renderSummary(){
     var secs='';
     if(isCoach){var _wc=weeklyVizHtml(p);if(_wc)secs+=sumSec(ICON('pulse'),tr('Autoevaluación semanal'),_wc,true);}
     if(isCoach){var _pc=painsCoachHtml(p);if(_pc)secs+=sumSec(ICON('bandage'),tr('Molestias (30 días)'),stripLbl(_pc),false);}
+    if(isCoach){var _ph=planBHistoryHtml(p);if(_ph)secs+=sumSec(ICON('battery'),tr('Versión suave (60 días)'),_ph,false);}
     secs+=sumSec(ICON('bars'),'Carga y volumen',rpeInner,!isCoach);
     secs+=sumSec(ICON('pencil'),TT('notasRec'),notesH,false);
     var _pdfBtn=isCoach?('<button onclick="event.stopPropagation();exportPlayerPDF(\''+p.id+'\')" title="'+tr('Descargar informe')+'" style="flex:none;background:var(--s2);border:1px solid var(--border2);color:var(--mob);border-radius:8px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:\'Barlow Condensed\',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'
