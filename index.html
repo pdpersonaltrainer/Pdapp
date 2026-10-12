@@ -151,7 +151,7 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 .players-grid{display:flex;flex-direction:column;gap:12px;}
 .cv-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;padding:9px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
 .cv-btn.cv-active{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
-.pr-st{width:100%;border-collapse:collapse;font-size:13px;}.pr-st td{padding:4px 4px;border-top:1px solid var(--border2);vertical-align:middle;}.pr-st tr:first-child td{border-top:none;}.pr-st input{width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:7px;font-size:14px;color:var(--text);outline:none;text-align:center;}.ex-sets{margin-top:6px;display:inline-grid;grid-template-columns:auto auto auto;gap:2px 12px;font-size:12px;color:var(--muted);background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;}.ex-sets b{color:var(--text);font-weight:600;}
+.pr-st{width:100%;border-collapse:collapse;font-size:13px;}.pr-st td{padding:4px 4px;border-top:1px solid var(--border2);vertical-align:middle;}.pr-st tr:first-child td{border-top:none;}.pr-st input{width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:7px;font-size:14px;color:var(--text);outline:none;text-align:center;}.ex-sets{margin-top:6px;display:inline-grid;grid-template-columns:auto auto auto;gap:2px 12px;font-size:12px;color:var(--muted);background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;}.ex-sets b{color:var(--text);font-weight:600;}.ex-sets.trk{grid-template-columns:auto auto auto 64px;align-items:center;}.ex-sets-h{font-size:9.5px;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted2);}.ex-sets.trk input{width:64px;box-sizing:border-box;background:var(--s);border:1px solid var(--cm);border-radius:6px;color:var(--text);padding:4px 6px;font-size:16px;text-align:center;outline:none;}.ex-pos{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;}
 .pr-lbl{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .pr-type,.pr-eff{flex:1;font-size:12px;padding:9px 4px;}
 .pr-type.pr-on,.pr-eff.pr-on,.pr-var.pr-on{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261012-1';
+var APP_VERSION='20261012-2';
 (function(){
   try{
     setTimeout(function(){
@@ -2561,12 +2561,18 @@ function migrateAllChecks(){
 }
 function aLoadKey(bi,ei){return curDate+'-'+bi+'-'+ei;}
 function getALoad(bi,ei){if(!currentPlayerId)return '';var m=JB_LOADS[currentPlayerId]||{};return m[aLoadKey(bi,ei)]||'';}
-function saveLoad(input){
-  var bi=+input.dataset.b,ei=+input.dataset.e;
+function saveLoad(input){_persistLoad(+input.dataset.b,+input.dataset.e,input.value.trim());}
+/* Registro por serie: junta las casillas del ejercicio como "40/50/–/60" */
+function saveLoadSet(input){
+  var k=input.dataset.ls, all=document.querySelectorAll('#plan-content input[data-ls="'+k+'"]');
+  var vals=Array.prototype.map.call(all,function(x){return String(x.value||'').trim().replace(/\//g,'');});
+  var any=vals.some(function(v){return v;});
+  _persistLoad(+input.dataset.b,+input.dataset.e,any?vals.map(function(v){return v||'–';}).join('/'):'');
+}
+function _persistLoad(bi,ei,v){
   if(!currentPlayerId||!curDate)return;
   if(!JB_LOADS[currentPlayerId])JB_LOADS[currentPlayerId]={};
   var ld=JB_LOADS[currentPlayerId];
-  var v=input.value.trim();
   var key=aLoadKey(bi,ei);
   if(v)ld[key]=v;else delete ld[key];
   showSyncStatus('saving');
@@ -5016,7 +5022,41 @@ function toggleTrack(name,w,d,b,e){
   refreshPlanUI();
   toast(ex.tk?tr('Registro de carga activado'):tr('Registro de carga desactivado'));
 }
-function setsTableHtml(e){
+function exSetsInfo(e){
+  var p=e&&e.p;
+  if(p){
+    var n=parseInt(p.sets,10)||0;
+    var qU=p.type==='time'?(p.durUnit||'s'):p.type==='dist'?'m':tr('reps');
+    var mq=p.type==='time'?p.dur:p.type==='dist'?p.dist:p.reps;
+    var rows=[];for(var i=0;i<n;i++)rows.push({q:String((p.repsMode==='var'?(p.repsList||[])[i]:mq)||'').trim(),l:String((p.loadMode==='var'?(p.loadList||[])[i]:p.load)||'').trim()});
+    return {n:n,qU:qU,lU:p.loadUnit||'',rows:rows};
+  }
+  var rx=null;try{rx=parseRx(e&&e.l);}catch(x){}
+  if(!rx)return null;
+  var n2=Math.round(rx.sets), r2=[];
+  for(var j=0;j<n2;j++)r2.push({q:rx.reps?String(rx.reps):'',l:rx.load?String(rx.load):''});
+  return {n:n2,qU:rx.reps?tr('reps'):'',lU:rx.loadUnit||'',rows:r2};
+}
+/* Registro por serie: el alumno ve una casilla por serie cuando el ejercicio
+   tiene "registro de carga" activado y 2 o más series (hasta 12). */
+function setsLogOn(e){
+  if(isCoach||draftMode)return false;
+  try{if(!isTracked(e.n,e))return false;}catch(x){return false;}
+  var si=exSetsInfo(e);return !!(si&&si.n>=2&&si.n<=12);
+}
+function setsTableHtml(e,bi,ei){
+  if(setsLogOn(e)&&bi!==undefined){
+    var si=exSetsInfo(e), prev=String(getALoad(bi,ei)||''), parts=prev.split('/');
+    if(parts.length!==si.n)parts=[prev];
+    var key=bi+'-'+ei, h='';
+    si.rows.forEach(function(r,i){
+      var v=(parts[i]&&parts[i]!=='–')?parts[i]:'';
+      var ph=r.l||(si.lU==='%'?'kg':(si.lU||'kg'));
+      h+='<span>'+tr('Serie')+' '+(i+1)+'</span><span><b>'+(r.q||'–')+'</b> '+si.qU+'</span><span>'+(r.l?'<b>'+r.l+'</b> '+si.lU:'')+'</span>'
+        +'<input data-ls="'+key+'" data-b="'+bi+'" data-e="'+ei+'" value="'+String(v).replace(/"/g,'&quot;')+'" placeholder="'+String(ph).replace(/"/g,'&quot;')+'" inputmode="decimal" onchange="saveLoadSet(this)" onclick="event.stopPropagation()">';
+    });
+    return '<div class="ex-sets trk"><span class="ex-sets-h">'+tr('Serie')+'</span><span class="ex-sets-h">'+tr('Objetivo')+'</span><span class="ex-sets-h"></span><span class="ex-sets-h">'+tr('Hiciste')+'</span>'+h+'</div>';
+  }
   var p=e&&e.p;if(!p||(p.repsMode!=='var'&&p.loadMode!=='var'))return '';
   var n=parseInt(p.sets,10)||0;if(!n)return '';
   var qU=p.type==='time'?(p.durUnit||'s'):p.type==='dist'?'m':tr('reps');
@@ -5041,6 +5081,7 @@ function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
     return '<div style="display:flex;align-items:flex-start;gap:6px;"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><button class="exload-edit" style="cursor:pointer;min-height:26px;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();openPrescModal('+wIdx+','+dIdx+','+bi+','+ei+')">'+(objetivo||TT('definir'))+'</button>'+(tracked&&aL?'<div style="font-size:10px;font-weight:700;color:var(--cm);white-space:nowrap;">Hizo: '+aL+'</div>':'')+'</div>'+tBtn+'</div>';
   }
   if(!tracked)return '<div class="exload l-'+t+'">'+objetivo+'</div>';
+  if(_exObj&&setsLogOn(_exObj))return '<div class="exload l-'+t+'">'+objetivo+'</div>';
   return '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="exload l-'+t+'">'+objetivo+'</div><input value="'+aL+'" placeholder="\u00bfQu\u00e9 hiciste?" data-b="'+bi+'" data-e="'+ei+'" onchange="saveLoad(this)" onclick="event.stopPropagation()" style="width:96px;box-sizing:border-box;background:var(--s2);border:1px solid var(--cm);border-radius:6px;color:var(--text);padding:5px 6px;font-size:16px;transform:scale(0.7);transform-origin:right center;text-align:center;outline:none;"/></div>';
 }
 function isVideoFile(u){return /\.(mp4|mov|m4v|webm|ogg)(\?|#|$)/i.test(u||'')||/\/storage\/v1\/object\/public\/videos\//i.test(u||'');}
@@ -5122,7 +5163,7 @@ function renderBlock(b,bi,wIdx,dIdx){
   /* El alumno ve los videos recién cuando arranca el entrenamiento: antes solo
    tiene el resumen (nombre, series, reps y kg) para no distraerse. */
   var _verVid=isC||draftMode||sessionStarted();
-  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e)+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+String(b.title||'').replace(/<[^>]*>/g,'')+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e,bi,ei)+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -6602,6 +6643,11 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['Objetivo']=STATIC_I18N['Objetivo']||['Target','Obiettivo'];
+STATIC_I18N['Hiciste']=STATIC_I18N['Hiciste']||['You did','Fatto'];
+STATIC_I18N['Ejercicio']=STATIC_I18N['Ejercicio']||['Exercise','Esercizio'];
+STATIC_I18N['de']=STATIC_I18N['de']||['of','di'];
+
 STATIC_I18N['Suave']=STATIC_I18N['Suave']||['Light','Leggera'];
 STATIC_I18N['Sin elegir todavía']=STATIC_I18N['Sin elegir todavía']||['Not chosen yet','Non ancora scelta'];
 STATIC_I18N['Sin elegir']=STATIC_I18N['Sin elegir']||['Not chosen','Non scelta'];
