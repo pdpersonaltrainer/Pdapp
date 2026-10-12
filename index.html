@@ -921,7 +921,7 @@ body{overflow-x:hidden;}
   <header>
     <div class="hdr">
       <div class="hdr-left"><div class="hdr-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="hdr-name" id="chat-hdr-title">Chat</div><div class="hdr-sub" id="chat-hdr-sub">Conversaciones con tus alumnos</div></div></div>
-      <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
+      <div class="hdr-right"><button class="back-btn" onclick="chatScreenBack()">Volver</button></div>
     </div>
   </header>
   <div style="max-width:var(--cw);margin:0 auto;width:100%;padding:16px 13px;box-sizing:border-box;" id="chat-content"></div>
@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261012-6';
+var APP_VERSION='20261012-7';
 (function(){
   try{
     setTimeout(function(){
@@ -6271,6 +6271,7 @@ async function loadSched(){
 }
 function _smTarget(s){
   if(s.target_type==='all')return tr('Todos tus alumnos');
+  if(s.target_type==='players'){var nm=(s.target_ids||[]).map(function(id){var p=PLAYERS.find(function(x){return x.id===id;});return p?p.name:null;}).filter(Boolean);return nm.length>3?nm.slice(0,3).join(', ')+' +'+(nm.length-3):nm.join(', ');}
   if(s.target_type==='group'){var g=(GROUPS||[]).find(function(x){return x.id===s.target_id;});return tr('Grupo')+': '+(g?g.name:'—');}
   var p=PLAYERS.find(function(x){return x.id===s.target_id;});return p?p.name:'—';
 }
@@ -6279,6 +6280,8 @@ function _smWhen(iso){
   return fmtDateLong(loc)+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
 }
 var sideChatView='chat';
+function chatThreadBack(){chatPlayerId=null;if(CHAT_CT==='chat-content')renderChatList();else renderMsgTab();}
+function chatScreenBack(){if(CHAT_CT==='chat-content'&&(chatPlayerId||sideChatView!=='chat')){chatPlayerId=null;renderChatList();return;}goBack();}
 function sideToggleHtml(){
   var ic={chat:'<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/>',sched:'<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>'};
   var b=function(v,l){return '<button class="cv-btn'+(sideChatView===v?' cv-active':'')+'" onclick="setSideChatView(\''+v+'\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\">'+ic[v]+'</svg>'+tr(l)+'</button>';};
@@ -6293,9 +6296,15 @@ async function renderSchedInto(){
   mc.innerHTML=_schedToggle()+'<div style="font-size:12.5px;color:var(--muted2);padding:10px 0;">'+tr('Cargando...')+'</div>';
   await loadSched();
   var inp='width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;font-family:\'Barlow\',sans-serif;';
-  var opts='<option value="all">'+tr('Todos tus alumnos')+'</option>'
-    +(GROUPS||[]).map(function(g){return '<option value="group:'+g.id+'">'+tr('Grupo')+': '+String(g.name).replace(/</g,'&lt;')+'</option>';}).join('')
-    +PLAYERS.slice().sort(function(a,b){return String(a.name).localeCompare(String(b.name));}).map(function(p){return '<option value="player:'+p.id+'">'+String(p.name).replace(/</g,'&lt;')+'</option>';}).join('');
+  var _chip='background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:999px;padding:5px 11px;font-family:Barlow Condensed,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;';
+  var chips='<button style="'+_chip+'" onclick="smMark(\'all\')">'+tr('Todos')+'</button><button style="'+_chip+'" onclick="smMark(\'none\')">'+tr('Ninguno')+'</button>'
+    +(GROUPS||[]).filter(function(g){return groupMembers(g.id).length;}).map(function(g){return '<button style="'+_chip+'border-color:var(--mob);color:var(--mob);" data-g="'+g.id+'" onclick="smMark(\'group\',this.dataset.g)">'+String(g.name).replace(/</g,'&lt;')+'</button>';}).join('');
+  var plist=PLAYERS.slice().sort(function(a,b){return String(a.name).localeCompare(String(b.name));}).map(function(p,i){
+    return '<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;'+(i?'border-top:1px solid var(--border2);':'')+'cursor:pointer;margin:0;text-transform:none;letter-spacing:0;font-weight:500;"><input type="checkbox" class="sm-pl" value="'+p.id+'" onchange="smCount()" style="width:18px;height:18px;flex:none;accent-color:#a8e063;"><span style="font-size:13px;color:var(--text);">'+String(p.name).replace(/</g,'&lt;')+'</span></label>';
+  }).join('');
+  var opts='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">'+chips+'</div>'
+    +'<div style="max-height:30vh;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--rsm);margin-bottom:6px;">'+plist+'</div>'
+    +'<div id="sm-count" style="font-size:11.5px;color:var(--muted2);margin-bottom:10px;"></div>';
   var hrs='';for(var h=0;h<24;h++)for(var m=0;m<60;m+=15){var t=('0'+h).slice(-2)+':'+('0'+m).slice(-2);hrs+='<option value="'+t+'"'+(t==='09:00'?' selected':'')+'>'+t+'</option>';}
   var list=SCHED.length?SCHED.map(function(s){
     return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;">'
@@ -6308,15 +6317,25 @@ async function renderSchedInto(){
   mc.innerHTML=_schedToggle()
     +'<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:16px;">'
     +'<div class="pr-lbl">'+tr('Nuevo mensaje programado')+'</div>'
-    +'<select id="sm-to" style="'+inp+'margin-bottom:8px;">'+opts+'</select>'
+    +'<div class="pr-lbl" style="margin-top:4px;">'+tr('Para')+'</div>'+opts
     +'<textarea id="sm-body" rows="3" maxlength="2000" placeholder="'+tr('Ej: ¿Cómo arrancás la semana? Acordate de completar la autoevaluación.')+'" style="'+inp+'resize:vertical;margin-bottom:8px;"></textarea>'
     +'<div style="display:flex;gap:8px;margin-bottom:8px;"><input type="date" id="sm-date" value="'+isoToday()+'" style="'+inp+'flex:1.3;min-width:0;"><select id="sm-time" style="'+inp+'flex:1;min-width:0;">'+hrs+'</select></div>'
     +'<select id="sm-rep" style="'+inp+'margin-bottom:12px;"><option value="none">'+tr('Una sola vez')+'</option><option value="weekly">'+tr('Cada semana, mismo día y hora')+'</option></select>'
     +'<button class="mbtn mbtn-save" style="width:100%;" onclick="saveSched()">'+tr('Programar')+'</button></div>'
     +'<div class="pr-lbl">'+tr('Programados')+'</div>'+list;
+  smCount();
 }
+function smMark(mode,gid){
+  var bx=document.querySelectorAll('.sm-pl');
+  if(mode==='all')bx.forEach(function(x){x.checked=true;});
+  else if(mode==='none')bx.forEach(function(x){x.checked=false;});
+  else if(mode==='group'){var ids=groupMembers(gid).map(function(p){return p.id;});bx.forEach(function(x){if(ids.indexOf(x.value)>=0)x.checked=true;});}
+  smCount();
+}
+function smCount(){var n=document.querySelectorAll('.sm-pl:checked').length,el=document.getElementById('sm-count');if(el)el.textContent=n?(n+' '+(n===1?tr('alumno elegido'):tr('alumnos elegidos'))):tr('Elegí a quién se lo mandás.');}
 async function saveSched(){
-  var to=(document.getElementById('sm-to')||{}).value||'all';
+  var ids=Array.prototype.map.call(document.querySelectorAll('.sm-pl:checked'),function(x){return x.value;});
+  if(!ids.length){showInfo(tr('Elegí a quién se lo mandás.'));return;}
   var body=String((document.getElementById('sm-body')||{}).value||'').trim();
   var d=(document.getElementById('sm-date')||{}).value, t=(document.getElementById('sm-time')||{}).value||'09:00';
   var rep=(document.getElementById('sm-rep')||{}).value||'none';
@@ -6326,8 +6345,9 @@ async function saveSched(){
   var when=new Date(+pp[0],+pp[1]-1,+pp[2],+hm[0],+hm[1],0);
   if(when.getTime()<Date.now()-60000){showInfo(tr('Esa fecha y hora ya pasaron.'));return;}
   var row={trainer_id:MY_UID,body:body,send_at:when.toISOString(),repeat:rep,tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Madrid')};
-  if(to==='all'){row.target_type='all';}
-  else{var k=to.split(':');row.target_type=k[0];row.target_id=k[1];}
+  if(ids.length===PLAYERS.length)row.target_type='all';
+  else if(ids.length===1){row.target_type='player';row.target_id=ids[0];}
+  else{row.target_type='players';row.target_ids=ids;}
   showSyncStatus('saving');
   var r=await sb.from('scheduled_messages').insert(row);
   if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
@@ -6382,7 +6402,7 @@ async function openChatThread(pid){
 }
 function renderChatThread(){
   var mc=document.getElementById(CHAT_CT);
-  var backBtn=isCoach?'<button onclick="chatPlayerId=null;renderMsgTab();" style="background:none;border:none;color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:0;">\u2039 '+TT('conversaciones')+'</button>':'';
+  var backBtn=isCoach?'<button onclick="chatThreadBack()" style="background:none;border:none;color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:0;">\u2039 '+TT('conversaciones')+'</button>':'';
   var refBtn='<button onclick="openChatThread(chatPlayerId)" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 4px;" title="Actualizar">\u21bb</button>';
   var top='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'+backBtn+refBtn+'</div>';
   var mine=isCoach?'coach':'athlete';
@@ -6829,6 +6849,11 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['Para']=STATIC_I18N['Para']||['To','Per'];
+STATIC_I18N['alumno elegido']=STATIC_I18N['alumno elegido']||['athlete selected','atleta selezionato'];
+STATIC_I18N['alumnos elegidos']=STATIC_I18N['alumnos elegidos']||['athletes selected','atleti selezionati'];
+STATIC_I18N['Elegí a quién se lo mandás.']=STATIC_I18N['Elegí a quién se lo mandás.']||['Choose who receives it.','Scegli a chi inviarlo.'];
+
 STATIC_I18N['Mensajes programados']=STATIC_I18N['Mensajes programados']||['Scheduled messages','Messaggi programmati'];
 STATIC_I18N['Todos tus alumnos']=STATIC_I18N['Todos tus alumnos']||['All your athletes','Tutti i tuoi atleti'];
 STATIC_I18N['Grupo']=STATIC_I18N['Grupo']||['Group','Gruppo'];
