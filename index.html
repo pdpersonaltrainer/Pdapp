@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261012-4';
+var APP_VERSION='20261012-5';
 (function(){
   try{
     setTimeout(function(){
@@ -6255,13 +6255,86 @@ function renderMsgTab(){
   CHAT_CT='msg-content';
   if(!isCoach){chatPlayerId=currentPlayerId;openChatThread(currentPlayerId);return;}
   if(msgView==='record'){setMsgHeader('Recordatorios','Mensajes para alumnos');renderMessagesInto();return;}
+  if(msgView==='sched'){renderSchedInto();return;}
   if(chatPlayerId){openChatThread(chatPlayerId);return;}
   renderChatList();
 }
 function setMsgHeader(t,s){var a=document.getElementById('msg-title');if(a)a.textContent=tr(t);var b=document.getElementById('msg-sub');if(b)b.textContent=tr(s);}
+/* ===== MENSAJES PROGRAMADOS =====
+   El profe deja mensajes con fecha y hora (cada 15 min), de una vez o semanales,
+   para un alumno, un grupo o todos. La base los manda solos al chat. */
+var SCHED=[];
+async function loadSched(){
+  var r=await sb.from('scheduled_messages').select('*').eq('active',true).order('send_at');
+  SCHED=r.error?[]:(r.data||[]);
+  if(r.error)console.error('sched',r.error);
+}
+function _smTarget(s){
+  if(s.target_type==='all')return tr('Todos tus alumnos');
+  if(s.target_type==='group'){var g=(GROUPS||[]).find(function(x){return x.id===s.target_id;});return tr('Grupo')+': '+(g?g.name:'—');}
+  var p=PLAYERS.find(function(x){return x.id===s.target_id;});return p?p.name:'—';
+}
+function _smWhen(iso){
+  var d=new Date(iso), loc=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+  return fmtDateLong(loc)+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+async function renderSchedInto(){
+  setMsgHeader('Programados','Mensajes que se mandan solos');
+  var mc=document.getElementById('msg-content');
+  mc.innerHTML=renderMsgToggle()+'<div style="font-size:12.5px;color:var(--muted2);padding:10px 0;">'+tr('Cargando...')+'</div>';
+  await loadSched();
+  var inp='width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;font-family:\'Barlow\',sans-serif;';
+  var opts='<option value="all">'+tr('Todos tus alumnos')+'</option>'
+    +(GROUPS||[]).map(function(g){return '<option value="group:'+g.id+'">'+tr('Grupo')+': '+String(g.name).replace(/</g,'&lt;')+'</option>';}).join('')
+    +PLAYERS.slice().sort(function(a,b){return String(a.name).localeCompare(String(b.name));}).map(function(p){return '<option value="player:'+p.id+'">'+String(p.name).replace(/</g,'&lt;')+'</option>';}).join('');
+  var hrs='';for(var h=0;h<24;h++)for(var m=0;m<60;m+=15){var t=('0'+h).slice(-2)+':'+('0'+m).slice(-2);hrs+='<option value="'+t+'"'+(t==='09:00'?' selected':'')+'>'+t+'</option>';}
+  var list=SCHED.length?SCHED.map(function(s){
+    return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;">'
+      +'<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;"><div style="min-width:0;">'
+      +'<div style="font-size:11px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--mob);">'+_smWhen(s.send_at)+(s.repeat==='weekly'?' · '+tr('cada semana'):'')+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-top:2px;">'+String(_smTarget(s)).replace(/</g,'&lt;')+'</div></div>'
+      +'<button data-id="'+s.id+'" onclick="delSched(this.dataset.id)" style="flex:none;background:none;border:none;color:#ff6b6b;font-size:12px;font-weight:700;cursor:pointer;padding:4px 6px;">'+tr('Eliminar')+'</button></div>'
+      +'<div style="font-size:13px;color:var(--text);margin-top:8px;white-space:pre-wrap;line-height:1.45;">'+String(s.body).replace(/</g,'&lt;')+'</div></div>';
+  }).join(''):'<div style="font-size:12.5px;color:var(--muted2);padding:4px 0 10px;">'+tr('No tenés mensajes programados.')+'</div>';
+  mc.innerHTML=renderMsgToggle()
+    +'<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:16px;">'
+    +'<div class="pr-lbl">'+tr('Nuevo mensaje programado')+'</div>'
+    +'<select id="sm-to" style="'+inp+'margin-bottom:8px;">'+opts+'</select>'
+    +'<textarea id="sm-body" rows="3" maxlength="2000" placeholder="'+tr('Ej: ¿Cómo arrancás la semana? Acordate de completar la autoevaluación.')+'" style="'+inp+'resize:vertical;margin-bottom:8px;"></textarea>'
+    +'<div style="display:flex;gap:8px;margin-bottom:8px;"><input type="date" id="sm-date" value="'+isoToday()+'" style="'+inp+'flex:1.3;min-width:0;"><select id="sm-time" style="'+inp+'flex:1;min-width:0;">'+hrs+'</select></div>'
+    +'<select id="sm-rep" style="'+inp+'margin-bottom:12px;"><option value="none">'+tr('Una sola vez')+'</option><option value="weekly">'+tr('Cada semana, mismo día y hora')+'</option></select>'
+    +'<button class="mbtn mbtn-save" style="width:100%;" onclick="saveSched()">'+tr('Programar')+'</button></div>'
+    +'<div class="pr-lbl">'+tr('Programados')+'</div>'+list;
+}
+async function saveSched(){
+  var to=(document.getElementById('sm-to')||{}).value||'all';
+  var body=String((document.getElementById('sm-body')||{}).value||'').trim();
+  var d=(document.getElementById('sm-date')||{}).value, t=(document.getElementById('sm-time')||{}).value||'09:00';
+  var rep=(document.getElementById('sm-rep')||{}).value||'none';
+  if(!body){showInfo(tr('Escribí el mensaje.'));return;}
+  if(!d){showInfo(tr('Elegí una fecha.'));return;}
+  var pp=d.split('-'), hm=t.split(':');
+  var when=new Date(+pp[0],+pp[1]-1,+pp[2],+hm[0],+hm[1],0);
+  if(when.getTime()<Date.now()-60000){showInfo(tr('Esa fecha y hora ya pasaron.'));return;}
+  var row={trainer_id:MY_UID,body:body,send_at:when.toISOString(),repeat:rep,tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Madrid')};
+  if(to==='all'){row.target_type='all';}
+  else{var k=to.split(':');row.target_type=k[0];row.target_id=k[1];}
+  showSyncStatus('saving');
+  var r=await sb.from('scheduled_messages').insert(row);
+  if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+  showSyncStatus('ok');toast(tr('Mensaje programado'));
+  renderSchedInto();
+}
+function delSched(id){
+  askConfirm(tr('¿Eliminar este mensaje programado?'),async function(){
+    var r=await sb.from('scheduled_messages').delete().eq('id',id);
+    if(r.error){showInfo('Error: '+r.error.message);return;}
+    renderSchedInto();
+  },{danger:true,okLabel:tr('Eliminar')});
+}
 function setMsgView(v){msgView=v;chatPlayerId=null;renderMsgTab();}
 function renderMsgToggle(){
-  return '<div style="display:flex;gap:8px;margin-bottom:16px;"><button class="cv-btn'+(msgView==='chat'?' cv-active':'')+'" onclick="setMsgView(\'chat\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg>'+tr('Chat')+'</button><button class="cv-btn'+(msgView==='record'?' cv-active':'')+'" onclick="setMsgView(\'record\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9\"/><path d=\"M13.73 21a2 2 0 0 1-3.46 0\"/></svg>'+tr('Recordatorios')+'</button></div>';
+  return '<div style="display:flex;gap:8px;margin-bottom:16px;"><button class="cv-btn'+(msgView==='chat'?' cv-active':'')+'" onclick="setMsgView(\'chat\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg>'+tr('Chat')+'</button><button class="cv-btn'+(msgView==='record'?' cv-active':'')+'" onclick="setMsgView(\'record\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9\"/><path d=\"M13.73 21a2 2 0 0 1-3.46 0\"/></svg>'+tr('Recordatorios')+'</button>'+(isCoach?'<button class="cv-btn'+(msgView==='sched'?' cv-active':'')+'" onclick="setMsgView(\'sched\')"><svg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"vertical-align:-3px;margin-right:6px;flex:none;\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/></svg>'+tr('Programados')+'</button>':'')+'</div>';
 }
 function renderMessagesInto(){renderMessages();var mc=document.getElementById('msg-content');mc.innerHTML=renderMsgToggle()+mc.innerHTML;}
 async function loadUnreadCounts(){
@@ -6746,6 +6819,22 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+STATIC_I18N['Todos tus alumnos']=STATIC_I18N['Todos tus alumnos']||['All your athletes','Tutti i tuoi atleti'];
+STATIC_I18N['Grupo']=STATIC_I18N['Grupo']||['Group','Gruppo'];
+STATIC_I18N['Programados']=STATIC_I18N['Programados']||['Scheduled','Programmati'];
+STATIC_I18N['Mensajes que se mandan solos']=STATIC_I18N['Mensajes que se mandan solos']||['Messages sent automatically','Messaggi inviati in automatico'];
+STATIC_I18N['cada semana']=STATIC_I18N['cada semana']||['every week','ogni settimana'];
+STATIC_I18N['No tenés mensajes programados.']=STATIC_I18N['No tenés mensajes programados.']||['You have no scheduled messages.','Nessun messaggio programmato.'];
+STATIC_I18N['Nuevo mensaje programado']=STATIC_I18N['Nuevo mensaje programado']||['New scheduled message','Nuovo messaggio programmato'];
+STATIC_I18N['Ej: ¿Cómo arrancás la semana? Acordate de completar la autoevaluación.']=STATIC_I18N['Ej: ¿Cómo arrancás la semana? Acordate de completar la autoevaluación.']||['E.g.: How are you starting the week? Remember to complete your self-assessment.','Es.: Come inizi la settimana? Ricordati di compilare l’autovalutazione.'];
+STATIC_I18N['Una sola vez']=STATIC_I18N['Una sola vez']||['Just once','Una sola volta'];
+STATIC_I18N['Cada semana, mismo día y hora']=STATIC_I18N['Cada semana, mismo día y hora']||['Every week, same day and time','Ogni settimana, stesso giorno e ora'];
+STATIC_I18N['Programar']=STATIC_I18N['Programar']||['Schedule','Programma'];
+STATIC_I18N['Escribí el mensaje.']=STATIC_I18N['Escribí el mensaje.']||['Write the message.','Scrivi il messaggio.'];
+STATIC_I18N['Esa fecha y hora ya pasaron.']=STATIC_I18N['Esa fecha y hora ya pasaron.']||['That date and time have passed.','Data e ora già passate.'];
+STATIC_I18N['Mensaje programado']=STATIC_I18N['Mensaje programado']||['Message scheduled','Messaggio programmato'];
+STATIC_I18N['¿Eliminar este mensaje programado?']=STATIC_I18N['¿Eliminar este mensaje programado?']||['Delete this scheduled message?','Eliminare questo messaggio programmato?'];
+
 STATIC_I18N['No hay otros profes en tu equipo.']=STATIC_I18N['No hay otros profes en tu equipo.']||['There are no other coaches in your team.','Non ci sono altri coach nel tuo team.'];
 STATIC_I18N['Pasar alumno']=STATIC_I18N['Pasar alumno']||['Transfer athlete','Trasferisci atleta'];
 STATIC_I18N['pasa con todo su historial: plan, sesiones, cargas, molestias, chat y partidos. Sigue entrando con el mismo enlace y PIN.']=STATIC_I18N['pasa con todo su historial: plan, sesiones, cargas, molestias, chat y partidos. Sigue entrando con el mismo enlace y PIN.']||['moves with their full history: plan, sessions, loads, pain, chat and matches. They keep the same link and PIN.','passa con tutto lo storico: piano, sessioni, carichi, dolori, chat e partite. Mantiene lo stesso link e PIN.'];
