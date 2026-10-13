@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1015">
+<title>PDapp · Análisis de movimiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1015;--s1:#151820;--s2:#1c2029;--b:#2a2f3a;--t:#e8eaee;--m:#8a909c;--g:#a8e063;--r:#ff6b6b;--y:#ffd166}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--t);font-family:Barlow,sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 24px)}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-family:'Barlow Condensed';font-weight:800;font-size:22px;letter-spacing:.04em;text-transform:uppercase;margin:0}
+.sub{color:var(--m);font-size:12.5px;margin:2px 0 14px}
+.lbl{font-family:'Barlow Condensed';font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--m);margin:14px 0 7px}
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:var(--s2);border:1px solid var(--b);color:var(--t);border-radius:999px;padding:8px 13px;font:600 13px Barlow;cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--g);color:#0a0b0e;border-color:var(--g)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{flex:1;min-width:130px;background:var(--s2);border:1px solid var(--b);color:var(--t);border-radius:12px;padding:12px;font:700 14px 'Barlow Condensed';letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn.pri{background:var(--g);color:#0a0b0e;border-color:var(--g)}
+.btn.red{background:var(--r);border-color:var(--r);color:#fff}
+.btn:disabled{opacity:.45}
+.hint{background:var(--s1);border:1px solid var(--b);border-radius:12px;padding:10px 12px;font-size:12.5px;color:#c9ccd3;line-height:1.5;margin-top:10px}
+.hint b{color:var(--g)}
+.stage{position:relative;margin-top:12px;background:#000;border-radius:14px;overflow:hidden;border:1px solid var(--b);display:none}
+.stage canvas{display:block;width:100%;height:auto}
+.stage video{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);border:1px solid rgba(168,224,99,.5);color:var(--g);font:700 12px 'Barlow Condensed';letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:8px}
+.rec{position:absolute;top:10px;right:10px;background:var(--r);color:#fff;font:700 12px 'Barlow Condensed';letter-spacing:.08em;padding:5px 9px;border-radius:8px;display:none}
+.ctrl{display:flex;gap:6px;padding:8px;background:var(--s1);border-top:1px solid var(--b)}
+.ctrl .btn{flex:1;min-width:0;padding:10px 6px;font-size:13px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:12px}
+.m{background:var(--s1);border:1px solid var(--b);border-radius:12px;padding:10px 12px}
+.m .k{font:700 11px 'Barlow Condensed';letter-spacing:.08em;text-transform:uppercase;color:var(--m)}
+.m .v{font:800 26px 'Barlow Condensed';color:var(--t);line-height:1.1;margin-top:2px}
+.m .v small{font-size:14px;color:var(--m);font-weight:600;margin-left:2px}
+.m.ok .v{color:var(--g)} .m.warn .v{color:var(--y)} .m.bad .v{color:var(--r)}
+.log{margin-top:10px;background:var(--s1);border:1px solid var(--b);border-radius:12px;padding:6px 12px;font-size:13px}
+.log div{padding:6px 0;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;gap:10px}
+.log div:last-child{border-bottom:none}
+.log span:last-child{color:var(--m);text-align:right}
+.status{margin-top:10px;font-size:12.5px;color:var(--m);min-height:18px}
+.status.err{color:var(--r)}
+.foot{margin-top:18px;color:var(--m);font-size:11.5px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Análisis de movimiento</h1>
+  <div class="sub">PDapp · prototipo de prueba</div>
+
+  <div class="lbl">Ejercicio</div>
+  <div class="chips" id="ex-chips"></div>
+  <div class="hint" id="ex-hint"></div>
+
+  <div class="lbl">Fuente</div>
+  <div class="row">
+    <button class="btn pri" id="b-cam"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Cámara en vivo</button>
+    <button class="btn" id="b-file"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir video</button>
+    <input type="file" id="file" accept="video/*" style="display:none">
+  </div>
+  <div class="status" id="status"></div>
+
+  <div class="stage" id="stage">
+    <canvas id="cv"></canvas>
+    <video id="vid" playsinline muted></video>
+    <div class="badge" id="badge"></div>
+    <div class="rec" id="recdot">● REC</div>
+    <div class="ctrl" id="ctrl"></div>
+  </div>
+
+  <div class="metrics" id="metrics"></div>
+  <div class="log" id="log" style="display:none"></div>
+
+  <div class="foot">Todo se procesa en este teléfono: el video no se sube a ningún lado. Los valores son estimaciones a partir de una sola cámara (2D), útiles para seguimiento y feedback, no para un informe clínico.</div>
+</div>
+
+<script type="module">
+import {PoseLandmarker, FilesetResolver} from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs';
+
+const G='#a8e063', W='rgba(255,255,255,0.9)', R='#ff6b6b', Y='#ffd166';
+const $=id=>document.getElementById(id);
+const P={NOSE:0,LS:11,RS:12,LE:13,RE:14,LW:15,RW:16,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28,LHE:29,RHE:30,LF:31,RF:32};
+const BONES=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[27,31],[28,30],[30,32],[28,32]];
+
+// ---------- Ejercicios ----------
+const EX={
+  squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b>, a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder'},
+  valgus:{n:'Sentadilla de frente (valgo)',hint:'Teléfono <b>de frente</b>, a la altura de la rodilla, a 2–3 m. Mide si las rodillas se van hacia adentro.'},
+  deadlift:{n:'Peso muerto',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Se dibuja el recorrido de la barra (manos).',trail:'wrist'},
+  lunge:{n:'Estocada',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Mide la rodilla de adelante y la inclinación del tronco.'},
+  bench:{n:'Press de banca',hint:'Teléfono <b>de costado</b>, a la altura del banco, un poco hacia la cabeza. Mide el codo, el recorrido de la barra y si el hombro se adelanta (se “despega” la escápula) al empujar.',trail:'wrist'},
+  jump:{n:'CMJ / Saltos',hint:'Teléfono <b>fijo, de costado o de frente</b>, que se vean bien los pies. Calcula la altura por el tiempo de vuelo. Mejor con video a 60 fps (no cámara lenta).'}
+};
+let exKey='squat';
+function renderChips(){
+  $('ex-chips').innerHTML=Object.keys(EX).map(k=>`<button class="chip${k===exKey?' on':''}" data-k="${k}">${EX[k].n}</button>`).join('');
+  $('ex-hint').innerHTML=EX[exKey].hint;
+  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{exKey=b.dataset.k;renderChips();resetAnalysis();});
+}
+
+// ---------- Geometría ----------
+const ang=(a,b,c)=>{ // ángulo en b (grados)
+  const v1=[a.x-b.x,a.y-b.y],v2=[c.x-b.x,c.y-b.y];
+  const d=Math.hypot(...v1)*Math.hypot(...v2); if(!d)return NaN;
+  return Math.acos(Math.max(-1,Math.min(1,(v1[0]*v2[0]+v1[1]*v2[1])/d)))*180/Math.PI;
+};
+const fromVert=(a,b)=>Math.atan2(Math.abs(b.x-a.x),Math.abs(a.y-b.y))*180/Math.PI; // inclinación del segmento a->b respecto a la vertical
+const mid=(a,b)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2,visibility:Math.min(a.visibility??1,b.visibility??1)});
+const vis=p=>p&&(p.visibility??1);
+class EMA{constructor(a){this.a=a;this.v=null}push(x){if(!isFinite(x))return this.v;this.v=this.v==null?x:this.v+(x-this.v)*this.a;return this.v}reset(){this.v=null}}
+
+// ---------- Estado del análisis ----------
+let S;
+function resetAnalysis(){
+  S={reps:[],phase:'up',cur:null,ema:{},trail:[],jumps:[],j:{state:'ground',base:null,legLen:null,t0:0,prevY:null,prevT:null},side:null,last:{}};
+  renderMetrics();renderLog();
+}
+const E=(k,a=0.35)=>(S.ema[k]||(S.ema[k]=new EMA(a)));
+
+// elige el lado más visible (perfil)
+function sideOf(L){
+  const l=vis(L[P.LH])+vis(L[P.LK])+vis(L[P.LA])+vis(L[P.LS]);
+  const r=vis(L[P.RH])+vis(L[P.RK])+vis(L[P.RA])+vis(L[P.RS]);
+  S.side=S.side==null?(l>=r?'L':'R'):(l>r+0.25?'L':r>l+0.25?'R':S.side);
+  const s=S.side;
+  return s==='L'?{S:L[P.LS],E:L[P.LE],W:L[P.LW],H:L[P.LH],K:L[P.LK],A:L[P.LA],F:L[P.LF]}:{S:L[P.RS],E:L[P.RE],W:L[P.RW],H:L[P.RH],K:L[P.RK],A:L[P.RA],F:L[P.RF]};
+}
+
+// contador genérico: valor baja de 'down' -> fase abajo; sube de 'up' -> rep
+function repCounter(val,down,up,extra){
+  if(!isFinite(val))return;
+  if(S.phase==='up'){ if(val<down){S.phase='down';S.cur={min:val,...extra}} }
+  else{
+    if(val<S.cur.min){S.cur.min=val;Object.assign(S.cur,extra)}
+    else Object.keys(extra||{}).forEach(k=>{ if(k.startsWith('max')&&extra[k]>(S.cur[k]??-1e9))S.cur[k]=extra[k]; if(k.startsWith('mn')&&extra[k]<(S.cur[k]??1e9))S.cur[k]=extra[k]; });
+    if(val>up){S.reps.push(S.cur);S.phase='up';S.cur=null;renderLog()}
+  }
+}
+
+// ---------- Análisis por ejercicio (L en píxeles) ----------
+// devuelve lista de etiquetas de ángulo para dibujar
+function analyze(L,t){
+  const out=[];
+  if(exKey==='squat'){
+    const s=sideOf(L);
+    const knee=E('knee').push(ang(s.H,s.K,s.A)), hip=E('hip').push(ang(s.S,s.H,s.K)), trunk=E('trunk').push(fromVert(s.H,s.S));
+    const depth=s.H.y-s.K.y; // >0: cadera por debajo de la rodilla (abajo en pantalla)
+    repCounter(knee,140,160,{maxTrunk:trunk,mnHip:hip,maxDepth:depth/(Math.hypot(s.H.x-s.K.x,s.H.y-s.K.y)||1)});
+    S.last={knee,hip,trunk};
+    out.push([s.K,knee],[s.H,hip]);
+    trailPush(mid(L[P.LS],L[P.RS]),t);
+  } else if(exKey==='valgus'){
+    const kd=Math.abs(L[P.LK].x-L[P.RK].x), ad=Math.abs(L[P.LA].x-L[P.RA].x);
+    const ratio=E('ratio',0.4).push(ad?kd/ad:NaN);
+    const kL=ang(L[P.LH],L[P.LK],L[P.LA]), kR=ang(L[P.RH],L[P.RK],L[P.RA]);
+    const knee=E('knee').push(Math.min(kL,kR));
+    // profundidad de frente: distancia vertical cadera-rodilla relativa
+    const hy=(L[P.LH].y+L[P.RH].y)/2, ky=(L[P.LK].y+L[P.RK].y)/2, ay=(L[P.LA].y+L[P.RA].y)/2;
+    const rel=E('rel').push((ky-hy)/((ay-ky)||1)); // baja al agacharse
+    repCounter(rel*100,70,88,{mnRatio:ratio});
+    S.last={ratio,knee};
+    out.push([L[P.LK],null],[L[P.RK],null]);
+  } else if(exKey==='deadlift'){
+    const s=sideOf(L);
+    const hip=E('hip').push(ang(s.S,s.H,s.K)), knee=E('knee').push(ang(s.H,s.K,s.A)), trunk=E('trunk').push(fromVert(s.H,s.S));
+    repCounter(hip,120,160,{maxTrunk:trunk,mnKnee:knee});
+    S.last={hip,knee,trunk};
+    out.push([s.H,hip],[s.K,knee]);
+    trailPush(mid(L[P.LW],L[P.RW]),t);
+  } else if(exKey==='lunge'){
+    const kL=ang(L[P.LH],L[P.LK],L[P.LA]), kR=ang(L[P.RH],L[P.RK],L[P.RA]);
+    const front=(L[P.LK].y<L[P.RK].y)?'L':'R'; // la rodilla de adelante queda más alta en la imagen
+    const kF=E('knee').push(front==='L'?kL:kR), kB=E('kneeB').push(front==='L'?kR:kL);
+    const hipM=mid(L[P.LH],L[P.RH]), shM=mid(L[P.LS],L[P.RS]);
+    const trunk=E('trunk').push(fromVert(hipM,shM));
+    repCounter(kF,115,155,{maxTrunk:trunk,mnBack:kB});
+    S.last={knee:kF,kneeB:kB,trunk};
+    out.push([front==='L'?L[P.LK]:L[P.RK],kF],[front==='L'?L[P.RK]:L[P.LK],kB]);
+  } else if(exKey==='bench'){
+    const s=sideOf(L);
+    const elbow=E('elbow').push(ang(s.S,s.E,s.W));
+    // hombro "adelantado": cuánto sube el hombro (hacia la barra) respecto a la cadera, relativo al largo del brazo
+    const arm=Math.hypot(s.S.x-s.E.x,s.S.y-s.E.y)+Math.hypot(s.E.x-s.W.x,s.E.y-s.W.y);
+    const shLift=E('shl',0.3).push((s.H.y-s.S.y)/(arm||1)*100);
+    if(S.shBase==null&&isFinite(shLift))S.shBase=shLift;
+    if(S.phase==='down')S.shBase=Math.min(S.shBase,shLift); // referencia: hombro abajo con la barra en el pecho
+    const prot=shLift-(S.shBase??shLift);
+    repCounter(elbow,100,155,{maxProt:prot});
+    S.last={elbow,prot};
+    out.push([s.E,elbow]);
+    trailPush(mid(L[P.LW],L[P.RW]),t);
+  } else if(exKey==='jump'){
+    jumpStep(L,t);
+    const kL=ang(L[P.LH],L[P.LK],L[P.LA]), kR=ang(L[P.RH],L[P.RK],L[P.RA]);
+    S.last={knee:E('knee').push(Math.min(kL,kR))};
+  }
+  return out;
+}
+
+function jumpStep(L,t){
+  const J=S.j;
+  const footY=Math.max(L[P.LA].y,L[P.RA].y,L[P.LHE].y,L[P.RHE].y,L[P.LF].y,L[P.RF].y);
+  const leg=(Math.hypot(L[P.LH].x-L[P.LA].x,L[P.LH].y-L[P.LA].y)+Math.hypot(L[P.RH].x-L[P.RA].x,L[P.RH].y-L[P.RA].y))/2;
+  if(J.state==='ground'){
+    J.legLen=J.legLen==null?leg:J.legLen*0.95+leg*0.05;
+    J.base=J.base==null?footY:(footY>J.base?footY:J.base*0.97+footY*0.03); // los pies apoyados = punto más bajo
+    if(footY<J.base-0.07*J.legLen){
+      // despegue: interpolar entre el cuadro anterior y este
+      const thr=J.base-0.02*J.legLen;
+      J.t0=(J.prevY!=null&&J.prevY!==footY)?J.prevT+(t-J.prevT)*((J.prevY-thr)/(J.prevY-footY)):t;
+      J.state='air';J.peak=footY;
+    }
+  }else{
+    J.peak=Math.min(J.peak,footY);
+    if(footY>=J.base-0.02*J.legLen){
+      const thr=J.base-0.02*J.legLen;
+      const t1=(J.prevY!=null&&J.prevY!==footY)?J.prevT+(t-J.prevT)*((thr-J.prevY)/(footY-J.prevY)):t;
+      const ft=(t1-J.t0)/1000;
+      if(ft>0.12&&ft<1.2){S.jumps.push({ft,h:9.81*ft*ft/8*100});renderLog()}
+      J.state='ground';
+    }
+    if(t-J.t0>1500)J.state='ground';
+  }
+  J.prevY=footY;J.prevT=t;
+}
+
+function trailPush(p,t){ if(vis(p)<0.4)return; S.trail.push({x:p.x,y:p.y,t}); while(S.trail.length&&t-S.trail[0].t>4000)S.trail.shift(); }
+
+// ---------- Métricas ----------
+const f0=x=>isFinite(x)?Math.round(x):'–';
+const f1=x=>isFinite(x)?x.toFixed(1):'–';
+function card(k,v,u='',cls=''){return `<div class="m ${cls}"><div class="k">${k}</div><div class="v">${v}<small>${u}</small></div></div>`}
+function renderMetrics(){
+  if(!S)return; const l=S.last||{};let h='';
+  if(exKey==='squat') h=card('Reps',S.reps.length)+card('Rodilla',f0(l.knee),'°')+card('Cadera',f0(l.hip),'°')+card('Tronco',f0(l.trunk),'°');
+  if(exKey==='valgus'){const r=l.ratio;h=card('Reps',S.reps.length)+card('Rodillas / tobillos',isFinite(r)?r.toFixed(2):'–','',isFinite(r)?(r<0.8?'bad':r<0.95?'warn':'ok'):'')+card('Rodilla',f0(l.knee),'°');}
+  if(exKey==='deadlift') h=card('Reps',S.reps.length)+card('Cadera',f0(l.hip),'°')+card('Rodilla',f0(l.knee),'°')+card('Tronco',f0(l.trunk),'°');
+  if(exKey==='lunge') h=card('Reps',S.reps.length)+card('Rodilla adelante',f0(l.knee),'°')+card('Rodilla atrás',f0(l.kneeB),'°')+card('Tronco',f0(l.trunk),'°');
+  if(exKey==='bench'){const p=l.prot;h=card('Reps',S.reps.length)+card('Codo',f0(l.elbow),'°')+card('Hombro adelanta',f0(p),'%',isFinite(p)?(p>12?'bad':p>6?'warn':'ok'):'');}
+  if(exKey==='jump'){const last=S.jumps[S.jumps.length-1],best=S.jumps.reduce((m,j)=>Math.max(m,j.h),0);h=card('Saltos',S.jumps.length)+card('Último',last?f1(last.h):'–','cm','ok')+card('Mejor',best?f1(best):'–','cm')+card('Vuelo',last?Math.round(last.ft*1000):'–','ms');}
+  $('metrics').innerHTML=h;
+}
+function renderLog(){
+  const el=$('log');let rows=[];
+  if(exKey==='jump') rows=S.jumps.map((j,i)=>[`Salto ${i+1}`,`${f1(j.h)} cm · vuelo ${Math.round(j.ft*1000)} ms`]);
+  else rows=S.reps.map((r,i)=>{
+    let d='';
+    if(exKey==='squat')d=`rodilla ${f0(r.min)}° · cadera ${f0(r.mnHip)}° · tronco ${f0(r.maxTrunk)}°${r.maxDepth>0?' · bajo paralelo':''}`;
+    if(exKey==='valgus')d=`rodillas/tobillos ${isFinite(r.mnRatio)?r.mnRatio.toFixed(2):'–'}${r.mnRatio<0.8?' · VALGO':r.mnRatio<0.95?' · leve valgo':' · ok'}`;
+    if(exKey==='deadlift')d=`cadera ${f0(r.min)}° · rodilla ${f0(r.mnKnee)}° · tronco ${f0(r.maxTrunk)}°`;
+    if(exKey==='lunge')d=`rodilla adelante ${f0(r.min)}° · atrás ${f0(r.mnBack)}° · tronco ${f0(r.maxTrunk)}°`;
+    if(exKey==='bench')d=`codo ${f0(r.min)}° · hombro adelanta ${f0(r.maxProt)}%${r.maxProt>12?' · ESCÁPULA SE DESPEGA':''}`;
+    return [`Rep ${i+1}`,d];
+  });
+  el.style.display=rows.length?'block':'none';
+  el.innerHTML=rows.slice(-12).reverse().map(r=>`<div><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+}
+
+// ---------- Dibujo ----------
+const cv=$('cv'),ctx=cv.getContext('2d'),vid=$('vid');
+let mirror=false;
+function draw(L,labels){
+  const w=cv.width,h=cv.height,s=Math.max(w,h)/720;
+  ctx.save();
+  if(mirror){ctx.translate(w,0);ctx.scale(-1,1)}
+  ctx.drawImage(vid,0,0,w,h);
+  ctx.fillStyle='rgba(0,0,0,0.18)';ctx.fillRect(0,0,w,h);
+  // recorrido
+  if(S.trail.length>1&&EX[exKey].trail){
+    ctx.lineWidth=3*s;ctx.strokeStyle=Y;ctx.lineCap='round';ctx.beginPath();
+    S.trail.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
+  }
+  if(L){
+    ctx.lineCap='round';
+    for(const [a,b] of BONES){const A=L[a],B=L[b];if(vis(A)<0.35||vis(B)<0.35)continue;
+      ctx.strokeStyle='rgba(0,0,0,0.55)';ctx.lineWidth=7*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+      ctx.strokeStyle=G;ctx.lineWidth=4*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();}
+    for(let i=11;i<33;i++){const p=L[i];if(vis(p)<0.35)continue;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4.2*s,0,7);ctx.fill();}
+    if(exKey==='valgus'){ // líneas de referencia rodilla-tobillo
+      ctx.setLineDash([8*s,7*s]);ctx.lineWidth=2.5*s;
+      const r=S.last.ratio,c=!isFinite(r)?W:r<0.8?R:r<0.95?Y:G;ctx.strokeStyle=c;
+      [[P.LK,P.LA],[P.RK,P.RA]].forEach(([k,a])=>{ctx.beginPath();ctx.moveTo(L[a].x,L[k].y-40*s);ctx.lineTo(L[a].x,L[a].y);ctx.stroke();});
+      ctx.setLineDash([]);
+    }
+  }
+  ctx.restore();
+  // etiquetas (sin espejar el texto)
+  if(L)for(const [p,v] of labels){ if(v==null||!isFinite(v)||vis(p)<0.35)continue;
+    const x=mirror?w-p.x:p.x,y=p.y;
+    ctx.font=`800 ${18*s}px "Barlow Condensed",sans-serif`;const tx=Math.round(v)+'°',tw=ctx.measureText(tx).width;
+    ctx.fillStyle='rgba(14,16,21,0.82)';rr(x+10*s,y-14*s,tw+12*s,24*s,6*s);ctx.fill();
+    ctx.fillStyle=G;ctx.fillText(tx,x+16*s,y+4*s);
+    ctx.strokeStyle=G;ctx.lineWidth=2*s;ctx.beginPath();ctx.arc(x,y,9*s,0,7);ctx.stroke();
+  }
+}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+// ---------- MediaPipe ----------
+let landmarker=null,loading=null;
+function status(t,err){const s=$('status');s.textContent=t||'';s.className='status'+(err?' err':'')}
+async function getLandmarker(){
+  if(landmarker)return landmarker; if(loading)return loading;
+  status('Cargando el analizador (solo la primera vez)…');
+  loading=(async()=>{
+    const fs=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+    const opts=d=>({baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',delegate:d},runningMode:'VIDEO',numPoses:1,minPoseDetectionConfidence:0.5,minPosePresenceConfidence:0.5,minTrackingConfidence:0.5});
+    try{landmarker=await PoseLandmarker.createFromOptions(fs,opts('GPU'))}catch(e){landmarker=await PoseLandmarker.createFromOptions(fs,opts('CPU'))}
+    status('');return landmarker;
+  })();
+  try{return await loading}catch(e){loading=null;status('No se pudo cargar el analizador. Revisá la conexión y probá de nuevo.',true);throw e}
+}
+
+// ---------- Bucle ----------
+let pending=false,running=false,lastTs=-1,mode=null,stream=null,frameCb=null,fpsT=[],tOffset=0;
+function sizeCanvas(){cv.width=vid.videoWidth;cv.height=vid.videoHeight}
+function step(now,meta){
+  pending=false;
+  if(!running)return;
+  if(vid.readyState>=2&&vid.videoWidth){
+    if(cv.width!==vid.videoWidth||cv.height!==vid.videoHeight)sizeCanvas();
+    // tiempo del cuadro: el del video (preciso para saltos)
+    let t=mode==='file'?((meta&&meta.mediaTime!=null)?meta.mediaTime*1000:vid.currentTime*1000):((meta&&meta.captureTime)||now||performance.now());
+    t+=tOffset; if(t<=lastTs){ if(mode==='file'&&t<lastTs-500){tOffset+=lastTs;t+=lastTs} else t=lastTs+1 }
+    lastTs=t;
+    let L=null,labels=[];
+    try{
+      const r=landmarker.detectForVideo(vid,t);
+      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(p=>({x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility}));labels=analyze(L,t);}
+    }catch(e){console.warn(e)}
+    draw(L,labels);
+    fpsT.push(performance.now());while(fpsT.length>20)fpsT.shift();
+    if(fpsT.length>2){const fps=(fpsT.length-1)*1000/(fpsT[fpsT.length-1]-fpsT[0]);$('badge').textContent=EX[exKey].n+' · '+Math.round(fps)+' fps';}
+    if(Math.random()<0.25)renderMetrics();
+  }
+  schedule();
+}
+function schedule(){ if(!running||pending)return; pending=true; if(vid.requestVideoFrameCallback)frameCb=vid.requestVideoFrameCallback(step); else requestAnimationFrame(()=>step(performance.now())); }
+
+async function stopAll(){
+  running=false; stopRec();
+  if(frameCb!=null&&vid.cancelVideoFrameCallback){try{vid.cancelVideoFrameCallback(frameCb)}catch(e){}} pending=false;
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+  vid.pause();vid.removeAttribute('src');vid.srcObject=null;
+}
+
+// cámara
+let facing='environment';
+async function startCam(){
+  try{
+    await getLandmarker();
+  }catch(e){return}
+  await stopAll();
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:facing,width:{ideal:1280},height:{ideal:720},frameRate:{ideal:60}}});
+  }catch(e){status('No hay permiso para usar la cámara. Activalo en Ajustes → Safari → Cámara (o en los permisos de la app).',true);return}
+  mode='cam';mirror=(facing==='user');vid.srcObject=stream;await vid.play();
+  startLoop();
+  $('ctrl').innerHTML=`<button class="btn" id="c-flip">Girar</button><button class="btn" id="c-rec">● Grabar</button><button class="btn" id="c-reset">Reiniciar</button><button class="btn" id="c-stop">Cerrar</button>`;
+  $('c-flip').onclick=()=>{facing=facing==='user'?'environment':'user';startCam()};
+  $('c-rec').onclick=toggleRec;
+  $('c-reset').onclick=resetAnalysis;
+  $('c-stop').onclick=closeStage;
+}
+// archivo
+async function startFile(file){
+  try{await getLandmarker()}catch(e){return}
+  await stopAll();
+  mode='file';mirror=false;vid.src=URL.createObjectURL(file);vid.loop=false;
+  await new Promise(r=>vid.onloadedmetadata=r);
+  vid.playbackRate=0.5; // más lento = más cuadros analizados
+  try{await vid.play()}catch(e){}
+  startLoop();
+  vid.onended=()=>{renderMetrics();renderLog();status('Análisis terminado. Podés volver a reproducirlo o cambiar de ejercicio.')};
+  $('ctrl').innerHTML=`<button class="btn" id="c-play">Pausa</button><button class="btn" id="c-again">Desde el inicio</button><button class="btn" id="c-stop">Cerrar</button>`;
+  $('c-play').onclick=()=>{if(vid.paused){vid.play();$('c-play').textContent='Pausa';schedule()}else{vid.pause();$('c-play').textContent='Seguir'}};
+  $('c-again').onclick=()=>{resetAnalysis();vid.currentTime=0;vid.play();$('c-play').textContent='Pausa';schedule()};
+  $('c-stop').onclick=closeStage;
+}
+function startLoop(){resetAnalysis();$('stage').style.display='block';running=true;fpsT=[];schedule();status('');$('stage').scrollIntoView({behavior:'smooth',block:'start'})}
+async function closeStage(){await stopAll();$('stage').style.display='none';$('ctrl').innerHTML=''}
+
+// grabación (video con las líneas)
+let rec=null,chunks=[];
+function toggleRec(){ if(rec)stopRec(true); else startRec(); }
+function startRec(){
+  if(!cv.captureStream||!window.MediaRecorder){status('Este navegador no permite grabar.',true);return}
+  const type=['video/mp4','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+  chunks=[];rec=new MediaRecorder(cv.captureStream(30),type?{mimeType:type,videoBitsPerSecond:4e6}:undefined);
+  rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  rec.onstop=()=>{const blob=new Blob(chunks,{type:rec&&rec.mimeType||type||'video/mp4'});rec=null;saveRec(blob)};
+  rec.start(500);$('recdot').style.display='block';const b=$('c-rec');if(b){b.textContent='■ Detener';b.classList.add('red')}
+}
+function stopRec(save){ if(!rec)return; if(!save){rec.onstop=null} rec.stop(); if(!save)rec=null; $('recdot').style.display='none';const b=$('c-rec');if(b){b.textContent='● Grabar';b.classList.remove('red')} }
+async function saveRec(blob){
+  const ext=blob.type.includes('mp4')?'mp4':'webm',name=`PDapp-${EX[exKey].n.replace(/\W+/g,'-')}-${Date.now()}.${ext}`;
+  const file=new File([blob],name,{type:blob.type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Análisis PDapp'});return}catch(e){}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+}
+
+// ---------- UI ----------
+$('b-cam').onclick=startCam;
+$('b-file').onclick=()=>$('file').click();
+$('file').onchange=e=>{const f=e.target.files[0];if(f)startFile(f);e.target.value=''};
+renderChips();resetAnalysis();
+window.__lab={analyze,resetAnalysis,get S(){return S},set ex(k){exKey=k;resetAnalysis()}};
+</script>
+</body>
+</html>
