@@ -505,10 +505,14 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
 .empty-state .emi{font-size:36px;margin-bottom:8px;}
 .empty-state p{font-size:13px;}
-#loading-overlay{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
-#loading-spinner{width:76px;height:76px;object-fit:cover;border-radius:22px;display:block;animation:pdpulse 1.5s ease-in-out infinite;will-change:opacity,transform;}@keyframes pdpulse{0%,100%{opacity:0.35;transform:scale(0.92);}50%{opacity:1;transform:scale(1.04);}}@media (prefers-reduced-motion:reduce){#loading-spinner{animation:pdfade 1.6s ease-in-out infinite;}@keyframes pdfade{0%,100%{opacity:0.45;}50%{opacity:1;}}}
+#loading-overlay{position:fixed;inset:0;z-index:999;background:#0e1015;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
+#loading-anim{width:210px;max-width:60vw;height:auto;display:block;}
+#loading-overlay:has(#loading-error[style*="block"]) #loading-anim{display:none;}
+@keyframes pdlogo{0%,100%{opacity:0.75;transform:scale(0.96);}50%{opacity:1;transform:scale(1.04);}}
+#loading-brand{display:flex;align-items:center;justify-content:center;gap:10px;}
+#loading-spinner{width:38px;height:38px;object-fit:cover;border-radius:11px;display:block;animation:pdlogo 1.6s ease-in-out infinite;will-change:opacity,transform;}@keyframes pdpulse{0%,100%{opacity:0.35;transform:scale(0.92);}50%{opacity:1;transform:scale(1.04);}}@media (prefers-reduced-motion:reduce){#loading-spinner{animation:pdfade 1.6s ease-in-out infinite;}@keyframes pdfade{0%,100%{opacity:0.45;}50%{opacity:1;}}}
 @keyframes spin{to{transform:rotate(360deg);}}
-#loading-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text);}
+#loading-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#e8eaee;}
 #loading-error{display:none;font-size:12px;color:#ff4d4d;text-align:center;max-width:260px;line-height:1.6;}
 
 @media(max-width:640px){
@@ -586,8 +590,11 @@ body{overflow-x:hidden;}
 
 <!-- LOADING OVERLAY -->
 <div id="loading-overlay">
-  <img id="loading-spinner" src="icon.png" alt="PDapp"/>
-  <div id="loading-title">Cargando PDapp…</div>
+  <img id="loading-anim" src="loading-squat.webp" alt="" onerror="this.style.display='none'"/>
+  <div id="loading-brand">
+    <img id="loading-spinner" src="icon.png" alt="PDapp"/>
+    <div id="loading-title">Cargando PDapp…</div>
+  </div>
   <div id="loading-error">
     No se pudo conectar.<br/>Revisá tu conexión e intentá de nuevo.<br/><br/>
     <button onclick="initApp()" style="margin-top:8px;background:#a8e063;color:#0a0b0e;border:none;border-radius:8px;padding:8px 20px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Reintentar</button>
@@ -1593,7 +1600,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261013-2';
+var APP_VERSION='20261013-3';
 (function(){
   try{
     setTimeout(function(){
