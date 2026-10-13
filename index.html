@@ -1600,7 +1600,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261014-2';
+var APP_VERSION='20261014-3';
 (function(){
   try{
     setTimeout(function(){
@@ -8884,7 +8884,7 @@ function mvDraw(L,labels){
     ctx.fillStyle='rgba(14,16,21,0.82)';mvRR(ctx,x+10*s,y-14*s,tw+12*s,24*s,6*s);ctx.fill();ctx.fillStyle=G;ctx.fillText(tx,x+16*s,y+4*s);
     ctx.strokeStyle=G;ctx.lineWidth=2*s;ctx.beginPath();ctx.arc(x,y,9*s,0,7);ctx.stroke();});
   // marca de agua chica
-  ctx.font='700 '+(13*s)+'px "Barlow Condensed",sans-serif';ctx.fillStyle='rgba(168,224,99,0.85)';ctx.textAlign='right';ctx.fillText('PDapp · '+mvExName(MV.ex)+(MV_EX[MV.ex].load?' · '+tr(mvLoadOf(MV.ex)==='bar'?'con carga':'sin carga'):''),w-10*s,h-10*s);ctx.textAlign='left';
+  ctx.font='700 '+(13*s)+'px "Barlow Condensed",sans-serif';ctx.fillStyle='rgba(168,224,99,0.85)';ctx.textAlign='left';ctx.fillText('PDapp · '+mvExName(MV.ex)+(MV_EX[MV.ex].load?' · '+tr(mvLoadOf(MV.ex)==='bar'?'con carga':'sin carga'):''),10*s,h-10*s);
 }
 function mvRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 
