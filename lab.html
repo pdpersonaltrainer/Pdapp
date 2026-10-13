@@ -56,6 +56,7 @@ h1{font-family:'Barlow Condensed';font-weight:800;font-size:22px;letter-spacing:
   <div class="lbl">Ejercicio</div>
   <div class="chips" id="ex-chips"></div>
   <div class="hint" id="ex-hint"></div>
+  <div id="load-row" style="display:none"><div class="lbl">Carga</div><div class="chips" id="load-chips"></div></div>
 
   <div class="lbl">Fuente</div>
   <div class="row">
@@ -89,18 +90,23 @@ const BONES=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23
 
 // ---------- Ejercicios ----------
 const EX={
-  squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b>, a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder'},
+  squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b>, a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder',load:true},
   valgus:{n:'Sentadilla de frente (valgo)',hint:'Teléfono <b>de frente</b>, a la altura de la rodilla, a 2–3 m. Mide si las rodillas se van hacia adentro.'},
   deadlift:{n:'Peso muerto',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Se dibuja el recorrido de la barra (manos).',trail:'wrist'},
-  lunge:{n:'Estocada',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Mide la rodilla de adelante y la inclinación del tronco.'},
+  lunge:{n:'Estocada',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Mide la rodilla de adelante y la inclinación del tronco.',trail:'shoulder',load:true},
   bench:{n:'Press de banca',hint:'Teléfono <b>de costado</b>, a la altura del banco, un poco hacia la cabeza. Mide el codo, el recorrido de la barra y si el hombro se adelanta (se “despega” la escápula) al empujar.',trail:'wrist'},
   jump:{n:'CMJ / Saltos',hint:'Teléfono <b>fijo, de costado o de frente</b>, que se vean bien los pies. Calcula la altura por el tiempo de vuelo. Mejor con video a 60 fps (no cámara lenta).'}
 };
 let exKey='squat';
+const LOAD={squat:'bar',lunge:'free'};
+const trailOn=()=>!!EX[exKey].trail&&(!EX[exKey].load||(LOAD[exKey]||'bar')==='bar');
 function renderChips(){
   $('ex-chips').innerHTML=Object.keys(EX).map(k=>`<button class="chip${k===exKey?' on':''}" data-k="${k}">${EX[k].n}</button>`).join('');
-  $('ex-hint').innerHTML=EX[exKey].hint;
-  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{exKey=b.dataset.k;renderChips();resetAnalysis();});
+  $('ex-hint').innerHTML=EX[exKey].hint+(trailOn()?'<br><span style="color:#ffd166">━</span> La línea amarilla es el recorrido de la barra.':'');
+  const lr=$('load-row');lr.style.display=EX[exKey].load?'block':'none';
+  if(EX[exKey].load){$('load-chips').innerHTML=['bar','free'].map(v=>`<button class="chip${(LOAD[exKey]||'bar')===v?' on':''}" data-v="${v}">${v==='bar'?'Con barra':'Sin carga'}</button>`).join('');
+    document.querySelectorAll('#load-chips .chip').forEach(b=>b.onclick=()=>{LOAD[exKey]=b.dataset.v;renderChips();if(S)S.trail=[];});}
+  document.querySelectorAll('#ex-chips .chip').forEach(b=>b.onclick=()=>{exKey=b.dataset.k;renderChips();resetAnalysis();});
 }
 
 // ---------- Geometría ----------
@@ -181,6 +187,7 @@ function analyze(L,t){
     repCounter(kF,115,155,{maxTrunk:trunk,mnBack:kB});
     S.last={knee:kF,kneeB:kB,trunk};
     out.push([front==='L'?L[P.LK]:L[P.RK],kF],[front==='L'?L[P.RK]:L[P.LK],kB]);
+    trailPush(shM,t);
   } else if(exKey==='bench'){
     const s=sideOf(L);
     const elbow=E('elbow').push(ang(s.S,s.E,s.W));
@@ -271,7 +278,7 @@ function draw(L,labels){
   ctx.drawImage(vid,0,0,w,h);
   ctx.fillStyle='rgba(0,0,0,0.18)';ctx.fillRect(0,0,w,h);
   // recorrido
-  if(S.trail.length>1&&EX[exKey].trail){
+  if(S.trail.length>1&&trailOn()){
     ctx.lineWidth=3*s;ctx.strokeStyle=Y;ctx.lineCap='round';ctx.beginPath();
     S.trail.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();
   }
