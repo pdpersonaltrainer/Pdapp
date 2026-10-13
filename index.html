@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261012-7';
+var APP_VERSION='20261013-1';
 (function(){
   try{
     setTimeout(function(){
@@ -6544,12 +6544,12 @@ function openTestModal(k){
   var gal=document.getElementById('test-imgs');
   if(gal){
     var figs=TESTIMG[k]||[];
-    var base='https://raw.githubusercontent.com/pdpersonaltrainer/Pdapp/main/tests/';
+    var base='tests/';
     gal.innerHTML=figs.map(function(f,i){
-      var url=base+k+'-'+(i+1)+'.jpg';
+      var url=base+k+'-'+(i+1)+'.webp?v=1';
       return '<div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:9px;margin-bottom:8px;">'
-        +'<img src="'+url+'" onload="var q=this.parentNode.querySelector(\'.tst-svg\');if(q)q.style.display=\'none\';" onerror="this.style.display=\'none\';" style="width:100%;border-radius:7px;display:block;"/>'
-        +'<div class="tst-svg">'+f.s+'</div>'
+        +'<img src="'+url+'" alt="" onerror="this.style.display=\'none\';var q=this.parentNode.querySelector(\'.tst-svg\');if(q)q.style.display=\'block\';" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px;display:block;background:#2a2e35;"/>'
+        +'<div class="tst-svg" style="display:none;">'+f.s+'</div>'
         +'<div style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.45;">'+tr(f.c)+'</div></div>';
     }).join('');
   }
