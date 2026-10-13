@@ -1593,7 +1593,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261013-1';
+var APP_VERSION='20261013-2';
 (function(){
   try{
     setTimeout(function(){
@@ -6544,7 +6544,7 @@ function openTestModal(k){
   var gal=document.getElementById('test-imgs');
   if(gal){
     var figs=TESTIMG[k]||[];
-    var base='tests/';
+    var base='';
     gal.innerHTML=figs.map(function(f,i){
       var url=base+k+'-'+(i+1)+'.webp?v=1';
       return '<div style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:9px;margin-bottom:8px;">'
