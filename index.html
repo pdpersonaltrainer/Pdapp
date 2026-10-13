@@ -1600,7 +1600,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261013-3';
+var APP_VERSION='20261014-1';
 (function(){
   try{
     setTimeout(function(){
@@ -6856,6 +6856,103 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+/* análisis de movimiento */
+STATIC_I18N["Análisis de movimiento"]=["Movement analysis", "Analisi del movimento"];
+STATIC_I18N["Analizar movimiento"]=["Analyze movement", "Analizza movimento"];
+STATIC_I18N["Análisis terminado. Guardalo o volvé a reproducirlo."]=["Analysis finished. Save it or play it again.", "Analisi terminata. Salvala o riproducila di nuovo."];
+STATIC_I18N["Cadera mín."]=["Min hip", "Anca min."];
+STATIC_I18N["Rodilla mín."]=["Min knee", "Ginocchio min."];
+STATIC_I18N["Cargando el analizador (solo la primera vez)…"]=["Loading the analyzer (first time only)…", "Caricamento analizzatore (solo la prima volta)…"];
+STATIC_I18N["Cámara en vivo"]=["Live camera", "Fotocamera live"];
+STATIC_I18N["Subir video"]=["Upload video", "Carica video"];
+STATIC_I18N["Desde el inicio"]=["From the start", "Dall’inizio"];
+STATIC_I18N["Detener"]=["Stop", "Ferma"];
+STATIC_I18N["Girar"]=["Flip", "Gira"];
+STATIC_I18N["Grabar"]=["Record", "Registra"];
+STATIC_I18N["Reiniciar"]=["Reset", "Azzera"];
+STATIC_I18N["Pausa"]=["Pause", "Pausa"];
+STATIC_I18N["Seguir"]=["Resume", "Riprendi"];
+STATIC_I18N["ESCÁPULA SE DESPEGA"]=["SCAPULA LIFTS OFF", "LA SCAPOLA SI STACCA"];
+STATIC_I18N["Este navegador no permite grabar."]=["This browser can’t record.", "Questo browser non può registrare."];
+STATIC_I18N["Falta activar el guardado de análisis (SQL)."]=["Analysis saving is not enabled yet (SQL).", "Il salvataggio delle analisi non è ancora attivo (SQL)."];
+STATIC_I18N["Guardar análisis"]=["Save analysis", "Salva analisi"];
+STATIC_I18N["Análisis guardado"]=["Analysis saved", "Analisi salvata"];
+STATIC_I18N["Análisis guardado. Se completó el resultado con el mejor salto: revisalo y tocá Guardar."]=["Analysis saved. The result was filled with the best jump: check it and tap Save.", "Analisi salvata. Il risultato è stato compilato con il salto migliore: controllalo e tocca Salva."];
+STATIC_I18N["La línea amarilla es el recorrido de la barra."]=["The yellow line is the bar path.", "La linea gialla è il percorso del bilanciere."];
+STATIC_I18N["Mínimos"]=["Minimums", "Minimi"];
+STATIC_I18N["No hay permiso para usar la cámara. Activalo en Ajustes → Safari → Cámara."]=["No camera permission. Enable it in Settings → Safari → Camera.", "Nessun permesso per la fotocamera. Attivalo in Impostazioni → Safari → Fotocamera."];
+STATIC_I18N["No se pudo cargar el analizador. Revisá la conexión y probá de nuevo."]=["Couldn’t load the analyzer. Check your connection and try again.", "Impossibile caricare l’analizzatore. Controlla la connessione e riprova."];
+STATIC_I18N["No se pudo eliminar"]=["Couldn’t delete", "Impossibile eliminare"];
+STATIC_I18N["No se pudo guardar"]=["Couldn’t save", "Impossibile salvare"];
+STATIC_I18N["Nuevo análisis de movimiento"]=["New movement analysis", "Nuova analisi del movimento"];
+STATIC_I18N["Rep"]=["Rep", "Rip"];
+STATIC_I18N["Salto"]=["Jump", "Salto"];
+STATIC_I18N["salto"]=["jump", "salto"];
+STATIC_I18N["saltos"]=["jumps", "salti"];
+STATIC_I18N["Test"]=["Test", "Test"];
+STATIC_I18N["Todavía no hay análisis guardados."]=["No saved analyses yet.", "Ancora nessuna analisi salvata."];
+STATIC_I18N["Todo se procesa en este teléfono: el video no se sube a ningún lado. Se guardan los resultados y una captura con las líneas. Los valores son estimaciones con una sola cámara (2D), útiles para seguimiento y feedback."]=["Everything is processed on this phone: the video is not uploaded anywhere. The results and a snapshot with the lines are saved. Values are single-camera (2D) estimates, useful for tracking and feedback.", "Tutto viene elaborato su questo telefono: il video non viene caricato da nessuna parte. Si salvano i risultati e un’immagine con le linee. I valori sono stime con una sola fotocamera (2D), utili per monitoraggio e feedback."];
+STATIC_I18N["VALGO"]=["VALGUS", "VALGO"];
+STATIC_I18N["leve valgo"]=["mild valgus", "valgo lieve"];
+STATIC_I18N["alumno"]=["athlete", "atleta"];
+STATIC_I18N["profe"]=["coach", "coach"];
+STATIC_I18N["lo hizo el alumno"]=["done by the athlete", "fatta dall’atleta"];
+STATIC_I18N["lo hizo el profe"]=["done by the coach", "fatta dal coach"];
+STATIC_I18N["atrás"]=["back", "dietro"];
+STATIC_I18N["bajo paralelo"]=["below parallel", "sotto il parallelo"];
+STATIC_I18N["cadera"]=["hip", "anca"];
+STATIC_I18N["cadera izq."]=["left hip", "anca sx"];
+STATIC_I18N["rodilla izq."]=["left knee", "ginocchio sx"];
+STATIC_I18N["der."]=["right", "dx"];
+STATIC_I18N["codo"]=["elbow", "gomito"];
+STATIC_I18N["hombro adelanta"]=["shoulder forward", "spalla in avanti"];
+STATIC_I18N["mejor"]=["best", "migliore"];
+STATIC_I18N["rodilla"]=["knee", "ginocchio"];
+STATIC_I18N["rodilla adelante"]=["front knee", "ginocchio avanti"];
+STATIC_I18N["rodillas/tobillos"]=["knees/ankles", "ginocchia/caviglie"];
+STATIC_I18N["tronco"]=["trunk", "busto"];
+STATIC_I18N["vuelo"]=["flight", "volo"];
+STATIC_I18N["Ejercicio"]=["Exercise", "Esercizio"];
+STATIC_I18N["Carga"]=["Load", "Carico"];
+STATIC_I18N["Fuente"]=["Source", "Sorgente"];
+STATIC_I18N["Con carga"]=["Loaded", "Con carico"];
+STATIC_I18N["Sin carga"]=["Unloaded", "Senza carico"];
+STATIC_I18N["con carga"]=["loaded", "con carico"];
+STATIC_I18N["sin carga"]=["unloaded", "senza carico"];
+STATIC_I18N["Medir con video"]=["Measure with video", "Misura con video"];
+STATIC_I18N["Filmar con análisis"]=["Film with analysis", "Filma con analisi"];
+STATIC_I18N["¿Eliminar este análisis?"]=["Delete this analysis?", "Eliminare questa analisi?"];
+STATIC_I18N["Sentadilla"]=["Squat", "Squat"];
+STATIC_I18N["Sentadilla de frente (valgo)"]=["Front squat view (valgus)", "Squat frontale (valgo)"];
+STATIC_I18N["Peso muerto"]=["Deadlift", "Stacco"];
+STATIC_I18N["Estocada"]=["Lunge", "Affondo"];
+STATIC_I18N["Press de banca"]=["Bench press", "Panca piana"];
+STATIC_I18N["CMJ / Saltos"]=["CMJ / Jumps", "CMJ / Salti"];
+STATIC_I18N["Libre"]=["Free", "Libero"];
+STATIC_I18N["Reps"]=["Reps", "Rip."];
+STATIC_I18N["Rodilla"]=["Knee", "Ginocchio"];
+STATIC_I18N["Cadera"]=["Hip", "Anca"];
+STATIC_I18N["Tronco"]=["Trunk", "Busto"];
+STATIC_I18N["Rodillas / tobillos"]=["Knees / ankles", "Ginocchia / caviglie"];
+STATIC_I18N["Rodilla adelante"]=["Front knee", "Ginocchio avanti"];
+STATIC_I18N["Rodilla atrás"]=["Back knee", "Ginocchio dietro"];
+STATIC_I18N["Codo"]=["Elbow", "Gomito"];
+STATIC_I18N["Hombro adelanta"]=["Shoulder forward", "Spalla in avanti"];
+STATIC_I18N["Saltos"]=["Jumps", "Salti"];
+STATIC_I18N["Último"]=["Last", "Ultimo"];
+STATIC_I18N["Mejor"]=["Best", "Migliore"];
+STATIC_I18N["Vuelo"]=["Flight", "Volo"];
+STATIC_I18N["Rodilla izq."]=["Left knee", "Ginocchio sx"];
+STATIC_I18N["Rodilla der."]=["Right knee", "Ginocchio dx"];
+STATIC_I18N["Cadera izq."]=["Left hip", "Anca sx"];
+STATIC_I18N["Cadera der."]=["Right hip", "Anca dx"];
+STATIC_I18N["Teléfono <b>de costado</b>, a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero."]=["Phone <b>from the side</b>, at hip height, 2–3 m away. Whole body in frame.", "Telefono <b>di lato</b>, all’altezza dell’anca, a 2–3 m. Corpo intero inquadrato."];
+STATIC_I18N["Teléfono <b>de frente</b>, a la altura de la rodilla, a 2–3 m. Mide si las rodillas se van hacia adentro."]=["Phone <b>from the front</b>, at knee height, 2–3 m away. Checks if the knees cave in.", "Telefono <b>di fronte</b>, all’altezza del ginocchio, a 2–3 m. Misura se le ginocchia vanno verso l’interno."];
+STATIC_I18N["Teléfono <b>de costado</b>, a la altura de la cadera. Con carga se dibuja el recorrido de la barra (manos)."]=["Phone <b>from the side</b>, at hip height. When loaded, the bar path (hands) is drawn.", "Telefono <b>di lato</b>, all’altezza dell’anca. Con carico si disegna il percorso del bilanciere (mani)."];
+STATIC_I18N["Teléfono <b>de costado</b>, a la altura de la cadera. Mide la rodilla de adelante y la inclinación del tronco."]=["Phone <b>from the side</b>, at hip height. Measures the front knee and trunk lean.", "Telefono <b>di lato</b>, all’altezza dell’anca. Misura il ginocchio avanti e l’inclinazione del busto."];
+STATIC_I18N["Teléfono <b>de costado</b>, a la altura del banco, un poco hacia la cabeza. Mide el codo, el recorrido de la barra y si el hombro se adelanta (se despega la escápula)."]=["Phone <b>from the side</b>, at bench height, slightly toward the head. Measures the elbow, the bar path and whether the shoulder moves forward (scapula lifts off).", "Telefono <b>di lato</b>, all’altezza della panca, un po’ verso la testa. Misura il gomito, il percorso del bilanciere e se la spalla va in avanti (la scapola si stacca)."];
+STATIC_I18N["Teléfono <b>fijo, de costado o de frente</b>, que se vean bien los pies. Calcula la altura por el tiempo de vuelo. Mejor a 60 fps (no cámara lenta)."]=["Phone <b>fixed, from the side or front</b>, feet clearly visible. Height is calculated from flight time. Best at 60 fps (not slow motion).", "Telefono <b>fisso, di lato o di fronte</b>, con i piedi ben visibili. L’altezza si calcola dal tempo di volo. Meglio a 60 fps (non slow motion)."];
+STATIC_I18N["Esqueleto y ángulos de rodillas y caderas, para cualquier ejercicio o test. Teléfono fijo, cuerpo entero en cuadro."]=["Skeleton and knee/hip angles for any exercise or test. Fixed phone, whole body in frame.", "Scheletro e angoli di ginocchia e anche per qualsiasi esercizio o test. Telefono fisso, corpo intero inquadrato."];
 STATIC_I18N['Para']=STATIC_I18N['Para']||['To','Per'];
 STATIC_I18N['alumno elegido']=STATIC_I18N['alumno elegido']||['athlete selected','atleta selezionato'];
 STATIC_I18N['alumnos elegidos']=STATIC_I18N['alumnos elegidos']||['athletes selected','atleti selezionati'];
@@ -8451,6 +8548,576 @@ try{if('serviceWorker' in navigator&&Notification&&Notification.permission==='gr
 try{var _vl=document.getElementById('app-ver-lbl');if(_vl)_vl.textContent=APP_VERSION;}catch(e){}
 initApp();
 </script>
+<!-- ===== ANÁLISIS DE MOVIMIENTO ===== -->
+<style>
+#modal-mov{position:fixed;inset:0;z-index:520;background:var(--bg);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#modal-mov.open{display:block;}
+#modal-mov .mv-wrap{max-width:720px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 28px);}
+#modal-mov .mv-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+#modal-mov .mv-h{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;letter-spacing:.04em;text-transform:uppercase;flex:1;min-width:0;}
+#modal-mov .mv-sub{color:var(--muted);font-size:12.5px;margin-top:1px;}
+#modal-mov .mv-x{flex:none;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 12px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
+#modal-mov .mv-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px;}
+#modal-mov .mv-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+#modal-mov .mv-chips::-webkit-scrollbar{display:none;}
+#modal-mov .mv-chip{flex:none;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;}
+#modal-mov .mv-chip.on{background:#a8e063;color:#0a0b0e;border-color:#a8e063;}
+#modal-mov .mv-hint{background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:9px 12px;font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:9px;}
+#modal-mov .mv-hint b{color:#a8e063;}
+#modal-mov .mv-row{display:flex;gap:8px;margin-top:4px;}
+#modal-mov .mv-btn{flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:11px 8px;font-family:'Barlow Condensed',sans-serif;font-size:13.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+#modal-mov .mv-btn.pri{background:#a8e063;color:#0a0b0e;border-color:#a8e063;}
+#modal-mov .mv-btn.red{background:#ff6b6b;border-color:#ff6b6b;color:#fff;}
+#modal-mov .mv-btn:disabled{opacity:.45;}
+#modal-mov .mv-stage{position:relative;margin-top:10px;background:#000;border-radius:12px;overflow:hidden;border:1px solid var(--border2);display:none;}
+#modal-mov .mv-stage canvas{display:block;width:100%;height:auto;}
+#modal-mov .mv-stage video{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
+#modal-mov .mv-badge{position:absolute;top:9px;left:9px;background:rgba(0,0,0,.6);border:1px solid rgba(168,224,99,.5);color:#a8e063;font:700 11.5px 'Barlow Condensed',sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:4px 8px;border-radius:7px;}
+#modal-mov .mv-rec{position:absolute;top:9px;right:9px;background:#ff6b6b;color:#fff;font:700 11.5px 'Barlow Condensed',sans-serif;letter-spacing:.07em;padding:4px 8px;border-radius:7px;display:none;}
+#modal-mov .mv-ctrl{display:flex;gap:6px;padding:7px;background:var(--s1);border-top:1px solid var(--border2);}
+#modal-mov .mv-ctrl .mv-btn{padding:9px 4px;font-size:12.5px;}
+#modal-mov .mv-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-top:10px;}
+#modal-mov .mv-m{background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:8px 11px;}
+#modal-mov .mv-m .k{font:700 10.5px 'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+#modal-mov .mv-m .v{font:800 24px 'Barlow Condensed',sans-serif;color:var(--text);line-height:1.1;margin-top:1px;}
+#modal-mov .mv-m .v small{font-size:13px;color:var(--muted);font-weight:600;margin-left:2px;}
+#modal-mov .mv-m.ok .v{color:#a8e063;} #modal-mov .mv-m.warn .v{color:#ffd166;} #modal-mov .mv-m.bad .v{color:#ff6b6b;}
+#modal-mov .mv-log{margin-top:8px;background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:4px 12px;font-size:12.5px;}
+#modal-mov .mv-log div{padding:6px 0;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;gap:10px;}
+#modal-mov .mv-log div:last-child{border-bottom:none;}
+#modal-mov .mv-log span:last-child{color:var(--muted);text-align:right;}
+#modal-mov .mv-status{margin-top:8px;font-size:12.5px;color:var(--muted);min-height:16px;}
+#modal-mov .mv-status.err{color:#ff6b6b;}
+#modal-mov .mv-foot{margin-top:14px;color:var(--muted2);font-size:11px;line-height:1.5;}
+#modal-mov-view{position:fixed;inset:0;z-index:530;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:16px;}
+#modal-mov-view.open{display:flex;}
+.mv-card{display:flex;gap:10px;align-items:center;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:8px;margin-bottom:7px;cursor:pointer;}
+.mv-card img,.mv-card .ph{width:64px;height:48px;object-fit:cover;border-radius:7px;flex:none;background:#000;}
+</style>
+
+<div id="modal-mov">
+  <div class="mv-wrap">
+    <div class="mv-top">
+      <div style="flex:1;min-width:0;"><div class="mv-h" id="mv-title">Análisis de movimiento</div><div class="mv-sub" id="mv-sub"></div></div>
+      <button class="mv-x" onclick="movClose()">Cerrar</button>
+    </div>
+    <div class="mv-lbl" id="mv-lbl-ex">Ejercicio</div>
+    <div class="mv-chips" id="mv-ex"></div>
+    <div id="mv-load-row"><div class="mv-lbl" id="mv-lbl-load">Carga</div><div class="mv-chips" id="mv-load"></div></div>
+    <div class="mv-hint" id="mv-hint"></div>
+    <div class="mv-lbl" id="mv-lbl-src">Fuente</div>
+    <div class="mv-row">
+      <button class="mv-btn pri" id="mv-b-cam" onclick="movStartCam()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span id="mv-t-cam">Cámara en vivo</span></button>
+      <button class="mv-btn" id="mv-b-file" onclick="document.getElementById('mv-file').click()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span id="mv-t-file">Subir video</span></button>
+      <input type="file" id="mv-file" accept="video/*" style="display:none" onchange="movFilePicked(this)">
+    </div>
+    <div class="mv-status" id="mv-status"></div>
+    <div class="mv-stage" id="mv-stage">
+      <canvas id="mv-cv"></canvas>
+      <video id="mv-vid" playsinline muted></video>
+      <div class="mv-badge" id="mv-badge"></div>
+      <div class="mv-rec" id="mv-recdot">● REC</div>
+      <div class="mv-ctrl" id="mv-ctrl"></div>
+    </div>
+    <div class="mv-metrics" id="mv-metrics"></div>
+    <div class="mv-log" id="mv-log" style="display:none"></div>
+    <button class="mv-btn pri" id="mv-save" onclick="movSave()" style="margin-top:12px;width:100%;padding:14px;font-size:15px;display:none;">Guardar análisis</button>
+    <div class="mv-foot" id="mv-foot">Todo se procesa en este teléfono: el video no se sube a ningún lado. Se guardan los resultados y una captura con las líneas. Los valores son estimaciones con una sola cámara (2D), útiles para seguimiento y feedback.</div>
+  </div>
+</div>
+
+<div id="modal-mov-view" onclick="if(event.target===this)movViewClose()">
+  <div style="background:var(--s1);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;padding:14px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="flex:1;min-width:0;"><div id="mvv-title" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;"></div><div id="mvv-sub" style="font-size:12px;color:var(--muted);"></div></div>
+      <button class="mv-x" style="flex:none;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 12px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;cursor:pointer;" onclick="movViewClose()">Cerrar</button>
+    </div>
+    <div id="mvv-img" style="background:#000;border-radius:10px;overflow:hidden;min-height:120px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;"></div>
+    <div id="mvv-body" style="margin-top:10px;font-size:13px;"></div>
+    <div id="mvv-actions" style="margin-top:12px;display:flex;gap:8px;"></div>
+  </div>
+</div>
+
+<script>
+/* ===== ANÁLISIS DE MOVIMIENTO (MediaPipe Pose, en el teléfono) ===== */
+var MV_VER='0.10.14';
+var MV={pid:null,testKey:null,ex:'squat',load:{},landmarker:null,loading:null,running:false,pending:false,lastTs:-1,tOffset:0,mode:null,stream:null,frameCb:null,fps:[],facing:'environment',mirror:false,rec:null,chunks:[],S:null,lists:{}};
+var MV_EX={
+  squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b>, a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder',load:true},
+  valgus:{n:'Sentadilla de frente (valgo)',hint:'Teléfono <b>de frente</b>, a la altura de la rodilla, a 2–3 m. Mide si las rodillas se van hacia adentro.',load:true},
+  deadlift:{n:'Peso muerto',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Con carga se dibuja el recorrido de la barra (manos).',trail:'wrist',load:true},
+  lunge:{n:'Estocada',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Mide la rodilla de adelante y la inclinación del tronco.',trail:'shoulder',load:true},
+  bench:{n:'Press de banca',hint:'Teléfono <b>de costado</b>, a la altura del banco, un poco hacia la cabeza. Mide el codo, el recorrido de la barra y si el hombro se adelanta (se despega la escápula).',trail:'wrist',load:true},
+  jump:{n:'CMJ / Saltos',hint:'Teléfono <b>fijo, de costado o de frente</b>, que se vean bien los pies. Calcula la altura por el tiempo de vuelo. Mejor a 60 fps (no cámara lenta).'},
+  free:{n:'Libre',hint:'Esqueleto y ángulos de rodillas y caderas, para cualquier ejercicio o test. Teléfono fijo, cuerpo entero en cuadro.'}
+};
+var MV_ORDER=['squat','valgus','deadlift','lunge','bench','jump','free'];
+var MV_TEST_EX={cmj:'jump'};
+var MV_P={LS:11,RS:12,LE:13,RE:14,LW:15,RW:16,LH:23,RH:24,LK:25,RK:26,LA:27,RA:28,LHE:29,RHE:30,LF:31,RF:32};
+var MV_BONES=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[27,31],[28,30],[30,32],[28,32]];
+function mvEl(id){return document.getElementById(id);}
+function mvLoadOf(k){return MV.load[k]||'free';}
+function mvTrailOn(){var e=MV_EX[MV.ex];return !!e.trail&&(!e.load||mvLoadOf(MV.ex)==='bar');}
+function mvExName(k){return tr((MV_EX[k]||MV_EX.free).n);}
+
+/* --- abrir / cerrar --- */
+function openMov(opts){
+  opts=opts||{};
+  MV.pid=opts.pid||currentPlayerId||(PLAYERS.length===1?PLAYERS[0].id:null);
+  MV.testKey=opts.testKey||null;
+  MV.ex=opts.ex||(MV.testKey?(MV_TEST_EX[MV.testKey]||'free'):(MV.genEx||'squat'));
+  var p=PLAYERS.find(function(x){return x.id===MV.pid;});
+  mvEl('mv-title').textContent=tr('Análisis de movimiento');
+  var sub=(p&&isCoach)?p.name:'';
+  if(MV.testKey){var td=testDef(MV.testKey);if(td)sub=(sub?sub+' · ':'')+tr('Test')+': '+tr(td.n);}
+  mvEl('mv-sub').textContent=sub;
+  ['mv-lbl-ex','mv-lbl-load','mv-lbl-src'].forEach(function(id,i){mvEl(id).textContent=tr(['Ejercicio','Carga','Fuente'][i]);});
+  mvEl('mv-t-cam').textContent=tr('Cámara en vivo');mvEl('mv-t-file').textContent=tr('Subir video');
+  mvEl('mv-save').textContent=tr('Guardar análisis');
+  mvEl('mv-foot').textContent=tr('Todo se procesa en este teléfono: el video no se sube a ningún lado. Se guardan los resultados y una captura con las líneas. Los valores son estimaciones con una sola cámara (2D), útiles para seguimiento y feedback.');
+  mvRenderChips();mvReset();mvStatus('');
+  mvEl('mv-stage').style.display='none';mvEl('mv-ctrl').innerHTML='';
+  mvEl('modal-mov').classList.add('open');mvEl('modal-mov').scrollTop=0;
+  mvGetLandmarker().catch(function(){});
+}
+async function movClose(){await mvStopAll();mvEl('mv-stage').style.display='none';mvEl('modal-mov').classList.remove('open');}
+function mvRenderChips(){
+  mvEl('mv-ex').innerHTML=MV_ORDER.map(function(k){return '<button class="mv-chip'+(k===MV.ex?' on':'')+'" onclick="mvSetEx(\''+k+'\')">'+mvExName(k)+'</button>';}).join('');
+  var e=MV_EX[MV.ex];
+  mvEl('mv-load-row').style.display=e.load?'block':'none';
+  if(e.load)mvEl('mv-load').innerHTML=['free','bar'].map(function(v){return '<button class="mv-chip'+(mvLoadOf(MV.ex)===v?' on':'')+'" onclick="mvSetLoad(\''+v+'\')">'+tr(v==='bar'?'Con carga':'Sin carga')+'</button>';}).join('');
+  mvEl('mv-hint').innerHTML=tr(e.hint)+(mvTrailOn()?'<br><span style="color:#ffd166">━</span> '+tr('La línea amarilla es el recorrido de la barra.'):'');
+}
+function mvSetEx(k){MV.ex=k;if(!MV.testKey)MV.genEx=k;mvRenderChips();mvReset();}
+function mvSetLoad(v){MV.load[MV.ex]=v;mvRenderChips();if(MV.S)MV.S.trail=[];}
+function mvStatus(t,err){var s=mvEl('mv-status');s.textContent=t||'';s.className='mv-status'+(err?' err':'');}
+
+/* --- geometría --- */
+function mvAng(a,b,c){var v1x=a.x-b.x,v1y=a.y-b.y,v2x=c.x-b.x,v2y=c.y-b.y;var d=Math.hypot(v1x,v1y)*Math.hypot(v2x,v2y);if(!d)return NaN;return Math.acos(Math.max(-1,Math.min(1,(v1x*v2x+v1y*v2y)/d)))*180/Math.PI;}
+function mvVert(a,b){return Math.atan2(Math.abs(b.x-a.x),Math.abs(a.y-b.y))*180/Math.PI;}
+function mvMid(a,b){return {x:(a.x+b.x)/2,y:(a.y+b.y)/2,visibility:Math.min(a.visibility==null?1:a.visibility,b.visibility==null?1:b.visibility)};}
+function mvVis(p){return p?(p.visibility==null?1:p.visibility):0;}
+function mvEma(k,a){var S=MV.S;if(!S.ema[k])S.ema[k]={a:a||0.35,v:null};var e=S.ema[k];return {push:function(x){if(!isFinite(x))return e.v;e.v=e.v==null?x:e.v+(x-e.v)*e.a;return e.v;}};}
+
+/* --- estado --- */
+function mvReset(){
+  MV.S={reps:[],phase:'up',cur:null,ema:{},trail:[],jumps:[],j:{state:'ground',base:null,legLen:null,t0:0,prevY:null,prevT:null},side:null,last:{},shBase:null,snap:null,snapScore:null,curSnap:null,curScore:null};
+  mvRenderMetrics();mvRenderLog();mvUpdSave();
+}
+function mvSide(L){
+  var P=MV_P,S=MV.S;
+  var l=mvVis(L[P.LH])+mvVis(L[P.LK])+mvVis(L[P.LA])+mvVis(L[P.LS]);
+  var r=mvVis(L[P.RH])+mvVis(L[P.RK])+mvVis(L[P.RA])+mvVis(L[P.RS]);
+  S.side=S.side==null?(l>=r?'L':'R'):(l>r+0.25?'L':r>l+0.25?'R':S.side);
+  return S.side==='L'?{S:L[P.LS],E:L[P.LE],W:L[P.LW],H:L[P.LH],K:L[P.LK],A:L[P.LA]}:{S:L[P.RS],E:L[P.RE],W:L[P.RW],H:L[P.RH],K:L[P.RK],A:L[P.RA]};
+}
+// captura del momento clave (score más bajo = más profundo)
+function mvSnapCandidate(score){
+  var S=MV.S;if(!isFinite(score))return;
+  if(S.curScore==null||score<S.curScore){S.curScore=score;S.curSnap=mvGrab(S.curSnap);}
+}
+function mvCommitSnap(){
+  var S=MV.S;if(S.curSnap&&(S.snapScore==null||S.curScore<=S.snapScore)){S.snap=S.curSnap;S.snapScore=S.curScore;}
+  S.curSnap=null;S.curScore=null;
+}
+function mvGrab(reuse){
+  var cv=mvEl('mv-cv');if(!cv.width)return reuse;
+  var w=720,h=Math.round(cv.height*w/cv.width);
+  var c=reuse||document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(cv,0,0,w,h);return c;
+}
+function mvRep(val,down,up,extra){
+  var S=MV.S;if(!isFinite(val))return;
+  if(S.phase==='up'){if(val<down){S.phase='down';S.cur=Object.assign({min:val},extra);S.curSnap=null;S.curScore=null;}}
+  else{
+    if(val<S.cur.min){S.cur.min=val;Object.assign(S.cur,extra);}
+    else Object.keys(extra||{}).forEach(function(k){if(k.indexOf('max')===0&&extra[k]>(S.cur[k]==null?-1e9:S.cur[k]))S.cur[k]=extra[k];if(k.indexOf('mn')===0&&extra[k]<(S.cur[k]==null?1e9:S.cur[k]))S.cur[k]=extra[k];});
+    if(val>up){S.reps.push(S.cur);S.phase='up';S.cur=null;mvCommitSnap();mvRenderLog();mvUpdSave();}
+  }
+}
+
+/* --- análisis por ejercicio --- */
+function mvAnalyze(L,t){
+  var P=MV_P,S=MV.S,out=[],ex=MV.ex,s,knee,hip,trunk;
+  if(ex==='squat'){
+    s=mvSide(L);knee=mvEma('knee').push(mvAng(s.H,s.K,s.A));hip=mvEma('hip').push(mvAng(s.S,s.H,s.K));trunk=mvEma('trunk').push(mvVert(s.H,s.S));
+    var depth=(s.H.y-s.K.y)/(Math.hypot(s.H.x-s.K.x,s.H.y-s.K.y)||1);
+    mvRep(knee,140,160,{maxTrunk:trunk,mnHip:hip,maxDepth:depth});
+    S.last={knee:knee,hip:hip,trunk:trunk};out.push([s.K,knee],[s.H,hip]);
+    mvTrailPush(mvMid(L[P.LS],L[P.RS]),t);
+  }else if(ex==='valgus'){
+    var kd=Math.abs(L[P.LK].x-L[P.RK].x),ad=Math.abs(L[P.LA].x-L[P.RA].x);
+    var ratio=mvEma('ratio',0.4).push(ad?kd/ad:NaN);
+    knee=mvEma('knee').push(Math.min(mvAng(L[P.LH],L[P.LK],L[P.LA]),mvAng(L[P.RH],L[P.RK],L[P.RA])));
+    var hy=(L[P.LH].y+L[P.RH].y)/2,ky=(L[P.LK].y+L[P.RK].y)/2,ay=(L[P.LA].y+L[P.RA].y)/2;
+    var rel=mvEma('rel').push((ky-hy)/((ay-ky)||1));
+    mvRep(rel*100,70,88,{mnRatio:ratio});
+    S.last={ratio:ratio,knee:knee};out.push([L[P.LK],null],[L[P.RK],null]);
+  }else if(ex==='deadlift'){
+    s=mvSide(L);hip=mvEma('hip').push(mvAng(s.S,s.H,s.K));knee=mvEma('knee').push(mvAng(s.H,s.K,s.A));trunk=mvEma('trunk').push(mvVert(s.H,s.S));
+    mvRep(hip,120,160,{maxTrunk:trunk,mnKnee:knee});
+    S.last={hip:hip,knee:knee,trunk:trunk};out.push([s.H,hip],[s.K,knee]);
+    mvTrailPush(mvMid(L[P.LW],L[P.RW]),t);
+  }else if(ex==='lunge'){
+    var kL=mvAng(L[P.LH],L[P.LK],L[P.LA]),kR=mvAng(L[P.RH],L[P.RK],L[P.RA]);
+    var front=(L[P.LK].y<L[P.RK].y)?'L':'R';
+    var kF=mvEma('knee').push(front==='L'?kL:kR),kB=mvEma('kneeB').push(front==='L'?kR:kL);
+    var hipM=mvMid(L[P.LH],L[P.RH]),shM=mvMid(L[P.LS],L[P.RS]);
+    trunk=mvEma('trunk').push(mvVert(hipM,shM));
+    mvRep(kF,115,155,{maxTrunk:trunk,mnBack:kB});
+    S.last={knee:kF,kneeB:kB,trunk:trunk};
+    out.push([front==='L'?L[P.LK]:L[P.RK],kF],[front==='L'?L[P.RK]:L[P.LK],kB]);
+    mvTrailPush(shM,t);
+  }else if(ex==='bench'){
+    s=mvSide(L);var elbow=mvEma('elbow').push(mvAng(s.S,s.E,s.W));
+    var arm=Math.hypot(s.S.x-s.E.x,s.S.y-s.E.y)+Math.hypot(s.E.x-s.W.x,s.E.y-s.W.y);
+    var shl=mvEma('shl',0.3).push((s.H.y-s.S.y)/(arm||1)*100);
+    if(S.shBase==null&&isFinite(shl))S.shBase=shl;
+    if(S.phase==='down')S.shBase=Math.min(S.shBase,shl);
+    var prot=shl-(S.shBase==null?shl:S.shBase);
+    mvRep(elbow,100,155,{maxProt:prot});
+    S.last={elbow:elbow,prot:prot};out.push([s.E,elbow]);
+    mvTrailPush(mvMid(L[P.LW],L[P.RW]),t);
+  }else if(ex==='jump'){
+    mvJump(L,t);
+    S.last={knee:mvEma('knee').push(Math.min(mvAng(L[P.LH],L[P.LK],L[P.LA]),mvAng(L[P.RH],L[P.RK],L[P.RA])))};
+  }else{ // libre
+    var a1=mvEma('kL').push(mvAng(L[P.LH],L[P.LK],L[P.LA])),a2=mvEma('kR').push(mvAng(L[P.RH],L[P.RK],L[P.RA]));
+    var h1=mvEma('hL').push(mvAng(L[P.LS],L[P.LH],L[P.LK])),h2=mvEma('hR').push(mvAng(L[P.RS],L[P.RH],L[P.RK]));
+    S.last={kL:a1,kR:a2,hL:h1,hR:h2};
+    S.free=S.free||{};[['kL',a1],['kR',a2],['hL',h1],['hR',h2]].forEach(function(x){if(isFinite(x[1])){var m=S.free[x[0]];S.free[x[0]]=m==null?x[1]:Math.min(m,x[1]);}});
+    out.push([L[P.LK],a1],[L[P.RK],a2],[L[P.LH],h1],[L[P.RH],h2]);
+  }
+  return out;
+}
+function mvJump(L,t){
+  var P=MV_P,S=MV.S,J=S.j;
+  var footY=Math.max(L[P.LA].y,L[P.RA].y,L[P.LHE].y,L[P.RHE].y,L[P.LF].y,L[P.RF].y);
+  var leg=(Math.hypot(L[P.LH].x-L[P.LA].x,L[P.LH].y-L[P.LA].y)+Math.hypot(L[P.RH].x-L[P.RA].x,L[P.RH].y-L[P.RA].y))/2;
+  var thr;
+  if(J.state==='ground'){
+    J.legLen=J.legLen==null?leg:J.legLen*0.95+leg*0.05;
+    J.base=J.base==null?footY:(footY>J.base?footY:J.base*0.97+footY*0.03);
+    if(footY<J.base-0.07*J.legLen){
+      thr=J.base-0.02*J.legLen;
+      J.t0=(J.prevY!=null&&J.prevY!==footY)?J.prevT+(t-J.prevT)*((J.prevY-thr)/(J.prevY-footY)):t;
+      J.state='air';J.peak=footY;S.curSnap=null;S.curScore=null;
+    }
+  }else{
+    if(footY<J.peak){J.peak=footY;}
+    mvSnapCandidate(footY);
+    thr=J.base-0.02*J.legLen;
+    if(footY>=thr){
+      var t1=(J.prevY!=null&&J.prevY!==footY)?J.prevT+(t-J.prevT)*((thr-J.prevY)/(footY-J.prevY)):t;
+      var ft=(t1-J.t0)/1000;
+      if(ft>0.12&&ft<1.2){var h=9.81*ft*ft/8*100;S.jumps.push({ft:ft,h:h});
+        // la captura del mejor salto
+        if(S.curSnap&&(S.snapScore==null||-h<S.snapScore)){S.snap=S.curSnap;S.snapScore=-h;}
+        mvRenderLog();mvUpdSave();}
+      S.curSnap=null;S.curScore=null;J.state='ground';
+    }
+    if(t-J.t0>1500)J.state='ground';
+  }
+  J.prevY=footY;J.prevT=t;
+}
+function mvTrailPush(p,t){var S=MV.S;if(mvVis(p)<0.4)return;S.trail.push({x:p.x,y:p.y,t:t});while(S.trail.length&&t-S.trail[0].t>4000)S.trail.shift();}
+
+/* --- métricas --- */
+function mvF0(x){return isFinite(x)?Math.round(x):'–';}
+function mvF1(x){return isFinite(x)?(Math.round(x*10)/10).toFixed(1):'–';}
+function mvCard(k,v,u,cls){return '<div class="mv-m '+(cls||'')+'"><div class="k">'+tr(k)+'</div><div class="v">'+v+'<small>'+(u||'')+'</small></div></div>';}
+function mvRenderMetrics(){
+  var S=MV.S;if(!S)return;var l=S.last||{},h='',ex=MV.ex;
+  if(ex==='squat')h=mvCard('Reps',S.reps.length)+mvCard('Rodilla',mvF0(l.knee),'°')+mvCard('Cadera',mvF0(l.hip),'°')+mvCard('Tronco',mvF0(l.trunk),'°');
+  if(ex==='valgus'){var r=l.ratio;h=mvCard('Reps',S.reps.length)+mvCard('Rodillas / tobillos',isFinite(r)?r.toFixed(2):'–','',isFinite(r)?(r<0.8?'bad':r<0.95?'warn':'ok'):'')+mvCard('Rodilla',mvF0(l.knee),'°');}
+  if(ex==='deadlift')h=mvCard('Reps',S.reps.length)+mvCard('Cadera',mvF0(l.hip),'°')+mvCard('Rodilla',mvF0(l.knee),'°')+mvCard('Tronco',mvF0(l.trunk),'°');
+  if(ex==='lunge')h=mvCard('Reps',S.reps.length)+mvCard('Rodilla adelante',mvF0(l.knee),'°')+mvCard('Rodilla atrás',mvF0(l.kneeB),'°')+mvCard('Tronco',mvF0(l.trunk),'°');
+  if(ex==='bench'){var p=l.prot;h=mvCard('Reps',S.reps.length)+mvCard('Codo',mvF0(l.elbow),'°')+mvCard('Hombro adelanta',mvF0(p),'%',isFinite(p)?(p>12?'bad':p>6?'warn':'ok'):'');}
+  if(ex==='jump'){var last=S.jumps[S.jumps.length-1],best=S.jumps.reduce(function(m,j){return Math.max(m,j.h);},0);h=mvCard('Saltos',S.jumps.length)+mvCard('Último',last?mvF1(last.h):'–','cm','ok')+mvCard('Mejor',best?mvF1(best):'–','cm')+mvCard('Vuelo',last?Math.round(last.ft*1000):'–','ms');}
+  if(ex==='free')h=mvCard('Rodilla izq.',mvF0(l.kL),'°')+mvCard('Rodilla der.',mvF0(l.kR),'°')+mvCard('Cadera izq.',mvF0(l.hL),'°')+mvCard('Cadera der.',mvF0(l.hR),'°');
+  mvEl('mv-metrics').innerHTML=h;
+}
+function mvRepLine(ex,r){
+  if(ex==='squat')return tr('rodilla')+' '+mvF0(r.min)+'° · '+tr('cadera')+' '+mvF0(r.mnHip)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°'+(r.maxDepth>0?' · '+tr('bajo paralelo'):'');
+  if(ex==='valgus')return tr('rodillas/tobillos')+' '+(isFinite(r.mnRatio)?r.mnRatio.toFixed(2):'–')+(r.mnRatio<0.8?' · '+tr('VALGO'):r.mnRatio<0.95?' · '+tr('leve valgo'):' · ok');
+  if(ex==='deadlift')return tr('cadera')+' '+mvF0(r.min)+'° · '+tr('rodilla')+' '+mvF0(r.mnKnee)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°';
+  if(ex==='lunge')return tr('rodilla adelante')+' '+mvF0(r.min)+'° · '+tr('atrás')+' '+mvF0(r.mnBack)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°';
+  if(ex==='bench')return tr('codo')+' '+mvF0(r.min)+'° · '+tr('hombro adelanta')+' '+mvF0(r.maxProt)+'%'+(r.maxProt>12?' · '+tr('ESCÁPULA SE DESPEGA'):'');
+  return '';
+}
+function mvRows(ex,m){
+  if(ex==='jump')return (m.jumps||[]).map(function(j,i){return [tr('Salto')+' '+(i+1),mvF1(j.h)+' cm · '+tr('vuelo')+' '+Math.round(j.ft*1000)+' ms'];});
+  if(ex==='free'){var f=m.free||{};return f.kL==null?[]:[[tr('Mínimos'),tr('rodilla izq.')+' '+mvF0(f.kL)+'° · '+tr('der.')+' '+mvF0(f.kR)+'° · '+tr('cadera izq.')+' '+mvF0(f.hL)+'° · '+tr('der.')+' '+mvF0(f.hR)+'°']];}
+  return (m.reps||[]).map(function(r,i){return [tr('Rep')+' '+(i+1),mvRepLine(ex,r)];});
+}
+function mvRenderLog(){
+  var S=MV.S,el=mvEl('mv-log');if(!S){el.style.display='none';return;}
+  var rows=mvRows(MV.ex,{reps:S.reps,jumps:S.jumps,free:S.free});
+  el.style.display=rows.length?'block':'none';
+  el.innerHTML=rows.slice(-12).reverse().map(function(r){return '<div><span>'+r[0]+'</span><span>'+r[1]+'</span></div>';}).join('');
+}
+function mvHasData(){var S=MV.S;return !!S&&(S.reps.length>0||S.jumps.length>0||(MV.ex==='free'&&S.free&&S.free.kL!=null));}
+function mvUpdSave(){var b=mvEl('mv-save');if(!b)return;b.style.display=(MV.running||mvHasData())&&MV.S?'flex':'none';b.disabled=!mvHasData();}
+
+/* --- dibujo --- */
+function mvDraw(L,labels){
+  var cv=mvEl('mv-cv'),ctx=cv.getContext('2d'),vid=mvEl('mv-vid'),w=cv.width,h=cv.height,s=Math.max(w,h)/720,G='#a8e063';
+  ctx.save();if(MV.mirror){ctx.translate(w,0);ctx.scale(-1,1);}
+  ctx.drawImage(vid,0,0,w,h);ctx.fillStyle='rgba(0,0,0,0.18)';ctx.fillRect(0,0,w,h);
+  var tr_=MV.S.trail;
+  if(tr_.length>1&&mvTrailOn()){ctx.lineWidth=3*s;ctx.strokeStyle='#ffd166';ctx.lineCap='round';ctx.beginPath();tr_.forEach(function(p,i){if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);});ctx.stroke();}
+  if(L){
+    ctx.lineCap='round';
+    MV_BONES.forEach(function(b){var A=L[b[0]],B=L[b[1]];if(mvVis(A)<0.35||mvVis(B)<0.35)return;
+      ctx.strokeStyle='rgba(0,0,0,0.55)';ctx.lineWidth=7*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+      ctx.strokeStyle=G;ctx.lineWidth=4*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();});
+    for(var i=11;i<33;i++){var p=L[i];if(mvVis(p)<0.35)continue;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4.2*s,0,7);ctx.fill();}
+    if(MV.ex==='valgus'){var r=MV.S.last.ratio,c=!isFinite(r)?'#fff':r<0.8?'#ff6b6b':r<0.95?'#ffd166':G;
+      ctx.setLineDash([8*s,7*s]);ctx.lineWidth=2.5*s;ctx.strokeStyle=c;
+      [[25,27],[26,28]].forEach(function(q){ctx.beginPath();ctx.moveTo(L[q[1]].x,L[q[0]].y-40*s);ctx.lineTo(L[q[1]].x,L[q[1]].y);ctx.stroke();});ctx.setLineDash([]);}
+  }
+  ctx.restore();
+  if(L)labels.forEach(function(lb){var p=lb[0],v=lb[1];if(v==null||!isFinite(v)||mvVis(p)<0.35)return;
+    var x=MV.mirror?w-p.x:p.x,y=p.y;ctx.font='800 '+(18*s)+'px "Barlow Condensed",sans-serif';var tx=Math.round(v)+'°',tw=ctx.measureText(tx).width;
+    ctx.fillStyle='rgba(14,16,21,0.82)';mvRR(ctx,x+10*s,y-14*s,tw+12*s,24*s,6*s);ctx.fill();ctx.fillStyle=G;ctx.fillText(tx,x+16*s,y+4*s);
+    ctx.strokeStyle=G;ctx.lineWidth=2*s;ctx.beginPath();ctx.arc(x,y,9*s,0,7);ctx.stroke();});
+  // marca de agua chica
+  ctx.font='700 '+(13*s)+'px "Barlow Condensed",sans-serif';ctx.fillStyle='rgba(168,224,99,0.85)';ctx.textAlign='right';ctx.fillText('PDapp · '+mvExName(MV.ex)+(MV_EX[MV.ex].load?' · '+tr(mvLoadOf(MV.ex)==='bar'?'con carga':'sin carga'):''),w-10*s,h-10*s);ctx.textAlign='left';
+}
+function mvRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+/* --- MediaPipe (se carga solo al usarlo) --- */
+async function mvGetLandmarker(){
+  if(MV.landmarker)return MV.landmarker;if(MV.loading)return MV.loading;
+  mvStatus(tr('Cargando el analizador (solo la primera vez)…'));
+  MV.loading=(async function(){
+    var mp=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+MV_VER+'/vision_bundle.mjs');
+    var fs=await mp.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+MV_VER+'/wasm');
+    var opts=function(d){return {baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',delegate:d},runningMode:'VIDEO',numPoses:1,minPoseDetectionConfidence:0.5,minPosePresenceConfidence:0.5,minTrackingConfidence:0.5};};
+    try{MV.landmarker=await mp.PoseLandmarker.createFromOptions(fs,opts('GPU'));}catch(e){MV.landmarker=await mp.PoseLandmarker.createFromOptions(fs,opts('CPU'));}
+    mvStatus('');return MV.landmarker;
+  })();
+  try{return await MV.loading;}catch(e){MV.loading=null;mvStatus(tr('No se pudo cargar el analizador. Revisá la conexión y probá de nuevo.'),true);throw e;}
+}
+
+/* --- bucle --- */
+function mvStep(now,meta){
+  MV.pending=false;if(!MV.running)return;
+  var vid=mvEl('mv-vid'),cv=mvEl('mv-cv');
+  if(vid.readyState>=2&&vid.videoWidth){
+    if(cv.width!==vid.videoWidth||cv.height!==vid.videoHeight){cv.width=vid.videoWidth;cv.height=vid.videoHeight;}
+    var t=MV.mode==='file'?((meta&&meta.mediaTime!=null)?meta.mediaTime*1000:vid.currentTime*1000):((meta&&meta.captureTime)||now||performance.now());
+    t+=MV.tOffset;if(t<=MV.lastTs){if(MV.mode==='file'&&t<MV.lastTs-500){MV.tOffset+=MV.lastTs;t+=MV.lastTs;}else t=MV.lastTs+1;}
+    MV.lastTs=t;
+    var L=null,labels=[];
+    try{var r=MV.landmarker.detectForVideo(vid,t);
+      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});labels=mvAnalyze(L,t);}
+    }catch(e){console.warn(e);}
+    mvDraw(L,labels);
+    // captura del punto más profundo de la rep en curso (después de dibujar)
+    var S=MV.S;if(S.phase==='down'&&S.cur&&MV.ex!=='jump'){mvSnapCandidate(S.cur.min);}
+    MV.fps.push(performance.now());while(MV.fps.length>20)MV.fps.shift();
+    if(MV.fps.length>2){var fps=(MV.fps.length-1)*1000/(MV.fps[MV.fps.length-1]-MV.fps[0]);mvEl('mv-badge').textContent=mvExName(MV.ex)+(MV_EX[MV.ex].load?' · '+tr(mvLoadOf(MV.ex)==='bar'?'con carga':'sin carga'):'')+' · '+Math.round(fps)+' fps';}
+    if(Math.random()<0.25){mvRenderMetrics();if(MV.ex==='free')mvUpdSave();}
+  }
+  mvSchedule();
+}
+function mvSchedule(){if(!MV.running||MV.pending)return;MV.pending=true;var vid=mvEl('mv-vid');if(vid.requestVideoFrameCallback)MV.frameCb=vid.requestVideoFrameCallback(mvStep);else requestAnimationFrame(function(){mvStep(performance.now());});}
+async function mvStopAll(){
+  MV.running=false;mvStopRec(false);var vid=mvEl('mv-vid');
+  if(MV.frameCb!=null&&vid.cancelVideoFrameCallback){try{vid.cancelVideoFrameCallback(MV.frameCb);}catch(e){}}MV.pending=false;
+  if(MV.stream){MV.stream.getTracks().forEach(function(t){t.stop();});MV.stream=null;}
+  try{vid.pause();}catch(e){}vid.removeAttribute('src');vid.srcObject=null;
+}
+function mvStartLoop(){mvReset();mvEl('mv-stage').style.display='block';MV.running=true;MV.fps=[];MV.lastTs=-1;MV.tOffset=0;mvSchedule();mvStatus('');mvUpdSave();setTimeout(function(){try{mvEl('mv-stage').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},50);}
+async function movStartCam(){
+  try{await mvGetLandmarker();}catch(e){return;}
+  await mvStopAll();
+  try{MV.stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:MV.facing,width:{ideal:1280},height:{ideal:720},frameRate:{ideal:60}}});}
+  catch(e){mvStatus(tr('No hay permiso para usar la cámara. Activalo en Ajustes → Safari → Cámara.'),true);return;}
+  var vid=mvEl('mv-vid');MV.mode='cam';MV.mirror=(MV.facing==='user');vid.srcObject=MV.stream;try{await vid.play();}catch(e){}
+  mvStartLoop();
+  mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="mvFlip()">'+tr('Girar')+'</button><button class="mv-btn" id="mv-c-rec" onclick="mvToggleRec()">● '+tr('Grabar')+'</button><button class="mv-btn" onclick="mvReset()">'+tr('Reiniciar')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
+}
+function mvFlip(){MV.facing=MV.facing==='user'?'environment':'user';movStartCam();}
+function movFilePicked(inp){var f=inp.files&&inp.files[0];inp.value='';if(f)mvStartFile(f);}
+async function mvStartFile(file){
+  try{await mvGetLandmarker();}catch(e){return;}
+  await mvStopAll();
+  var vid=mvEl('mv-vid');MV.mode='file';MV.mirror=false;vid.src=URL.createObjectURL(file);vid.loop=false;
+  await new Promise(function(r){vid.onloadedmetadata=r;});
+  vid.playbackRate=0.5;try{await vid.play();}catch(e){}
+  mvStartLoop();
+  vid.onended=function(){MV.running=false;mvRenderMetrics();mvRenderLog();mvUpdSave();mvStatus(tr('Análisis terminado. Guardalo o volvé a reproducirlo.'));};
+  mvEl('mv-ctrl').innerHTML='<button class="mv-btn" id="mv-c-play" onclick="mvPlayPause()">'+tr('Pausa')+'</button><button class="mv-btn" onclick="mvAgain()">'+tr('Desde el inicio')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
+}
+function mvPlayPause(){var vid=mvEl('mv-vid'),b=mvEl('mv-c-play');if(vid.paused){vid.play();MV.running=true;b.textContent=tr('Pausa');mvSchedule();}else{vid.pause();b.textContent=tr('Seguir');}}
+function mvAgain(){var vid=mvEl('mv-vid');mvReset();vid.currentTime=0;vid.play();MV.running=true;var b=mvEl('mv-c-play');if(b)b.textContent=tr('Pausa');mvSchedule();}
+async function mvStopStage(){await mvStopAll();mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="movStartCam()">'+tr('Cámara en vivo')+'</button><button class="mv-btn" onclick="document.getElementById(\'mv-file\').click()">'+tr('Subir video')+'</button>';mvUpdSave();}
+
+/* --- grabar video con líneas (se guarda en el teléfono / se comparte) --- */
+function mvToggleRec(){if(MV.rec)mvStopRec(true);else mvStartRec();}
+function mvStartRec(){
+  var cv=mvEl('mv-cv');if(!cv.captureStream||!window.MediaRecorder){mvStatus(tr('Este navegador no permite grabar.'),true);return;}
+  var type=['video/mp4','video/webm;codecs=vp9','video/webm'].find(function(t){return MediaRecorder.isTypeSupported(t);})||'';
+  MV.chunks=[];MV.rec=new MediaRecorder(cv.captureStream(30),type?{mimeType:type,videoBitsPerSecond:4e6}:undefined);
+  MV.rec.ondataavailable=function(e){if(e.data.size)MV.chunks.push(e.data);};
+  MV.rec.onstop=function(){var blob=new Blob(MV.chunks,{type:(MV.rec&&MV.rec.mimeType)||type||'video/mp4'});MV.rec=null;mvShareRec(blob);};
+  MV.rec.start(500);mvEl('mv-recdot').style.display='block';var b=mvEl('mv-c-rec');if(b){b.textContent='■ '+tr('Detener');b.classList.add('red');}
+}
+function mvStopRec(save){if(!MV.rec)return;if(!save)MV.rec.onstop=null;MV.rec.stop();if(!save)MV.rec=null;mvEl('mv-recdot').style.display='none';var b=mvEl('mv-c-rec');if(b){b.textContent='● '+tr('Grabar');b.classList.remove('red');}}
+async function mvShareRec(blob){
+  var ext=blob.type.indexOf('mp4')>=0?'mp4':'webm',name='PDapp-'+MV.ex+'-'+Date.now()+'.'+ext;var file=new File([blob],name,{type:blob.type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'PDapp'});return;}catch(e){}}
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+}
+
+/* --- guardar --- */
+function mvJpeg(canvas,w,q){var c=document.createElement('canvas');c.width=w;c.height=Math.round(canvas.height*w/canvas.width);c.getContext('2d').drawImage(canvas,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q);}
+function mvSummary(ex,m){
+  var reps=m.reps||[],j=m.jumps||[];
+  function mn(k){var v=reps.map(function(r){return r[k];}).filter(isFinite);return v.length?Math.min.apply(null,v):null;}
+  function mx(k){var v=reps.map(function(r){return r[k];}).filter(isFinite);return v.length?Math.max.apply(null,v):null;}
+  if(ex==='jump'){if(!j.length)return '';var b=Math.max.apply(null,j.map(function(x){return x.h;}));return j.length+' '+tr(j.length===1?'salto':'saltos')+' · '+tr('mejor')+' '+mvF1(b)+' cm';}
+  if(ex==='free'){var f=m.free||{};return f.kL==null?'':tr('Rodilla mín.')+' '+mvF0(Math.min(f.kL,f.kR))+'° · '+tr('Cadera mín.')+' '+mvF0(Math.min(f.hL,f.hR))+'°';}
+  var n=reps.length+' reps';
+  if(ex==='squat')return n+' · '+tr('rodilla')+' '+mvF0(mn('min'))+'° · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°';
+  if(ex==='valgus'){var r=mn('mnRatio');return n+' · '+tr('rodillas/tobillos')+' '+(r==null?'–':r.toFixed(2))+(r!=null&&r<0.8?' · '+tr('VALGO'):r!=null&&r<0.95?' · '+tr('leve valgo'):'');}
+  if(ex==='deadlift')return n+' · '+tr('cadera')+' '+mvF0(mn('min'))+'° · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°';
+  if(ex==='lunge')return n+' · '+tr('rodilla adelante')+' '+mvF0(mn('min'))+'°';
+  if(ex==='bench'){var p=mx('maxProt');return n+' · '+tr('codo')+' '+mvF0(mn('min'))+'° · '+tr('hombro adelanta')+' '+mvF0(p)+'%';}
+  return n;
+}
+function mvRound(o){return JSON.parse(JSON.stringify(o,function(k,v){return typeof v==='number'?Math.round(v*100)/100:v;}));}
+async function movSave(){
+  var S=MV.S;if(!mvHasData())return;
+  var btn=mvEl('mv-save');btn.disabled=true;btn.textContent=tr('Guardando...');
+  var snap=MV.ex==='free'?mvGrab(null):(S.snap||S.curSnap||mvGrab(null));
+  var metrics=mvRound({reps:S.reps.slice(0,30),jumps:S.jumps.slice(0,20),free:S.free||null});
+  metrics.summary=mvSummary(MV.ex,metrics);
+  var rec={ex:MV.ex,load:MV_EX[MV.ex].load?mvLoadOf(MV.ex):null,src:MV.mode,test_key:MV.testKey,metrics:metrics,thumb:snap?mvJpeg(snap,200,0.6):null,img:snap?mvJpeg(snap,720,0.72):null};
+  var res;
+  try{
+    if(ATH_TOKEN)res=await sb.rpc('athlete_save_analysis',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_data:rec});
+    else{var row=Object.assign({player_id:MV.pid,by_role:'coach'},rec);res=await sb.from('analyses').insert(row);}
+  }catch(e){res={error:e};}
+  btn.disabled=false;btn.textContent=tr('Guardar análisis');
+  if(res&&res.error){mvStatus(tr('No se pudo guardar')+': '+(res.error.message||res.error),true);return;}
+  // test: CMJ -> completar el resultado con el mejor salto
+  if(MV.testKey==='cmj'&&S.jumps.length){var best=Math.max.apply(null,S.jumps.map(function(j){return j.h;}));var tv=mvEl('test-v');if(tv)tv.value=Math.round(best*10)/10;}
+  if(ATH_TOKEN){var p=PLAYERS.find(function(x){return x.id===MV.pid;});try{notifyCoach(tr('Nuevo análisis de movimiento'),((p&&p.name)||'')+' · '+mvExName(MV.ex)+(metrics.summary?' · '+metrics.summary:''));}catch(e){}}
+  delete MV.lists[MV.pid];
+  await movClose();
+  try{toast(tr((MV.testKey==='cmj'&&S.jumps.length)?'Análisis guardado. Se completó el resultado con el mejor salto: revisalo y tocá Guardar.':'Análisis guardado'));}catch(e){}
+  mvRefreshLists();
+}
+
+/* --- listas (alumno y profe) --- */
+async function mvFetchList(pid,force){
+  if(!force&&MV.lists[pid])return MV.lists[pid];
+  var r;
+  try{
+    if(ATH_TOKEN)r=await sb.rpc('athlete_list_analyses',{p_token:ATH_TOKEN,p_pin:ATH_PIN});
+    else r=await sb.from('analyses').select('id,created_at,by_role,ex,load,src,test_key,metrics,thumb').eq('player_id',pid).order('created_at',{ascending:false}).limit(40);
+  }catch(e){r={error:e};}
+  if(r.error){MV.lists[pid]={error:true,items:[]};return MV.lists[pid];}
+  MV.lists[pid]={items:r.data||[]};return MV.lists[pid];
+}
+function mvDateTxt(iso){try{var d=new Date(iso);return d.getDate()+'/'+(d.getMonth()+1)+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}catch(e){return '';}}
+function mvListHtml(pid){
+  var L=MV.lists[pid];
+  if(!L)return '<div style="font-size:12px;color:var(--muted2);padding:4px 2px;">'+tr('Cargando...')+'</div>';
+  if(L.error)return '<div style="font-size:12px;color:var(--muted2);padding:4px 2px;">'+tr('Falta activar el guardado de análisis (SQL).')+'</div>';
+  if(!L.items.length)return '<div style="font-size:12px;color:var(--muted2);padding:4px 2px;">'+tr('Todavía no hay análisis guardados.')+'</div>';
+  return L.items.slice(0,10).map(function(a){
+    var who=a.by_role==='athlete'?tr('alumno'):tr('profe');
+    var tst=a.test_key&&testDef(a.test_key)?' · '+tr('Test')+' '+tr(testDef(a.test_key).n):'';
+    return '<div class="mv-card" onclick="movView(\''+pid+'\',\''+a.id+'\')">'
+      +(a.thumb?'<img src="'+a.thumb+'" alt=""/>':'<div class="ph"></div>')
+      +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+mvExName(a.ex)+(a.load?' <span style="font-weight:500;color:var(--muted2);font-size:11.5px;">· '+tr(a.load==='bar'?'con carga':'sin carga')+'</span>':'')+'</div>'
+      +'<div style="font-size:11.5px;color:var(--mob);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+((a.metrics&&a.metrics.summary)||'')+'</div>'
+      +'<div style="font-size:10.5px;color:var(--muted2);margin-top:1px;">'+mvDateTxt(a.created_at)+' · '+who+tst+'</div></div></div>';
+  }).join('');
+}
+function mvSectionHtml(pid){
+  return '<div class="sum-lbl" style="margin-top:16px;">'+tr('Análisis de movimiento')+'</div>'
+    +'<button onclick="openMov({pid:\''+pid+'\'})" style="width:100%;padding:13px;border-radius:var(--rsm);border:none;background:var(--mobfill);color:#0a0b0e;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:9px;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'+tr('Analizar movimiento')+'</button>'
+    +'<div id="mv-list-'+pid+'">'+mvListHtml(pid)+'</div>';
+}
+function mvLoadInto(pid){
+  mvFetchList(pid).then(function(){var el=document.getElementById('mv-list-'+pid);if(el)el.innerHTML=mvListHtml(pid);});
+}
+function mvRefreshLists(){
+  try{renderTestsAthlete();}catch(e){}
+  try{renderTestsScreen();}catch(e){}
+}
+async function movView(pid,id){
+  var L=MV.lists[pid];var a=L&&L.items.find(function(x){return x.id===id;});if(!a)return;
+  mvEl('mvv-title').textContent=mvExName(a.ex)+(a.load?' · '+tr(a.load==='bar'?'con carga':'sin carga'):'');
+  var tst=a.test_key&&testDef(a.test_key)?' · '+tr('Test')+' '+tr(testDef(a.test_key).n):'';
+  mvEl('mvv-sub').textContent=mvDateTxt(a.created_at)+' · '+(a.by_role==='athlete'?tr('lo hizo el alumno'):tr('lo hizo el profe'))+tst;
+  var rows=mvRows(a.ex,a.metrics||{});
+  mvEl('mvv-body').innerHTML=(a.metrics&&a.metrics.summary?'<div style="font-weight:700;color:var(--mob);margin-bottom:6px;">'+a.metrics.summary+'</div>':'')
+    +(rows.length?'<div class="mv-log" style="background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:4px 12px;font-size:12.5px;">'+rows.map(function(r){return '<div style="padding:6px 0;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;gap:10px;"><span>'+r[0]+'</span><span style="color:var(--muted);text-align:right;">'+r[1]+'</span></div>';}).join('')+'</div>':'');
+  var canDel=!ATH_TOKEN||a.by_role==='athlete';
+  mvEl('mvv-actions').innerHTML=canDel?'<button onclick="movDelete(\''+pid+'\',\''+id+'\')" style="flex:1;padding:11px;border-radius:10px;border:1px solid rgba(255,107,107,0.35);background:rgba(255,107,107,0.10);color:#ff6b6b;font-family:\'Barlow Condensed\',sans-serif;font-size:13.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'+tr('Eliminar')+'</button>':'';
+  var box=mvEl('mvv-img');box.innerHTML=a.thumb?'<img src="'+a.thumb+'" style="width:100%;display:block;filter:blur(1px);"/>':tr('Cargando...');
+  mvEl('modal-mov-view').classList.add('open');
+  var r;
+  try{
+    if(ATH_TOKEN)r=await sb.rpc('athlete_analysis_img',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_id:id});
+    else r=await sb.from('analyses').select('img').eq('id',id).single();
+  }catch(e){r={error:e};}
+  var img=r&&!r.error?(ATH_TOKEN?r.data:(r.data&&r.data.img)):null;
+  if(img)box.innerHTML='<img src="'+img+'" style="width:100%;display:block;"/>';
+}
+function movViewClose(){mvEl('modal-mov-view').classList.remove('open');}
+function movDelete(pid,id){
+  movViewClose();
+  askConfirm('¿Eliminar este análisis?',async function(){
+    var r;
+    try{
+      if(ATH_TOKEN)r=await sb.rpc('athlete_delete_analysis',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_id:id});
+      else r=await sb.from('analyses').delete().eq('id',id);
+    }catch(e){r={error:e};}
+    if(r&&r.error){showInfo(tr('No se pudo eliminar')+': '+(r.error.message||r.error));return;}
+    delete MV.lists[pid];mvRefreshLists();
+  },{danger:true,okLabel:'Eliminar'});
+}
+
+/* --- enganches con la app --- */
+(function(){
+  var _rta=renderTestsAthlete;
+  renderTestsAthlete=function(){
+    _rta.apply(this,arguments);
+    try{
+      var box=document.getElementById('tests-athlete');if(!box||isCoach)return;
+      var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});if(!p&&PLAYERS.length===1)p=PLAYERS[0];if(!p)return;
+      var d=document.createElement('div');d.innerHTML=mvSectionHtml(p.id);box.appendChild(d);mvLoadInto(p.id);
+    }catch(e){console.warn(e);}
+  };
+  var _rts=renderTestsScreen;
+  renderTestsScreen=function(){
+    _rts.apply(this,arguments);
+    try{
+      var box=document.getElementById('tests-screen');if(!box||!testsOpenPid)return;
+      var idx=PLAYERS.findIndex(function(p){return p.id===testsOpenPid;});var card=box.children[idx];if(!card)return;
+      var d=document.createElement('div');d.style.cssText='border-top:1px solid var(--border2);padding:2px 13px 12px;';d.innerHTML=mvSectionHtml(testsOpenPid);card.appendChild(d);mvLoadInto(testsOpenPid);
+    }catch(e){console.warn(e);}
+  };
+  var _otm=openTestModal;
+  openTestModal=function(k){
+    _otm.apply(this,arguments);
+    try{
+      var b=document.getElementById('test-mov-btn');
+      if(!b){b=document.createElement('button');b.id='test-mov-btn';b.style.cssText="width:100%;padding:12px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.10);color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;";
+        var ref=document.getElementById('test-fields');ref.parentNode.insertBefore(b,ref);}
+      b.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'+tr(k==='cmj'?'Medir con video':'Filmar con análisis');
+      b.onclick=function(){openMov({pid:testTargetPid||currentPlayerId,testKey:k});};
+    }catch(e){console.warn(e);}
+  };
+})();
+</script>
+
 </body>
 </html.bz{fill:transparent;stroke:rgba(120,130,150,0.28);stroke-width:1;cursor:pointer;transition:fill .12s,stroke .12s;}
 .bz:hover{fill:rgba(255,255,255,0.22);stroke:rgba(255,255,255,0.65);}
