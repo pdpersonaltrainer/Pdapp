@@ -1600,7 +1600,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261014-1';
+var APP_VERSION='20261014-2';
 (function(){
   try{
     setTimeout(function(){
@@ -8574,6 +8574,9 @@ initApp();
 #modal-mov .mv-stage video{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
 #modal-mov .mv-badge{position:absolute;top:9px;left:9px;background:rgba(0,0,0,.6);border:1px solid rgba(168,224,99,.5);color:#a8e063;font:700 11.5px 'Barlow Condensed',sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:4px 8px;border-radius:7px;}
 #modal-mov .mv-rec{position:absolute;top:9px;right:9px;background:#ff6b6b;color:#fff;font:700 11.5px 'Barlow Condensed',sans-serif;letter-spacing:.07em;padding:4px 8px;border-radius:7px;display:none;}
+#modal-mov .mv-shutter{position:absolute;right:14px;bottom:14px;width:62px;height:62px;border-radius:50%;border:4px solid #fff;background:rgba(0,0,0,0.25);display:none;align-items:center;justify-content:center;padding:0;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.45);-webkit-tap-highlight-color:transparent;}
+#modal-mov .mv-shutter span{display:block;width:46px;height:46px;border-radius:50%;background:#ff3b30;transition:all .2s ease;}
+#modal-mov .mv-shutter.on span{width:24px;height:24px;border-radius:6px;}
 #modal-mov .mv-ctrl{display:flex;gap:6px;padding:7px;background:var(--s1);border-top:1px solid var(--border2);}
 #modal-mov .mv-ctrl .mv-btn{padding:9px 4px;font-size:12.5px;}
 #modal-mov .mv-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-top:10px;}
@@ -8613,7 +8616,7 @@ initApp();
     </div>
     <div class="mv-status" id="mv-status"></div>
     <div class="mv-stage" id="mv-stage">
-      <canvas id="mv-cv"></canvas>
+      <div style="position:relative;"><canvas id="mv-cv"></canvas><button id="mv-shutter" class="mv-shutter" onclick="mvToggleRec()" aria-label="Grabar"><span></span></button></div>
       <video id="mv-vid" playsinline muted></video>
       <div class="mv-badge" id="mv-badge"></div>
       <div class="mv-rec" id="mv-recdot">● REC</div>
@@ -8923,7 +8926,7 @@ function mvStep(now,meta){
 }
 function mvSchedule(){if(!MV.running||MV.pending)return;MV.pending=true;var vid=mvEl('mv-vid');if(vid.requestVideoFrameCallback)MV.frameCb=vid.requestVideoFrameCallback(mvStep);else requestAnimationFrame(function(){mvStep(performance.now());});}
 async function mvStopAll(){
-  MV.running=false;mvStopRec(false);var vid=mvEl('mv-vid');
+  MV.running=false;mvStopRec(MV.rec?true:false);var vid=mvEl('mv-vid');var sh=mvEl('mv-shutter');if(sh)sh.style.display='none';
   if(MV.frameCb!=null&&vid.cancelVideoFrameCallback){try{vid.cancelVideoFrameCallback(MV.frameCb);}catch(e){}}MV.pending=false;
   if(MV.stream){MV.stream.getTracks().forEach(function(t){t.stop();});MV.stream=null;}
   try{vid.pause();}catch(e){}vid.removeAttribute('src');vid.srcObject=null;
@@ -8935,8 +8938,8 @@ async function movStartCam(){
   try{MV.stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:MV.facing,width:{ideal:1280},height:{ideal:720},frameRate:{ideal:60}}});}
   catch(e){mvStatus(tr('No hay permiso para usar la cámara. Activalo en Ajustes → Safari → Cámara.'),true);return;}
   var vid=mvEl('mv-vid');MV.mode='cam';MV.mirror=(MV.facing==='user');vid.srcObject=MV.stream;try{await vid.play();}catch(e){}
-  mvStartLoop();
-  mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="mvFlip()">'+tr('Girar')+'</button><button class="mv-btn" id="mv-c-rec" onclick="mvToggleRec()">● '+tr('Grabar')+'</button><button class="mv-btn" onclick="mvReset()">'+tr('Reiniciar')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
+  mvStartLoop();mvEl('mv-shutter').style.display='flex';
+  mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="mvFlip()">'+tr('Girar')+'</button><button class="mv-btn" onclick="mvReset()">'+tr('Reiniciar')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
 }
 function mvFlip(){MV.facing=MV.facing==='user'?'environment':'user';movStartCam();}
 function movFilePicked(inp){var f=inp.files&&inp.files[0];inp.value='';if(f)mvStartFile(f);}
@@ -8962,9 +8965,11 @@ function mvStartRec(){
   MV.chunks=[];MV.rec=new MediaRecorder(cv.captureStream(30),type?{mimeType:type,videoBitsPerSecond:4e6}:undefined);
   MV.rec.ondataavailable=function(e){if(e.data.size)MV.chunks.push(e.data);};
   MV.rec.onstop=function(){var blob=new Blob(MV.chunks,{type:(MV.rec&&MV.rec.mimeType)||type||'video/mp4'});MV.rec=null;mvShareRec(blob);};
-  MV.rec.start(500);mvEl('mv-recdot').style.display='block';var b=mvEl('mv-c-rec');if(b){b.textContent='■ '+tr('Detener');b.classList.add('red');}
+  MV.rec.start(500);var rd=mvEl('mv-recdot');rd.style.display='block';MV.recT0=Date.now();rd.textContent='● REC 0:00';
+  MV.recTimer=setInterval(function(){var s=Math.floor((Date.now()-MV.recT0)/1000);rd.textContent='● REC '+Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);},500);
+  mvEl('mv-shutter').classList.add('on');
 }
-function mvStopRec(save){if(!MV.rec)return;if(!save)MV.rec.onstop=null;MV.rec.stop();if(!save)MV.rec=null;mvEl('mv-recdot').style.display='none';var b=mvEl('mv-c-rec');if(b){b.textContent='● '+tr('Grabar');b.classList.remove('red');}}
+function mvStopRec(save){if(!MV.rec)return;if(!save)MV.rec.onstop=null;try{MV.rec.stop();}catch(e){}if(!save)MV.rec=null;if(MV.recTimer){clearInterval(MV.recTimer);MV.recTimer=null;}mvEl('mv-recdot').style.display='none';mvEl('mv-shutter').classList.remove('on');}
 async function mvShareRec(blob){
   var ext=blob.type.indexOf('mp4')>=0?'mp4':'webm',name='PDapp-'+MV.ex+'-'+Date.now()+'.'+ext;var file=new File([blob],name,{type:blob.type});
   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'PDapp'});return;}catch(e){}}
