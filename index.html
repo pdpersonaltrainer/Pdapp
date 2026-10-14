@@ -1600,7 +1600,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261014-5';
+var APP_VERSION='20261014-6';
 (function(){
   try{
     setTimeout(function(){
@@ -9150,8 +9150,8 @@ function mvStep(now,meta){
     var t=MV.mode==='file'?((meta&&meta.mediaTime!=null)?meta.mediaTime*1000:vid.currentTime*1000):((meta&&meta.captureTime)||now||performance.now());
     t+=MV.tOffset;if(t<=MV.lastTs){if(MV.mode==='file'&&t<MV.lastTs-500){MV.tOffset+=MV.lastTs;t+=MV.lastTs;}else t=MV.lastTs+1;}
     MV.lastTs=t;
-    var L=null,labels=[];
-    try{var r=MV.landmarker.detectForVideo(vid,t);
+    var L=null,labels=[];MV.lastFrame=performance.now();
+    if(MV.landmarker)try{var r=MV.landmarker.detectForVideo(vid,t);
       if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});labels=mvAnalyze(L,t);}
     }catch(e){console.warn(e);}
     mvDraw(L,labels);
@@ -9163,32 +9163,50 @@ function mvStep(now,meta){
   }
   mvSchedule();
 }
-function mvSchedule(){if(!MV.running||MV.pending)return;MV.pending=true;var vid=mvEl('mv-vid');if(vid.requestVideoFrameCallback)MV.frameCb=vid.requestVideoFrameCallback(mvStep);else requestAnimationFrame(function(){mvStep(performance.now());});}
+function mvSchedule(){if(!MV.running||MV.pending)return;MV.pending=true;var vid=mvEl('mv-vid');if(vid.requestVideoFrameCallback&&!MV.noRVFC)MV.frameCb=vid.requestVideoFrameCallback(mvStep);else requestAnimationFrame(function(){mvStep(performance.now());});}
 async function mvStopAll(){
-  MV.running=false;mvStopRec(MV.rec?true:false);var vid=mvEl('mv-vid');var sh=mvEl('mv-shutter');if(sh)sh.style.display='none';
+  MV.running=false;MV.noRVFC=false;if(MV.wd){clearInterval(MV.wd);MV.wd=null;}mvStopRec(MV.rec?true:false);var vid=mvEl('mv-vid');var sh=mvEl('mv-shutter');if(sh)sh.style.display='none';
   if(MV.frameCb!=null&&vid.cancelVideoFrameCallback){try{vid.cancelVideoFrameCallback(MV.frameCb);}catch(e){}}MV.pending=false;
   if(MV.stream){MV.stream.getTracks().forEach(function(t){t.stop();});MV.stream=null;}
   try{vid.pause();}catch(e){}vid.removeAttribute('src');vid.srcObject=null;
 }
-function mvStartLoop(){mvReset();mvEl('mv-stage').style.display='block';mvRenderCal();MV.running=true;MV.fps=[];MV.lastTs=-1;MV.tOffset=0;mvSchedule();mvStatus('');mvUpdSave();setTimeout(function(){try{mvEl('mv-stage').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},50);}
+function mvPlay(vid){try{var pr=vid.play();if(pr&&pr.catch)pr.catch(function(){});}catch(e){}vid.onloadeddata=function(){try{var p2=vid.play();if(p2&&p2.catch)p2.catch(function(){});}catch(e){}};}
+function mvStartLoop(){mvReset();mvEl('mv-stage').style.display='block';mvRenderCal();MV.running=true;MV.fps=[];MV.lastTs=-1;MV.tOffset=0;MV.lastFrame=performance.now();mvSchedule();
+  if(MV.wd)clearInterval(MV.wd);
+  MV.wd=setInterval(function(){
+    if(!MV.running){clearInterval(MV.wd);MV.wd=null;return;}
+    var vid=mvEl('mv-vid');
+    if(MV.mode==='file'&&vid.paused)return;
+    if(performance.now()-(MV.lastFrame||0)>1200){
+      mvPlay(vid);
+      if(vid.readyState>=2){ // el video tiene imagen pero no avisa de cuadros: seguimos con requestAnimationFrame
+        if(MV.frameCb!=null&&vid.cancelVideoFrameCallback){try{vid.cancelVideoFrameCallback(MV.frameCb);}catch(e){}}
+        MV.frameCb=null;MV.pending=false;MV.noRVFC=true;mvSchedule();
+      }
+    }
+  },700);mvStatus('');mvUpdSave();setTimeout(function(){try{mvEl('mv-stage').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},50);}
 async function movStartCam(){
-  try{await mvGetLandmarker();}catch(e){return;}
   await mvStopAll();
+  var lp=mvGetLandmarker();lp.catch(function(){});           // carga en paralelo (no bloquea la cámara)
   try{MV.stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:MV.facing,width:{ideal:1280},height:{ideal:720},frameRate:{ideal:60}}});}
   catch(e){mvStatus(tr('No hay permiso para usar la cámara. Activalo en Ajustes → Safari → Cámara.'),true);return;}
-  var vid=mvEl('mv-vid');MV.mode='cam';MV.mirror=(MV.facing==='user');vid.srcObject=MV.stream;try{await vid.play();}catch(e){}
-  mvStartLoop();mvEl('mv-shutter').style.display='flex';
+  var vid=mvEl('mv-vid');MV.mode='cam';MV.mirror=(MV.facing==='user');
+  vid.muted=true;vid.setAttribute('playsinline','');vid.setAttribute('autoplay','');vid.srcObject=MV.stream;
+  mvStartLoop();mvPlay(vid);mvEl('mv-shutter').style.display='flex';
+  if(!MV.landmarker){mvStatus(tr('Cargando el analizador (solo la primera vez)…'));lp.then(function(){mvStatus('');},function(){});}
   mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="mvFlip()">'+tr('Girar')+'</button><button class="mv-btn" onclick="mvReset()">'+tr('Reiniciar')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
 }
 function mvFlip(){MV.facing=MV.facing==='user'?'environment':'user';movStartCam();}
 function movFilePicked(inp){var f=inp.files&&inp.files[0];inp.value='';if(f)mvStartFile(f);}
 async function mvStartFile(file){
-  try{await mvGetLandmarker();}catch(e){return;}
   await mvStopAll();
-  var vid=mvEl('mv-vid');MV.mode='file';MV.mirror=false;vid.src=URL.createObjectURL(file);vid.loop=false;
-  await new Promise(function(r){vid.onloadedmetadata=r;});
-  vid.playbackRate=0.5;try{await vid.play();}catch(e){}
-  mvStartLoop();
+  mvStatus(tr('Cargando el analizador (solo la primera vez)…'));
+  try{await mvGetLandmarker();}catch(e){return;}
+  mvStatus('');
+  var vid=mvEl('mv-vid');MV.mode='file';MV.mirror=false;vid.muted=true;vid.setAttribute('playsinline','');vid.src=URL.createObjectURL(file);vid.loop=false;
+  await new Promise(function(r){var done=false;var f=function(){if(!done){done=true;r();}};vid.onloadedmetadata=f;setTimeout(f,4000);});
+  vid.playbackRate=0.5;
+  mvStartLoop();mvPlay(vid);
   vid.onended=function(){MV.running=false;mvRenderMetrics();mvRenderLog();mvUpdSave();mvStatus(tr('Análisis terminado. Guardalo o volvé a reproducirlo.'));};
   mvEl('mv-ctrl').innerHTML='<button class="mv-btn" id="mv-c-play" onclick="mvPlayPause()">'+tr('Pausa')+'</button><button class="mv-btn" onclick="mvAgain()">'+tr('Desde el inicio')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
 }
