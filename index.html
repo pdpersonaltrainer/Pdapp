@@ -154,7 +154,7 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 .pr-st{width:100%;border-collapse:collapse;font-size:13px;}.pr-st td{padding:4px 4px;border-top:1px solid var(--border2);vertical-align:middle;}.pr-st tr:first-child td{border-top:none;}.pr-st input{width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:7px;font-size:14px;color:var(--text);outline:none;text-align:center;}.ex-sets{margin-top:6px;display:inline-grid;grid-template-columns:auto auto auto;gap:2px 12px;font-size:12px;color:var(--muted);background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;}.ex-sets b{color:var(--text);font-weight:600;}.ex-sets.trk{grid-template-columns:auto auto auto 64px;align-items:center;}.ex-sets-h{font-size:9.5px;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted2);}.ex-sets.trk input{width:64px;box-sizing:border-box;background:var(--s);border:1px solid var(--cm);border-radius:6px;color:var(--text);padding:4px 6px;font-size:16px;text-align:center;outline:none;}.ex-pos{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;}
 .pr-lbl{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .pr-type,.pr-eff{flex:1;font-size:12px;padding:9px 4px;}
-.pr-type.pr-on,.pr-eff.pr-on,.pr-var.pr-on{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
+.pr-type.pr-on,.pr-eff.pr-on,.pr-var.pr-on,.pr-vid.pr-on{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
 .player-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.15s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.28);}
 .player-card:active{transform:scale(0.985);}
 .player-card-inner{display:flex;align-items:center;gap:14px;padding:16px;}
@@ -1260,6 +1260,17 @@ body{overflow-x:hidden;}
       </div>
     </div>
     <div style="margin-bottom:14px;">
+      <div class="pr-lbl">Video de técnica</div>
+      <div style="display:flex;gap:6px;">
+        <button class="pr-vid cv-btn" id="pr-vid-off" onclick="setPrescVid(false)">No pedir</button>
+        <button class="pr-vid cv-btn" id="pr-vid-on" onclick="setPrescVid(true)">Pedir video</button>
+      </div>
+      <div id="pr-vid-box" style="display:none;margin-top:8px;">
+        <select id="pr-vid-ex" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:14px;color:var(--text);outline:none;"></select>
+        <div style="font-size:11.5px;color:var(--muted2);margin-top:5px;line-height:1.4;">El alumno ve el botón “Filmar técnica” en este ejercicio. Usá la nota de abajo para decirle cómo filmarse.</div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
       <div class="pr-lbl">Nota para el alumno (opcional)</div>
       <textarea id="pr-note" rows="2" oninput="updatePrescPreview()" placeholder="Ej: filmate de perfil" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;resize:vertical;line-height:1.45;"></textarea>
     </div>
@@ -1600,7 +1611,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261014-8';
+var APP_VERSION='20261014-9';
 (function(){
   try{
     setTimeout(function(){
@@ -2420,6 +2431,18 @@ var TESTS=[
   how:'Igual que el salto horizontal pero apoyando y cayendo con una sola pierna. Hacelo con cada pierna por separado.',need:'Cinta métrica y espacio libre'}
 ];
 var TESTIMG={'ankle':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M62 120 L88 120" stroke="#e8eaee" stroke-width="3"/><path d="M88 118 L50 76" stroke="#e8eaee" stroke-width="3"/><path d="M50 76 L96 98" stroke="#e8eaee" stroke-width="3"/><path d="M96 98 L114 120" stroke="#e8eaee" stroke-width="3"/><path d="M114 120 L142 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 98 L107 60" stroke="#e8eaee" stroke-width="3"/><path d="M107 60 L66 58" stroke="#e8eaee" stroke-width="3"/><circle cx="112" cy="50" r="9" stroke="#e8eaee"/><circle cx="46" cy="74" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. De rodilla, pie adelante. Llevá la rodilla hacia la pared.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M62 120 L88 120" stroke="#e8eaee" stroke-width="3"/><path d="M88 118 L50 76" stroke="#e8eaee" stroke-width="3"/><circle cx="88" cy="120" r="4" fill="#a8e063" stroke="none"/><circle cx="88" cy="120" r="12" stroke="#a8e063" stroke-width="2.5" stroke-dasharray="4 4"/><path d="M40 132 L62 132" stroke="#a8e063" stroke-width="2.5"/><path d="M40 132 l5 -4 M40 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M62 132 l-5 -4 M62 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/></g></svg>',c:'2. El talón NO se despega. Medí de la punta del pie a la pared.'}],'hip':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 118 L190 118" stroke="#5b616e" stroke-width="3"/><path d="M150 118 L96 118" stroke="#e8eaee" stroke-width="3"/><circle cx="160" cy="112" r="9" stroke="#e8eaee"/><path d="M96 118 L52 118" stroke="#e8eaee" stroke-width="3"/><path d="M52 118 L40 112" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 L70 60" stroke="#e8eaee" stroke-width="3"/><path d="M70 60 L62 50" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 A 40 40 0 0 0 70 60" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4" fill="none"/></g></svg>',c:'1. Boca arriba, una pierna apoyada y la otra estirada.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 118 L190 118" stroke="#5b616e" stroke-width="3"/><path d="M150 118 L96 118" stroke="#e8eaee" stroke-width="3"/><circle cx="160" cy="112" r="9" stroke="#e8eaee"/><path d="M96 118 L52 118" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 L70 60" stroke="#a8e063" stroke-width="3"/><circle cx="70" cy="60" r="4" fill="#a8e063" stroke="none"/><circle cx="96" cy="118" r="4" fill="#a8e063" stroke="none"/><path d="M124 118 A 30 30 0 0 0 82 84" stroke="#a8e063" stroke-width="2.5" fill="none"/></g></svg>',c:'2. Subí la pierna recta lo más alto posible y medí el ángulo.'}],'shoulder':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><circle cx="100" cy="32" r="10" stroke="#e8eaee"/><path d="M100 44 L100 100" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L88 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L112 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 52 L126 44 L122 70" stroke="#e8eaee" stroke-width="3"/><path d="M100 80 L74 90 L80 66" stroke="#e8eaee" stroke-width="3"/><circle cx="122" cy="70" r="4" fill="#a8e063" stroke="none"/><circle cx="80" cy="66" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. Una mano por arriba del hombro, la otra por abajo.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><circle cx="100" cy="32" r="10" stroke="#e8eaee"/><path d="M100 44 L100 100" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L88 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L112 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 52 L126 44 L118 66" stroke="#e8eaee" stroke-width="3"/><path d="M100 80 L74 90 L84 70" stroke="#e8eaee" stroke-width="3"/><path d="M101 66 L101 70" stroke="#a8e063" stroke-width="2.5"/><path d="M101 66 l-4 5 M101 66 l4 5" stroke="#a8e063" stroke-width="2.5"/><path d="M101 70 l-4 -5 M101 70 l4 -5" stroke="#a8e063" stroke-width="2.5"/><circle cx="118" cy="66" r="4" fill="#a8e063" stroke="none"/><circle cx="84" cy="70" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Medí la distancia entre las puntas de los dedos.'}],'cmj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="60" r="9" stroke="#e8eaee"/><path d="M96 70 L96 100" stroke="#e8eaee" stroke-width="3"/><path d="M96 100 L86 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 100 L106 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 74 L60 34" stroke="#a8e063" stroke-width="3"/><path d="M38 32 L72 32" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4"/><circle cx="60" cy="34" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. De lado a la pared, marcá tu alcance con el brazo estirado.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="74" r="9" stroke="#e8eaee"/><path d="M96 84 L98 104" stroke="#e8eaee" stroke-width="3"/><path d="M98 104 L84 112 L86 120" stroke="#e8eaee" stroke-width="3"/><path d="M98 104 L112 112 L110 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 88 L120 104" stroke="#a8e063" stroke-width="3"/><path d="M38 32 L72 32" stroke="#5b616e" stroke-width="2" stroke-dasharray="4 4"/></g></svg>',c:'2. Bajá rápido flexionando rodillas y cadera.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="44" r="9" stroke="#e8eaee"/><path d="M96 54 L96 84" stroke="#e8eaee" stroke-width="3"/><path d="M96 84 L86 104" stroke="#e8eaee" stroke-width="3"/><path d="M96 84 L106 104" stroke="#e8eaee" stroke-width="3"/><path d="M96 58 L58 20" stroke="#a8e063" stroke-width="3"/><path d="M38 18 L74 18" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4"/><path d="M38 32 L74 32" stroke="#5b616e" stroke-width="2" stroke-dasharray="4 4"/><path d="M46 18 L46 32" stroke="#a8e063" stroke-width="2.5"/><path d="M46 18 l-4 5 M46 18 l4 5" stroke="#a8e063" stroke-width="2.5"/><path d="M46 32 l-4 -5 M46 32 l4 -5" stroke="#a8e063" stroke-width="2.5"/><circle cx="58" cy="20" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'3. Saltá y marcá el punto más alto. El salto es la diferencia.'}],'sbj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="64" cy="64" r="9" stroke="#e8eaee"/><path d="M64 74 L66 96" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L58 110 L60 120" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L74 110 L72 120" stroke="#e8eaee" stroke-width="3"/><path d="M64 78 L88 92" stroke="#a8e063" stroke-width="3"/></g></svg>',c:'1. Pies detrás de la línea, brazos atrás.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="132" cy="62" r="9" stroke="#e8eaee"/><path d="M132 72 L130 96" stroke="#e8eaee" stroke-width="3"/><path d="M130 96 L140 112 L148 120" stroke="#e8eaee" stroke-width="3"/><path d="M130 96 L124 112 L132 120" stroke="#e8eaee" stroke-width="3"/><path d="M132 76 L108 60" stroke="#a8e063" stroke-width="3"/><path d="M52 132 L132 132" stroke="#a8e063" stroke-width="2.5"/><path d="M52 132 l5 -4 M52 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M132 132 l-5 -4 M132 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/><circle cx="132" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Saltá con las dos piernas. Medí hasta el talón más atrasado.'}],'slj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="64" cy="64" r="9" stroke="#e8eaee"/><path d="M64 74 L66 96" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L60 110 L62 120" stroke="#a8e063" stroke-width="3"/><path d="M66 96 L82 104 L78 116" stroke="#e8eaee" stroke-width="3"/><path d="M64 78 L88 92" stroke="#e8eaee" stroke-width="3"/><circle cx="62" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. Apoyado en una sola pierna, detrás de la línea.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="130" cy="62" r="9" stroke="#e8eaee"/><path d="M130 72 L128 96" stroke="#e8eaee" stroke-width="3"/><path d="M128 96 L138 112 L146 120" stroke="#a8e063" stroke-width="3"/><path d="M128 96 L118 106 L114 116" stroke="#e8eaee" stroke-width="3"/><path d="M130 76 L106 62" stroke="#e8eaee" stroke-width="3"/><path d="M52 132 L146 132" stroke="#a8e063" stroke-width="2.5"/><path d="M52 132 l5 -4 M52 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M146 132 l-5 -4 M146 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/><circle cx="146" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Saltá y caé con la MISMA pierna. Repetí con la otra.'}]};
+
+var TEST_SVG={
+ ankle:'<line x1="20" y1="3" x2="20" y2="21"/><path d="M8.5 3.5l3.6 11.5"/><path d="M12.1 15l-.6 3.5H4.5v-1c0-1 .8-1.6 1.8-1.9l2.3-.8"/><path d="M14.6 11.2a4 4 0 0 1 2.2 2.6"/>',
+ hip:'<line x1="2" y1="20.5" x2="22" y2="20.5"/><circle cx="3.6" cy="15.6" r="1.6"/><path d="M5.4 16.6H12"/><path d="M12 16.6l5.2-12"/><path d="M15.8 16.6a3.8 3.8 0 0 0-1.4-3"/>',
+ shoulder:'<circle cx="12" cy="4.6" r="2"/><path d="M8 21v-9.5a4 4 0 0 1 8 0V21"/><path d="M16 11.2c2.2-.4 3-2.6 1.6-4.8"/><path d="M8 14.2c-2 .3-2.8 2.2-1.8 4"/><line x1="12" y1="10" x2="12" y2="15" stroke-dasharray="1.6 1.8"/>',
+ cmj:'<line x1="4" y1="21" x2="20" y2="21"/><path d="M12 17V4"/><path d="M8 8l4-4 4 4"/><line x1="7" y1="17" x2="17" y2="17" stroke-dasharray="2 2"/>',
+ sbj:'<line x1="2" y1="21" x2="22" y2="21"/><line x1="4" y1="21" x2="4" y2="17.5"/><path d="M5 16C8 7 15 7 18 16"/><path d="M15.6 14.6l2.5 1.6 1.2-2.7"/>',
+ slj:'<line x1="2" y1="21" x2="22" y2="21"/><line x1="4" y1="21" x2="4" y2="17.5"/><path d="M5 16C8 7 15 7 18 16"/><path d="M15.6 14.6l2.5 1.6 1.2-2.7"/><text x="11.5" y="11.4" text-anchor="middle" font-size="8.5" font-family="Barlow Condensed,sans-serif" font-weight="800" fill="currentColor" stroke="none">1</text>'
+};
+function testIcon(k,size){var p=TEST_SVG[k];if(!p){var x=testDef(k);return x?x.ic:'';}size=size||16;
+  return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.18em;display:inline-block;color:var(--mob);flex:none;">'+p+'</svg>';}
+function testTile(k){return '<div style="flex:none;width:38px;height:38px;border-radius:10px;background:rgba(168,224,99,0.10);border:1px solid rgba(168,224,99,0.28);display:flex;align-items:center;justify-content:center;">'+testIcon(k,21)+'</div>';}
 function testDef(k){for(var i=0;i<TESTS.length;i++){if(TESTS[i].k===k)return TESTS[i];}return null;}
 function testsEnabled(p){var e=(p&&p.tests_enabled)||[];return TESTS.filter(function(x){return e.indexOf(x.k)>=0;});}
 function testHistory(p,k){var all=(p&&p.tests)||{};return (all[k]||[]).slice().sort(function(a,b){return (a.d||'')<(b.d||'')?-1:1;});}
@@ -3480,7 +3503,7 @@ function renderTestsScreen(){
       }
       return '<div style="border-top:1px solid var(--border2);padding:11px 13px;display:flex;align-items:flex-start;gap:11px;">'
         +'<input type="checkbox" onchange="toggleTestEnabled(\''+p.id+'\',\''+x.k+'\',this.checked)"'+(on?' checked':'')+' style="width:18px;height:18px;accent-color:var(--mob);margin-top:2px;flex:none;"/>'
-        +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+x.ic+' '+tr(x.n)+'</div><div style="margin-top:3px;">'+val+'</div></div>'
+        +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+testIcon(x.k,15)+' '+tr(x.n)+'</div><div style="margin-top:3px;">'+val+'</div></div>'
         +(on?'<button onclick="coachMeasure(\''+p.id+'\',\''+x.k+'\')" style="flex:none;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 11px;font-family:\'Barlow Condensed\',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">'+tr('Cargar')+'</button>':'')
         +((on&&testHistory(p,x.k).length)?'<button onclick="deleteLastTest(\''+p.id+'\',\''+x.k+'\')" title="'+tr('Borrar último registro')+'" style="flex:none;margin-left:7px;background:rgba(255,107,107,0.10);border:1px solid rgba(255,107,107,0.28);color:#ff6b6b;border-radius:8px;width:34px;height:32px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'')
         +'</div>';
@@ -5272,7 +5295,7 @@ function renderBlock(b,bi,wIdx,dIdx){
   /* El alumno ve los videos recién cuando arranca el entrenamiento: antes solo
    tiene el resumen (nombre, series, reps y kg) para no distraerse. */
   var _verVid=isC||draftMode||sessionStarted();
-  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+tr(String(b.title||'').replace(/<[^>]*>/g,''))+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e,bi,ei)+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+tr(String(b.title||'').replace(/<[^>]*>/g,''))+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e,bi,ei)+_noteH+link+mvReqHtml(e,bi,ei)+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -5499,6 +5522,7 @@ function openPrescModal(w,d,b,e){
   document.getElementById('pr-rest').value=prescState.rest;
   document.getElementById('pr-eff-val').value=prescState.eff;
   var _pn=document.getElementById('pr-note');if(_pn)_pn.value=ex.note||'';
+  try{var _vs=document.getElementById('pr-vid-ex');_vs.innerHTML=MV_REQ_EX.map(function(k){return '<option value="'+k+'">'+mvExName(k)+'</option>';}).join('');_vs.value=(ex.vid&&ex.vid.ex)||mvGuessEx(ex.n);setPrescVid(!!ex.vid);}catch(_e){}
   document.getElementById('pr-durunit').textContent=prescState.durUnit;
   document.getElementById('pr-loadunit').textContent=prescState.loadUnit;
   setPrescType(prescState.type,true);
@@ -5627,6 +5651,9 @@ function cloneSessionNoNotes(s){
   (c.blocks||[]).forEach(function(b){(b.exs||[]).forEach(function(e){delete e.note;});});
   return c;
 }
+var prescVidOn=false;
+function setPrescVid(on){prescVidOn=!!on;var a=document.getElementById('pr-vid-on'),b=document.getElementById('pr-vid-off'),bx=document.getElementById('pr-vid-box');
+  if(a)a.classList.toggle('pr-on',prescVidOn);if(b)b.classList.toggle('pr-on',!prescVidOn);if(bx)bx.style.display=prescVidOn?'block':'none';}
 function savePresc(){
   if(!prescTarget)return;
   readPresc();
@@ -5637,6 +5664,7 @@ function savePresc(){
   var _pn=document.getElementById('pr-note');
   var _nv=_pn?String(_pn.value||'').trim():'';
   if(_nv)ex.note=_nv;else delete ex.note;
+  if(prescVidOn){var _vx=document.getElementById('pr-vid-ex');ex.vid={ex:(_vx&&_vx.value)||mvGuessEx(ex.n)};}else delete ex.vid;
   commitSession();closePrescModal();refreshPlanUI();
 }
 
@@ -6488,7 +6516,7 @@ function renderTestsPicker(p){
   var en=(p&&p.tests_enabled)||[];
   box.innerHTML=TESTS.map(function(x){
     var on=en.indexOf(x.k)>=0;
-    return '<label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;color:var(--text);"><input type="checkbox" class="tst-chk" value="'+x.k+'"'+(on?' checked':'')+' style="width:17px;height:17px;accent-color:var(--mob);"/>'+x.ic+' '+tr(x.n)+'</label>';
+    return '<label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;color:var(--text);"><input type="checkbox" class="tst-chk" value="'+x.k+'"'+(on?' checked':'')+' style="width:17px;height:17px;accent-color:var(--mob);"/>'+testIcon(x.k,15)+' '+tr(x.n)+'</label>';
   }).join('');
 }
 function renderTestsAthlete(){
@@ -6515,7 +6543,7 @@ function renderTestsAthlete(){
       val+='<span style="color:var(--muted2);font-size:11px;"> · '+fmtDateShort(last.d)+'</span>';
     } else val='<span style="color:var(--muted2);">'+tr('Sin registros')+'</span>';
     return '<div style="background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">'
-      +'<div style="font-size:20px;flex:none;">'+x.ic+'</div>'
+      +testTile(x.k)
       +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+tr(x.n)+'</div><div style="font-size:12px;margin-top:2px;">'+val+'</div></div>'
       +'<button onclick="openTestModal(\''+x.k+'\')" style="flex:none;background:var(--mobfill);color:#0a0b0e;border:none;border-radius:8px;padding:8px 13px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">'+tr('Medir')+'</button>'
       +(h.length?'<button onclick="deleteLastTest(\''+p.id+'\',\''+x.k+'\')" title="'+tr('Borrar último registro')+'" style="flex:none;margin-left:7px;background:rgba(255,107,107,0.10);border:1px solid rgba(255,107,107,0.28);color:#ff6b6b;border-radius:8px;width:34px;height:33px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>':'')
@@ -6526,14 +6554,14 @@ function testsCoachHtml(p){
   var list=testsEnabled(p);if(!list.length)return '';
   var rows=list.map(function(x){
     var h=testHistory(p,x.k);var last=h[h.length-1];
-    if(!last)return '<div style="padding:6px 0;border-bottom:1px solid var(--border2);font-size:12px;"><b style="color:var(--cm);">'+x.ic+' '+tr(x.n)+'</b> <span style="color:var(--muted2);">'+tr('Sin registros')+'</span></div>';
+    if(!last)return '<div style="padding:6px 0;border-bottom:1px solid var(--border2);font-size:12px;"><b style="color:var(--cm);">'+testIcon(x.k,14)+' '+tr(x.n)+'</b> <span style="color:var(--muted2);">'+tr('Sin registros')+'</span></div>';
     var chain=h.slice(-5).map(function(e){
       var v=x.bi?(e.l+'/'+e.r):e.v;
       return '<span style="white-space:nowrap;"><span style="color:var(--muted2);">'+fmtDateShort(e.d)+':</span> <b style="color:var(--text);">'+v+'</b></span>';
     }).join(' <span style="color:var(--muted2);">\u2192</span> ');
     var warn='';
     var ai=asymInfo(x,last);if(ai&&ai.warn)warn=' <span style="color:#ffb020;font-weight:700;">\u26a0 '+ai.txt+' '+tr('asimetría')+'</span>';
-    return '<div style="padding:7px 0;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--cm);margin-bottom:3px;">'+x.ic+' '+tr(x.n)+' <span style="color:var(--muted2);font-weight:400;">('+x.u+')</span>'+warn+'</div><div style="font-size:12px;color:var(--muted);">'+chain+'</div></div>';
+    return '<div style="padding:7px 0;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--cm);margin-bottom:3px;">'+testIcon(x.k,14)+' '+tr(x.n)+' <span style="color:var(--muted2);font-weight:400;">('+x.u+')</span>'+warn+'</div><div style="font-size:12px;color:var(--muted);">'+chain+'</div></div>';
   }).join('');
   return '<div class="sum-lbl" style="margin-top:12px;">'+tr('Tests')+'</div>'+rows;
 }
@@ -6543,7 +6571,7 @@ function openTestModal(k){
   var _pid=testTargetPid||currentPlayerId;
   var p=PLAYERS.find(function(y){return y.id===_pid;});
   var h=testHistory(p,k);var last=h[h.length-1];
-  document.getElementById('test-modal-title').textContent=x.ic+' '+tr(x.n);
+  document.getElementById('test-modal-title').innerHTML=testIcon(x.k,20)+' '+String(tr(x.n)).replace(/</g,'&lt;');
   document.getElementById('test-how').textContent=tr(x.how);
   document.getElementById('test-need').textContent=tr('Necesitás')+': '+tr(x.need);
   document.getElementById('test-ref').textContent=tr('Referencia')+': '+tr(x.ref);
@@ -6959,6 +6987,20 @@ STATIC_I18N["El análisis arranca solo cuando se ve el cuerpo entero. El botón 
 STATIC_I18N["Tocá ● para grabar y medir"]=["Tap ● to record and measure", "Tocca ● per registrare e misurare"];
 STATIC_I18N["Sin cuenta"]=["No timer", "Nessun timer"];
 STATIC_I18N["Con la cámara en vivo se mide solo mientras grabás (botón rojo). Con la cuenta regresiva ⏱ tenés tiempo de ubicarte antes de que empiece."]=["With the live camera, measuring happens only while you record (red button). With the ⏱ countdown you have time to get in position before it starts.", "Con la fotocamera live si misura solo mentre registri (pulsante rosso). Con il conto alla rovescia ⏱ hai tempo di posizionarti prima che inizi."];
+STATIC_I18N["Video de técnica"]=["Technique video", "Video della tecnica"];
+STATIC_I18N["No pedir"]=["Don’t ask", "Non chiedere"];
+STATIC_I18N["Pedir video"]=["Ask for video", "Chiedi video"];
+STATIC_I18N["El alumno ve el botón “Filmar técnica” en este ejercicio. Usá la nota de abajo para decirle cómo filmarse."]=["The athlete sees a “Film technique” button on this exercise. Use the note below to tell them how to film.", "L’atleta vede il pulsante “Filma tecnica” su questo esercizio. Usa la nota sotto per spiegargli come filmarsi."];
+STATIC_I18N["Video de técnica pedido"]=["Technique video requested", "Video della tecnica richiesto"];
+STATIC_I18N["pendiente"]=["pending", "in attesa"];
+STATIC_I18N["Video recibido"]=["Video received", "Video ricevuto"];
+STATIC_I18N["ver"]=["view", "vedi"];
+STATIC_I18N["Video enviado a tu profe"]=["Video sent to your coach", "Video inviato al tuo coach"];
+STATIC_I18N["Filmar técnica"]=["Film technique", "Filma tecnica"];
+STATIC_I18N["Pedido por tu profe"]=["Requested by your coach", "Richiesto dal tuo coach"];
+STATIC_I18N["Video de técnica recibido"]=["Technique video received", "Video della tecnica ricevuto"];
+STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
+STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 /* análisis de movimiento */
 STATIC_I18N["Lado"]=["Side", "Lato"];
 STATIC_I18N["Izquierda"]=["Left", "Sinistra"];
@@ -8801,12 +8843,13 @@ function mvExName(k){return tr((MV_EX[k]||MV_EX.free).n);}
 function openMov(opts){
   opts=opts||{};
   MV.pid=opts.pid||currentPlayerId||(PLAYERS.length===1?PLAYERS[0].id:null);
-  MV.testKey=opts.testKey||null;
+  MV.testKey=opts.testKey||null;MV.req=opts.req||null;
   MV.ex=opts.ex||(MV.testKey?(MV_TEST_EX[MV.testKey]||'free'):(MV.genEx||'squat'));
   var p=PLAYERS.find(function(x){return x.id===MV.pid;});
   mvEl('mv-title').textContent=tr('Análisis de movimiento');
   var sub=(p&&isCoach)?p.name:'';
   if(MV.testKey){var td=testDef(MV.testKey);if(td)sub=(sub?sub+' · ':'')+tr('Test')+': '+tr(td.n);}
+  if(MV.req)sub=(sub?sub+' · ':'')+tr('Pedido por tu profe')+': '+MV.req.n+(MV.req.note?' — '+MV.req.note:'');
   mvEl('mv-sub').textContent=sub;
   ['mv-lbl-ex','mv-lbl-load','mv-lbl-src','mv-lbl-side'].forEach(function(id,i){mvEl(id).textContent=tr(['Ejercicio','Carga','Fuente','Lado'][i]);});
   MV.calStep=0;MV.calTmp=null;if(MV.testKey==='slj'||MV.testKey==='hip'||MV.testKey==='ankle')MV.side=MV.side||'l';
@@ -9323,6 +9366,7 @@ async function movSave(){
   var hjOut=S.hj.slice(0,20).map(function(j){return Object.assign({},j,{cm:mvHjCm(j)});});
   var metrics=mvRound({reps:S.reps.slice(0,30),jumps:S.jumps.slice(0,20),free:S.free||null,bi:(MV.ex==='hipt'||MV.ex==='ankle')?S.bi:null,hj:MV.ex==='hjump'?hjOut:null,cal:MV.ex==='hjump'&&MV.cal?{cm:MV.cal.cm}:null});
   metrics.summary=mvSummary(MV.ex,metrics);
+  if(MV.req)metrics.req={d:MV.req.d,n:MV.req.n,b:MV.req.b,e:MV.req.e};
   var rec={ex:MV.ex,load:MV_EX[MV.ex].load?mvLoadOf(MV.ex):null,src:MV.mode,test_key:MV.testKey,metrics:metrics,thumb:snap?mvJpeg(snap,200,0.6):null,img:snap?mvJpeg(snap,720,0.72):null};
   var res;
   try{
@@ -9337,11 +9381,12 @@ async function movSave(){
   if(MV.testKey==='hip'){['l','r'].forEach(function(sd){var v=S.bi[sd],f=mvEl('test-'+sd);if(v!=null&&f){f.value=Math.round(v);filled=true;}});}
   if(MV.testKey==='sbj'){var b0=mvHjBest(hjOut,null),f0=mvEl('test-v');if(b0!=null&&f0){f0.value=Math.round(b0);filled=true;}}
   if(MV.testKey==='slj'){['l','r'].forEach(function(sd){var v=mvHjBest(hjOut,sd),f=mvEl('test-'+sd);if(v!=null&&f){f.value=Math.round(v);filled=true;}});}
-  if(ATH_TOKEN){var p=PLAYERS.find(function(x){return x.id===MV.pid;});try{notifyCoach(tr('Nuevo análisis de movimiento'),((p&&p.name)||'')+' · '+mvExName(MV.ex)+(metrics.summary?' · '+metrics.summary:''));}catch(e){}}
+  if(ATH_TOKEN){var p=PLAYERS.find(function(x){return x.id===MV.pid;});try{notifyCoach(tr(MV.req?'Video de técnica recibido':'Nuevo análisis de movimiento'),((p&&p.name)||'')+' · '+(MV.req?MV.req.n:mvExName(MV.ex))+(metrics.summary?' · '+metrics.summary:''));}catch(e){}}
   delete MV.lists[MV.pid];
   await movClose();
   try{toast(tr(filled?'Análisis guardado. Se completó el resultado del test: revisalo y tocá Guardar.':(MV.testKey==='ankle'?'Análisis guardado con el ángulo de la tibia. Los cm del test se cargan a mano.':'Análisis guardado')));}catch(e){}
   mvRefreshLists();
+  if(MV.req){MV.req=null;mvFetchList(MV.pid,true).then(function(){try{refreshPlanUI();}catch(e){}});}
 }
 
 /* --- listas (alumno y profe) --- */
@@ -9364,6 +9409,7 @@ function mvListHtml(pid){
   return L.items.slice(0,10).map(function(a){
     var who=a.by_role==='athlete'?tr('alumno'):tr('profe');
     var tst=a.test_key&&testDef(a.test_key)?' · '+tr('Test')+' '+tr(testDef(a.test_key).n):'';
+    if(a.metrics&&a.metrics.req)tst=' · '+tr('Pedido')+': '+String(a.metrics.req.n||'').replace(/</g,'&lt;');
     return '<div class="mv-card" onclick="movView(\''+pid+'\',\''+a.id+'\')">'
       +(a.thumb?'<img src="'+a.thumb+'" alt=""/>':'<div class="ph"></div>')
       +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+mvExName(a.ex)+(a.load?' <span style="font-weight:500;color:var(--muted2);font-size:11.5px;">· '+tr(a.load==='bar'?'con carga':'sin carga')+'</span>':'')+'</div>'
@@ -9371,8 +9417,16 @@ function mvListHtml(pid){
       +'<div style="font-size:10.5px;color:var(--muted2);margin-top:1px;">'+mvDateTxt(a.created_at)+' · '+who+tst+'</div></div></div>';
   }).join('');
 }
+function mvFreeOn(pid){var p=PLAYERS.find(function(x){return x.id===pid;});return !!(p&&(p.tests_enabled||[]).indexOf('mov_free')>=0);}
 function mvSectionHtml(pid){
-  return '<div class="sum-lbl" style="margin-top:16px;">'+tr('Análisis de movimiento')+'</div>'
+  var head='<div class="sum-lbl" style="margin-top:16px;">'+tr('Análisis de movimiento')+'</div>';
+  if(isCoach){
+    head+='<label style="display:flex;align-items:center;gap:9px;margin:0 0 10px;font-size:12.5px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:500;cursor:pointer;"><input type="checkbox" onchange="toggleTestEnabled(\''+pid+'\',\'mov_free\',this.checked)"'+(mvFreeOn(pid)?' checked':'')+' style="width:18px;height:18px;accent-color:var(--mob);flex:none;"/>'+tr('Análisis libre: el alumno puede filmarse cuando quiera')+'</label>';
+  }else if(!mvFreeOn(pid)){
+    var L=MV.lists[pid];if(L&&L.items&&!L.items.length)return '';
+    return head+'<div id="mv-list-'+pid+'">'+mvListHtml(pid)+'</div>';
+  }
+  return head
     +'<button onclick="openMov({pid:\''+pid+'\'})" style="width:100%;padding:13px;border-radius:var(--rsm);border:none;background:var(--mobfill);color:#0a0b0e;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:9px;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'+tr('Analizar movimiento')+'</button>'
     +'<div id="mv-list-'+pid+'">'+mvListHtml(pid)+'</div>';
 }
@@ -9415,6 +9469,42 @@ function movDelete(pid,id){
     if(r&&r.error){showInfo(tr('No se pudo eliminar')+': '+(r.error.message||r.error));return;}
     delete MV.lists[pid];mvRefreshLists();
   },{danger:true,okLabel:'Eliminar'});
+}
+
+
+/* --- pedidos de video de técnica (desde la planificación) --- */
+var MV_REQ_EX=['squat','valgus','deadlift','lunge','bench','jump','free'];
+function mvGuessEx(n){n=String(n||'').toLowerCase();
+  if(/peso muerto|rdl|deadlift|bisagra|good morning|hinge|swing|hip thrust|puente/.test(n))return 'deadlift';
+  if(/estocada|zancada|lunge|b[uú]lgara|split|step.?up|subida/.test(n))return 'lunge';
+  if(/press de banca|press banca|banca|bench|push.?up|\bflexiones\b|^flexi[oó]n\b/.test(n))return 'bench';
+  if(/salto|cmj|jump|drop|hop|pogo|pliom/.test(n))return 'jump';
+  if(/sentadilla|squat|prensa|goblet/.test(n))return 'squat';
+  return 'free';}
+function mvReqDone(pid,iso,name){var L=MV.lists[pid];if(!L||!L.items)return null;
+  return L.items.find(function(a){var r=a.metrics&&a.metrics.req;return r&&r.d===iso&&r.n===name;})||null;}
+var _mvReqFetching={};
+function mvReqHtml(e,bi,ei){
+  if(!e||!e.vid)return '';
+  var pid=currentPlayerId,iso=curDate;
+  var ic='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>';
+  if(draftMode||!pid||pid==='__draft__')return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:11.5px;font-weight:700;color:#4dabf7;">'+ic+tr('Video de técnica pedido')+' · '+mvExName(e.vid.ex)+'</div>';
+  if(!MV.lists[pid]&&!_mvReqFetching[pid]){_mvReqFetching[pid]=1;mvFetchList(pid).then(function(){_mvReqFetching[pid]=0;try{refreshPlanUI();}catch(_e){}});}
+  var done=mvReqDone(pid,iso,e.n);
+  if(isCoach){
+    if(done)return '<div onclick="event.stopPropagation();movView(\''+pid+'\',\''+done.id+'\')" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--mob);cursor:pointer;">'+ic+tr('Video recibido')+' · '+tr('ver')+'</div>';
+    return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:11.5px;font-weight:700;color:#4dabf7;">'+ic+tr('Video de técnica pedido')+(iso<=isoToday()?' · '+tr('pendiente'):'')+'</div>';
+  }
+  if(done)return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:7px;font-size:12px;font-weight:700;color:var(--mob);">'+ic+tr('Video enviado a tu profe')+'</div>';
+  var nEsc=String(e.n||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  return '<button onclick="event.stopPropagation();mvOpenReq(this)" data-ex="'+e.vid.ex+'" data-n="'+nEsc+'" data-b="'+bi+'" data-e="'+ei+'" data-load="'+((e.p&&e.p.load)||/kg/.test(String(e.l||''))?'bar':'free')+'" style="display:inline-flex;align-items:center;gap:7px;margin-top:8px;background:rgba(77,171,247,0.12);border:1px solid #4dabf7;color:#4dabf7;border-radius:8px;padding:7px 12px;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'+ic+tr('Filmar técnica')+'</button>';
+}
+function mvOpenReq(btn){
+  var d=btn.dataset,ex=d.ex||'free';
+  if(MV_EX[ex]&&MV_EX[ex].load)MV.load[ex]=d.load||'free';
+  var sess=(JB_SESSIONS[currentPlayerId]||{})[curDate];var note='';
+  try{note=sess.blocks[+d.b].exs[+d.e].note||'';}catch(e){}
+  openMov({pid:currentPlayerId,ex:ex,req:{d:curDate,n:d.n,b:+d.b,e:+d.e,note:note}});
 }
 
 /* --- enganches con la app --- */
