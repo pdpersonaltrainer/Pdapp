@@ -282,6 +282,7 @@ video.exthumb::-webkit-media-controls,video.lib-card-thumb::-webkit-media-contro
 .exnote{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
 .exlink{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:5px 10px;background:rgba(60,156,240,0.10);border:1px solid rgba(60,156,240,0.20);border-radius:6px;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--w4);text-decoration:none;}
 .exright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.ex-vreq{width:100%;display:flex;justify-content:flex-end;align-items:center;gap:5px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--mob);white-space:nowrap;margin:1px 0 3px;}
 /* En celular la tercera columna (carga + botones) robaba el ancho y el nombre
    del ejercicio quedaba en una franja de pocas palabras por línea.
    Bajamos los controles a una fila propia para que el texto use todo el ancho. */
@@ -290,6 +291,7 @@ video.exthumb::-webkit-media-controls,video.lib-card-thumb::-webkit-media-contro
   .exlist{padding:10px 11px 12px;}
   .exrow{grid-template-columns:8px 1fr;gap:7px;}
   .exright{grid-column:2;flex-direction:row;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.ex-vreq{justify-content:flex-start;}
   .exthumb{width:48px;height:48px;}
   .exname{font-size:13.5px;}
   .exnote{font-size:11.5px;}
@@ -1611,7 +1613,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261014-9';
+var APP_VERSION='20261014-10';
 (function(){
   try{
     setTimeout(function(){
@@ -5295,7 +5297,7 @@ function renderBlock(b,bi,wIdx,dIdx){
   /* El alumno ve los videos recién cuando arranca el entrenamiento: antes solo
    tiene el resumen (nombre, series, reps y kg) para no distraerse. */
   var _verVid=isC||draftMode||sessionStarted();
-  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+tr(String(b.title||'').replace(/<[^>]*>/g,''))+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e,bi,ei)+_noteH+link+mvReqHtml(e,bi,ei)+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+tr(String(b.title||'').replace(/<[^>]*>/g,''))+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e,bi,ei)+_noteH+link+mvReqHtml(e,bi,ei)+'</div></div><div class="exright">'+lEl+mvReqHtml(e,bi,ei,'right')+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -7001,6 +7003,7 @@ STATIC_I18N["Pedido por tu profe"]=["Requested by your coach", "Richiesto dal tu
 STATIC_I18N["Video de técnica recibido"]=["Technique video received", "Video della tecnica ricevuto"];
 STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
+STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* análisis de movimiento */
 STATIC_I18N["Lado"]=["Side", "Lato"];
 STATIC_I18N["Izquierda"]=["Left", "Sinistra"];
@@ -9484,16 +9487,18 @@ function mvGuessEx(n){n=String(n||'').toLowerCase();
 function mvReqDone(pid,iso,name){var L=MV.lists[pid];if(!L||!L.items)return null;
   return L.items.find(function(a){var r=a.metrics&&a.metrics.req;return r&&r.d===iso&&r.n===name;})||null;}
 var _mvReqFetching={};
-function mvReqHtml(e,bi,ei){
+function mvReqHtml(e,bi,ei,where){
   if(!e||!e.vid)return '';
+  var coachSide=isCoach||draftMode||!currentPlayerId||currentPlayerId==='__draft__';
+  if(coachSide!==(where==='right'))return '';
   var pid=currentPlayerId,iso=curDate;
   var ic='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>';
-  if(draftMode||!pid||pid==='__draft__')return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:11.5px;font-weight:700;color:#4dabf7;">'+ic+tr('Video de técnica pedido')+' · '+mvExName(e.vid.ex)+'</div>';
+  if(draftMode||!pid||pid==='__draft__')return '<div class="ex-vreq">'+ic+tr('Video pedido')+' · '+mvExName(e.vid.ex)+'</div>';
   if(!MV.lists[pid]&&!_mvReqFetching[pid]){_mvReqFetching[pid]=1;mvFetchList(pid).then(function(){_mvReqFetching[pid]=0;try{refreshPlanUI();}catch(_e){}});}
   var done=mvReqDone(pid,iso,e.n);
   if(isCoach){
-    if(done)return '<div onclick="event.stopPropagation();movView(\''+pid+'\',\''+done.id+'\')" style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--mob);cursor:pointer;">'+ic+tr('Video recibido')+' · '+tr('ver')+'</div>';
-    return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:11.5px;font-weight:700;color:#4dabf7;">'+ic+tr('Video de técnica pedido')+(iso<=isoToday()?' · '+tr('pendiente'):'')+'</div>';
+    if(done)return '<div class="ex-vreq" onclick="event.stopPropagation();movView(\''+pid+'\',\''+done.id+'\')" style="cursor:pointer;">'+ic+'✓ '+tr('Video recibido')+' · '+tr('ver')+'</div>';
+    return '<div class="ex-vreq">'+ic+tr('Video pedido')+(iso<=isoToday()?' · '+tr('pendiente'):'')+'</div>';
   }
   if(done)return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:7px;font-size:12px;font-weight:700;color:var(--mob);">'+ic+tr('Video enviado a tu profe')+'</div>';
   var nEsc=String(e.n||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
