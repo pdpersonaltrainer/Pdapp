@@ -1600,7 +1600,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261014-6';
+var APP_VERSION='20261014-8';
 (function(){
   try{
     setTimeout(function(){
@@ -6952,6 +6952,13 @@ STATIC_I18N["Metros por serie"]=STATIC_I18N["Metros por serie"]||["Meters per se
 STATIC_I18N["Todavía no hay mensajes. ¡Escribí el primero!"]=STATIC_I18N["Todavía no hay mensajes. ¡Escribí el primero!"]||["No messages yet. Write the first one!", "Ancora nessun messaggio. Scrivi il primo!"];
 STATIC_I18N["Cargá el 1RM de los ejercicios (Ficha → Cargas máximas) para ver la tendencia de tonelaje. Igual ves las series/reps arriba."]=STATIC_I18N["Cargá el 1RM de los ejercicios (Ficha → Cargas máximas) para ver la tendencia de tonelaje. Igual ves las series/reps arriba."]||["Enter the exercises’ 1RM (Profile → Max loads) to see the tonnage trend. You can still see sets/reps above.", "Inserisci l’1RM degli esercizi (Scheda → Carichi massimi) per vedere l’andamento del tonnellaggio. Vedi comunque serie/rip. sopra."];
 STATIC_I18N["Aún no creaste ningún programa."]=STATIC_I18N["Aún no creaste ningún programa."]||["You haven’t created any programs yet.", "Non hai ancora creato nessun programma."];
+STATIC_I18N["Que se vea el cuerpo entero"]=["Get your whole body in frame", "Inquadra tutto il corpo"];
+STATIC_I18N["Buscando el cuerpo…"]=["Looking for the body…", "Ricerca del corpo…"];
+STATIC_I18N["Detectando…"]=["Detecting…", "Rilevamento…"];
+STATIC_I18N["El análisis arranca solo cuando se ve el cuerpo entero. El botón rojo solo graba el video."]=["Analysis starts only when the whole body is visible. The red button only records the video.", "L’analisi parte solo quando si vede tutto il corpo. Il pulsante rosso registra solo il video."];
+STATIC_I18N["Tocá ● para grabar y medir"]=["Tap ● to record and measure", "Tocca ● per registrare e misurare"];
+STATIC_I18N["Sin cuenta"]=["No timer", "Nessun timer"];
+STATIC_I18N["Con la cámara en vivo se mide solo mientras grabás (botón rojo). Con la cuenta regresiva ⏱ tenés tiempo de ubicarte antes de que empiece."]=["With the live camera, measuring happens only while you record (red button). With the ⏱ countdown you have time to get in position before it starts.", "Con la fotocamera live si misura solo mentre registri (pulsante rosso). Con il conto alla rovescia ⏱ hai tempo di posizionarti prima che inizi."];
 /* análisis de movimiento */
 STATIC_I18N["Lado"]=["Side", "Lato"];
 STATIC_I18N["Izquierda"]=["Left", "Sinistra"];
@@ -8695,6 +8702,7 @@ initApp();
 #modal-mov .mv-rec{position:absolute;top:9px;right:9px;background:#ff6b6b;color:#fff;font:700 11.5px 'Barlow Condensed',sans-serif;letter-spacing:.07em;padding:4px 8px;border-radius:7px;display:none;}
 #modal-mov .mv-shutter{position:absolute;right:14px;bottom:14px;width:62px;height:62px;border-radius:50%;border:4px solid #fff;background:rgba(0,0,0,0.25);display:none;align-items:center;justify-content:center;padding:0;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.45);-webkit-tap-highlight-color:transparent;}
 #modal-mov .mv-shutter span{display:block;width:46px;height:46px;border-radius:50%;background:#ff3b30;transition:all .2s ease;}
+#modal-mov .mv-shutter.cd span{width:30px;height:30px;background:#ffd166;}
 #modal-mov .mv-shutter.on span{width:24px;height:24px;border-radius:6px;}
 #modal-mov .mv-ctrl{display:flex;gap:6px;padding:7px;background:var(--s1);border-top:1px solid var(--border2);}
 #modal-mov .mv-ctrl .mv-btn{padding:9px 4px;font-size:12.5px;}
@@ -8765,7 +8773,7 @@ initApp();
 <script>
 /* ===== ANÁLISIS DE MOVIMIENTO (MediaPipe Pose, en el teléfono) ===== */
 var MV_VER='0.10.14';
-var MV={side:'l',cal:null,calStep:0,calTmp:null,calCm:100,pid:null,testKey:null,ex:'squat',load:{},landmarker:null,loading:null,running:false,pending:false,lastTs:-1,tOffset:0,mode:null,stream:null,frameCb:null,fps:[],facing:'environment',mirror:false,rec:null,chunks:[],S:null,lists:{}};
+var MV={counting:false,cd:(function(){try{var v=parseInt(localStorage.getItem('pd_mv_cd'),10);return isNaN(v)?5:v;}catch(e){return 5;}})(),cdEnd:null,cdTimer:null,side:'l',cal:null,calStep:0,calTmp:null,calCm:100,pid:null,testKey:null,ex:'squat',load:{},landmarker:null,loading:null,running:false,pending:false,lastTs:-1,tOffset:0,mode:null,stream:null,frameCb:null,fps:[],facing:'environment',mirror:false,rec:null,chunks:[],S:null,lists:{}};
 var MV_EX={
   squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b>, a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder',load:true},
   valgus:{n:'Sentadilla de frente (valgo)',hint:'Teléfono <b>de frente</b>, a la altura de la rodilla, a 2–3 m. Mide si las rodillas se van hacia adentro.',load:true},
@@ -8820,7 +8828,7 @@ function mvRenderChips(){
   var sr=mvEl('mv-side-row');sr.style.display=mvIsBi()?'block':'none';
   if(mvIsBi())mvEl('mv-side').innerHTML=['l','r'].map(function(v){return '<button class="mv-chip'+(MV.side===v?' on':'')+'" onclick="mvSetSide(\''+v+'\')">'+mvSideTxt(v)+'</button>';}).join('');
   mvRenderCal();
-  mvEl('mv-hint').innerHTML=tr(e.hint)+(mvTrailOn()?'<br><span style="color:#ffd166">━</span> '+tr('La línea amarilla es el recorrido de la barra.'):'');
+  mvEl('mv-hint').innerHTML=tr(e.hint)+(mvTrailOn()?'<br><span style="color:#ffd166">━</span> '+tr('La línea amarilla es el recorrido de la barra.'):'')+'<br><span style="color:var(--muted2);font-size:11.5px;">'+tr('Con la cámara en vivo se mide solo mientras grabás (botón rojo). Con la cuenta regresiva ⏱ tenés tiempo de ubicarte antes de que empiece.')+'</span>';
 }
 function mvSetEx(k){MV.ex=k;MV.calStep=0;if(!MV.testKey)MV.genEx=k;mvRenderChips();mvReset();}
 function mvSetSide(v){MV.side=v;if(MV.S){MV.S.ema={};MV.S.curScore=null;MV.S.curSnap=null;MV.S.j={state:'ground',base:null,legLen:null,t0:0,prevY:null,prevT:null};}mvRenderChips();mvRenderMetrics();}
@@ -8862,11 +8870,15 @@ function mvGrab(reuse){
 }
 function mvRep(val,down,up,extra){
   var S=MV.S;if(!isFinite(val))return;
-  if(S.phase==='up'){if(val<down){S.phase='down';S.cur=Object.assign({min:val},extra);S.curSnap=null;S.curScore=null;}}
+  if(S.phase==='up'){if(val<down){S.phase='down';S.cur=Object.assign({min:val,t0:MV.lastTs},extra);S.curSnap=null;S.curScore=null;}}
   else{
     if(val<S.cur.min){S.cur.min=val;Object.assign(S.cur,extra);}
     else Object.keys(extra||{}).forEach(function(k){if(k.indexOf('max')===0&&extra[k]>(S.cur[k]==null?-1e9:S.cur[k]))S.cur[k]=extra[k];if(k.indexOf('mn')===0&&extra[k]<(S.cur[k]==null?1e9:S.cur[k]))S.cur[k]=extra[k];});
-    if(val>up){S.reps.push(S.cur);S.phase='up';S.cur=null;mvCommitSnap();mvRenderLog();mvUpdSave();}
+    if(val>up){
+      var ok=(S.cur.min>=25)&&(S.cur.t0==null||(MV.lastTs-S.cur.t0)>=350);
+      if(ok){S.reps.push(S.cur);mvCommitSnap();mvRenderLog();mvUpdSave();}else{S.curSnap=null;S.curScore=null;}
+      S.phase='up';S.cur=null;
+    }
   }
 }
 
@@ -9048,6 +9060,28 @@ function mvCanvasTap(e){
 function mvRedrawStill(){ // si el video está en pausa, redibujar las marcas
   var vid=mvEl('mv-vid');if(MV.mode==='file'&&vid.paused&&vid.readyState>=2){try{mvDraw(null,[]);}catch(e){}}
 }
+/* ¿están en cuadro y bien detectadas las partes que usa este ejercicio? */
+function mvBodyOk(L,w,h){
+  var P=MV_P,ex=MV.ex,need;
+  var legs=[P.LH,P.RH,P.LK,P.RK,P.LA,P.RA];
+  if(ex==='bench')need=[P.LS,P.RS,P.LE,P.RE,P.LW,P.RW];
+  else if(ex==='ankle')need=[P.LK,P.RK,P.LA,P.RA];
+  else if(ex==='jump'||ex==='hjump'||ex==='valgus')need=legs.concat([P.LHE,P.RHE,P.LF,P.RF]);
+  else need=legs.concat([P.LS,P.RS]);
+  var mx=w*0.01,my=h*0.01,bad=0;
+  for(var i=0;i<need.length;i++){var q=L[need[i]];
+    if(!q||mvVis(q)<0.55||q.x<mx||q.x>w-mx||q.y<my||q.y>h-my)bad++;}
+  // de perfil se tapa un lado: alcanza con que falten pocos puntos del lado de atrás
+  var allow=(ex==='bench'||ex==='squat'||ex==='deadlift'||ex==='hipt'||ex==='free'||ex==='lunge')?Math.floor(need.length/2)-1:1;
+  if(bad>allow)return false;
+  // los puntos del lado que se mide tienen que estar sí o sí
+  if(ex==='squat'||ex==='deadlift'||ex==='lunge'||ex==='free'){
+    var okL=[P.LS,P.LH,P.LK,P.LA].every(function(i){var q=L[i];return mvVis(q)>=0.55&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});
+    var okR=[P.RS,P.RH,P.RK,P.RA].every(function(i){var q=L[i];return mvVis(q)>=0.55&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});
+    if(!okL&&!okR)return false;
+  }
+  return true;
+}
 function mvTrailPush(p,t){var S=MV.S;if(mvVis(p)<0.4)return;S.trail.push({x:p.x,y:p.y,t:t});while(S.trail.length&&t-S.trail[0].t>4000)S.trail.shift();}
 
 /* --- métricas --- */
@@ -9122,6 +9156,11 @@ function mvDraw(L,labels){
     var x=MV.mirror?w-p.x:p.x,y=p.y;ctx.font='800 '+(18*s)+'px "Barlow Condensed",sans-serif';var tx=Math.round(v)+'°',tw=ctx.measureText(tx).width;
     ctx.fillStyle='rgba(14,16,21,0.82)';mvRR(ctx,x+10*s,y-14*s,tw+12*s,24*s,6*s);ctx.fill();ctx.fillStyle=G;ctx.fillText(tx,x+16*s,y+4*s);
     ctx.strokeStyle=G;ctx.lineWidth=2*s;ctx.beginPath();ctx.arc(x,y,9*s,0,7);ctx.stroke();});
+  if(MV.cdEnd){var n=Math.ceil((MV.cdEnd-Date.now())/1000);if(n>0){ctx.fillStyle='rgba(14,16,21,0.6)';ctx.beginPath();ctx.arc(w/2,h/2,70*s,0,7);ctx.fill();
+    ctx.strokeStyle='#ffd166';ctx.lineWidth=5*s;ctx.stroke();ctx.fillStyle='#ffd166';ctx.font='800 '+(84*s)+'px "Barlow Condensed",sans-serif';ctx.textAlign='center';ctx.fillText(String(n),w/2,h/2+29*s);ctx.textAlign='left';}}
+  if(MV.msg){ctx.font='800 '+(20*s)+'px "Barlow Condensed",sans-serif';var mw=ctx.measureText(MV.msg).width;
+    ctx.fillStyle='rgba(14,16,21,0.82)';mvRR(ctx,w/2-mw/2-14*s,14*s,mw+28*s,34*s,8*s);ctx.fill();
+    ctx.fillStyle='#ffd166';ctx.textAlign='center';ctx.fillText(MV.msg,w/2,37*s);ctx.textAlign='left';}
   // marca de agua chica
   ctx.font='700 '+(13*s)+'px "Barlow Condensed",sans-serif';ctx.fillStyle='rgba(168,224,99,0.85)';ctx.textAlign='left';ctx.fillText('PDapp · '+mvExName(MV.ex)+(MV_EX[MV.ex].load?' · '+tr(mvLoadOf(MV.ex)==='bar'?'con carga':'sin carga'):''),10*s,h-10*s);
 }
@@ -9151,8 +9190,20 @@ function mvStep(now,meta){
     t+=MV.tOffset;if(t<=MV.lastTs){if(MV.mode==='file'&&t<MV.lastTs-500){MV.tOffset+=MV.lastTs;t+=MV.lastTs;}else t=MV.lastTs+1;}
     MV.lastTs=t;
     var L=null,labels=[];MV.lastFrame=performance.now();
+    MV.msg=null;
     if(MV.landmarker)try{var r=MV.landmarker.detectForVideo(vid,t);
-      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});labels=mvAnalyze(L,t);}
+      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});}
+      var S0=MV.S;
+      if(!L||!mvBodyOk(L,cv.width,cv.height)){
+        // cuerpo incompleto: no medimos nada y se corta la repetición en curso
+        if(S0.okSince!=null||S0.cur||S0.phase!=='up'){S0.phase='up';S0.cur=null;S0.curSnap=null;S0.curScore=null;S0.ema={};S0.last={};S0.j={state:'ground',base:null,legLen:null,t0:0,prevY:null,prevT:null};mvRenderMetrics();}
+        S0.okSince=null;MV.msg=tr(L?'Que se vea el cuerpo entero':'Buscando el cuerpo…');
+      }else{
+        if(S0.okSince==null)S0.okSince=t;
+        if(t-S0.okSince<900){MV.msg=tr('Detectando…');}
+        else if(MV.mode==='cam'&&!MV.counting){MV.msg=MV.cdEnd?null:tr('Tocá ● para grabar y medir');}
+        else labels=mvAnalyze(L,t);
+      }
     }catch(e){console.warn(e);}
     mvDraw(L,labels);
     // captura del punto más profundo de la rep en curso (después de dibujar)
@@ -9165,7 +9216,7 @@ function mvStep(now,meta){
 }
 function mvSchedule(){if(!MV.running||MV.pending)return;MV.pending=true;var vid=mvEl('mv-vid');if(vid.requestVideoFrameCallback&&!MV.noRVFC)MV.frameCb=vid.requestVideoFrameCallback(mvStep);else requestAnimationFrame(function(){mvStep(performance.now());});}
 async function mvStopAll(){
-  MV.running=false;MV.noRVFC=false;if(MV.wd){clearInterval(MV.wd);MV.wd=null;}mvStopRec(MV.rec?true:false);var vid=mvEl('mv-vid');var sh=mvEl('mv-shutter');if(sh)sh.style.display='none';
+  mvCdCancel();MV.running=false;MV.noRVFC=false;if(MV.wd){clearInterval(MV.wd);MV.wd=null;}mvStopRec(MV.rec?true:false);var vid=mvEl('mv-vid');var sh=mvEl('mv-shutter');if(sh)sh.style.display='none';
   if(MV.frameCb!=null&&vid.cancelVideoFrameCallback){try{vid.cancelVideoFrameCallback(MV.frameCb);}catch(e){}}MV.pending=false;
   if(MV.stream){MV.stream.getTracks().forEach(function(t){t.stop();});MV.stream=null;}
   try{vid.pause();}catch(e){}vid.removeAttribute('src');vid.srcObject=null;
@@ -9194,7 +9245,7 @@ async function movStartCam(){
   vid.muted=true;vid.setAttribute('playsinline','');vid.setAttribute('autoplay','');vid.srcObject=MV.stream;
   mvStartLoop();mvPlay(vid);mvEl('mv-shutter').style.display='flex';
   if(!MV.landmarker){mvStatus(tr('Cargando el analizador (solo la primera vez)…'));lp.then(function(){mvStatus('');},function(){});}
-  mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="mvFlip()">'+tr('Girar')+'</button><button class="mv-btn" onclick="mvReset()">'+tr('Reiniciar')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
+  mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="mvFlip()">'+tr('Girar')+'</button><button class="mv-btn" id="mv-c-cd" onclick="mvCdCycle()">'+mvCdTxt()+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
 }
 function mvFlip(){MV.facing=MV.facing==='user'?'environment':'user';movStartCam();}
 function movFilePicked(inp){var f=inp.files&&inp.files[0];inp.value='';if(f)mvStartFile(f);}
@@ -9215,7 +9266,18 @@ function mvAgain(){var vid=mvEl('mv-vid');mvReset();vid.currentTime=0;vid.play()
 async function mvStopStage(){await mvStopAll();mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="movStartCam()">'+tr('Cámara en vivo')+'</button><button class="mv-btn" onclick="document.getElementById(\'mv-file\').click()">'+tr('Subir video')+'</button>';mvUpdSave();}
 
 /* --- grabar video con líneas (se guarda en el teléfono / se comparte) --- */
-function mvToggleRec(){if(MV.rec)mvStopRec(true);else mvStartRec();}
+function mvToggleRec(){
+  if(MV.cdTimer){mvCdCancel();return;}
+  if(MV.rec){mvStopRec(true);return;}
+  if(MV.cd>0){
+    MV.cdEnd=Date.now()+MV.cd*1000;mvEl('mv-shutter').classList.add('cd');
+    MV.cdTimer=setInterval(function(){if(Date.now()>=MV.cdEnd){mvCdCancel(true);mvBeginRec();}},100);
+  }else mvBeginRec();
+}
+function mvCdCancel(keep){if(MV.cdTimer){clearInterval(MV.cdTimer);MV.cdTimer=null;}MV.cdEnd=null;var sh=mvEl('mv-shutter');if(sh)sh.classList.remove('cd');}
+function mvBeginRec(){mvReset();if(MV.S)MV.S.okSince=null;MV.counting=true;mvStartRec();if(!MV.rec)MV.counting=false;}
+function mvCdCycle(){var o=[0,5,10],i=o.indexOf(MV.cd);MV.cd=o[(i+1)%o.length];try{localStorage.setItem('pd_mv_cd',String(MV.cd));}catch(e){}var b=mvEl('mv-c-cd');if(b)b.textContent=mvCdTxt();}
+function mvCdTxt(){return '⏱ '+(MV.cd?MV.cd+' s':tr('Sin cuenta'));}
 function mvStartRec(){
   var cv=mvEl('mv-cv');if(!cv.captureStream||!window.MediaRecorder){mvStatus(tr('Este navegador no permite grabar.'),true);return;}
   var type=['video/mp4','video/webm;codecs=vp9','video/webm'].find(function(t){return MediaRecorder.isTypeSupported(t);})||'';
@@ -9226,7 +9288,7 @@ function mvStartRec(){
   MV.recTimer=setInterval(function(){var s=Math.floor((Date.now()-MV.recT0)/1000);rd.textContent='● REC '+Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);},500);
   mvEl('mv-shutter').classList.add('on');
 }
-function mvStopRec(save){if(!MV.rec)return;if(!save)MV.rec.onstop=null;try{MV.rec.stop();}catch(e){}if(!save)MV.rec=null;if(MV.recTimer){clearInterval(MV.recTimer);MV.recTimer=null;}mvEl('mv-recdot').style.display='none';mvEl('mv-shutter').classList.remove('on');}
+function mvStopRec(save){MV.counting=false;mvUpdSave();if(!MV.rec)return;if(!save)MV.rec.onstop=null;try{MV.rec.stop();}catch(e){}if(!save)MV.rec=null;if(MV.recTimer){clearInterval(MV.recTimer);MV.recTimer=null;}mvEl('mv-recdot').style.display='none';mvEl('mv-shutter').classList.remove('on');}
 async function mvShareRec(blob){
   var ext=blob.type.indexOf('mp4')>=0?'mp4':'webm',name='PDapp-'+MV.ex+'-'+Date.now()+'.'+ext;var file=new File([blob],name,{type:blob.type});
   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'PDapp'});return;}catch(e){}}
