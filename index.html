@@ -1600,7 +1600,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261014-4';
+var APP_VERSION='20261014-5';
 (function(){
   try{
     setTimeout(function(){
@@ -2142,8 +2142,7 @@ function trStatic(root){
       }catch(e){}
     };
     try{
-      if(root.matches&&root.matches('.tr-all'))deep(root);
-      if(root.querySelectorAll)root.querySelectorAll('.tr-all').forEach(deep);
+      if(root.nodeType===9)deep(root.body);else if(root.nodeType===1)deep(root);
     }catch(e){}
   }catch(e){console.error('trStatic',e);}
   __trBusy=false;
@@ -2790,7 +2789,7 @@ async function doReset(){
   if(p1!==p2){msg.style.color='#ff4d4d';msg.textContent='Las contrase\u00f1as no coinciden.';return;}
   btn.disabled=true;btn.textContent='Guardando...';msg.style.color='#6b7280';msg.textContent='';
   var r=await sb.auth.updateUser({password:p1});
-  if(r.error){btn.disabled=false;btn.textContent='Guardar contrase\u00f1a';msg.style.color='#ff4d4d';msg.textContent='Error: '+r.error.message+'. Ped\u00ed un link nuevo desde la pantalla de ingreso.';return;}
+  if(r.error){btn.disabled=false;btn.textContent='Guardar contrase\u00f1a';msg.style.color='#ff4d4d';msg.textContent='Error: '+r.error.message+'. '+tr('Pedí un link nuevo desde la pantalla de ingreso.');return;}
   msg.style.color='#a8e063';msg.textContent='\u2705 Contrase\u00f1a actualizada. Entrando...';
   if(history.replaceState){try{history.replaceState(null,'',location.origin+location.pathname);}catch(e){}}
   IS_RECOVERY=false;MY_UID=r.data.user.id;TRAINER_ID=MY_UID;
@@ -2826,7 +2825,7 @@ async function loadPlayerData(tid){
   var pr=await sb.from('players').select('*').eq('trainer_id',tid).order('created_at');
   if(pr.error)throw pr.error;
   PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},matches:p.matches||{},group_id:p.group_id||null,maxes:p.maxes||{}};});
-  if(PLAYERS.length===0)throw new Error('Link sin alumnos o invalido.');
+  if(PLAYERS.length===0)throw new Error(tr('Link sin alumnos o inválido.'));
   var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track').eq('trainer_id',tid);
   if(plr.error)throw plr.error;
   JB_PLANS={};JB_SESSIONS={};JB_NOTRACK={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;JB_NOTRACK[r.player_id]=r.no_track||[];});
@@ -2864,7 +2863,7 @@ async function bootAthlete(tk){
     document.getElementById('loading-spinner').style.display='none';
     document.getElementById('loading-title').style.display='none';
     if(readAthToken()===tk)clearAthToken();
-    var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML='No se pudo abrir tu plan:<br>'+((e&&e.message)||e);
+    var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML=tr('No se pudo abrir tu plan:')+'<br>'+tr(String((e&&e.message)||e));
   }
 }
 function applyAthleteData(d){
@@ -2916,7 +2915,7 @@ async function initApp(){
     document.getElementById('loading-spinner').style.display='none';
     document.getElementById('loading-title').style.display='none';
     var _er=document.getElementById('loading-error');_er.style.display='block';
-    _er.innerHTML='Este link ya no es v\u00e1lido.<br><br>Ped\u00edle a tu profe que te env\u00ede tu <b>link personal</b> nuevo.';
+    _er.innerHTML=tr('Este link ya no es válido.')+'<br><br>'+tr('Pedile a tu profe que te envíe tu link personal nuevo.');
     return;
   }
   if(false){
@@ -3337,7 +3336,7 @@ function executeProgAssign(){
   var warn2=document.getElementById('pa-warn');warn2.style.display='none';delete warn2.dataset.confirmed;
   document.getElementById('pa-confirm-btn').textContent='Asignar';
   closeProgAssign();
-  showInfo('\u2705 Programa "'+curProgram.name+'" asignado a '+pname+'.\n'+Object.keys(targets).length+' sesiones cargadas desde el '+fmtDateShort(start)+'.');
+  showInfo('\u2705 '+tr('Programa')+' "'+curProgram.name+'" '+tr('asignado a')+' '+pname+'.\n'+Object.keys(targets).length+' '+tr('sesiones cargadas desde el')+' '+fmtDateShort(start)+'.');
   if(pid===currentPlayerId){refreshAfterChange();}
 }
 function openProgramsFromHome(){
@@ -4139,7 +4138,7 @@ function renderGroups(){
     return '<div class="player-card" data-gid="'+g.id+'" onclick="openGroupDetail(this.dataset.gid)"><div class="player-card-inner"><div class="player-photo" style="font-size:22px;display:flex;align-items:center;justify-content:center;color:var(--mob);">'+ICON('people')+'</div><div style="flex:1;min-width:0;"><div class="player-name">'+g.name+'</div><div class="player-meta">'+n+' '+(n===1?'alumno':'alumnos')+'</div></div><span class="player-arrow">\u203a</span></div><div class="player-card-actions"><button class="pca-btn pca-edit" data-gid="'+g.id+'" onclick="event.stopPropagation();renameGroup(this.dataset.gid)">Renombrar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-gid="'+g.id+'" onclick="event.stopPropagation();deleteGroup(this.dataset.gid)">Eliminar</button></div></div>';
   }).join('');
   var ng=PLAYERS.filter(function(p){return !p.group_id;}).length;
-  var foot=ng?'<div style="text-align:center;color:var(--muted2);font-size:12px;margin-top:12px;">'+ng+' alumno'+(ng!==1?'s':'')+' sin grupo</div>':'';
+  var foot=ng?'<div style="text-align:center;color:var(--muted2);font-size:12px;margin-top:12px;">'+ng+' '+tr(ng!==1?'alumnos sin grupo':'alumno sin grupo')+'</div>':'';
   gv.innerHTML=head+cards+foot;
 }
 function renderGroupDetail(gv){
@@ -4148,12 +4147,12 @@ function renderGroupDetail(gv){
   var back='<button onclick="closeGroupDetail()" class="cv-btn" style="flex:none;padding:8px 14px;margin-bottom:14px;display:inline-block;width:auto;">\u2039 Grupos</button>';
   var title='<div data-gid="'+g.id+'" onclick="renameGroup(this.dataset.gid)" style="cursor:pointer;font-family:Barlow Condensed,sans-serif;font-size:24px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;">'+g.name+'</div><div style="font-size:11px;color:var(--muted2);margin-bottom:16px;">Toc\u00e1 el nombre para renombrar</div>';
   var n=groupMembers(g.id).length;
-  var count='<div style="font-size:11px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">'+n+' '+(n===1?'alumno en el grupo':'alumnos en el grupo')+'</div>';
+  var count='<div style="font-size:11px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">'+n+' '+tr(n===1?'alumno en el grupo':'alumnos en el grupo')+'</div>';
   var rows=PLAYERS.length?PLAYERS.map(function(p){
     var inThis=p.group_id===g.id;
     var otherG=(!inThis&&p.group_id)?((GROUPS.find(function(x){return x.id===p.group_id;})||{}).name||''):'';
     var av=p.photo?'<div class="player-photo" style="width:36px;height:36px;"><img src="'+p.photo+'"/></div>':'<div class="player-photo" style="width:36px;height:36px;font-size:16px;">\ud83d\udc64</div>';
-    var meta=otherG?'<div class="player-meta" style="color:var(--act);">En: '+otherG+'</div>':'';
+    var meta=otherG?'<div class="player-meta" style="color:var(--act);">'+tr('En')+': '+otherG+'</div>':'';
     var btn=inThis?'<button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="togglePlayerGroup(this.dataset.pid)">Quitar</button>':'<button class="pca-btn" style="color:var(--mob);" data-pid="'+p.id+'" onclick="togglePlayerGroup(this.dataset.pid)">'+(otherG?'Mover ac\u00e1':'Agregar')+'</button>';
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid '+(inThis?'var(--mob)':'var(--border2)')+';border-radius:12px;margin-bottom:8px;background:'+(inThis?'rgba(168,224,99,0.06)':'var(--s1)')+';">'+av+'<div style="flex:1;min-width:0;"><div class="player-name" style="font-size:15px;">'+p.name+'</div>'+meta+'</div>'+btn+'</div>';
   }).join(''):'<div style="text-align:center;color:var(--muted2);font-size:13px;padding:16px 0;">No ten\u00e9s alumnos cargados.</div>';
@@ -4283,7 +4282,7 @@ function gaCommit(mode){
   var isMember=currentPlayerId&&members.some(function(p){return p.id===currentPlayerId;});
   gaPending=null;
   closeGroupAssign();
-  showInfo('\u2705 "'+item.name+'" asignado al grupo '+gname+'.\n'+members.length+' alumnos \u00b7 '+count+' sesiones cargadas desde el '+fmtDateShort(start)+'.');
+  showInfo('\u2705 "'+item.name+'" '+tr('asignado al grupo')+' '+gname+'.\n'+members.length+' '+tr('alumnos')+' \u00b7 '+count+' '+tr('sesiones cargadas desde el')+' '+fmtDateShort(start)+'.');
   if(isMember){refreshAfterChange();}
 }
 function renderWeekOverview(){
@@ -4319,7 +4318,7 @@ function updatePlayerCount(){
   var el=document.getElementById('player-count');if(!el)return;
   if(isCoach&&!isAdmin){
     var max=(MY_PROFILE&&MY_PROFILE.max_players)||5;var n=PLAYERS.length;
-    el.textContent=n+' / '+max+' alumnos';
+    el.textContent=n+' / '+max+' '+tr('alumnos');
     el.style.color=n>=max?'#ff7043':'var(--muted)';
     el.style.display='block';
   }else{el.style.display='none';}
@@ -4361,8 +4360,8 @@ function copyShareLink(){
 function shareWhatsApp(){
   var p=PLAYERS.find(function(x){return x.id===sharePid;});if(!p)return;
   if(!playerLink(p.id)){showInfo(tr('No se pudo obtener el link.'));return;}
-  var prof=(MY_PROFILE&&MY_PROFILE.display_name)?MY_PROFILE.display_name:'tu profe';
-  var txt='Hola '+p.name+' \ud83d\udc4b\n\nAc\u00e1 ten\u00e9s tu acceso a la app de entrenamiento:\n\ud83d\udc49 '+playerLink(p.id)+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 '+prof;
+  var prof=(MY_PROFILE&&MY_PROFILE.display_name)?MY_PROFILE.display_name:tr('tu profe');
+  var txt=tr('Hola')+' '+p.name+' \ud83d\udc4b\n\n'+tr('Acá tenés tu acceso a la app de entrenamiento:')+'\n\ud83d\udc49 '+playerLink(p.id)+'\n\n'+tr('Tu PIN:')+' '+String(p.pin||'----')+'\n\n\u2014 '+prof;
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
 }
 function showSelectContent(){
@@ -4423,7 +4422,7 @@ function renderPlayerCard(p){
     var inactBadge=inactDays?'<div style="font-size:10px;font-weight:800;letter-spacing:0.03em;margin-top:4px;color:#ff7043;">\u26a0 '+t('inactivoHace')+' '+inactDays+' '+t('diasLc')+'</div>':'';
     var stk=isCoach?getStreak(p.id):0;
     var streakBadge=stk>=2?'<div style="font-size:10px;font-weight:800;letter-spacing:0.03em;margin-top:4px;color:var(--mob);">\ud83d\udd25 '+stk+' en racha</div>':'';
-    var todayBadge=todaySess?'<div style="font-size:11px;color:var(--act);font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hoy: '+todaySess+'</div>':'';
+    var todayBadge=todaySess?'<div style="font-size:11px;color:var(--act);font-weight:700;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+tr('Hoy')+': '+todaySess+'</div>':'';
     var actions=isCoach?'<div class="player-card-actions"><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openFicha(this.dataset.pid)" style="color:var(--cm);">'+t('ficha')+''+(p.questionnaire?'':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff7043;margin-left:4px;vertical-align:middle;"></span>')+'</button><div class="pca-sep"></div><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();shareAccess(this.dataset.pid)" style="color:var(--mob);">'+t('acceso')+'</button><div class="pca-sep"></div><button class="pca-btn pca-edit" data-pid="'+p.id+'" onclick="event.stopPropagation();editPlayer(this.dataset.pid)">'+t('editar')+'</button>'+(canTransfer()?'<div class="pca-sep"></div><button class="pca-btn" data-pid="'+p.id+'" onclick="event.stopPropagation();openTransfer(this.dataset.pid)">'+tr('Pasar')+'</button>':'')+'<div class="pca-sep"></div><button class="pca-btn pca-del" data-pid="'+p.id+'" onclick="event.stopPropagation();delPlayer(this.dataset.pid)">'+t('eliminar')+'</button></div>':'';
     return '<div class="player-card" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)"><div class="player-card-inner">'+av+'<div style="flex:1;min-width:0;"><div class="player-name">'+p.name+wDot+'</div><div class="player-meta">'+meta+'</div>'+pinBadge+strip+adhBadge+streakBadge+inactBadge+todayBadge+'</div><span class="player-arrow">\u203a</span></div>'+actions+'</div>';
   }
@@ -4835,7 +4834,7 @@ function volBarHtml(blocks,maxes){
   function cell(lbl,val){return '<div style="flex:1;text-align:center;min-width:0;"><div style="font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;">'+lbl+'</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:19px;font-weight:800;color:var(--text);line-height:1;white-space:nowrap;">'+val+'</div></div>';}
   var sep='<div style="width:1px;background:var(--border2);margin:2px;"></div>';
   var kgVal=v.kgKnown?'<span style="color:var(--mob);">'+_pnum(v.kg)+'</span> <span style="font-size:11px;color:var(--muted2);">kg</span>':'<span style="color:var(--muted2);">\u2014</span>';
-  var hint=(!v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--act);margin-top:5px;">Carg\u00e1 el 1RM de los ejercicios para ver el tonelaje</div>':((v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--muted2);margin-top:5px;">'+v.pctMissing+' ejercicio'+(v.pctMissing>1?'s':'')+' sin 1RM cargado</div>':'');
+  var hint=(!v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--act);margin-top:5px;">Carg\u00e1 el 1RM de los ejercicios para ver el tonelaje</div>':((v.kgKnown&&v.pctMissing>0)?'<div style="text-align:center;font-size:9.5px;color:var(--muted2);margin-top:5px;">'+v.pctMissing+' '+tr(v.pctMissing>1?'ejercicios sin 1RM cargado':'ejercicio sin 1RM cargado')+'</div>':'');
   return '<div style="position:sticky;top:55px;z-index:150;background:var(--bg);padding:8px 13px 6px;"><div style="max-width:var(--cw);margin:0 auto;background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:9px 10px;box-shadow:0 6px 16px rgba(0,0,0,0.35);"><div style="display:flex;align-items:stretch;gap:6px;">'+cell(tr('Series'),_pnum(v.sets))+sep+cell(tr('Reps'),_pnum(v.reps))+sep+cell(tr('Tonelaje'),kgVal)+_durCell(sep)+'</div>'+hint+'</div></div>';
 }
 function weeklyVolHistory(pid,maxes){
@@ -4862,7 +4861,7 @@ function volTrendHtml(pid,maxes){
   var anyKg=recent.some(function(x){return x.v.kgKnown&&x.v.kg>0;});
   var delta='';
   if(prev&&prev.kg>0&&last.kgKnown){var d=last.kg-prev.kg;var pc=Math.round(d/prev.kg*100);delta=' <span style="color:'+(d>=0?'var(--mob)':'var(--fza)')+';font-size:11px;">('+(d>=0?'+':'')+pc+'%)</span>';}
-  var head='<div style="font-size:12.5px;color:var(--text);margin:2px 0 8px;">Esta semana: <b style="color:var(--mob);">'+(last.kgKnown?_pnum(last.kg)+' kg':'\u2014')+'</b>'+delta+' <span style="color:var(--muted2);font-size:11px;">\u00b7 '+last.sets+' series \u00b7 '+_pnum(last.reps)+' reps</span></div>';
+  var head='<div style="font-size:12.5px;color:var(--text);margin:2px 0 8px;">'+tr('Esta semana')+': <b style="color:var(--mob);">'+(last.kgKnown?_pnum(last.kg)+' kg':'\u2014')+'</b>'+delta+' <span style="color:var(--muted2);font-size:11px;">\u00b7 '+last.sets+' series \u00b7 '+_pnum(last.reps)+' reps</span></div>';
   var bars=recent.map(function(x){
     var kg=x.v.kg;var hgt=maxKg>0?Math.max(3,Math.round(kg/maxKg*54)):3;var d=isoToDate(x.w);
     return '<div style="width:40px;flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="font-size:8px;color:var(--muted2);white-space:nowrap;">'+(kg>0?_pnum(kg):'')+'</div><div style="width:22px;height:'+hgt+'px;background:var(--mobfill);border-radius:3px 3px 0 0;opacity:'+(kg>0?1:0.25)+';"></div><div style="font-size:8px;color:var(--muted2);white-space:nowrap;">'+d.getDate()+'/'+(d.getMonth()+1)+'</div></div>';
@@ -5187,7 +5186,7 @@ function loadCell(t,wIdx,dIdx,bi,ei,objetivo,exName){
   var aL=getALoad(bi,ei);
   var nEsc=String(exName||'').replace(/"/g,'&quot;');
   if(isCoach){
-    var tBtn='<button onclick="event.stopPropagation();toggleTrack(this.dataset.n,this.dataset.w,this.dataset.d,this.dataset.b,this.dataset.e)" data-n="'+nEsc+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" title="'+(tracked?'Registro de carga: activado':'Registro de carga: desactivado')+'" style="width:26px;height:26px;flex:none;border-radius:7px;border:1px solid '+(tracked?'var(--mob)':'var(--border2)')+';background:'+(tracked?'rgba(168,224,99,0.10)':'transparent')+';color:'+(tracked?'var(--mob)':'var(--muted2)')+';display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></button>';
+    var tBtn='<button onclick="event.stopPropagation();toggleTrack(this.dataset.n,this.dataset.w,this.dataset.d,this.dataset.b,this.dataset.e)" data-n="'+nEsc+'" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" title="'+tr(tracked?'Registro de carga: activado':'Registro de carga: desactivado')+'" style="width:26px;height:26px;flex:none;border-radius:7px;border:1px solid '+(tracked?'var(--mob)':'var(--border2)')+';background:'+(tracked?'rgba(168,224,99,0.10)':'transparent')+';color:'+(tracked?'var(--mob)':'var(--muted2)')+';display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></button>';
     return '<div style="display:flex;align-items:flex-start;gap:6px;"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><button class="exload-edit" style="cursor:pointer;min-height:26px;" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();openPrescModal('+wIdx+','+dIdx+','+bi+','+ei+')">'+(objetivo||TT('definir'))+'</button>'+(tracked&&aL?'<div style="font-size:10px;font-weight:700;color:var(--cm);white-space:nowrap;">Hizo: '+aL+'</div>':'')+'</div>'+tBtn+'</div>';
   }
   if(!tracked)return '<div class="exload l-'+t+'">'+objetivo+'</div>';
@@ -5273,7 +5272,7 @@ function renderBlock(b,bi,wIdx,dIdx){
   /* El alumno ve los videos recién cuando arranca el entrenamiento: antes solo
    tiene el resumen (nombre, series, reps y kg) para no distraerse. */
   var _verVid=isC||draftMode||sessionStarted();
-  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+String(b.title||'').replace(/<[^>]*>/g,'')+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e,bi,ei)+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+tr(String(b.title||'').replace(/<[^>]*>/g,''))+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e,bi,ei)+_noteH+link+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -6461,7 +6460,7 @@ function renderMessages(){
   }).join('');
   document.getElementById('msg-content').innerHTML=html;
 }
-function buildMsg(p,iso){var ss=JB_SESSIONS[p.id]||{};var sess=ss[iso];var link=location.origin+location.pathname+'?profe='+(TRAINER_ID||'');var fecha=iso?fmtDateLong(iso):'';var titulo=(sess&&sess.title)?sess.title:'Entrenamiento';var bloques=(sess&&sess.blocks&&sess.blocks.length)?('\n'+sess.blocks.map(function(b){return '\u2022 '+(b.title||'');}).join('\n')+'\n'):'';return 'Hola '+p.name+' \ud83d\udc4b\n\n\ud83c\udfcb\ufe0f '+titulo+'\n\ud83d\udcc5 '+fecha+'\n'+bloques+'\nEntr\u00e1 a tu plan ac\u00e1:\n\ud83d\udc49 '+link+'\n\nTu PIN: '+String(p.pin||'----')+'\n\n\u2014 Pablo PT \ud83d\udcaa';}
+function buildMsg(p,iso){var ss=JB_SESSIONS[p.id]||{};var sess=ss[iso];var link=playerLink(p.id)||(location.origin+location.pathname);var fecha=iso?fmtDateLong(iso):'';var titulo=(sess&&sess.title)?sess.title:tr('Entrenamiento');var _prof=(MY_PROFILE&&MY_PROFILE.display_name)?MY_PROFILE.display_name:tr('tu profe');var bloques=(sess&&sess.blocks&&sess.blocks.length)?('\n'+sess.blocks.map(function(b){return '\u2022 '+(b.title||'');}).join('\n')+'\n'):'';return tr('Hola')+' '+p.name+' \ud83d\udc4b\n\n\ud83c\udfcb\ufe0f '+titulo+'\n\ud83d\udcc5 '+fecha+'\n'+bloques+'\n'+tr('Entrá a tu plan acá:')+'\n\ud83d\udc49 '+link+'\n\n'+tr('Tu PIN:')+' '+String(p.pin||'----')+'\n\n\u2014 '+_prof+' \ud83d\udcaa';}
 function selectMsgDay(pid,day){msgSelectedDays[pid]=day;renderMessages();}
 function copyMsg(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]);if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}});}else{var ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);var el=document.getElementById('msg-cop-'+pid);if(el){el.textContent='\u2705 Copiado!';setTimeout(function(){el.textContent='';},2000);}}}
 function sendWA(pid){var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var msg=buildMsg(p,msgSelectedDays[pid]);window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');}
@@ -6856,6 +6855,103 @@ STATIC_I18N['Informe listo.']=['Report ready.','Report pronto.'];
 STATIC_I18N['Compartir PDF']=['Share PDF','Condividi PDF'];
 STATIC_I18N['Descargar PDF']=['Download PDF','Scarica PDF'];
 STATIC_I18N['Página']=['Page','Pagina'];
+/* textos que faltaban traducir (auditoría oct 2026) */
+STATIC_I18N["Recto del abdomen"]=STATIC_I18N["Recto del abdomen"]||["Rectus abdominis", "Retto dell’addome"];
+STATIC_I18N["Tríceps izq."]=STATIC_I18N["Tríceps izq."]||["Left triceps", "Tricipite sinistro"];
+STATIC_I18N["Tríceps der."]=STATIC_I18N["Tríceps der."]||["Right triceps", "Tricipite destro"];
+STATIC_I18N["Glúteo mayor izq."]=STATIC_I18N["Glúteo mayor izq."]||["Left glute max", "Grande gluteo sinistro"];
+STATIC_I18N["Glúteo mayor der."]=STATIC_I18N["Glúteo mayor der."]||["Right glute max", "Grande gluteo destro"];
+STATIC_I18N["Glúteo medio izq."]=STATIC_I18N["Glúteo medio izq."]||["Left glute med", "Medio gluteo sinistro"];
+STATIC_I18N["Glúteo medio der."]=STATIC_I18N["Glúteo medio der."]||["Right glute med", "Medio gluteo destro"];
+STATIC_I18N["Bíceps femoral izq."]=STATIC_I18N["Bíceps femoral izq."]||["Left biceps femoris", "Bicipite femorale sinistro"];
+STATIC_I18N["Bíceps femoral der."]=STATIC_I18N["Bíceps femoral der."]||["Right biceps femoris", "Bicipite femorale destro"];
+STATIC_I18N["Sóleo izq."]=STATIC_I18N["Sóleo izq."]||["Left soleus", "Soleo sinistro"];
+STATIC_I18N["Sóleo der."]=STATIC_I18N["Sóleo der."]||["Right soleus", "Soleo destro"];
+STATIC_I18N["~10 cm · asimetría normal hasta 1,5 cm"]=STATIC_I18N["~10 cm · asimetría normal hasta 1,5 cm"]||["~10 cm · normal asymmetry up to 1.5 cm", "~10 cm · asimmetria normale fino a 1,5 cm"];
+STATIC_I18N["De rodilla frente a la pared. Adelantá el pie hasta que la rodilla toque la pared SIN despegar el talón. Medí desde la punta del pie hasta la pared."]=STATIC_I18N["De rodilla frente a la pared. Adelantá el pie hasta que la rodilla toque la pared SIN despegar el talón. Medí desde la punta del pie hasta la pared."]||["Kneel facing the wall. Move the foot forward until the knee touches the wall WITHOUT lifting the heel. Measure from the toes to the wall.", "In ginocchio davanti al muro. Porta avanti il piede finché il ginocchio tocca il muro SENZA staccare il tallone. Misura dalla punta del piede al muro."];
+STATIC_I18N["80° o más"]=STATIC_I18N["80° o más"]||["80° or more", "80° o più"];
+STATIC_I18N["Una mano pasa por arriba del hombro y la otra por abajo, por detrás de la espalda. Medí la distancia entre las puntas de los dedos medios. Si se superponen, anotá el valor en negativo."]=STATIC_I18N["Una mano pasa por arriba del hombro y la otra por abajo, por detrás de la espalda. Medí la distancia entre las puntas de los dedos medios. Si se superponen, anotá el valor en negativo."]||["One hand goes over the shoulder and the other from below, behind the back. Measure the distance between the tips of the middle fingers. If they overlap, enter a negative value.", "Una mano passa sopra la spalla e l’altra da sotto, dietro la schiena. Misura la distanza tra le punte dei medi. Se si sovrappongono, inserisci un valore negativo."];
+STATIC_I18N["Registrá tu marca y buscá mejorarla"]=STATIC_I18N["Registrá tu marca y buscá mejorarla"]||["Record your mark and try to beat it", "Registra il tuo risultato e cerca di migliorarlo"];
+STATIC_I18N["Desde parado, con los pies detrás de una línea, saltá lo más lejos posible con las dos piernas. Medí desde la línea hasta el talón más atrasado."]=STATIC_I18N["Desde parado, con los pies detrás de una línea, saltá lo más lejos posible con las dos piernas. Medí desde la línea hasta el talón más atrasado."]||["From standing, with your feet behind a line, jump as far as you can with both legs. Measure from the line to the rearmost heel.", "Da fermo, con i piedi dietro una linea, salta il più lontano possibile con entrambe le gambe. Misura dalla linea al tallone più arretrato."];
+STATIC_I18N["Diferencia entre piernas menor al 10%"]=STATIC_I18N["Diferencia entre piernas menor al 10%"]||["Difference between legs under 10%", "Differenza tra le gambe inferiore al 10%"];
+STATIC_I18N["Igual que el salto horizontal pero apoyando y cayendo con una sola pierna. Hacelo con cada pierna por separado."]=STATIC_I18N["Igual que el salto horizontal pero apoyando y cayendo con una sola pierna. Hacelo con cada pierna por separado."]||["Same as the broad jump but taking off and landing on one leg. Do it with each leg separately.", "Come il salto in lungo ma con stacco e atterraggio su una sola gamba. Fallo con ogni gamba separatamente."];
+STATIC_I18N["Activación & Prevención"]=STATIC_I18N["Activación & Prevención"]||["Activation & Prevention", "Attivazione e Prevenzione"];
+STATIC_I18N["Trabajo de Campo"]=STATIC_I18N["Trabajo de Campo"]||["Field Work", "Lavoro sul Campo"];
+STATIC_I18N["Bandas · Activación · Prevención"]=STATIC_I18N["Bandas · Activación · Prevención"]||["Bands · Activation · Prevention", "Elastici · Attivazione · Prevenzione"];
+STATIC_I18N["Este link ya no es válido."]=STATIC_I18N["Este link ya no es válido."]||["This link is no longer valid.", "Questo link non è più valido."];
+STATIC_I18N["Pedile a tu profe que te envíe tu link personal nuevo."]=STATIC_I18N["Pedile a tu profe que te envíe tu link personal nuevo."]||["Ask your coach to send you a new personal link.", "Chiedi al tuo coach di inviarti un nuovo link personale."];
+STATIC_I18N["No se pudo abrir tu plan:"]=STATIC_I18N["No se pudo abrir tu plan:"]||["Couldn’t open your plan:", "Impossibile aprire il tuo piano:"];
+STATIC_I18N["Link sin alumnos o inválido."]=STATIC_I18N["Link sin alumnos o inválido."]||["Invalid link or no athletes.", "Link non valido o senza atleti."];
+STATIC_I18N["Pedí un link nuevo desde la pantalla de ingreso."]=STATIC_I18N["Pedí un link nuevo desde la pantalla de ingreso."]||["Request a new link from the sign-in screen.", "Richiedi un nuovo link dalla schermata di accesso."];
+STATIC_I18N["Hola"]=STATIC_I18N["Hola"]||["Hi", "Ciao"];
+STATIC_I18N["Acá tenés tu acceso a la app de entrenamiento:"]=STATIC_I18N["Acá tenés tu acceso a la app de entrenamiento:"]||["Here is your access to the training app:", "Ecco il tuo accesso all’app di allenamento:"];
+STATIC_I18N["Tu PIN:"]=STATIC_I18N["Tu PIN:"]||["Your PIN:", "Il tuo PIN:"];
+STATIC_I18N["Entrá a tu plan acá:"]=STATIC_I18N["Entrá a tu plan acá:"]||["Open your plan here:", "Apri il tuo piano qui:"];
+STATIC_I18N["tu profe"]=STATIC_I18N["tu profe"]||["your coach", "il tuo coach"];
+STATIC_I18N["Quitar sesión"]=STATIC_I18N["Quitar sesión"]||["Remove session", "Rimuovi sessione"];
+STATIC_I18N["Elegir otra"]=STATIC_I18N["Elegir otra"]||["Choose another", "Scegline un’altra"];
+STATIC_I18N["No tenés sesiones guardadas todavía."]=STATIC_I18N["No tenés sesiones guardadas todavía."]||["You don’t have any saved sessions yet.", "Non hai ancora sessioni salvate."];
+STATIC_I18N["sesiones cargadas desde el"]=STATIC_I18N["sesiones cargadas desde el"]||["sessions loaded from", "sessioni caricate dal"];
+STATIC_I18N["asignado al grupo"]=STATIC_I18N["asignado al grupo"]||["assigned to group", "assegnato al gruppo"];
+STATIC_I18N["asignado a"]=STATIC_I18N["asignado a"]||["assigned to", "assegnato a"];
+STATIC_I18N["Programa"]=STATIC_I18N["Programa"]||["Program", "Programma"];
+STATIC_I18N["alumnos"]=STATIC_I18N["alumnos"]||["athletes", "atleti"];
+STATIC_I18N["Sin profes todavía."]=STATIC_I18N["Sin profes todavía."]||["No coaches yet.", "Ancora nessun coach."];
+STATIC_I18N["Todavía no tenés grupos. Creá el primero."]=STATIC_I18N["Todavía no tenés grupos. Creá el primero."]||["You don’t have any groups yet. Create the first one.", "Non hai ancora gruppi. Crea il primo."];
+STATIC_I18N["alumno sin grupo"]=STATIC_I18N["alumno sin grupo"]||["athlete without a group", "atleta senza gruppo"];
+STATIC_I18N["alumnos sin grupo"]=STATIC_I18N["alumnos sin grupo"]||["athletes without a group", "atleti senza gruppo"];
+STATIC_I18N["Tocá el nombre para renombrar"]=STATIC_I18N["Tocá el nombre para renombrar"]||["Tap the name to rename", "Tocca il nome per rinominare"];
+STATIC_I18N["alumno en el grupo"]=STATIC_I18N["alumno en el grupo"]||["athlete in the group", "atleta nel gruppo"];
+STATIC_I18N["alumnos en el grupo"]=STATIC_I18N["alumnos en el grupo"]||["athletes in the group", "atleti nel gruppo"];
+STATIC_I18N["En"]=STATIC_I18N["En"]||["In", "In"];
+STATIC_I18N["Mover acá"]=STATIC_I18N["Mover acá"]||["Move here", "Sposta qui"];
+STATIC_I18N["No tenés alumnos cargados."]=STATIC_I18N["No tenés alumnos cargados."]||["You don’t have any athletes yet.", "Non hai ancora atleti."];
+STATIC_I18N["Asignar programa / sesión"]=STATIC_I18N["Asignar programa / sesión"]||["Assign program / session", "Assegna programma / sessione"];
+STATIC_I18N["Eliminar grupo"]=STATIC_I18N["Eliminar grupo"]||["Delete group", "Elimina gruppo"];
+STATIC_I18N["Nombre del grupo"]=STATIC_I18N["Nombre del grupo"]||["Group name", "Nome del gruppo"];
+STATIC_I18N["No tenés programas con sesiones cargadas."]=STATIC_I18N["No tenés programas con sesiones cargadas."]||["You don’t have any programs with sessions.", "Non hai programmi con sessioni."];
+STATIC_I18N["Sin alumnos."]=STATIC_I18N["Sin alumnos."]||["No athletes.", "Nessun atleta."];
+STATIC_I18N["Sin alumnos. Agregá el primero."]=STATIC_I18N["Sin alumnos. Agregá el primero."]||["No athletes. Add the first one.", "Nessun atleta. Aggiungi il primo."];
+STATIC_I18N["Sin alumnos. Agregá el primero."]=STATIC_I18N["Sin alumnos. Agregá el primero."]||["No athletes. Add the first one.", "Nessun atleta. Aggiungi il primo."];
+STATIC_I18N["Sin alumnos cargados."]=STATIC_I18N["Sin alumnos cargados."]||["No athletes yet.", "Nessun atleta."];
+STATIC_I18N["No hay alumnos."]=STATIC_I18N["No hay alumnos."]||["No athletes.", "Nessun atleta."];
+STATIC_I18N["Hoy"]=STATIC_I18N["Hoy"]||["Today", "Oggi"];
+STATIC_I18N["Esta semana"]=STATIC_I18N["Esta semana"]||["This week", "Questa settimana"];
+STATIC_I18N["Semana pasada"]=STATIC_I18N["Semana pasada"]||["Last week", "Settimana scorsa"];
+STATIC_I18N["Tendencia por semana"]=STATIC_I18N["Tendencia por semana"]||["Weekly trend", "Andamento settimanale"];
+STATIC_I18N["Carga y volumen"]=STATIC_I18N["Carga y volumen"]||["Load and volume", "Carico e volume"];
+STATIC_I18N["Cargá el 1RM de los ejercicios para ver el tonelaje"]=STATIC_I18N["Cargá el 1RM de los ejercicios para ver el tonelaje"]||["Enter the exercises’ 1RM to see the tonnage", "Inserisci l’1RM degli esercizi per vedere il tonnellaggio"];
+STATIC_I18N["ejercicio sin 1RM cargado"]=STATIC_I18N["ejercicio sin 1RM cargado"]||["exercise without 1RM", "esercizio senza 1RM"];
+STATIC_I18N["ejercicios sin 1RM cargado"]=STATIC_I18N["ejercicios sin 1RM cargado"]||["exercises without 1RM", "esercizi senza 1RM"];
+STATIC_I18N["Registro de carga: activado"]=STATIC_I18N["Registro de carga: activado"]||["Load logging: on", "Registrazione carico: attiva"];
+STATIC_I18N["Registro de carga: desactivado"]=STATIC_I18N["Registro de carga: desactivado"]||["Load logging: off", "Registrazione carico: disattiva"];
+STATIC_I18N["Sin resultados."]=STATIC_I18N["Sin resultados."]||["No results.", "Nessun risultato."];
+STATIC_I18N["Sin entrenamientos cargados"]=STATIC_I18N["Sin entrenamientos cargados"]||["No workouts yet", "Nessun allenamento"];
+STATIC_I18N["No se pudo generar el informe."]=STATIC_I18N["No se pudo generar el informe."]||["Couldn’t generate the report.", "Impossibile generare il report."];
+STATIC_I18N["Todavía no cargaste ninguna carga máxima."]=STATIC_I18N["Todavía no cargaste ninguna carga máxima."]||["You haven’t entered any max loads yet.", "Non hai ancora inserito carichi massimi."];
+STATIC_I18N["Seleccioná tu posición..."]=STATIC_I18N["Seleccioná tu posición..."]||["Select your position...", "Seleziona il tuo ruolo..."];
+STATIC_I18N["Ala-Pívot"]=STATIC_I18N["Ala-Pívot"]||["Power forward", "Ala grande"];
+STATIC_I18N["Pívot"]=STATIC_I18N["Pívot"]||["Center", "Centro"];
+STATIC_I18N["Líbero"]=STATIC_I18N["Líbero"]||["Libero", "Libero"];
+STATIC_I18N["Segunda línea"]=STATIC_I18N["Segunda línea"]||["Lock", "Seconda linea"];
+STATIC_I18N["Sin códigos generados todavía."]=STATIC_I18N["Sin códigos generados todavía."]||["No codes generated yet.", "Ancora nessun codice generato."];
+STATIC_I18N["¿Sos profe? Creá tu cuenta gratis →"]=STATIC_I18N["¿Sos profe? Creá tu cuenta gratis →"]||["Are you a coach? Create your free account →", "Sei un coach? Crea il tuo account gratis →"];
+STATIC_I18N["Empezá gratis"]=STATIC_I18N["Empezá gratis"]||["Start for free", "Inizia gratis"];
+STATIC_I18N["Hasta 5 alumnos, sin tarjeta y sin vencimiento. Cuando crezcas, pasás a Pro y tus alumnos ven tu marca."]=STATIC_I18N["Hasta 5 alumnos, sin tarjeta y sin vencimiento. Cuando crezcas, pasás a Pro y tus alumnos ven tu marca."]||["Up to 5 athletes, no card and no expiry. When you grow, upgrade to Pro and your athletes see your brand.", "Fino a 5 atleti, senza carta e senza scadenza. Quando cresci, passi a Pro e i tuoi atleti vedono il tuo marchio."];
+STATIC_I18N["¿Cómo dormiste anoche?"]=STATIC_I18N["¿Cómo dormiste anoche?"]||["How did you sleep last night?", "Come hai dormito stanotte?"];
+STATIC_I18N["¿Algún dolor o molestia?"]=STATIC_I18N["¿Algún dolor o molestia?"]||["Any pain or discomfort?", "Qualche dolore o fastidio?"];
+STATIC_I18N["💡 Subí el video a YouTube como «No listado» y pegá el link acá."]=STATIC_I18N["💡 Subí el video a YouTube como «No listado» y pegá el link acá."]||["💡 Upload the video to YouTube as “Unlisted” and paste the link here.", "💡 Carica il video su YouTube come “Non in elenco” e incolla qui il link."];
+STATIC_I18N["Ficha del alumno"]=STATIC_I18N["Ficha del alumno"]||["Athlete profile", "Scheda dell’atleta"];
+STATIC_I18N["🩹 Marcá tus molestias"]=STATIC_I18N["🩹 Marcá tus molestias"]||["🩹 Mark where it hurts", "🩹 Segna i tuoi fastidi"];
+STATIC_I18N["Código de invitación (opcional)"]=STATIC_I18N["Código de invitación (opcional)"]||["Invitation code (optional)", "Codice di invito (facoltativo)"];
+STATIC_I18N["Ej: Empuje Dominante de Rodillas"]=STATIC_I18N["Ej: Empuje Dominante de Rodillas"]||["E.g.: Knee-Dominant Push", "Es: Spinta dominante di ginocchio"];
+STATIC_I18N["Reps por serie"]=STATIC_I18N["Reps por serie"]||["Reps per set", "Rip. per serie"];
+STATIC_I18N["Carga por serie"]=STATIC_I18N["Carga por serie"]||["Load per set", "Carico per serie"];
+STATIC_I18N["Tiempo por serie"]=STATIC_I18N["Tiempo por serie"]||["Time per set", "Tempo per serie"];
+STATIC_I18N["Metros por serie"]=STATIC_I18N["Metros por serie"]||["Meters per set", "Metri per serie"];
+STATIC_I18N["Todavía no hay mensajes. ¡Escribí el primero!"]=STATIC_I18N["Todavía no hay mensajes. ¡Escribí el primero!"]||["No messages yet. Write the first one!", "Ancora nessun messaggio. Scrivi il primo!"];
+STATIC_I18N["Cargá el 1RM de los ejercicios (Ficha → Cargas máximas) para ver la tendencia de tonelaje. Igual ves las series/reps arriba."]=STATIC_I18N["Cargá el 1RM de los ejercicios (Ficha → Cargas máximas) para ver la tendencia de tonelaje. Igual ves las series/reps arriba."]||["Enter the exercises’ 1RM (Profile → Max loads) to see the tonnage trend. You can still see sets/reps above.", "Inserisci l’1RM degli esercizi (Scheda → Carichi massimi) per vedere l’andamento del tonnellaggio. Vedi comunque serie/rip. sopra."];
+STATIC_I18N["Aún no creaste ningún programa."]=STATIC_I18N["Aún no creaste ningún programa."]||["You haven’t created any programs yet.", "Non hai ancora creato nessun programma."];
 /* análisis de movimiento */
 STATIC_I18N["Lado"]=["Side", "Lato"];
 STATIC_I18N["Izquierda"]=["Left", "Sinistra"];
