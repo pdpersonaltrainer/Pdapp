@@ -174,11 +174,11 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 #screen-welcome{position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:calc(env(safe-area-inset-top,0px) + 68px) 24px calc(env(safe-area-inset-bottom,0px) + 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;transition:opacity 0.4s ease,transform 0.4s ease;}#screen-welcome>*{flex:none;}@media (min-height:820px){#screen-welcome{justify-content:center;}}
 #screen-welcome.hidden{opacity:0;pointer-events:none;transform:scale(1.04);}
 #screen-welcome.gone{display:none;}
-.welcome-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0a0b0e 0%,#111a08 50%,#0a0b0e 100%);}
+.welcome-bg{position:fixed;inset:0;background:linear-gradient(160deg,#0a0b0e 0%,#111a08 50%,#0a0b0e 100%);}
 .welcome-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(168,224,99,0.08),transparent 65%);}
 .welcome-content{position:relative;z-index:1;text-align:center;width:100%;max-width:420px;}
 #screen-welcome .welcome-avatar-wrap,#screen-welcome #welcome-name,#screen-welcome #welcome-sub,#screen-welcome #wl-streak{display:none!important;}
-#screen-welcome{justify-content:flex-start!important;padding-top:calc(env(safe-area-inset-top,0px) + 22px)!important;}
+#screen-welcome{background:#0a0b0e;overscroll-behavior:contain;justify-content:flex-start!important;padding-top:calc(env(safe-area-inset-top,0px) + 22px)!important;}
 .wl-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin:0 auto 12px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.22);}
 .wl-lbl{font-size:10.5px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted2);margin-bottom:8px;}
 .wl-task{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--border);cursor:pointer;}
@@ -258,7 +258,7 @@ html[data-theme="papel"] .hero-w3{background:linear-gradient(135deg,#fbe8de,#f7d
 html[data-theme="papel"] .hero-w4{background:linear-gradient(135deg,#e3ecf9,#d7e4f6);}
 html[data-theme="papel"] .hero-over{opacity:0.85;}
 /* Fondo de la pantalla del alumno: degradado oscuro con tinte verde */
-html[data-theme="papel"] .welcome-bg{background:linear-gradient(160deg,#f7f5f0,#eaf3dc 55%,#f7f5f0)!important;}.hero-w4::before{background:radial-gradient(circle at 90% 10%,var(--w4),transparent 55%);}
+html[data-theme="papel"] #screen-welcome{background:#f7f5f0;}html[data-theme="papel"] .welcome-bg{background:linear-gradient(160deg,#f7f5f0,#eaf3dc 55%,#f7f5f0)!important;}.hero-w4::before{background:radial-gradient(circle at 90% 10%,var(--w4),transparent 55%);}
 .hero-over{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;opacity:0.6;margin-bottom:4px;}
 .hero-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;text-transform:uppercase;line-height:1.05;margin-bottom:3px;}
 .hero-pat{font-size:12px;color:var(--muted);margin-bottom:12px;}
@@ -1633,7 +1633,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261015-2';
+var APP_VERSION='20261015-3';
 (function(){
   try{
     setTimeout(function(){
@@ -4733,7 +4733,7 @@ function wlWeekHtml(p){
   var lz=ls&&ls.zone?LOAD_ZONE[ls.zone]:null;
   var foot='';
   if(lz)foot='<div style="display:flex;align-items:center;margin-top:8px;padding-top:9px;border-top:1px solid var(--border);font-size:12.5px;"><span style="color:var(--muted);">'+tr('Carga de los últimos 7 días')+'</span><span style="margin-left:auto;color:'+lz.c+';font-weight:800;">● '+tr(lz.t)+'</span></div>';
-  return '<div class="wl-card"><div style="display:flex;align-items:center;margin-bottom:8px;"><div class="wl-lbl" style="margin:0;">'+tr('Tu semana')+'</div>'
+  return '<div class="wl-card"><div style="display:flex;align-items:center;margin-bottom:8px;"><div class="wl-lbl" style="margin:0;">'+(isCoach?tr('Semana'):tr('Tu semana'))+'</div>'
     +(plan?'<div style="margin-left:auto;font-size:12px;font-weight:800;color:var(--mob);">'+done+' '+tr('de')+' '+plan+' '+tr('sesiones')+'</div>':'')+'</div>'
     +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">'+cells+'</div>'+foot
     +'<div onclick="wlToggleMonth()" style="text-align:center;margin-top:9px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;">'+(WL_MONTH?tr('Ocultar mes')+' ⌃':tr('Ver mes completo')+' ›')+'</div></div>';
@@ -4770,7 +4770,7 @@ function wlProgHtml(p){
   tiles.push('<div class="wl-tile"><div class="wl-big">'+dn+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">'+tr('Sesiones')+' '+wlEsc(mN)+'</div><div style="font-size:11px;font-weight:800;margin-top:3px;color:'+(pct===null?'var(--muted2)':(pct>=80?'var(--mob)':(pct>=50?'#f9c846':'#ff7043')))+';">'+(pct===null?'—':pct+'% '+tr('cumplido'))+'</div></div>');
   if(tiles.length<3)tiles.push('<div class="wl-tile"><div class="wl-big">'+tot+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">'+tr('Sesiones en total')+'</div><div style="font-size:11px;color:var(--muted2);margin-top:3px;">'+tr('desde que empezaste')+'</div></div>');
   if(tiles.length<3){var st=getStreak(pid);tiles.push('<div class="wl-tile"><div class="wl-big">'+st+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">'+tr('Racha actual')+'</div><div style="font-size:11px;color:var(--muted2);margin-top:3px;">'+tr('sesiones seguidas')+'</div></div>');}
-  return '<div class="wl-card"><div class="wl-lbl">'+tr('Tu progreso')+'</div><div style="display:flex;gap:8px;">'+tiles.slice(0,3).join('')+'</div></div>';
+  return '<div class="wl-card"><div class="wl-lbl">'+(isCoach?tr('Progreso'):tr('Tu progreso'))+'</div><div style="display:flex;gap:8px;">'+tiles.slice(0,3).join('')+'</div></div>';
 }
 var PD_IDEAS=[
  ['La fuerza que no transferís a la cancha es solo un número.','Strength you don’t transfer to the pitch is just a number.','La forza che non trasferisci in campo è solo un numero.'],
@@ -7313,6 +7313,7 @@ STATIC_I18N["tu profe"]=STATIC_I18N["tu profe"]||["your coach","il tuo coach"];
 STATIC_I18N["Pendientes del alumno"]=STATIC_I18N["Pendientes del alumno"]||["Athlete to-dos","Da fare dell’atleta"];
 STATIC_I18N["Tu profe te pidió"]=STATIC_I18N["Tu profe te pidió"]||["Your coach asked you","Il tuo coach ti ha chiesto"];
 STATIC_I18N["Carga de los últimos 7 días"]=STATIC_I18N["Carga de los últimos 7 días"]||["Load, last 7 days","Carico ultimi 7 giorni"];
+STATIC_I18N["Semana"]=STATIC_I18N["Semana"]||["Week","Settimana"];STATIC_I18N["Progreso"]=STATIC_I18N["Progreso"]||["Progress","Progressi"];
 STATIC_I18N["Tu semana"]=STATIC_I18N["Tu semana"]||["Your week","La tua settimana"];
 STATIC_I18N["de"]=STATIC_I18N["de"]||["of","di"];
 STATIC_I18N["sesiones"]=STATIC_I18N["sesiones"]||["sessions","sessioni"];
