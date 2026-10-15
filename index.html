@@ -1634,7 +1634,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261016-2';
+var APP_VERSION='20261016-3';
 (function(){
   try{
     setTimeout(function(){
@@ -4668,6 +4668,7 @@ function wlTasks(p){
     var iso=addDaysISO(today,-o),s=sess[iso];if(!s||!s.blocks)continue;
     s.blocks.forEach(function(b){(b.exs||[]).forEach(function(e){
       if(!e||!e.vid)return;
+      if(String(e.vid.ex).indexOf('rm:')===0){if(!rmReqDone(pid,iso,e.n,String(e.vid.ex).slice(3)))items.push({ic:'vid',bg:'rgba(168,224,99,0.12)',t:tr('Medir RM')+' · '+wlEsc(e.n),s:iso===today?tr('En la sesión de hoy'):tr('Sesión del')+' '+fmtDateShort(iso).toLowerCase(),go:'wlGoDay(\''+iso+'\')'});return;}
       if(!MV.lists[pid]){needList=true;return;}
       if(mvReqDone(pid,iso,e.n))return;
       items.push({ic:'vid',bg:'rgba(77,171,247,0.13)',t:tr('Filmar técnica')+' · '+wlEsc(e.n),s:iso===today?tr('En la sesión de hoy'):tr('Sesión del')+' '+fmtDateShort(iso).toLowerCase(),go:'wlGoDay(\''+iso+'\')'});
@@ -5796,7 +5797,7 @@ function openPrescModal(w,d,b,e){
   document.getElementById('pr-rest').value=prescState.rest;
   document.getElementById('pr-eff-val').value=prescState.eff;
   var _pn=document.getElementById('pr-note');if(_pn)_pn.value=ex.note||'';
-  try{var _vs=document.getElementById('pr-vid-ex');_vs.innerHTML=MV_REQ_EX.map(function(k){return '<option value="'+k+'">'+mvExName(k)+'</option>';}).join('');_vs.value=(ex.vid&&ex.vid.ex)||mvGuessEx(ex.n);setPrescVid(!!ex.vid);try{prVidLimRender(ex.vid||{});}catch(_e2){}}catch(_e){}
+  try{var _vs=document.getElementById('pr-vid-ex');_vs.innerHTML=MV_REQ_EX.map(function(k){return '<option value="'+k+'">'+mvExName(k)+'</option>';}).join('')+RM_ORDER.map(function(k){return '<option value="rm:'+k+'">'+tr('RM estimado')+' · '+tr(RM_EX[k].n)+'</option>';}).join('');_vs.value=(ex.vid&&ex.vid.ex)||mvGuessEx(ex.n);setPrescVid(!!ex.vid);try{prVidLimRender(ex.vid||{});}catch(_e2){}}catch(_e){}
   document.getElementById('pr-durunit').textContent=prescState.durUnit;
   document.getElementById('pr-loadunit').textContent=prescState.loadUnit;
   setPrescType(prescState.type,true);
@@ -5938,7 +5939,7 @@ function savePresc(){
   var _pn=document.getElementById('pr-note');
   var _nv=_pn?String(_pn.value||'').trim():'';
   if(_nv)ex.note=_nv;else delete ex.note;
-  if(prescVidOn){var _vx=document.getElementById('pr-vid-ex');ex.vid={ex:(_vx&&_vx.value)||mvGuessEx(ex.n)};try{var _lm=document.getElementById('pr-lim-m'),_lv=document.getElementById('pr-lim-v'),_ft=document.getElementById('pr-fat');if(_lm&&_lm.value!=='off')ex.vid.lim={m:_lm.value,v:(_lv&&_lv.value!=='')?+_lv.value:null};if(_ft&&+_ft.value)ex.vid.fat=+_ft.value;}catch(_e3){}}else delete ex.vid;
+  if(prescVidOn){var _vx=document.getElementById('pr-vid-ex');ex.vid={ex:(_vx&&_vx.value)||mvGuessEx(ex.n)};if(String(ex.vid.ex).indexOf('rm:')===0){try{var _rl=String((document.getElementById('pr-rm-loads')||{}).value||'').split(/[;,\s]+/).map(function(x){return parseFloat(x.replace(',','.'));}).filter(function(x){return isFinite(x)&&x>=0;});ex.vid.rm={loads:_rl,r1:+(document.getElementById('pr-rm-r1')||{}).value||120,r2:+(document.getElementById('pr-rm-r2')||{}).value||180};}catch(_e4){}}try{var _lm=document.getElementById('pr-lim-m'),_lv=document.getElementById('pr-lim-v'),_ft=document.getElementById('pr-fat');if(_lm&&_lm.value!=='off')ex.vid.lim={m:_lm.value,v:(_lv&&_lv.value!=='')?+_lv.value:null};if(_ft&&+_ft.value)ex.vid.fat=+_ft.value;}catch(_e3){}}else delete ex.vid;
   commitSession();closePrescModal();refreshPlanUI();
 }
 
@@ -7277,6 +7278,41 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Modo"]=STATIC_I18N["Modo"]||["Mode","Modalità"];
+STATIC_I18N["Solo (sin ayudante)"]=STATIC_I18N["Solo (sin ayudante)"]||["Solo (no helper)","Da solo (senza aiuto)"];
+STATIC_I18N["Con ayudante"]=STATIC_I18N["Con ayudante"]||["With a helper","Con aiuto"];
+STATIC_I18N["Pausa cargas livianas"]=STATIC_I18N["Pausa cargas livianas"]||["Rest after light loads","Pausa carichi leggeri"];
+STATIC_I18N["pesadas"]=STATIC_I18N["pesadas"]||["heavy","pesanti"];
+STATIC_I18N["Usá topes de seguridad o pedí que te asistan en las cargas pesadas."]=STATIC_I18N["Usá topes de seguridad o pedí que te asistan en las cargas pesadas."]||["Use safety arms or ask for a spotter on heavy loads.","Usa i fermi di sicurezza o chiedi assistenza sui carichi pesanti."];
+STATIC_I18N["<b>Botón rojo</b> para empezar: cuenta 10 segundos, andá a la barra y al “¡Ya!” hacé 2 o 3 repeticiones lo más rápido posible."]=STATIC_I18N["<b>Botón rojo</b> para empezar: cuenta 10 segundos, andá a la barra y al “¡Ya!” hacé 2 o 3 repeticiones lo más rápido posible."]||["<b>Red button</b> to start: it counts 10 seconds, go to the bar and on “Go!” do 2 or 3 reps as fast as possible.","<b>Pulsante rosso</b> per iniziare: conta 10 secondi, vai al bilanciere e al “Via!” fai 2 o 3 ripetizioni il più veloce possibile."];
+STATIC_I18N["La carga termina sola. Durante la pausa cambiá los discos: la voz te avisa la próxima carga y vuelve la cuenta."]=STATIC_I18N["La carga termina sola. Durante la pausa cambiá los discos: la voz te avisa la próxima carga y vuelve la cuenta."]||["Each load ends by itself. During the rest change the plates: the voice tells you the next load and the countdown starts again.","Il carico finisce da solo. Durante la pausa cambia i dischi: la voce ti dice il prossimo carico e riparte il conto."];
+STATIC_I18N["Por seguridad, ninguna carga puede superar tu máximo actual"]=STATIC_I18N["Por seguridad, ninguna carga puede superar tu máximo actual"]||["For safety, no load can exceed your current max","Per sicurezza, nessun carico può superare il tuo massimale attuale"];
+STATIC_I18N["más"]=STATIC_I18N["más"]||["plus","più"];
+STATIC_I18N["kilos"]=STATIC_I18N["kilos"]||["kilos","chili"];
+STATIC_I18N["sin lastre"]=STATIC_I18N["sin lastre"]||["no added weight","senza zavorra"];
+STATIC_I18N["metros por segundo"]=STATIC_I18N["metros por segundo"]||["meters per second","metri al secondo"];
+STATIC_I18N["En pausa: tocá el botón rojo para seguir"]=STATIC_I18N["En pausa: tocá el botón rojo para seguir"]||["Paused: tap the red button to continue","In pausa: tocca il pulsante rosso per continuare"];
+STATIC_I18N["Arrancamos en 10 segundos"]=STATIC_I18N["Arrancamos en 10 segundos"]||["Starting in 10 seconds","Si parte tra 10 secondi"];
+STATIC_I18N["¡Ya!"]=STATIC_I18N["¡Ya!"]||["Go!","Via!"];
+STATIC_I18N["No te vi, repetimos la carga"]=STATIC_I18N["No te vi, repetimos la carga"]||["I didn’t see you, repeating load","Non ti ho visto, ripetiamo il carico"];
+STATIC_I18N["Preparate"]=STATIC_I18N["Preparate"]||["Get ready","Preparati"];
+STATIC_I18N["carga"]=STATIC_I18N["carga"]||["load","carico"];
+STATIC_I18N["lista"]=STATIC_I18N["lista"]||["done","fatto"];
+STATIC_I18N["¡Terminaste!"]=STATIC_I18N["¡Terminaste!"]||["You’re done!","Hai finito!"];
+STATIC_I18N["Pausa"]=STATIC_I18N["Pausa"]||["Rest","Pausa"];
+STATIC_I18N["Próxima"]=STATIC_I18N["Próxima"]||["Next","Prossimo"];
+STATIC_I18N["Estoy listo"]=STATIC_I18N["Estoy listo"]||["I’m ready","Sono pronto"];
+STATIC_I18N["RM pedido"]=STATIC_I18N["RM pedido"]||["1RM requested","1RM richiesto"];
+STATIC_I18N["RM recibido"]=STATIC_I18N["RM recibido"]||["1RM received","1RM ricevuto"];
+STATIC_I18N["RM enviado a tu profe"]=STATIC_I18N["RM enviado a tu profe"]||["1RM sent to your coach","1RM inviato al coach"];
+STATIC_I18N["Lastre en cada carga (kg), separado por comas"]=STATIC_I18N["Lastre en cada carga (kg), separado por comas"]||["Added weight per load (kg), comma separated","Zavorra per carico (kg), separata da virgole"];
+STATIC_I18N["Cargas (kg), separadas por comas"]=STATIC_I18N["Cargas (kg), separadas por comas"]||["Loads (kg), comma separated","Carichi (kg), separati da virgole"];
+STATIC_I18N["Pausa livianas"]=STATIC_I18N["Pausa livianas"]||["Rest light","Pausa leggeri"];
+STATIC_I18N["Pausa pesadas"]=STATIC_I18N["Pausa pesadas"]||["Rest heavy","Pausa pesanti"];
+STATIC_I18N["El alumno ve “Medir RM” en este ejercicio y lo hace solo: cuenta regresiva, fin automático de cada carga, pausas y voz. Te llega el resultado para revisarlo."]=STATIC_I18N["El alumno ve “Medir RM” en este ejercicio y lo hace solo: cuenta regresiva, fin automático de cada carga, pausas y voz. Te llega el resultado para revisarlo."]||["The athlete sees “Measure 1RM” on this exercise and does it alone: countdown, automatic end of each load, rests and voice. You get the result to review.","L’atleta vede “Misura 1RM” in questo esercizio e lo fa da solo: conto alla rovescia, fine automatica di ogni carico, pause e voce. Ricevi il risultato da controllare."];
+STATIC_I18N["RM medido"]=STATIC_I18N["RM medido"]||["1RM measured","1RM misurato"];
+STATIC_I18N["El alumno puede medirse el RM solo"]=STATIC_I18N["El alumno puede medirse el RM solo"]||["The athlete can measure their 1RM alone","L’atleta può misurarsi il 1RM da solo"];
+STATIC_I18N["Medir mi RM"]=STATIC_I18N["Medir mi RM"]||["Measure my 1RM","Misura il mio 1RM"];
 STATIC_I18N["RM estimado"]=STATIC_I18N["RM estimado"]||["Estimated 1RM","1RM stimato"];
 STATIC_I18N["Mis RM"]=STATIC_I18N["Mis RM"]||["My 1RM","I miei 1RM"];
 STATIC_I18N["Medir RM"]=STATIC_I18N["Medir RM"]||["Measure 1RM","Misura 1RM"];
@@ -9241,6 +9277,13 @@ initApp();
 #modal-mov.mv-fs .mv-rec{top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:3;}
 #modal-mov.mv-fs .mv-ctrl{background:rgba(14,16,21,0.92);border-top:1px solid rgba(255,255,255,0.08);padding:8px 10px calc(env(safe-area-inset-bottom,0px) + 8px);position:relative;z-index:3;}
 #modal-mov.mv-fs #mv-cal{position:absolute;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 104px);z-index:4;border:1px solid var(--border2);border-radius:10px;}
+#rm-rest{display:none;position:absolute;left:0;right:0;top:0;bottom:calc(env(safe-area-inset-bottom,0px) + 62px);z-index:5;background:rgba(10,11,14,0.86);flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;}
+#rm-rest.on{display:flex;}
+#rm-rest .t1{font:700 13px 'Barlow Condensed',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#aab0bb;}
+#rm-rest .big{font:800 96px 'Barlow Condensed',sans-serif;color:#fff;line-height:1;}
+#rm-rest .nx{font:800 22px 'Barlow Condensed',sans-serif;color:#a8e063;letter-spacing:.04em;text-transform:uppercase;}
+#rm-rest .bs{display:flex;gap:10px;margin-top:14px;width:100%;max-width:420px;}
+#rm-rest button{flex:1;padding:18px 10px;border-radius:14px;border:none;font:800 18px 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
 #mv-hud{display:none;}
 #modal-mov.mv-fs #mv-hud{display:flex;gap:6px;position:absolute;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 44px);z-index:3;pointer-events:none;}
 #mv-hud .h{flex:1;min-width:0;background:rgba(14,16,21,0.72);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:5px 9px;}
@@ -9277,6 +9320,7 @@ initApp();
       <div style="position:relative;"><canvas id="mv-cv" onclick="mvCanvasTap(event)"></canvas><button id="mv-shutter" class="mv-shutter" onclick="mvToggleRec()" aria-label="Grabar"><span></span></button></div>
       <video id="mv-vid" playsinline muted></video>
       <div class="mv-badge" id="mv-badge"></div>
+      <div id="rm-rest"></div>
       <div id="mv-hud"></div>
       <div class="mv-rec" id="mv-recdot">● REC</div>
       <div class="mv-ctrl" id="mv-ctrl"></div>
@@ -9594,7 +9638,8 @@ function mvSay(kind){
 /* límite y fatiga al pedir video (Prescripción) */
 function prVidLimRender(vid){
   var box=document.getElementById('pr-vid-lim');if(!box)return;
-  var sel=document.getElementById('pr-vid-ex'),exk=sel?sel.value:'';var o=MV_LIMS[exk],h='';
+  var sel=document.getElementById('pr-vid-ex'),exk=sel?sel.value:'';
+  if(exk.indexOf('rm:')===0){prRmRender(box,exk,vid||{});return;}var o=MV_LIMS[exk],h='';
   if(vid===undefined){vid={};try{var lm0=document.getElementById('pr-lim-m');if(lm0&&lm0.dataset.ex===exk)vid={lim:{m:lm0.value,v:+(document.getElementById('pr-lim-v')||{}).value}};}catch(e){}}
   vid=vid||{};
   var st='background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;';
@@ -9962,7 +10007,7 @@ function mvStep(now,meta){
       }else{
         if(S0.okSince==null)S0.okSince=t;
         if(t-S0.okSince<900){MV.msg=tr('Detectando…');}
-        else if(MV.mode==='cam'&&!MV.counting){MV.msg=MV.cdEnd?null:tr('Tocá ● para grabar y medir');}
+        else if(MV.mode==='cam'&&!MV.counting){MV.msg=(MV.cdEnd||(MV.rm&&MV.rm.phase))?null:tr('Tocá ● para grabar y medir');}
         else labels=mvAnalyze(L,t);
       }
     }catch(e){console.warn(e);}
@@ -9977,6 +10022,7 @@ function mvStep(now,meta){
 }
 function mvSchedule(){if(!MV.running||MV.pending)return;MV.pending=true;var vid=mvEl('mv-vid');if(vid.requestVideoFrameCallback&&!MV.noRVFC)MV.frameCb=vid.requestVideoFrameCallback(mvStep);else requestAnimationFrame(function(){mvStep(performance.now());});}
 async function mvStopAll(){
+  try{if(MV.rm)rmSoloStop();}catch(e){}
   mvCdCancel();MV.running=false;MV.noRVFC=false;if(MV.wd){clearInterval(MV.wd);MV.wd=null;}mvStopRec(MV.rec?true:false);var vid=mvEl('mv-vid');var sh=mvEl('mv-shutter');if(sh)sh.style.display='none';
   if(MV.frameCb!=null&&vid.cancelVideoFrameCallback){try{vid.cancelVideoFrameCallback(MV.frameCb);}catch(e){}}MV.pending=false;
   if(MV.stream){MV.stream.getTracks().forEach(function(t){t.stop();});MV.stream=null;}
@@ -10027,7 +10073,7 @@ async function mvStartFile(file){
 function mvPlayPause(){var vid=mvEl('mv-vid'),b=mvEl('mv-c-play');if(vid.paused){vid.play();MV.running=true;b.textContent=tr('Pausa');mvSchedule();}else{vid.pause();b.textContent=tr('Seguir');}}
 function mvAgain(){var vid=mvEl('mv-vid');mvReset();vid.currentTime=0;vid.play();MV.running=true;var b=mvEl('mv-c-play');if(b)b.textContent=tr('Pausa');mvSchedule();}
 async function mvStopStage(){
-  if(MV.rm){if(MV.counting)rmSetEnd();await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');mvEl('mv-stage').style.display='none';mvEl('mv-ctrl').innerHTML='';rmRenderResult();return;}
+  if(MV.rm){rmSoloStop();if(MV.counting)rmSetEnd(false,true);await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');mvEl('mv-stage').style.display='none';mvEl('mv-ctrl').innerHTML='';rmRenderResult();return;}
   var wasCam=(MV.mode==='cam');
   await mvStopAll();
   mvEl('modal-mov').classList.remove('mv-fs');
@@ -10227,6 +10273,7 @@ function mvReqDone(pid,iso,name){var L=MV.lists[pid];if(!L||!L.items)return null
 var _mvReqFetching={};
 function mvReqHtml(e,bi,ei,where){
   if(!e||!e.vid)return '';
+  if(String(e.vid.ex).indexOf('rm:')===0)return rmReqHtml(e,bi,ei,where);
   var coachSide=isCoach||draftMode||!currentPlayerId||currentPlayerId==='__draft__';
   if(coachSide!==(where==='right'))return '';
   var pid=currentPlayerId,iso=curDate;
@@ -10262,7 +10309,7 @@ var RM_EX={
 };
 var RM_ORDER=['squat','bench','deadlift','pull_sup','pull_pro'];
 function rmPrefs(){try{return JSON.parse(localStorage.getItem('pd_rm')||'{}')||{};}catch(e){return {};}}
-function rmSavePrefs(){var R=MV.rm;if(!R)return;var pr=rmPrefs();pr.ex=R.ex;pr.cal=R.cal;pr.disc=R.disc;pr.dist=R.dist;pr.loads=pr.loads||{};pr.loads[R.ex]=R.loads;try{localStorage.setItem('pd_rm',JSON.stringify(pr));}catch(e){}}
+function rmSavePrefs(){var R=MV.rm;if(!R)return;var pr=rmPrefs();pr.solo=R.solo;pr.rest=R.rest;pr.ex=R.ex;pr.cal=R.cal;pr.disc=R.disc;pr.dist=R.dist;pr.loads=pr.loads||{};pr.loads[R.ex]=R.loads;try{localStorage.setItem('pd_rm',JSON.stringify(pr));}catch(e){}}
 function rmP(){return PLAYERS.find(function(x){return x.id===MV.pid;});}
 function rmMaxName(p,ex){
   var E=RM_EX[ex];var keys=Object.keys((p&&p.maxes)||{});
@@ -10307,15 +10354,18 @@ function rmCmPerPx(){
   if(E.seg==='leg')return S.legPx?0.49*H/S.legPx:null;
   return S.armPx?0.332*H/S.armPx:null;
 }
-function openRM(pid,ex){
-  var pr=rmPrefs();ex=ex||pr.ex||'squat';if(!RM_EX[ex])ex='squat';
+function openRM(pid,ex,opt){
+  opt=opt||{};var pr=rmPrefs();ex=ex||pr.ex||'squat';if(!RM_EX[ex])ex='squat';
   openMov({pid:pid,ex:RM_EX[ex].mv});
-  MV.rm={ex:ex,loads:rmDefaultLoads(pid,ex),idx:0,sets:[],cal:pr.cal||'disc',disc:pr.disc||45,dist:pr.dist||3,bw:null};
+  MV.rm={ex:ex,loads:(opt.loads&&opt.loads.length?opt.loads.slice():rmDefaultLoads(pid,ex)),idx:0,sets:[],cal:pr.cal||'disc',disc:pr.disc||45,dist:pr.dist||3,bw:null,
+    rest:opt.rest||pr.rest||[120,180],solo:opt.solo!=null?!!opt.solo:(pr.solo!=null?!!pr.solo:!isCoach),req:opt.req||null,lockEx:!!opt.req};
   MV.rm.bw=rmBw();MV.cal=null;MV.calCm=MV.rm.disc;MV.calStep=0;
   rmApply();
 }
-function rmSetEx(ex){var R=MV.rm;if(!R||!RM_EX[ex])return;R.ex=ex;MV.ex=RM_EX[ex].mv;R.loads=rmDefaultLoads(MV.pid,ex);R.idx=0;R.sets=[];mvReset();rmSavePrefs();rmApply();}
-function rmSetLoad(i,inp){var v=parseFloat(String(inp.value).replace(',','.'));MV.rm.loads[i]=isFinite(v)?v:0;rmSavePrefs();}
+function rmSetEx(ex){var R=MV.rm;if(!R||!RM_EX[ex]||R.lockEx)return;R.ex=ex;MV.ex=RM_EX[ex].mv;R.loads=rmDefaultLoads(MV.pid,ex);R.idx=0;R.sets=[];mvReset();rmSavePrefs();rmApply();}
+function rmSetLoad(i,inp){var v=parseFloat(String(inp.value).replace(',','.'));v=isFinite(v)?v:0;
+  if(!isCoach){var p=rmP(),nm=p&&rmMaxName(p,MV.rm.ex),mx=nm?+p.maxes[nm]:0;if(RM_EX[MV.rm.ex].bw&&mx)mx=mx-(MV.rm.bw||0);if(mx>0&&v>mx){v=mx;inp.value=v;mvStatus(tr('Por seguridad, ninguna carga puede superar tu máximo actual')+' ('+mvF1(mx).replace(/\.0$/,'')+' kg).',true);}}
+  MV.rm.loads[i]=v;rmSavePrefs();}
 function rmAddLoad(){var L=MV.rm.loads;var last=+L[L.length-1]||0,prev=+L[L.length-2]||0;L.push(Math.max(0,last+(last-prev||10)));rmSavePrefs();rmApply();}
 function rmDelLoad(){var L=MV.rm.loads;if(L.length>2){L.pop();if(MV.rm.idx>L.length)MV.rm.idx=L.length;rmSavePrefs();rmApply();}}
 function rmSetCal(c){MV.rm.cal=c;rmSavePrefs();rmApply();mvRenderCal();}
@@ -10332,11 +10382,17 @@ function rmApply(){
   h+='<div class="mv-lbl">'+tr(E.bw?'Lastre en cada carga (kg)':'Cargas (kg)')+'</div><div class="rm-l">'+R.loads.map(function(v,i){return '<label>'+(i+1)+'<input type="number" inputmode="decimal" value="'+v+'" onchange="rmSetLoad('+i+',this)"'+(i<R.idx?' disabled':'')+'></label>';}).join('')
     +'<label>&nbsp;<button class="mv-chip" onclick="rmAddLoad()" style="padding:8px 12px;">+</button></label>'+(R.loads.length>2?'<label>&nbsp;<button class="mv-chip" onclick="rmDelLoad()" style="padding:8px 12px;">−</button></label>':'')+'</div>';
   h+='<div class="mv-limv" style="font-size:12px;color:var(--muted2);">'+tr('Ideal: 3 o 4 cargas de livianas a pesadas (de 40% a 85% aprox.), 2 o 3 repeticiones cada una, lo más rápido posible.')+'</div>';
+  h+='<div class="mv-lbl">'+tr('Modo')+'</div><div class="mv-chips"><button class="mv-chip'+(R.solo?' on':'')+'" onclick="rmSetSolo(true)">'+tr('Solo (sin ayudante)')+'</button><button class="mv-chip'+(!R.solo?' on':'')+'" onclick="rmSetSolo(false)">'+tr('Con ayudante')+'</button></div>';
+  if(R.solo)h+='<div class="mv-limv">'+tr('Pausa cargas livianas')+' <select onchange="rmSetRest(0,this)" style="background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:7px;color:var(--text);font-size:14px;">'+[60,90,120,150,180].map(function(v){return '<option value="'+v+'"'+(+R.rest[0]===v?' selected':'')+'>'+rmMin(v)+'</option>';}).join('')+'</select> · '+tr('pesadas')+' <select onchange="rmSetRest(1,this)" style="background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:7px;color:var(--text);font-size:14px;">'+[120,150,180,240,300].map(function(v){return '<option value="'+v+'"'+(+R.rest[1]===v?' selected':'')+'>'+rmMin(v)+'</option>';}).join('')+'</select></div>';
+  if(!isCoach)h+='<div class="mv-limv" style="color:#ffd166;font-size:12.5px;">⚠ '+tr('Usá topes de seguridad o pedí que te asistan en las cargas pesadas.')+'</div>';
   h+='<div class="mv-lbl">'+tr('Calibración')+'</div><div class="mv-chips"><button class="mv-chip'+(R.cal==='disc'?' on':'')+'" onclick="rmSetCal(\'disc\')">'+tr('Con el disco')+'</button><button class="mv-chip'+(R.cal==='h'?' on':'')+'" onclick="rmSetCal(\'h\')">'+tr('Con la altura del alumno')+'</button></div>';
   if(R.cal==='disc')h+='<div class="mv-limv">'+tr('Medida del disco')+' <input type="number" inputmode="decimal" value="'+R.disc+'" onchange="rmSetDisc(this)"> cm · '+tr('Distancia del teléfono al disco')+' <input type="number" inputmode="decimal" step="0.5" value="'+R.dist+'" onchange="rmSetDist(this)"> m</div>';
   else{var H=mvHeight();h+='<div class="mv-limv">'+tr('Altura del alumno')+' <input type="number" inputmode="numeric" placeholder="175" value="'+(H||'')+'" onchange="mvSetHeight(this);rmApply();"> cm'+(H?'':'<span class="warn">'+tr('Cargá la altura para medir la velocidad.')+'</span>')+'</div>';}
   mvEl('mv-rm').innerHTML=h;
-  var steps=[tr('Teléfono fijo, <b>de costado</b>, a la altura de la barra y a unos 3 m.'),
+  var steps=R.solo?[tr('Teléfono fijo, <b>de costado</b>, a la altura de la barra y a unos 3 m.'),
+    R.cal==='disc'?tr('Cámara en vivo → <b>Calibrar</b>: tocá el borde de arriba y el de abajo del disco con la barra quieta.'):tr('Que se vea el cuerpo entero para tomar la medida.'),
+    tr('<b>Botón rojo</b> para empezar: cuenta 10 segundos, andá a la barra y al “¡Ya!” hacé 2 o 3 repeticiones lo más rápido posible.'),
+    tr('La carga termina sola. Durante la pausa cambiá los discos: la voz te avisa la próxima carga y vuelve la cuenta.')]:[tr('Teléfono fijo, <b>de costado</b>, a la altura de la barra y a unos 3 m.'),
     R.cal==='disc'?tr('Cámara en vivo → <b>Calibrar</b>: tocá el borde de arriba y el de abajo del disco con la barra quieta.'):tr('Que se vea el cuerpo entero para tomar la medida.'),
     tr('<b>Botón rojo</b>: 2 o 3 repeticiones lo más rápido posible. <b>Botón rojo</b> otra vez para terminar la carga.'),
     tr('Cambiá el peso y repetí con cada carga. Al final, <b>Detener</b> para ver el RM estimado.')];
@@ -10360,12 +10416,14 @@ function rmCards(){
   var R=MV.rm,S=MV.S,sc=rmCmPerPx(),last=null,best=null;
   (S.reps||[]).forEach(function(r){if(r.ok===false||!isFinite(r.v)||!sc)return;var v=r.v*sc/100;last=v;best=best==null?v:Math.max(best,v);});
   var done=R.idx>=R.loads.length;
+  if(R.solo&&R.phase==='rest'&&R.sets.length){var ls=R.sets[R.sets.length-1];last=ls.best;best=ls.best;}
   return mvCard(tr('Carga')+(done?'':' '+(R.idx+1)+'/'+R.loads.length),done?'✓':rmKgTxt(R.idx).replace(' kg',''),done?'':'kg','ok')+mvCard('Reps',(S.reps||[]).filter(function(r){return r.ok!==false;}).length)
     +mvCard('Última',last==null?'–':last.toFixed(2),'m/s')+mvCard('Mejor',best==null?'–':best.toFixed(2),'m/s');
 }
 function rmBanner(t,ok){MV.banner={t:t,until:Date.now()+2800,bg:ok?'rgba(168,224,99,0.95)':'rgba(255,209,102,0.95)',fg:'#0a0b0e'};}
 function rmToggle(){
   var R=MV.rm;
+  if(R.solo){rmSoloTap();return;}
   if(MV.cdTimer){mvCdCancel();return;}
   if(MV.counting){rmSetEnd();return;}
   if(R.idx>=R.loads.length){rmBanner(tr('Listo: tocá Detener'),true);return;}
@@ -10382,14 +10440,16 @@ function rmSetBegin(){
   var rd=mvEl('mv-recdot');rd.style.display='block';rd.textContent='● '+tr('Carga')+' '+(MV.rm.idx+1)+' · '+rmKgTxt(MV.rm.idx);
   mvRenderMetrics();mvRenderLog();
 }
-function rmSetEnd(fromFile){
+function rmSetEnd(fromFile,quiet){
   var R=MV.rm,S=MV.S;MV.counting=false;
   var sh=mvEl('mv-shutter');if(sh)sh.classList.remove('on');var rd=mvEl('mv-recdot');if(rd)rd.style.display='none';
   var sc=rmCmPerPx();
   var vs=(S.reps||[]).filter(function(r){return r.ok!==false&&isFinite(r.v);}).map(function(r){return r.v*sc/100;}).filter(function(v){return isFinite(v)&&v>0.03&&v<3;});
-  if(!sc||!vs.length){rmBanner(tr(sc?'Sin repeticiones: repetí la carga':'Falta calibrar'));mvRenderMetrics();return;}
+  if(!sc||!vs.length){if(quiet)return;if(R.solo&&R.phase){rmSay(tr('No te vi, repetimos la carga')+' '+(R.idx+1));rmCount();return;}rmBanner(tr(sc?'Sin repeticiones: repetí la carga':'Falta calibrar'));mvRenderMetrics();return;}
   R.sets.push({kg:rmKg(R.idx),add:+R.loads[R.idx]||0,vs:vs.map(function(v){return Math.round(v*100)/100;}),best:Math.round(Math.max.apply(null,vs)*100)/100});
   R.idx++;
+  if(quiet){rmApply();return;}
+  if(R.solo&&R.phase){rmApply();mvRenderMetrics();rmSoloAfterSet();return;}
   if(R.idx>=R.loads.length)rmBanner(tr('¡Listo! Tocá Detener'),true);
   else rmBanner(tr('Carga')+' '+(R.idx+1)+': '+rmKgTxt(R.idx),true);
   rmApply();mvRenderMetrics();
@@ -10455,8 +10515,8 @@ async function rmSave(){
   var btn=mvEl('rm-save');if(btn){btn.disabled=true;btn.textContent=tr('Guardando…');}
   var rm=Math.round(c.rm*2)/2,key='rm_'+R.ex;
   var all=JSON.parse(JSON.stringify(p.tests||{}));if(!all[key])all[key]=[];
-  var e={d:isoToday(),v:rm,r2:Math.round(c.r2*100)/100,pts:c.pts.map(function(q){return [q.kg,q.v];}),cal:R.cal};if(RM_EX[R.ex].bw)e.bw=R.bw;
-  all[key]=all[key].filter(function(x){return x.d!==e.d;});all[key].push(e);
+  var e={d:isoToday(),v:rm,r2:Math.round(c.r2*100)/100,pts:c.pts.map(function(q){return [q.kg,q.v];}),cal:R.cal};if(RM_EX[R.ex].bw)e.bw=R.bw;if(R.req)e.req={d:R.req.d,n:R.req.n};if(!isCoach)e.by='athlete';
+  all[key]=all[key].filter(function(x){return !(x.d===e.d&&!x.req===!e.req);});all[key].push(e);
   var ok=await _persistTests(p.id,all);
   if(!ok){if(btn){btn.disabled=false;btn.textContent=tr('Guardar RM estimado');}return;}
   p.tests=all;
@@ -10464,7 +10524,8 @@ async function rmSave(){
   if(isCoach&&fc&&fc.checked&&fn&&fn.value){if(!p.maxes)p.maxes={};p.maxes[fn.value]=rm;saveMaxes(p);}
   if(btn){btn.textContent='✓ '+tr('Guardado');}
   try{toast(tr('RM estimado guardado'));}catch(e2){}
-  try{renderTestsScreen();}catch(e3){}
+  if(ATH_TOKEN){try{notifyCoach(tr('RM medido'),(p.name||'')+' · '+tr(RM_EX[R.ex].n)+': '+mvF1(rm).replace(/\.0$/,'')+' kg');}catch(e5){}}
+  try{renderTestsScreen();}catch(e3){}try{renderTestsAthlete();}catch(e6){}try{refreshPlanUI();}catch(e7){}try{renderAthleteHome();}catch(e8){}
 }
 function rmHist(p,ex){return ((p&&p.tests&&p.tests['rm_'+ex])||[]).slice().sort(function(a,b){return a.d<b.d?-1:1;});}
 function rmToFicha(pid,ex){
@@ -10480,10 +10541,121 @@ function rmSectionHtml(pid){
       +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+tr(RM_EX[ex].n)+'</div><div style="font-size:12px;color:var(--muted2);">'+fmtDateShort(l.d)+(h.length>1?' · '+h.length+' '+tr('mediciones'):'')+(l.bw?' · '+tr('lastre')+' '+mvF1(l.v-l.bw).replace(/\.0$/,'')+' kg':'')+'</div></div>'
       +'<div style="font:800 20px \'Barlow Condensed\',sans-serif;color:#a8e063;white-space:nowrap;">'+mvF1(l.v).replace(/\.0$/,'')+' kg'+dt+'</div>'
       +(isCoach?'<button onclick="rmToFicha(\''+pid+'\',\''+ex+'\')" title="'+tr('Pasar a la ficha')+'" style="flex:none;background:var(--s1);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:6px 8px;font-size:11px;font-weight:700;cursor:pointer;">'+tr('Ficha')+'</button>':'')+'</div>';}).join('');
-  if(!isCoach&&!rows)return '';
+  var selfOn=((p.tests_enabled||[]).indexOf('rm_self')>=0);
+  if(!isCoach&&!rows&&!selfOn)return '';
   var head='<div class="sum-lbl" style="margin-top:16px;">'+tr(isCoach?'RM estimado':'Mis RM')+'</div>';
-  var btn=isCoach?'<button onclick="openRM(\''+pid+'\')" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.10);color:var(--mob);font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:10px;">'+tr('Medir RM')+'</button>':'';
+  if(isCoach)head+='<label style="display:flex;align-items:center;gap:9px;margin:0 0 10px;font-size:12.5px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:500;cursor:pointer;"><input type="checkbox" onchange="toggleTestEnabled(\''+pid+'\',\'rm_self\',this.checked)"'+(selfOn?' checked':'')+'> '+tr('El alumno puede medirse el RM solo')+'</label>';
+  var btn=(isCoach||selfOn)?'<button onclick="openRM(\''+pid+'\',null,{solo:'+(isCoach?'null':'true')+'})" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.10);color:var(--mob);font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:10px;">'+tr(isCoach?'Medir RM':'Medir mi RM')+'</button>':'';
   return head+btn+rows;
+}
+
+/* --- RM en modo solo: cuenta regresiva, fin automático, pausas y voz --- */
+function rmMin(v){var m=Math.floor(v/60),s=v%60;return m+':'+('0'+s).slice(-2)+' min';}
+function rmSetSolo(on){MV.rm.solo=!!on;rmSavePrefs();rmApply();}
+function rmSetRest(i,sel){MV.rm.rest[i]=+sel.value;rmSavePrefs();}
+function rmSay(t){
+  if(!MV.sound||!window.speechSynthesis)return;
+  try{var u=new SpeechSynthesisUtterance(t);var lg=LANG==='en'?'en':(LANG==='it'?'it':'es');var vs=speechSynthesis.getVoices()||[],v=null;
+    var pref=lg==='es'?['es-AR','es-MX','es-US','es-419','es-ES','es']:[lg];
+    pref.some(function(p){v=vs.filter(function(x){return x.lang&&String(x.lang).replace('_','-').indexOf(p)===0;})[0]||null;return !!v;});
+    if(v){u.voice=v;u.lang=v.lang;}else u.lang=lg==='es'?'es-ES':(lg==='it'?'it-IT':'en-US');
+    u.rate=1.0;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+function rmKgSay(i){var R=MV.rm,E=RM_EX[R.ex],l=+R.loads[i]||0;var n=String(Math.round(l*10)/10).replace('.',LANG==='en'?'.':',');
+  return E.bw?(l?tr('más')+' '+n+' '+tr('kilos'):tr('sin lastre')):n+' '+tr('kilos');}
+function rmVelSay(v){return String(v.toFixed(2)).replace('.',LANG==='en'?'.':',')+' '+tr('metros por segundo');}
+function rmRestFor(i){
+  var R=MV.rm,p=rmP(),nm=p&&rmMaxName(p,R.ex),mx=nm?+p.maxes[nm]:0,kg=rmKg(i),heavy;
+  if(mx>0)heavy=kg>=0.7*mx;else heavy=i>=Math.ceil(R.loads.length/2);
+  return +(heavy?R.rest[1]:R.rest[0])||120;
+}
+function rmCheckReady(){
+  var R=MV.rm;
+  if(R.cal==='disc'&&!MV.cal){rmBanner(tr('Primero calibrá con el disco'));return false;}
+  if(R.cal==='h'&&!mvHeight()){rmBanner(tr('Falta la altura del alumno'));return false;}
+  if(RM_EX[R.ex].bw&&!R.bw){rmBanner(tr('Falta el peso corporal'));return false;}
+  return true;
+}
+function rmSoloTap(){
+  var R=MV.rm;
+  if(R.phase==='meas'){rmSetEnd();return;}
+  if(R.phase==='rest'){rmReady();return;}
+  if(R.phase==='cd'){rmSoloStop();R.phase=null;MV.cdEnd=null;rmBanner(tr('En pausa: tocá el botón rojo para seguir'));return;}
+  if(R.idx>=R.loads.length){rmBanner(tr('Listo: tocá Detener'),true);return;}
+  if(!rmCheckReady())return;
+  if(!R.tick)R.tick=setInterval(rmTick,200);
+  rmSay(tr('Carga')+' '+(R.idx+1)+': '+rmKgSay(R.idx)+'. '+tr('Arrancamos en 10 segundos'));
+  rmCount();
+}
+function rmCount(){var R=MV.rm;R.phase='cd';R.phaseEnd=Date.now()+10000;MV.cdEnd=R.phaseEnd;R.said10=true;mvEl('mv-shutter').classList.add('cd');rmRestUi(false);if(!R.tick)R.tick=setInterval(rmTick,200);}
+function rmTick(){
+  var R=MV.rm;if(!R){return;}var now=Date.now();
+  if(R.phase==='cd'){
+    if(now>=R.phaseEnd){MV.cdEnd=null;mvEl('mv-shutter').classList.remove('cd');rmSay(tr('¡Ya!'));R.phase='meas';R.t0=now;R.nr=0;R.lastRep=0;rmSetBegin();}
+  }else if(R.phase==='meas'){
+    var S=MV.S,n=(S.reps||[]).length;
+    if(n!==R.nr){R.nr=n;R.lastRep=now;}
+    var busy=S.phase==='down';
+    if(n===1&&!R.firstRep)R.firstRep=now;if(n===0)R.firstRep=0;
+    if(n>0&&!busy&&(now-R.lastRep>4000||n>=6||(R.firstRep&&now-R.firstRep>30000))){R.firstRep=0;rmSetEnd();}
+    else if(n===0&&!busy&&now-R.t0>20000){MV.counting=false;var sh=mvEl('mv-shutter');if(sh)sh.classList.remove('on');var rd=mvEl('mv-recdot');if(rd)rd.style.display='none';rmSay(tr('No te vi, repetimos la carga')+' '+(R.idx+1));rmCount();}
+  }else if(R.phase==='rest'){
+    var left=Math.ceil((R.phaseEnd-now)/1000);
+    if(left<=10){rmRestUi(false);if(!R.said10){R.said10=true;rmSay(tr('Preparate')+': '+tr('carga')+' '+(R.idx+1)+', '+rmKgSay(R.idx));}R.phase='cd';MV.cdEnd=R.phaseEnd;mvEl('mv-shutter').classList.add('cd');}
+    else rmRestUi(true,left);
+  }
+}
+function rmSoloAfterSet(){
+  var R=MV.rm,ls=R.sets[R.sets.length-1];
+  if(R.idx>=R.loads.length){R.phase='done';rmSoloStop();rmSay(tr('Carga')+' '+R.idx+' '+tr('lista')+'. '+tr('¡Terminaste!'));setTimeout(function(){try{if(MV.rm)mvStopStage();}catch(e){}},1200);return;}
+  rmSay(tr('Carga')+' '+R.idx+' '+tr('lista')+': '+rmVelSay(ls.best));
+  R.phase='rest';R.phaseEnd=Date.now()+rmRestFor(R.idx)*1000;R.said10=false;rmRestUi(true,Math.ceil(rmRestFor(R.idx)));
+}
+function rmReady(){var R=MV.rm;if(R.phase!=='rest')return;R.phaseEnd=Math.min(R.phaseEnd,Date.now()+10000);rmTick();}
+function rmMore(){var R=MV.rm;if(R.phase==='rest'){R.phaseEnd+=30000;rmTick();}}
+function rmRestUi(on,left){
+  var el=mvEl('rm-rest');if(!el)return;
+  if(!on){el.classList.remove('on');return;}
+  var R=MV.rm,ls=R.sets[R.sets.length-1];
+  el.classList.add('on');
+  var m=Math.floor(left/60),sx=left%60;
+  el.innerHTML='<div class="t1">'+tr('Pausa')+'</div><div class="big">'+m+':'+('0'+sx).slice(-2)+'</div>'
+    +(ls?'<div style="font-size:14px;color:#aab0bb;">'+tr('Carga')+' '+R.sets.length+': '+tr('mejor')+' <b style="color:#fff;">'+ls.best.toFixed(2)+' m/s</b></div>':'')
+    +'<div class="nx">'+tr('Próxima')+': '+tr('carga')+' '+(R.idx+1)+' · '+rmKgTxt(R.idx)+'</div>'
+    +'<div class="bs"><button onclick="rmMore()" style="background:#1e222b;color:#fff;border:1px solid #2f3440;">+30 s</button><button onclick="rmReady()" style="background:#a8e063;color:#0a0b0e;">'+tr('Estoy listo')+'</button></div>';
+}
+function rmSoloStop(){var R=MV.rm;if(!R)return;if(R.tick){clearInterval(R.tick);R.tick=null;}if(R.phase!=='done')R.phase=null;MV.cdEnd=null;var sh=mvEl('mv-shutter');if(sh)sh.classList.remove('cd');rmRestUi(false);}
+
+/* --- pedido de RM desde la sesión --- */
+function rmReqDone(pid,iso,name,ex){var p=PLAYERS.find(function(x){return x.id===pid;});return rmHist(p,ex).filter(function(x){return x.req&&x.req.d===iso&&x.req.n===name;}).pop()||null;}
+function rmReqHtml(e,bi,ei,where){
+  var coachSide=isCoach||draftMode||!currentPlayerId||currentPlayerId==='__draft__';
+  if(coachSide!==(where==='right'))return '';
+  var ex=String(e.vid.ex).slice(3),pid=currentPlayerId,iso=curDate,nm=RM_EX[ex]?tr(RM_EX[ex].n):'';
+  var ic='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M12 14l4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>';
+  if(draftMode||!pid||pid==='__draft__')return '<div class="ex-vreq">'+ic+tr('RM pedido')+' · '+nm+'</div>';
+  var done=rmReqDone(pid,iso,e.n,ex);
+  if(isCoach)return '<div class="ex-vreq">'+ic+(done?'✓ '+tr('RM recibido')+' · '+mvF1(done.v).replace(/\.0$/,'')+' kg':tr('RM pedido')+(iso<=isoToday()?' · '+tr('pendiente'):''))+'</div>';
+  if(done)return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:7px;font-size:12px;font-weight:700;color:var(--mob);">'+ic+tr('RM enviado a tu profe')+' · '+mvF1(done.v).replace(/\.0$/,'')+' kg</div>';
+  var nEsc=String(e.n||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  return '<button onclick="event.stopPropagation();rmOpenReq(this)" data-ex="'+ex+'" data-n="'+nEsc+'" data-b="'+bi+'" data-e="'+ei+'" style="display:inline-flex;align-items:center;gap:7px;margin-top:8px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);color:var(--mob);border-radius:9px;padding:8px 13px;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'+ic+tr('Medir RM')+'</button>';
+}
+function rmOpenReq(btn){
+  var d=btn.dataset,vd={};
+  try{vd=(JB_SESSIONS[currentPlayerId][curDate].blocks[+d.b].exs[+d.e].vid)||{};}catch(e){}
+  var rq=vd.rm||{};
+  openRM(currentPlayerId,d.ex,{loads:rq.loads,rest:(rq.r1&&rq.r2)?[rq.r1,rq.r2]:null,solo:true,req:{d:curDate,n:d.n,b:+d.b,e:+d.e}});
+}
+function prRmRender(box,exk,vid){
+  var k=exk.slice(3),p=PLAYERS.find(function(x){return x.id===currentPlayerId;});
+  var rq=(vid&&vid.rm)||{};var loads=(rq.loads&&rq.loads.length)?rq.loads:(p?rmDefaultLoads(p.id,k):[40,60,80,100]);
+  var st='background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;';
+  var r1=rq.r1||120,r2=rq.r2||180;
+  box.innerHTML='<div style="font-size:12px;color:var(--muted);margin:8px 0 4px;">'+tr(RM_EX[k]&&RM_EX[k].bw?'Lastre en cada carga (kg), separado por comas':'Cargas (kg), separadas por comas')+'</div>'
+    +'<input id="pr-rm-loads" type="text" inputmode="decimal" value="'+loads.join(', ')+'" style="width:100%;'+st+'">'
+    +'<div style="display:flex;gap:6px;margin-top:6px;"><select id="pr-rm-r1" style="flex:1;'+st+'">'+[60,90,120,150,180].map(function(v){return '<option value="'+v+'"'+(v===r1?' selected':'')+'>'+tr('Pausa livianas')+': '+rmMin(v)+'</option>';}).join('')+'</select>'
+    +'<select id="pr-rm-r2" style="flex:1;'+st+'">'+[120,150,180,240,300].map(function(v){return '<option value="'+v+'"'+(v===r2?' selected':'')+'>'+tr('Pausa pesadas')+': '+rmMin(v)+'</option>';}).join('')+'</select></div>'
+    +'<div style="font-size:11.5px;color:var(--muted2);margin-top:5px;line-height:1.4;">'+tr('El alumno ve “Medir RM” en este ejercicio y lo hace solo: cuenta regresiva, fin automático de cada carga, pausas y voz. Te llega el resultado para revisarlo.')+'</div>';
 }
 
 /* --- enganches con la app --- */
