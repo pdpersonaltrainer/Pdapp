@@ -176,7 +176,17 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 #screen-welcome.gone{display:none;}
 .welcome-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0a0b0e 0%,#111a08 50%,#0a0b0e 100%);}
 .welcome-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(168,224,99,0.08),transparent 65%);}
-.welcome-content{position:relative;z-index:1;text-align:center;width:100%;max-width:340px;}
+.welcome-content{position:relative;z-index:1;text-align:center;width:100%;max-width:420px;}
+#screen-welcome .welcome-avatar-wrap,#screen-welcome #welcome-name,#screen-welcome #welcome-sub,#screen-welcome #wl-streak{display:none!important;}
+#screen-welcome{justify-content:flex-start!important;padding-top:calc(env(safe-area-inset-top,0px) + 22px)!important;}
+.wl-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin:0 auto 12px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.22);}
+.wl-lbl{font-size:10.5px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted2);margin-bottom:8px;}
+.wl-task{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--border);cursor:pointer;}
+.wl-task:first-of-type{border-top:none;padding-top:2px;}
+.wl-tic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;}
+.wl-tile{flex:1;min-width:0;background:var(--s2);border-radius:12px;padding:10px 6px;text-align:center;}
+.wl-big{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:25px;line-height:1;}
+#wl-btn{margin-bottom:14px;}
 .welcome-avatar-wrap{position:relative;width:110px;height:110px;margin:0 auto 20px;}
 .welcome-avatar-inner{width:110px;height:110px;border-radius:50%;overflow:hidden;border:3px solid var(--w1);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--muted2);}
 .welcome-avatar-inner img{width:100%;height:100%;object-fit:cover;}
@@ -739,9 +749,15 @@ body{overflow-x:hidden;}
     <div class="welcome-name" id="welcome-name">Alumno</div>
     <div class="welcome-sub" id="welcome-sub">Plan personalizado</div>
     <div id="wl-streak" style="display:none;margin:2px 0 14px;"></div>
-    <div id="wl-today" style="width:100%;max-width:420px;margin:0 auto 16px;"></div>
+    <div id="wl-head"></div>
+    <div id="wl-ready"></div>
+    <div id="wl-today" style="width:100%;max-width:420px;margin:0 auto 12px;"></div>
     <button class="welcome-btn" id="wl-btn" onclick="enterPlan()">Ver mi plan</button>
-    <div id="wl-cal" style="width:100%;max-width:420px;margin:20px auto 0;"></div>
+    <div id="wl-tasks"></div>
+    <div id="wl-week"></div>
+    <div id="wl-cal" style="width:100%;max-width:420px;margin:0 auto;display:none;"></div>
+    <div id="wl-prog"></div>
+    <div id="wl-idea"></div>
     <div id="wl-install" style="width:100%;max-width:420px;margin:16px auto 0;"></div>
     <div id="wl-push" style="width:100%;max-width:420px;margin:18px auto 0;"></div>
     <div id="lang-sel-ath" style="display:flex;justify-content:center;gap:8px;margin-top:22px;"></div>
@@ -1613,7 +1629,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261014-10';
+var APP_VERSION='20261015-1';
 (function(){
   try{
     setTimeout(function(){
@@ -4519,7 +4535,7 @@ function renderAthleteHome(){
   var t=document.getElementById('wl-today');
   if(has){
     var nb=s.blocks.length;
-    t.innerHTML='<div style="background:var(--s1);border:1px solid '+(doneToday?'var(--mob)':'var(--border)')+';border-radius:var(--r);padding:14px 16px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.28);"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+TT('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.02em;color:'+(doneToday?'var(--mob)':'var(--text)')+';">'+(doneToday?'\u2713 ':'')+(s.title||TT('entrenamiento'))+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+nb+' '+(nb!==1?TT('bloques'):TT('bloque'))+(doneToday?' \u00b7 '+TT('completado'):'')+'</div></div>';
+    t.innerHTML='<div style="background:var(--s1);border:1px solid '+(doneToday?'var(--mob)':'var(--border)')+';border-radius:var(--r);padding:14px 16px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.28);"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+TT('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.02em;color:'+(doneToday?'var(--mob)':'var(--text)')+';">'+(doneToday?'\u2713 ':'')+(s.title||TT('entrenamiento'))+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+nb+' '+(nb!==1?TT('bloques'):TT('bloque'))+(doneToday?' \u00b7 '+TT('completado'):wlMeta(pid,s))+'</div>'+wlChips(s)+'</div>';
     document.getElementById('wl-btn').textContent=doneToday?wlBtnTxt('verMiSesion'):wlBtnTxt('empezar');
   }else{
     t.innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:left;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+TT('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;color:var(--muted);">'+TT('diaLibre')+'</div><div style="font-size:12px;color:var(--muted2);margin-top:2px;">'+TT('sinEntreno')+'</div></div>';
@@ -4546,8 +4562,247 @@ function renderAthleteHome(){
     }else if(iso===today){col='var(--actfill)';bd='1px solid var(--border2)';}
     cells+='<div onclick="wlGoDate(\''+iso+'\')" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;background:'+bg+';border:'+bd+';color:'+col+';font-size:11px;font-weight:700;cursor:'+(hs?'pointer':'default')+';">'+dd+'</div>';
   }
+  var _wc=document.getElementById('wl-cal');_wc.style.display=WL_MONTH?'block':'none';_wc.style.marginBottom=WL_MONTH?'12px':'0';
+  try{wlHome(p);}catch(e){console.error('wlHome',e);}
   document.getElementById('wl-cal').innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:12px;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:8px;">'+fmtDateLong(today).split(' ').slice(-2).join(' ').toUpperCase()+'</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;">'+head+'</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">'+cells+'</div></div>';
 }
+
+/* ── Inicio del alumno: bloques extra ── */
+var WL_MONTH=false;
+function wlEsc(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function wlToggleMonth(){WL_MONTH=!WL_MONTH;try{renderAthleteHome();}catch(e){}if(WL_MONTH){var c=document.getElementById('wl-cal');if(c)setTimeout(function(){c.scrollIntoView({behavior:'smooth',block:'center'});},60);}}
+function wlMeta(pid,s){
+  /* duración: promedio real del alumno; si no hay, la de la sesión */
+  var tm=JB_TIMES[pid]||{},sum=0,n=0;
+  Object.keys(tm).forEach(function(k){var x=tm[k];if(x&&x.m&&x.m>5&&x.m<240){sum+=x.m;n++;}});
+  var out='';
+  if(n>=2)out+=' · ~'+Math.round(sum/n/5)*5+' min';
+  else{var pm=(s.pills||[]).filter(function(x){return /min/.test(x);})[0];if(pm)out+=' · '+pm;}
+  var pr=(s.pills||[]).filter(function(x){return /^RPE|^RIR/.test(x);})[0];if(pr)out+=' · '+pr;
+  return out;
+}
+var WL_BT={mob:'Movilidad',act:'Activación',fza:'Fuerza',exp:'Explosivos',cam:'Campo',cm:'Control motor',est:'Estiramientos'};
+function wlChips(s){
+  var seen={},out=[];
+  (s.blocks||[]).forEach(function(b){var t=WL_BT[b.t]||b.title||'';t=String(t).trim();if(!t||seen[t])return;seen[t]=1;out.push(t);});
+  if(!out.length)return '';
+  return '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;">'+out.slice(0,5).map(function(t){return '<span style="background:var(--s2);color:var(--muted);border-radius:20px;padding:3px 10px;font-size:11.5px;font-weight:600;">'+wlEsc(tr(t))+'</span>';}).join('')+'</div>';
+}
+function wlHome(p){
+  var pid=p.id,today=isoToday();
+  /* 1 · encabezado */
+  var h=new Date().getHours();
+  var greet=h<13?tr('Buen día'):(h<20?tr('Buenas tardes'):tr('Buenas noches'));
+  var first=String(p.name||'').trim().split(/\s+/)[0]||'';
+  var loc=LANG==='en'?'en-GB':(LANG==='it'?'it-IT':'es-ES');
+  var dtxt='';try{dtxt=new Date().toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'long'});dtxt=dtxt.charAt(0).toUpperCase()+dtxt.slice(1);}catch(e){}
+  var av=p.photo?'<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover;"/>':'<span>'+wlEsc((String(p.name||'?').split(/\s+/).map(function(w){return w.charAt(0);}).join('').slice(0,2)).toUpperCase())+'</span>';
+  var stk=getStreak(pid);
+  var stkH=stk>=2?'<span style="flex:none;display:inline-flex;align-items:center;gap:4px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);color:var(--mob);border-radius:20px;padding:4px 10px;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;" title="'+wlEsc(stk+' '+TT('enRacha'))+'">🔥 '+stk+'</span>':'';
+  var sub=[p.pos,p.club].filter(Boolean).join(' · ');
+  document.getElementById('wl-head').innerHTML='<div style="display:flex;align-items:center;gap:12px;text-align:left;margin:0 auto 16px;padding-right:46px;">'
+    +'<div style="width:54px;height:54px;border-radius:50%;border:2.5px solid var(--mob);background:var(--s2);overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:19px;color:var(--text);">'+av+'</div>'
+    +'<div style="flex:1;min-width:0;"><div style="font-size:12.5px;color:var(--muted);">'+wlEsc(dtxt)+'</div>'
+    +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:25px;font-weight:800;text-transform:uppercase;line-height:1.05;letter-spacing:0.02em;">'+(isCoach?wlEsc(p.name):wlEsc(greet+', '+first))+'</div></div>'+stkH+'</div>';
+  /* 2 · cómo llegás hoy */
+  document.getElementById('wl-ready').innerHTML=wlReadyHtml(p);
+  /* 4 · pendientes */
+  wlTasks(p);
+  /* 6 · semana */
+  document.getElementById('wl-week').innerHTML=wlWeekHtml(p);
+  /* 7 · progreso */
+  document.getElementById('wl-prog').innerHTML=wlProgHtml(p);
+  /* 8 · idea PD */
+  document.getElementById('wl-idea').innerHTML=wlIdeaHtml();
+}
+function wlReady(p){
+  var w=(p.wellness||{})[isoToday()];if(!w||!w.sleep)return null;
+  var sl=+w.sleep||3,en=+w.energy||3;
+  var sc=((sl-1)/4)*45+((en-1)/4)*45+10;
+  var pains=(p.pains||{})[isoToday()]||[],mx=0,zone='';
+  pains.forEach(function(x){if((x.lvl||0)>mx){mx=x.lvl;zone=x.z;}});
+  if(!mx&&w.pain===true)mx=1;
+  sc-=[0,6,14,28][mx]||0;
+  sc=Math.max(5,Math.min(100,Math.round(sc)));
+  return {sc:sc,sl:sl,en:en,mx:mx,zone:zone};
+}
+function wlReadyHtml(p){
+  var r=wlReady(p);
+  if(!r){
+    if(isCoach)return '<div class="wl-card"><div class="wl-lbl" style="margin:0;">'+tr('Cómo llega hoy')+'</div><div style="font-size:13px;color:var(--muted2);margin-top:4px;">'+tr('Todavía no hizo el check-in de hoy.')+'</div></div>';
+    return '<div class="wl-card" onclick="showWellness(\''+p.id+'\')" style="cursor:pointer;display:flex;align-items:center;gap:12px;"><div style="flex:1;"><div class="wl-lbl" style="margin-bottom:3px;">'+tr('Cómo llegás hoy')+'</div><div style="font-size:13.5px;color:var(--text);">'+tr('Contale a tu profe cómo estás: 10 segundos.')+'</div></div><span style="flex:none;background:var(--mobfill);color:#0a0b0e;border-radius:9px;padding:8px 12px;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;">'+tr('Completar')+'</span></div>';
+  }
+  var col=r.sc>=75?'#a8e063':(r.sc>=50?'#f9c846':'#ff7043');
+  var txt=r.sc>=75?tr('Listo para entrenar'):(r.sc>=50?tr('Bien, con atención'):tr('Día para cuidarte'));
+  if(isCoach)txt=r.sc>=75?tr('Llega bien'):(r.sc>=50?tr('Llega con atención'):tr('Llega para cuidarse'));
+  var C=2*Math.PI*30,off=C*(1-r.sc/100);
+  var ring='<svg width="70" height="70" viewBox="0 0 70 70" style="flex:none;"><circle cx="35" cy="35" r="30" fill="none" stroke="var(--border2)" stroke-width="7"/><circle cx="35" cy="35" r="30" fill="none" stroke="'+col+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 35 35)"/><text x="35" y="41" text-anchor="middle" fill="var(--text)" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="20">'+r.sc+'</text></svg>';
+  var lv=['',tr('leve'),tr('moderada'),tr('fuerte')];
+  var pain=r.mx?'<span style="color:'+(r.mx>=3?'#ff7043':'#f9c846')+';">● '+(r.zone?wlEsc(TT(BODY_LBL[r.zone]||r.zone)):tr('Molestia'))+(r.mx>1?' · '+lv[r.mx]:'')+'</span>':'<span>✔ '+tr('Sin molestias')+'</span>';
+  return '<div class="wl-card" style="display:flex;gap:13px;align-items:center;">'+ring
+    +'<div style="flex:1;min-width:0;"><div class="wl-lbl" style="margin-bottom:2px;">'+(isCoach?tr('Cómo llega hoy'):tr('Cómo llegás hoy'))+'</div>'
+    +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:0.02em;color:'+col+';">'+txt+'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:4px;font-size:12px;color:var(--muted);"><span>'+tr('Sueño')+' '+r.sl+'/5</span><span>'+tr('Energía')+' '+r.en+'/5</span>'+pain+'</div></div></div>';
+}
+/* pendientes que pidió el profe */
+var WL_IC={
+  vid:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4dabf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
+  msg:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f9c846" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.2 7.5L3 21l2-5.6A8.4 8.4 0 1 1 21 11.5z"/></svg>',
+  wk:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c77dff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 15l2.5 2.5L16 13"/></svg>'
+};
+var WL_MSGS=null,WL_MSG_T=0;
+function wlSeenKey(){return 'pd_msgseen_'+(currentPlayerId||'');}
+function wlMarkMsgsSeen(){try{localStorage.setItem(wlSeenKey(),new Date().toISOString());}catch(e){}WL_MSGS=null;}
+function wlTasks(p){
+  var box=document.getElementById('wl-tasks');if(!box)return;
+  var pid=p.id,today=isoToday(),items=[];
+  /* videos pedidos: hoy y los últimos 6 días con sesión */
+  var sess=JB_SESSIONS[pid]||{};
+  var needList=false;
+  for(var o=0;o<=6;o++){
+    var iso=addDaysISO(today,-o),s=sess[iso];if(!s||!s.blocks)continue;
+    s.blocks.forEach(function(b){(b.exs||[]).forEach(function(e){
+      if(!e||!e.vid)return;
+      if(!MV.lists[pid]){needList=true;return;}
+      if(mvReqDone(pid,iso,e.n))return;
+      items.push({ic:'vid',bg:'rgba(77,171,247,0.13)',t:tr('Filmar técnica')+' · '+wlEsc(e.n),s:iso===today?tr('En la sesión de hoy'):tr('Sesión del')+' '+fmtDateShort(iso).toLowerCase(),go:'wlGoDay(\''+iso+'\')'});
+    });});
+  }
+  if(needList&&!_mvReqFetching[pid]){_mvReqFetching[pid]=1;mvFetchList(pid).then(function(){_mvReqFetching[pid]=0;try{wlTasks(p);}catch(e){}}).catch(function(){_mvReqFetching[pid]=0;});}
+  /* tests activados sin registro o con más de 4 semanas */
+  var pend=[];
+  testsEnabled(p).forEach(function(x){
+    var h=testHistory(p,x.k),last=h[h.length-1];
+    var days=last&&last.d?Math.round((isoToDate(today)-isoToDate(last.d))/86400000):null;
+    if(last&&days<28)return;
+    pend.push({x:x,last:last,days:days});
+  });
+  if(pend.length===1){var q=pend[0];items.push({ic:'test',k:q.x.k,t:tr('Test')+': '+wlEsc(tr(q.x.n)),s:q.last?(tr('Último hace')+' '+q.days+' '+tr('días')):tr('Todavía sin registrar'),go:isCoach?'':'wlGoTest(\''+q.x.k+'\')'});}
+  else if(pend.length>1)items.push({ic:'test',k:pend[0].x.k,t:pend.length+' '+tr('tests para hacer'),s:pend.map(function(q){return wlEsc(tr(q.x.n));}).join(' \u00b7 '),go:isCoach?'':'wlGoTests()'});
+  /* encuesta semanal salteada */
+  if(!isCoach&&needsWeekly(p))items.push({ic:'wk',bg:'rgba(199,125,255,0.13)',t:tr('Encuesta de la semana'),s:tr('30 segundos para tu profe'),go:'showWeekly(\''+pid+'\')'});
+  /* mensajes nuevos del profe */
+  if(!isCoach&&ATH_TOKEN){
+    if(WL_MSGS===null||Date.now()-WL_MSG_T>60000){
+      WL_MSG_T=Date.now();
+      sb.rpc('athlete_messages',{p_token:ATH_TOKEN,p_pin:ATH_PIN}).then(function(r){WL_MSGS=(r&&!r.error&&r.data)||[];try{wlTasks(p);}catch(e){}});
+    }else{
+      var seen='';try{seen=localStorage.getItem(wlSeenKey())||'';}catch(e){}
+      var nw=WL_MSGS.filter(function(m){return m.sender==='coach'&&!m.read_by_athlete&&(!seen||String(m.created_at)>seen);});
+      if(nw.length){var lm=nw[nw.length-1];var body=String(lm.body||lm.text||'').replace(/\s+/g,' ');if(body.length>46)body=body.slice(0,44)+'…';
+        var cn=(MY_PROFILE&&MY_PROFILE.display_name)?String(MY_PROFILE.display_name).split(/\s+/)[0]:tr('tu profe');
+        items.push({ic:'msg',bg:'rgba(249,200,70,0.13)',t:(nw.length===1?tr('1 mensaje nuevo de'):nw.length+' '+tr('mensajes nuevos de'))+' '+wlEsc(cn),s:body?'“'+wlEsc(body)+'”':'',go:'wlGoChat()'});}
+    }
+  }
+  if(!items.length){box.innerHTML='';return;}
+  box.innerHTML='<div class="wl-card"><div class="wl-lbl">'+(isCoach?tr('Pendientes del alumno'):tr('Tu profe te pidió'))+' · '+items.length+'</div>'
+    +items.map(function(it){
+      var ic=it.ic==='test'?'<div class="wl-tic" style="background:rgba(168,224,99,0.12);color:var(--mob);">'+testIcon(it.k,18)+'</div>':'<div class="wl-tic" style="background:'+it.bg+';">'+WL_IC[it.ic]+'</div>';
+      return '<div class="wl-task"'+(it.go?' onclick="'+it.go+'"':' style="cursor:default;"')+'>'+ic
+        +'<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:14px;line-height:1.25;">'+it.t+'</div>'+(it.s?'<div style="font-size:11.5px;color:var(--muted2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+it.s+'</div>':'')+'</div>'
+        +(it.go?'<span style="color:var(--muted2);font-size:20px;flex:none;">›</span>':'')+'</div>';
+    }).join('')+'</div>';
+}
+function wlGoDay(iso){pendingDate=iso;enterPlan();}
+function wlGoTest(k){enterPlan();setTimeout(function(){try{showTab('summary');}catch(e){}try{openTestModal(k);}catch(e){}},250);}
+function wlGoTests(){enterPlan();setTimeout(function(){try{showTab('summary');}catch(e){}setTimeout(function(){var b=document.getElementById('tests-athlete');if(b)b.scrollIntoView({behavior:'smooth',block:'start'});},350);},250);}
+function wlGoChat(){wlMarkMsgsSeen();enterPlan();setTimeout(function(){try{showTab('msg');}catch(e){}},200);}
+function wlWeekHtml(p){
+  var pid=p.id,today=isoToday(),mon=isoMonday();
+  var sess=JB_SESSIONS[pid]||{},ch=JB_CHECKS[pid]||{},mt=p.matches||{};
+  var lbl=TT('dowL'),cells='',plan=0,done=0;
+  for(var i=0;i<7;i++){
+    var iso=addDaysISO(mon,i),s=sess[iso],hs=s&&s.blocks&&s.blocks.length;
+    var dn=hs&&Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    if(hs){plan++;if(dn)done++;}
+    var dd=+iso.slice(8),st='color:var(--muted2);',inner=dd;
+    if(hs){
+      if(dn){st='background:var(--mobfill);color:#0a0b0e;';inner='✓';}
+      else if(iso===today)st='border:1.5px solid var(--act);color:var(--actfill);background:rgba(249,200,70,0.12);';
+      else if(iso>today)st='border:1px solid rgba(77,171,247,0.45);color:#4dabf7;';
+      else st='border:1px solid rgba(255,112,67,0.45);color:#ff7043;';
+    }else if(iso===today)st='border:1px solid var(--border2);color:var(--actfill);';
+    var m=mt[iso]?'<div style="font-size:9px;line-height:1;margin-top:3px;">⚽</div>':'<div style="height:12px;"></div>';
+    cells+='<div onclick="wlGoDate(\''+iso+'\')" style="text-align:center;cursor:'+(hs?'pointer':'default')+';"><div style="font-size:10px;font-weight:700;color:var(--muted2);">'+lbl[i]+'</div><div style="margin:5px auto 0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;'+st+'">'+inner+'</div>'+m+'</div>';
+  }
+  var ls=null;try{ls=loadStatus(pid);}catch(e){}
+  var lz=ls&&ls.zone?LOAD_ZONE[ls.zone]:null;
+  var foot='';
+  if(lz)foot='<div style="display:flex;align-items:center;margin-top:8px;padding-top:9px;border-top:1px solid var(--border);font-size:12.5px;"><span style="color:var(--muted);">'+tr('Carga de los últimos 7 días')+'</span><span style="margin-left:auto;color:'+lz.c+';font-weight:800;">● '+tr(lz.t)+'</span></div>';
+  return '<div class="wl-card"><div style="display:flex;align-items:center;margin-bottom:8px;"><div class="wl-lbl" style="margin:0;">'+tr('Tu semana')+'</div>'
+    +(plan?'<div style="margin-left:auto;font-size:12px;font-weight:800;color:var(--mob);">'+done+' '+tr('de')+' '+plan+' '+tr('sesiones')+'</div>':'')+'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">'+cells+'</div>'+foot
+    +'<div onclick="wlToggleMonth()" style="text-align:center;margin-top:9px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;">'+(WL_MONTH?tr('Ocultar mes')+' ⌃':tr('Ver mes completo')+' ›')+'</div></div>';
+}
+function wlProgHtml(p){
+  var pid=p.id,today=isoToday(),tiles=[];
+  /* tests: los de mejora más reciente primero */
+  var tl=[];
+  testsEnabled(p).concat(TESTS.filter(function(x){return testsEnabled(p).indexOf(x)<0;})).forEach(function(x){
+    var h=testHistory(p,x.k),last=h[h.length-1],prev=h[h.length-2];if(!last)return;
+    var val,delta='';
+    if(x.bi){val=(last.l!=null?last.l:'-')+'/'+(last.r!=null?last.r:'-');
+      if(prev){var a=((+last.l)+(+last.r))/2-((+prev.l)+(+prev.r))/2;if(a&&isFinite(a))delta=a;}}
+    else{val=last.v;if(prev){var d=(+last.v)-(+prev.v);if(d&&isFinite(d))delta=d;}}
+    var good=delta!==''?((delta>0)===!!x.hi):null;
+    tl.push({d:last.d,val:val,u:x.u,n:x.n,delta:delta,good:good});
+  });
+  tl.sort(function(a,b){return a.d<b.d?1:-1;});
+  tl.slice(0,2).forEach(function(t){
+    var dl=t.delta!==''?'<div style="font-size:11px;font-weight:800;margin-top:3px;color:'+(t.good?'var(--mob)':'#ffb020')+';">'+(t.delta>0?'▲ +':'▼ ')+(Math.round(t.delta*10)/10)+'</div>':'<div style="font-size:11px;color:var(--muted2);margin-top:3px;">'+fmtDateShort(t.d).toLowerCase()+'</div>';
+    tiles.push('<div class="wl-tile"><div class="wl-big" style="color:'+(t.good?'var(--mob)':'var(--text)')+';font-size:'+(String(t.val).length>5?'20px':'25px')+';">'+wlEsc(t.val)+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+wlEsc(tr(t.n.replace(/ \(CMJ\)/,'')))+' ('+t.u+')</div>'+dl+'</div>');
+  });
+  /* sesiones del mes */
+  var sess=JB_SESSIONS[pid]||{},ch=JB_CHECKS[pid]||{},mo=today.slice(0,7),pl=0,dn=0,tot=0;
+  Object.keys(sess).forEach(function(iso){
+    var s=sess[iso];if(!/^\d{4}-\d{2}-\d{2}$/.test(iso)||!s||!s.blocks||!s.blocks.length||iso>today)return;
+    var d=Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    if(d)tot++;
+    if(iso.slice(0,7)===mo&&iso<today){pl++;if(d)dn++;}
+    else if(iso===today&&d){pl++;dn++;}
+  });
+  var mN='';try{mN=new Date().toLocaleDateString(LANG==='en'?'en-GB':(LANG==='it'?'it-IT':'es-ES'),{month:'long'});}catch(e){}
+  var pct=pl?Math.round(dn/pl*100):null;
+  tiles.push('<div class="wl-tile"><div class="wl-big">'+dn+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">'+tr('Sesiones')+' '+wlEsc(mN)+'</div><div style="font-size:11px;font-weight:800;margin-top:3px;color:'+(pct===null?'var(--muted2)':(pct>=80?'var(--mob)':(pct>=50?'#f9c846':'#ff7043')))+';">'+(pct===null?'—':pct+'% '+tr('cumplido'))+'</div></div>');
+  if(tiles.length<3)tiles.push('<div class="wl-tile"><div class="wl-big">'+tot+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">'+tr('Sesiones en total')+'</div><div style="font-size:11px;color:var(--muted2);margin-top:3px;">'+tr('desde que empezaste')+'</div></div>');
+  if(tiles.length<3){var st=getStreak(pid);tiles.push('<div class="wl-tile"><div class="wl-big">'+st+'</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">'+tr('Racha actual')+'</div><div style="font-size:11px;color:var(--muted2);margin-top:3px;">'+tr('sesiones seguidas')+'</div></div>');}
+  return '<div class="wl-card"><div class="wl-lbl">'+tr('Tu progreso')+'</div><div style="display:flex;gap:8px;">'+tiles.slice(0,3).join('')+'</div></div>';
+}
+var PD_IDEAS=[
+ ['La fuerza que no transferís a la cancha es solo un número.','Strength you don’t transfer to the pitch is just a number.','La forza che non trasferisci in campo è solo un numero.'],
+ ['Calidad en cada repetición antes que kilos en la barra.','Quality in every rep before kilos on the bar.','Qualità in ogni ripetizione prima dei chili sul bilanciere.'],
+ ['Dormir bien es el suplemento más barato y más efectivo.','Good sleep is the cheapest and most effective supplement.','Dormire bene è l’integratore più economico ed efficace.'],
+ ['Moverte bien primero, rápido después, fuerte siempre.','Move well first, fast next, strong always.','Prima muoviti bene, poi veloce, forte sempre.'],
+ ['La constancia le gana al talento cuando el talento no entrena.','Consistency beats talent when talent doesn’t train.','La costanza batte il talento quando il talento non si allena.'],
+ ['Un tobillo y una cadera que se mueven bien cuidan tus rodillas.','A mobile ankle and hip protect your knees.','Una caviglia e un’anca mobili proteggono le tue ginocchia.'],
+ ['Entrenar duro es fácil; entrenar inteligente es lo que te hace distinto.','Training hard is easy; training smart is what sets you apart.','Allenarsi duro è facile; allenarsi con intelligenza ti rende diverso.'],
+ ['Un RPE honesto es la mejor herramienta para que tu plan funcione.','An honest RPE is the best tool to make your plan work.','Un RPE onesto è lo strumento migliore perché il tuo piano funzioni.'],
+ ['Las molestias se avisan a tiempo, no se esconden.','Report niggles early, don’t hide them.','I fastidi si segnalano in tempo, non si nascondono.'],
+ ['La velocidad se entrena: cada sprint cuenta.','Speed is trainable: every sprint counts.','La velocità si allena: ogni sprint conta.'],
+ ['El core no es hacer abdominales: es llevar la fuerza de las piernas al balón.','Core isn’t crunches: it’s carrying leg power to the ball.','Il core non sono gli addominali: è portare la forza delle gambe al pallone.'],
+ ['Prevenir lesiones es parte del rendimiento, no un extra.','Injury prevention is part of performance, not an extra.','Prevenire gli infortuni fa parte della prestazione, non è un extra.'],
+ ['Cada sesión suma, aunque no la sientas perfecta.','Every session adds up, even when it doesn’t feel perfect.','Ogni sessione conta, anche quando non ti sembra perfetta.'],
+ ['Frenar bien es tan importante como acelerar.','Braking well matters as much as accelerating.','Frenare bene è importante quanto accelerare.'],
+ ['Tu cuerpo es tu herramienta de trabajo: cuidalo como un profesional.','Your body is your work tool: look after it like a pro.','Il tuo corpo è il tuo strumento di lavoro: curalo da professionista.'],
+ ['Lo que hacés fuera de la cancha se nota dentro.','What you do off the pitch shows on it.','Quello che fai fuori dal campo si vede in campo.'],
+ ['Mejor un 80% todos los días que un 100% una vez por semana.','Better 80% every day than 100% once a week.','Meglio l’80% ogni giorno che il 100% una volta a settimana.'],
+ ['Cuando llega el cansancio, la técnica es lo que te sostiene.','When fatigue hits, technique is what holds you up.','Quando arriva la fatica, è la tecnica a sostenerti.'],
+ ['Los días de recuperación también son entrenamiento.','Recovery days are training too.','Anche i giorni di recupero sono allenamento.'],
+ ['Escuchá a tu cuerpo, pero no le creas todas las excusas.','Listen to your body, but don’t believe every excuse.','Ascolta il tuo corpo, ma non credere a tutte le scuse.'],
+ ['Las dos piernas cuentan: trabajá las asimetrías.','Both legs count: work on your asymmetries.','Contano entrambe le gambe: lavora sulle asimmetrie.'],
+ ['La explosividad se entrena con intención: cada salto, a máxima velocidad.','Explosiveness is trained with intent: every jump at full speed.','L’esplosività si allena con intenzione: ogni salto alla massima velocità.'],
+ ['El hábito te lleva donde la motivación no llega.','Habit takes you where motivation can’t.','L’abitudine ti porta dove la motivazione non arriva.'],
+ ['Pequeñas mejoras cada semana hacen grandes temporadas.','Small gains every week make great seasons.','Piccoli progressi ogni settimana fanno grandi stagioni.'],
+ ['Hidratate antes de tener sed.','Hydrate before you get thirsty.','Idratati prima di avere sete.'],
+ ['El que se prepara mejor, llega más entero al final del partido.','The best prepared finish the match fresher.','Chi si prepara meglio arriva più fresco alla fine della partita.']
+];
+function wlIdeaHtml(){
+  var d=isoToDate(isoMonday()),w=Math.floor(d.getTime()/(7*86400000));
+  var it=PD_IDEAS[((w%PD_IDEAS.length)+PD_IDEAS.length)%PD_IDEAS.length];
+  var txt=LANG==='en'?it[1]:(LANG==='it'?it[2]:it[0]);
+  return '<div class="wl-card" style="border-left:3px solid var(--mob);"><div class="wl-lbl">'+tr('Idea PD de la semana')+'</div><div style="font-size:14.5px;line-height:1.45;color:var(--text);">“'+wlEsc(txt)+'”</div><div style="font-size:11.5px;color:var(--muted2);margin-top:6px;">— '+tr('Metodología PD')+'</div></div>';
+}
+
 function wlGoDate(iso){var sess=JB_SESSIONS[currentPlayerId]||{};var s=sess[iso];if(!s||!s.blocks||!s.blocks.length)return;pendingDate=iso;enterPlan();}
 function enterPlan(){
   hideSidebar();
@@ -6432,7 +6687,7 @@ async function openChatThread(pid){
   CHAT=r.error?[]:(r.data||[]);
   // marcar leídos
   if(isCoach){sb.from('messages').update({read_by_coach:true}).eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false).then(function(){});}
-  else{sb.from('messages').update({read_by_athlete:true}).eq('player_id',pid).eq('sender','coach').eq('read_by_athlete',false).then(function(){});}
+  else{try{wlMarkMsgsSeen();}catch(e){}sb.from('messages').update({read_by_athlete:true}).eq('player_id',pid).eq('sender','coach').eq('read_by_athlete',false).then(function(){});}
   renderChatThread();
   refreshChatBadge();
 }
@@ -7004,6 +7259,71 @@ STATIC_I18N["Video de técnica recibido"]=["Technique video received", "Video de
 STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
+/* inicio del alumno */
+STATIC_I18N["Buen día"]=STATIC_I18N["Buen día"]||["Good morning","Buongiorno"];
+STATIC_I18N["Buenas tardes"]=STATIC_I18N["Buenas tardes"]||["Good afternoon","Buon pomeriggio"];
+STATIC_I18N["Buenas noches"]=STATIC_I18N["Buenas noches"]||["Good evening","Buonasera"];
+STATIC_I18N["Cómo llegás hoy"]=STATIC_I18N["Cómo llegás hoy"]||["How you feel today","Come arrivi oggi"];
+STATIC_I18N["Cómo llega hoy"]=STATIC_I18N["Cómo llega hoy"]||["How they feel today","Come arriva oggi"];
+STATIC_I18N["Todavía no hizo el check-in de hoy."]=STATIC_I18N["Todavía no hizo el check-in de hoy."]||["No check-in yet today.","Nessun check-in oggi."];
+STATIC_I18N["Contale a tu profe cómo estás: 10 segundos."]=STATIC_I18N["Contale a tu profe cómo estás: 10 segundos."]||["Tell your coach how you feel: 10 seconds.","Di al tuo coach come stai: 10 secondi."];
+STATIC_I18N["Completar"]=STATIC_I18N["Completar"]||["Fill in","Compila"];
+STATIC_I18N["Listo para entrenar"]=STATIC_I18N["Listo para entrenar"]||["Ready to train","Pronto per allenarti"];
+STATIC_I18N["Bien, con atención"]=STATIC_I18N["Bien, con atención"]||["Good, with care","Bene, con attenzione"];
+STATIC_I18N["Día para cuidarte"]=STATIC_I18N["Día para cuidarte"]||["Take it easy today","Giorno per curarti"];
+STATIC_I18N["Llega bien"]=STATIC_I18N["Llega bien"]||["Feeling good","Sta bene"];
+STATIC_I18N["Llega con atención"]=STATIC_I18N["Llega con atención"]||["Needs attention","Da monitorare"];
+STATIC_I18N["Llega para cuidarse"]=STATIC_I18N["Llega para cuidarse"]||["Take care today","Da proteggere oggi"];
+STATIC_I18N["leve"]=STATIC_I18N["leve"]||["mild","lieve"];
+STATIC_I18N["moderada"]=STATIC_I18N["moderada"]||["moderate","moderato"];
+STATIC_I18N["fuerte"]=STATIC_I18N["fuerte"]||["strong","forte"];
+STATIC_I18N["Molestia"]=STATIC_I18N["Molestia"]||["Discomfort","Fastidio"];
+STATIC_I18N["Sin molestias"]=STATIC_I18N["Sin molestias"]||["No discomfort","Nessun fastidio"];
+STATIC_I18N["Sueño"]=STATIC_I18N["Sueño"]||["Sleep","Sonno"];
+STATIC_I18N["Energía"]=STATIC_I18N["Energía"]||["Energy","Energia"];
+STATIC_I18N["Filmar técnica"]=STATIC_I18N["Filmar técnica"]||["Film technique","Filma la tecnica"];
+STATIC_I18N["En la sesión de hoy"]=STATIC_I18N["En la sesión de hoy"]||["In today’s session","Nella sessione di oggi"];
+STATIC_I18N["Sesión del"]=STATIC_I18N["Sesión del"]||["Session of","Sessione del"];
+STATIC_I18N["Test"]=STATIC_I18N["Test"]||["Test","Test"];
+STATIC_I18N["tests para hacer"]=STATIC_I18N["tests para hacer"]||["tests to do","test da fare"];
+STATIC_I18N["Último hace"]=STATIC_I18N["Último hace"]||["Last one","Ultimo"];
+STATIC_I18N["días"]=STATIC_I18N["días"]||["days ago","giorni fa"];
+STATIC_I18N["Todavía sin registrar"]=STATIC_I18N["Todavía sin registrar"]||["Not recorded yet","Non ancora registrato"];
+STATIC_I18N["Encuesta de la semana"]=STATIC_I18N["Encuesta de la semana"]||["Weekly check-in","Questionario settimanale"];
+STATIC_I18N["30 segundos para tu profe"]=STATIC_I18N["30 segundos para tu profe"]||["30 seconds for your coach","30 secondi per il tuo coach"];
+STATIC_I18N["1 mensaje nuevo de"]=STATIC_I18N["1 mensaje nuevo de"]||["1 new message from","1 nuovo messaggio da"];
+STATIC_I18N["mensajes nuevos de"]=STATIC_I18N["mensajes nuevos de"]||["new messages from","nuovi messaggi da"];
+STATIC_I18N["tu profe"]=STATIC_I18N["tu profe"]||["your coach","il tuo coach"];
+STATIC_I18N["Pendientes del alumno"]=STATIC_I18N["Pendientes del alumno"]||["Athlete to-dos","Da fare dell’atleta"];
+STATIC_I18N["Tu profe te pidió"]=STATIC_I18N["Tu profe te pidió"]||["Your coach asked you","Il tuo coach ti ha chiesto"];
+STATIC_I18N["Carga de los últimos 7 días"]=STATIC_I18N["Carga de los últimos 7 días"]||["Load, last 7 days","Carico ultimi 7 giorni"];
+STATIC_I18N["Tu semana"]=STATIC_I18N["Tu semana"]||["Your week","La tua settimana"];
+STATIC_I18N["de"]=STATIC_I18N["de"]||["of","di"];
+STATIC_I18N["sesiones"]=STATIC_I18N["sesiones"]||["sessions","sessioni"];
+STATIC_I18N["Ocultar mes"]=STATIC_I18N["Ocultar mes"]||["Hide month","Nascondi mese"];
+STATIC_I18N["Ver mes completo"]=STATIC_I18N["Ver mes completo"]||["See full month","Vedi mese intero"];
+STATIC_I18N["Sesiones"]=STATIC_I18N["Sesiones"]||["Sessions","Sessioni"];
+STATIC_I18N["cumplido"]=STATIC_I18N["cumplido"]||["done","completato"];
+STATIC_I18N["Sesiones en total"]=STATIC_I18N["Sesiones en total"]||["Total sessions","Sessioni totali"];
+STATIC_I18N["desde que empezaste"]=STATIC_I18N["desde que empezaste"]||["since you started","da quando hai iniziato"];
+STATIC_I18N["Racha actual"]=STATIC_I18N["Racha actual"]||["Current streak","Serie attuale"];
+STATIC_I18N["sesiones seguidas"]=STATIC_I18N["sesiones seguidas"]||["sessions in a row","sessioni di fila"];
+STATIC_I18N["Tu progreso"]=STATIC_I18N["Tu progreso"]||["Your progress","I tuoi progressi"];
+STATIC_I18N["Idea PD de la semana"]=STATIC_I18N["Idea PD de la semana"]||["PD idea of the week","Idea PD della settimana"];
+STATIC_I18N["Metodología PD"]=STATIC_I18N["Metodología PD"]||["PD Method","Metodo PD"];
+STATIC_I18N["Movilidad"]=STATIC_I18N["Movilidad"]||["Mobility","Mobilità"];
+STATIC_I18N["Activación"]=STATIC_I18N["Activación"]||["Activation","Attivazione"];
+STATIC_I18N["Fuerza"]=STATIC_I18N["Fuerza"]||["Strength","Forza"];
+STATIC_I18N["Potencia"]=STATIC_I18N["Potencia"]||["Power","Potenza"];
+STATIC_I18N["Core"]=STATIC_I18N["Core"]||["Core","Core"];
+STATIC_I18N["Condicionamiento"]=STATIC_I18N["Condicionamiento"]||["Conditioning","Condizionamento"];
+STATIC_I18N["Explosivos"]=STATIC_I18N["Explosivos"]||["Explosive","Esplosivi"];
+STATIC_I18N["Campo"]=STATIC_I18N["Campo"]||["Field","Campo"];
+STATIC_I18N["Control motor"]=STATIC_I18N["Control motor"]||["Motor control","Controllo motorio"];
+STATIC_I18N["Estiramientos"]=STATIC_I18N["Estiramientos"]||["Stretching","Stretching"];
+STATIC_I18N["Prevención"]=STATIC_I18N["Prevención"]||["Prevention","Prevenzione"];
+STATIC_I18N["Recuperación"]=STATIC_I18N["Recuperación"]||["Recovery","Recupero"];
+STATIC_I18N["Salto vertical"]=STATIC_I18N["Salto vertical"]||["Vertical jump","Salto verticale"];
 /* análisis de movimiento */
 STATIC_I18N["Lado"]=["Side", "Lato"];
 STATIC_I18N["Izquierda"]=["Left", "Sinistra"];
