@@ -1633,7 +1633,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261015-3';
+var APP_VERSION='20261015-4';
 (function(){
   try{
     setTimeout(function(){
@@ -9511,6 +9511,16 @@ function mvHasData(){var S=MV.S;return !!S&&(S.reps.length>0||S.jumps.length>0||
 function mvUpdSave(){var b=mvEl('mv-save');if(!b)return;b.style.display=(MV.running||mvHasData())&&MV.S?'flex':'none';b.disabled=!mvHasData();}
 
 /* --- dibujo --- */
+/* De costado se dibuja solo el lado más cercano a la cámara (el lejano suele quedar tapado y mal detectado). */
+var MV_ONE_EX={squat:1,deadlift:1,bench:1,jump:1,free:1,hjump:1,ankle:1};
+var MV_SIDE_PTS={L:[11,13,15,23,25,27,29,31],R:[12,14,16,24,26,28,30,32]};
+function mvOneSide(L){
+  if(!L||!MV_ONE_EX[MV.ex])return null;
+  var sd;
+  if(MV.ex==='ankle')sd=MV.side==='r'?'R':'L';
+  else{try{mvSide(L);}catch(e){}sd=(MV.S&&MV.S.side)||'L';}
+  var m={};MV_SIDE_PTS[sd].forEach(function(i){m[i]=1;});return m;
+}
 function mvDraw(L,labels){
   var cv=mvEl('mv-cv'),ctx=cv.getContext('2d'),vid=mvEl('mv-vid'),w=cv.width,h=cv.height,s=Math.max(w,h)/720,G='#a8e063';if(!w)return;
   ctx.save();if(MV.mirror){ctx.translate(w,0);ctx.scale(-1,1);}
@@ -9519,10 +9529,11 @@ function mvDraw(L,labels){
   if(tr_.length>1&&mvTrailOn()){ctx.lineWidth=3*s;ctx.strokeStyle='#ffd166';ctx.lineCap='round';ctx.beginPath();tr_.forEach(function(p,i){if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);});ctx.stroke();}
   if(L){
     ctx.lineCap='round';
-    MV_BONES.forEach(function(b){var A=L[b[0]],B=L[b[1]];if(mvVis(A)<0.35||mvVis(B)<0.35)return;
+    var _one=mvOneSide(L);
+    MV_BONES.forEach(function(b){if(_one&&(!_one[b[0]]||!_one[b[1]]))return;var A=L[b[0]],B=L[b[1]];if(mvVis(A)<0.35||mvVis(B)<0.35)return;
       ctx.strokeStyle='rgba(0,0,0,0.55)';ctx.lineWidth=7*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
       ctx.strokeStyle=G;ctx.lineWidth=4*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();});
-    for(var i=11;i<33;i++){var p=L[i];if(mvVis(p)<0.35)continue;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4.2*s,0,7);ctx.fill();}
+    for(var i=11;i<33;i++){if(_one&&!_one[i])continue;var p=L[i];if(mvVis(p)<0.35)continue;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4.2*s,0,7);ctx.fill();}
   }
   if(MV.ex==='valgus'&&L){var r=MV.S.last.ratio,c=!isFinite(r)?'#fff':r<0.8?'#ff6b6b':r<0.95?'#ffd166':G;
       ctx.setLineDash([8*s,7*s]);ctx.lineWidth=2.5*s;ctx.strokeStyle=c;
