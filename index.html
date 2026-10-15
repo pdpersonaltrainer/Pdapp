@@ -1633,7 +1633,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261015-4';
+var APP_VERSION='20261015-5';
 (function(){
   try{
     setTimeout(function(){
@@ -7276,6 +7276,8 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Listo: revisá los resultados y guardá el análisis."]=["Done: check the results and save the analysis.","Fatto: controlla i risultati e salva l'analisi."];
+STATIC_I18N["No se registraron repeticiones. Tocá el botón rojo para empezar a medir."]=["No reps recorded. Tap the red button to start measuring.","Nessuna ripetizione registrata. Tocca il pulsante rosso per iniziare a misurare."];
 STATIC_I18N["Buen día"]=STATIC_I18N["Buen día"]||["Good morning","Buongiorno"];
 STATIC_I18N["Buenas tardes"]=STATIC_I18N["Buenas tardes"]||["Good afternoon","Buon pomeriggio"];
 STATIC_I18N["Buenas noches"]=STATIC_I18N["Buenas noches"]||["Good evening","Buonasera"];
@@ -9101,6 +9103,24 @@ initApp();
 #modal-mov .mv-status{margin-top:8px;font-size:12.5px;color:var(--muted);min-height:16px;}
 #modal-mov .mv-status.err{color:#ff6b6b;}
 #modal-mov .mv-foot{margin-top:14px;color:var(--muted2);font-size:11px;line-height:1.5;}
+/* cámara en vivo a pantalla completa */
+#modal-mov.mv-fs{overflow:hidden;}
+#modal-mov.mv-fs .mv-stage{position:fixed;inset:0;z-index:600;margin:0;border:none;border-radius:0;display:flex!important;flex-direction:column;background:#000;}
+#modal-mov.mv-fs .mv-stage>div:first-child{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;}
+#modal-mov.mv-fs .mv-stage canvas{width:auto!important;height:auto!important;max-width:100%;max-height:100%;}
+#modal-mov.mv-fs .mv-shutter{position:fixed;right:auto;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 78px);width:74px;height:74px;z-index:3;}
+#modal-mov.mv-fs .mv-shutter span{width:56px;height:56px;}
+#modal-mov.mv-fs .mv-shutter.cd span{width:36px;height:36px;}
+#modal-mov.mv-fs .mv-shutter.on span{width:28px;height:28px;}
+#modal-mov.mv-fs .mv-badge{top:calc(env(safe-area-inset-top,0px) + 10px);left:12px;z-index:3;}
+#modal-mov.mv-fs .mv-rec{top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:3;}
+#modal-mov.mv-fs .mv-ctrl{background:rgba(14,16,21,0.92);border-top:1px solid rgba(255,255,255,0.08);padding:8px 10px calc(env(safe-area-inset-bottom,0px) + 8px);position:relative;z-index:3;}
+#mv-hud{display:none;}
+#modal-mov.mv-fs #mv-hud{display:flex;gap:6px;position:absolute;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 44px);z-index:3;pointer-events:none;}
+#mv-hud .h{flex:1;min-width:0;background:rgba(14,16,21,0.72);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:5px 9px;}
+#mv-hud .h .k{font:700 10px 'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#aab0bb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#mv-hud .h .v{font:800 22px 'Barlow Condensed',sans-serif;color:#fff;line-height:1.05;}
+#mv-hud .h:first-child .v{color:#a8e063;font-size:28px;}
 #modal-mov-view{position:fixed;inset:0;z-index:530;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:16px;}
 #modal-mov-view.open{display:flex;}
 .mv-card{display:flex;gap:10px;align-items:center;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:8px;margin-bottom:7px;cursor:pointer;}
@@ -9129,6 +9149,7 @@ initApp();
       <div style="position:relative;"><canvas id="mv-cv" onclick="mvCanvasTap(event)"></canvas><button id="mv-shutter" class="mv-shutter" onclick="mvToggleRec()" aria-label="Grabar"><span></span></button></div>
       <video id="mv-vid" playsinline muted></video>
       <div class="mv-badge" id="mv-badge"></div>
+      <div id="mv-hud"></div>
       <div class="mv-rec" id="mv-recdot">● REC</div>
       <div class="mv-ctrl" id="mv-ctrl"></div>
       <div id="mv-cal" style="display:none;padding:9px 11px;background:var(--s1);border-top:1px solid var(--border2);font-size:12.5px;color:var(--muted);line-height:1.45;"></div>
@@ -9201,7 +9222,7 @@ function openMov(opts){
   mvEl('modal-mov').classList.add('open');mvEl('modal-mov').scrollTop=0;
   mvGetLandmarker().catch(function(){});
 }
-async function movClose(){await mvStopAll();mvEl('mv-stage').style.display='none';mvEl('modal-mov').classList.remove('open');}
+async function movClose(){await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');mvEl('mv-stage').style.display='none';mvEl('modal-mov').classList.remove('open');}
 function mvRenderChips(){
   var order=MV_ORDER.slice();if(MV_EX[MV.ex].test&&order.indexOf(MV.ex)<0)order.unshift(MV.ex);
   mvEl('mv-ex').innerHTML=order.map(function(k){return '<button class="mv-chip'+(k===MV.ex?' on':'')+'" onclick="mvSetEx(\''+k+'\')">'+mvExName(k)+'</button>';}).join('');
@@ -9484,6 +9505,8 @@ function mvRenderMetrics(){
     h=mvCard('Saltos',hj.length)+mvCard('Último',lj?(cmL!=null?mvF0(cmL):'–'):'–','cm','ok')+mvCard('Mejor',bst!=null?mvF0(bst):'–','cm')+(mvIsBi()?mvCard('Lado',mvSideTxt(MV.side)):mvCard('Calibración',MV.cal?'✓':'–','',MV.cal?'ok':'warn'));}
   if(ex==='free')h=mvCard('Rodilla izq.',mvF0(l.kL),'°')+mvCard('Rodilla der.',mvF0(l.kR),'°')+mvCard('Cadera izq.',mvF0(l.hL),'°')+mvCard('Cadera der.',mvF0(l.hR),'°');
   mvEl('mv-metrics').innerHTML=h;
+  try{var hud=mvEl('mv-hud');if(hud&&mvEl('modal-mov').classList.contains('mv-fs')){var tmp=document.createElement('div');tmp.innerHTML=h;
+    hud.innerHTML=Array.prototype.slice.call(tmp.querySelectorAll('.mv-m')).slice(0,4).map(function(m){var k=m.querySelector('.k'),v=m.querySelector('.v');return '<div class="h"><div class="k">'+(k?k.innerHTML:'')+'</div><div class="v">'+(v?v.innerHTML:'')+'</div></div>';}).join('');}}catch(e){}
 }
 function mvHjBest(hj,side){var v=(hj||[]).filter(function(j){return side==null||j.side===side;}).map(function(j){return j.cm!=null?j.cm:mvHjCm(j);}).filter(function(x){return x!=null&&isFinite(x);});return v.length?Math.max.apply(null,v):null;}
 function mvRepLine(ex,r){
@@ -9637,6 +9660,7 @@ async function movStartCam(){
   catch(e){mvStatus(tr('No hay permiso para usar la cámara. Activalo en Ajustes → Safari → Cámara.'),true);return;}
   var vid=mvEl('mv-vid');MV.mode='cam';MV.mirror=(MV.facing==='user');
   vid.muted=true;vid.setAttribute('playsinline','');vid.setAttribute('autoplay','');vid.srcObject=MV.stream;
+  mvEl('modal-mov').classList.add('mv-fs');
   mvStartLoop();mvPlay(vid);mvEl('mv-shutter').style.display='flex';
   if(!MV.landmarker){mvStatus(tr('Cargando el analizador (solo la primera vez)…'));lp.then(function(){mvStatus('');},function(){});}
   mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="mvFlip()">'+tr('Girar')+'</button><button class="mv-btn" id="mv-c-cd" onclick="mvCdCycle()">'+mvCdTxt()+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
@@ -9644,7 +9668,7 @@ async function movStartCam(){
 function mvFlip(){MV.facing=MV.facing==='user'?'environment':'user';movStartCam();}
 function movFilePicked(inp){var f=inp.files&&inp.files[0];inp.value='';if(f)mvStartFile(f);}
 async function mvStartFile(file){
-  await mvStopAll();
+  await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');
   mvStatus(tr('Cargando el analizador (solo la primera vez)…'));
   try{await mvGetLandmarker();}catch(e){return;}
   mvStatus('');
@@ -9657,7 +9681,24 @@ async function mvStartFile(file){
 }
 function mvPlayPause(){var vid=mvEl('mv-vid'),b=mvEl('mv-c-play');if(vid.paused){vid.play();MV.running=true;b.textContent=tr('Pausa');mvSchedule();}else{vid.pause();b.textContent=tr('Seguir');}}
 function mvAgain(){var vid=mvEl('mv-vid');mvReset();vid.currentTime=0;vid.play();MV.running=true;var b=mvEl('mv-c-play');if(b)b.textContent=tr('Pausa');mvSchedule();}
-async function mvStopStage(){await mvStopAll();mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="movStartCam()">'+tr('Cámara en vivo')+'</button><button class="mv-btn" onclick="document.getElementById(\'mv-file\').click()">'+tr('Subir video')+'</button>';mvUpdSave();}
+async function mvStopStage(){
+  var wasCam=(MV.mode==='cam');
+  await mvStopAll();
+  mvEl('modal-mov').classList.remove('mv-fs');
+  if(wasCam){
+    var S=MV.S;
+    if(mvHasData()){
+      var snap=(S&&(S.snap||S.curSnap))||null,cv=mvEl('mv-cv');
+      if(snap&&cv.width){try{cv.getContext('2d').drawImage(snap,0,0,cv.width,cv.height);}catch(e){}}
+      try{mvRenderMetrics();mvRenderLog();}catch(e){}
+      mvStatus(tr('Listo: revisá los resultados y guardá el análisis.'));
+      setTimeout(function(){try{mvEl('mv-stage').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},80);
+    }else{
+      mvEl('mv-stage').style.display='none';
+      mvStatus(tr('No se registraron repeticiones. Tocá el botón rojo para empezar a medir.'));
+    }
+  }
+mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="movStartCam()">'+tr('Cámara en vivo')+'</button><button class="mv-btn" onclick="document.getElementById(\'mv-file\').click()">'+tr('Subir video')+'</button>';mvUpdSave();}
 
 /* --- grabar video con líneas (se guarda en el teléfono / se comparte) --- */
 function mvToggleRec(){
