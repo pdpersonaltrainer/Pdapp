@@ -187,6 +187,7 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 .wl-tile{flex:1;min-width:0;background:var(--s2);border-radius:12px;padding:10px 6px;text-align:center;}
 .wl-big{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:25px;line-height:1;}
 #wl-btn{margin-bottom:14px;}
+@media (min-width:760px){#screen-welcome .welcome-content{max-width:900px;}#wl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 18px;align-items:start;}#wl-cols #wl-today,#wl-cols #wl-cal{max-width:none!important;}}
 .welcome-avatar-wrap{position:relative;width:110px;height:110px;margin:0 auto 20px;}
 .welcome-avatar-inner{width:110px;height:110px;border-radius:50%;overflow:hidden;border:3px solid var(--w1);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--muted2);}
 .welcome-avatar-inner img{width:100%;height:100%;object-fit:cover;}
@@ -750,14 +751,17 @@ body{overflow-x:hidden;}
     <div class="welcome-sub" id="welcome-sub">Plan personalizado</div>
     <div id="wl-streak" style="display:none;margin:2px 0 14px;"></div>
     <div id="wl-head"></div>
+    <div id="wl-cols"><div id="wl-colA">
     <div id="wl-ready"></div>
     <div id="wl-today" style="width:100%;max-width:420px;margin:0 auto 12px;"></div>
     <button class="welcome-btn" id="wl-btn" onclick="enterPlan()">Ver mi plan</button>
     <div id="wl-tasks"></div>
+    </div><div id="wl-colB">
     <div id="wl-week"></div>
     <div id="wl-cal" style="width:100%;max-width:420px;margin:0 auto;display:none;"></div>
     <div id="wl-prog"></div>
     <div id="wl-idea"></div>
+    </div></div>
     <div id="wl-install" style="width:100%;max-width:420px;margin:16px auto 0;"></div>
     <div id="wl-push" style="width:100%;max-width:420px;margin:18px auto 0;"></div>
     <div id="lang-sel-ath" style="display:flex;justify-content:center;gap:8px;margin-top:22px;"></div>
@@ -1629,7 +1633,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261015-1';
+var APP_VERSION='20261015-2';
 (function(){
   try{
     setTimeout(function(){
@@ -4489,7 +4493,7 @@ function doSelectPlayer(pid){
   var sub=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
   document.getElementById('welcome-sub').textContent=sub;
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');
-  var wb=document.getElementById('wl-back');if(wb)wb.style.display=isCoach?'flex':'none';
+  var wb=document.getElementById('wl-back');if(wb)wb.style.display=(isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN))?'flex':'none';
   var wsg=document.getElementById('wl-set');if(wsg)wsg.style.display=isCoach?'none':'flex';
   document.getElementById('screen-select').style.display='none';
   try{renderAthleteHome();}catch(e){console.error('athleteHome',e);}
@@ -4600,7 +4604,7 @@ function wlHome(p){
   var stk=getStreak(pid);
   var stkH=stk>=2?'<span style="flex:none;display:inline-flex;align-items:center;gap:4px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);color:var(--mob);border-radius:20px;padding:4px 10px;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;" title="'+wlEsc(stk+' '+TT('enRacha'))+'">🔥 '+stk+'</span>':'';
   var sub=[p.pos,p.club].filter(Boolean).join(' · ');
-  document.getElementById('wl-head').innerHTML='<div style="display:flex;align-items:center;gap:12px;text-align:left;margin:0 auto 16px;padding-right:46px;">'
+  var _wbv=isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN);document.getElementById('wl-head').innerHTML='<div style="display:flex;align-items:center;gap:12px;text-align:left;margin:'+(_wbv?'44px':'0')+' auto 16px;padding-right:46px;">'
     +'<div style="width:54px;height:54px;border-radius:50%;border:2.5px solid var(--mob);background:var(--s2);overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:19px;color:var(--text);">'+av+'</div>'
     +'<div style="flex:1;min-width:0;"><div style="font-size:12.5px;color:var(--muted);">'+wlEsc(dtxt)+'</div>'
     +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:25px;font-weight:800;text-transform:uppercase;line-height:1.05;letter-spacing:0.02em;">'+(isCoach?wlEsc(p.name):wlEsc(greet+', '+first))+'</div></div>'+stkH+'</div>';
@@ -4779,12 +4783,12 @@ var PD_IDEAS=[
  ['Un RPE honesto es la mejor herramienta para que tu plan funcione.','An honest RPE is the best tool to make your plan work.','Un RPE onesto è lo strumento migliore perché il tuo piano funzioni.'],
  ['Las molestias se avisan a tiempo, no se esconden.','Report niggles early, don’t hide them.','I fastidi si segnalano in tempo, non si nascondono.'],
  ['La velocidad se entrena: cada sprint cuenta.','Speed is trainable: every sprint counts.','La velocità si allena: ogni sprint conta.'],
- ['El core no es hacer abdominales: es llevar la fuerza de las piernas al balón.','Core isn’t crunches: it’s carrying leg power to the ball.','Il core non sono gli addominali: è portare la forza delle gambe al pallone.'],
+ ['El core no es hacer abdominales: es pasar la fuerza de las piernas al resto del cuerpo.','Core isn’t crunches: it’s passing leg strength to the rest of the body.','Il core non sono gli addominali: è trasmettere la forza delle gambe al resto del corpo.'],
  ['Prevenir lesiones es parte del rendimiento, no un extra.','Injury prevention is part of performance, not an extra.','Prevenire gli infortuni fa parte della prestazione, non è un extra.'],
  ['Cada sesión suma, aunque no la sientas perfecta.','Every session adds up, even when it doesn’t feel perfect.','Ogni sessione conta, anche quando non ti sembra perfetta.'],
  ['Frenar bien es tan importante como acelerar.','Braking well matters as much as accelerating.','Frenare bene è importante quanto accelerare.'],
  ['Tu cuerpo es tu herramienta de trabajo: cuidalo como un profesional.','Your body is your work tool: look after it like a pro.','Il tuo corpo è il tuo strumento di lavoro: curalo da professionista.'],
- ['Lo que hacés fuera de la cancha se nota dentro.','What you do off the pitch shows on it.','Quello che fai fuori dal campo si vede in campo.'],
+ ['Lo que hacés fuera de la cancha se nota adentro.','What you do off the pitch shows on it.','Quello che fai fuori dal campo si vede in campo.'],
  ['Mejor un 80% todos los días que un 100% una vez por semana.','Better 80% every day than 100% once a week.','Meglio l’80% ogni giorno che il 100% una volta a settimana.'],
  ['Cuando llega el cansancio, la técnica es lo que te sostiene.','When fatigue hits, technique is what holds you up.','Quando arriva la fatica, è la tecnica a sostenerti.'],
  ['Los días de recuperación también son entrenamiento.','Recovery days are training too.','Anche i giorni di recupero sono allenamento.'],
@@ -4794,7 +4798,7 @@ var PD_IDEAS=[
  ['El hábito te lleva donde la motivación no llega.','Habit takes you where motivation can’t.','L’abitudine ti porta dove la motivazione non arriva.'],
  ['Pequeñas mejoras cada semana hacen grandes temporadas.','Small gains every week make great seasons.','Piccoli progressi ogni settimana fanno grandi stagioni.'],
  ['Hidratate antes de tener sed.','Hydrate before you get thirsty.','Idratati prima di avere sete.'],
- ['El que se prepara mejor, llega más entero al final del partido.','The best prepared finish the match fresher.','Chi si prepara meglio arriva più fresco alla fine della partita.']
+ ['El que mejor se prepara llega más entero al final del partido.','The best prepared finish the match fresher.','Chi si prepara meglio arriva più fresco alla fine della partita.']
 ];
 function wlIdeaHtml(){
   var d=isoToDate(isoMonday()),w=Math.floor(d.getTime()/(7*86400000));
@@ -4820,6 +4824,17 @@ function enterPlan(){
   if(p){document.getElementById('hdr-name').textContent=p.name;var avw=document.getElementById('hdr-av-wrap');avw.innerHTML=p.photo?'<img class="hdr-avatar" src="'+p.photo+'"/>':'<div class="hdr-avatar-ph">\ud83d\udc64</div>';}
   curDate=pendingDate||isoToday();pendingDate=null;lastCheckedDay=null;cW=0;cD=0;weekViewW=0;renderPlan();
 }
+function athBackHome(){
+  ['screen-plan','screen-lib'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('active');});
+  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  document.getElementById('app-tabs').classList.add('hidden');
+  try{document.getElementById('screen-select').style.display='none';}catch(e){}
+  currentTab='plan';
+  var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');ws.scrollTop=0;
+  var wb=document.getElementById('wl-back');if(wb)wb.style.display=(isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN))?'flex':'none';
+  var wsg=document.getElementById('wl-set');if(wsg)wsg.style.display=isCoach?'none':'flex';
+  try{renderAthleteHome();}catch(e){console.error('athBackHome',e);}
+}
 function welcomeBack(){
   var ws=document.getElementById('screen-welcome');if(ws){ws.classList.add('hidden');ws.classList.add('gone');}
   var wb=document.getElementById('wl-back');if(wb)wb.style.display='none';
@@ -4828,6 +4843,7 @@ function welcomeBack(){
   if(isCoach){showSidebar();setSideActive('alumnos');}
 }
 function goBack(){
+  if(!isCoach&&currentPlayerId&&PLAYERS.some(function(x){return x.id===currentPlayerId;})){athBackHome();return;}
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
   ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
