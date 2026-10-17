@@ -187,6 +187,13 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 .wl-tile{flex:1;min-width:0;background:var(--s2);border-radius:12px;padding:10px 6px;text-align:center;}
 .wl-big{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:25px;line-height:1;}
 #wl-btn{margin-bottom:14px;}
+#wl-btn.coachv{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;}
+#wl-btn.coachv .ico{display:flex;}
+#wl-btn-st{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--muted);margin:0 0 14px;}
+#wl-btn-st .dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);}
+#wl-btn-st .dot.ok{background:var(--mobfill);box-shadow:0 0 8px rgba(168,224,99,0.8);}
+#wl-btn-st .dot.live{background:#ffb020;box-shadow:0 0 8px rgba(255,176,32,0.9);animation:pdBlink 1.4s ease-in-out infinite;}
+@keyframes pdBlink{50%{opacity:.35}}
 #wl-btn.go{display:flex;align-items:center;justify-content:center;gap:12px;background:var(--dp-green,#a8e063)!important;color:#0a0b0e!important;border:none!important;border-radius:16px!important;padding:16px!important;font-size:clamp(16px,4.6vw,19px)!important;animation:pdPulse 2.2s ease-out infinite;}
 #wl-btn.go .ico{width:32px;height:32px;border-radius:50%;background:#0a0b0e;color:#a8e063;display:flex;align-items:center;justify-content:center;flex:none;}
 @media (min-width:760px){#screen-welcome .welcome-content{max-width:900px;}#wl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 18px;align-items:start;}#wl-cols #wl-today,#wl-cols #wl-cal{max-width:none!important;}}
@@ -1793,7 +1800,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261017-13';
+var APP_VERSION='20261017-14';
 (function(){
   try{
     setTimeout(function(){
@@ -4806,12 +4813,23 @@ function renderAthleteHome(){
     var nb=s.blocks.length;
     t.innerHTML='<div style="background:var(--s1);border:1px solid '+(doneToday?'var(--mob)':'var(--border)')+';border-radius:var(--r);padding:14px 16px;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,0.28);"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+TT('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.02em;color:'+(doneToday?'var(--mob)':'var(--text)')+';">'+(doneToday?'\u2713 ':'')+(s.title||TT('entrenamiento'))+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+nb+' '+(nb!==1?TT('bloques'):TT('bloque'))+(doneToday?' \u00b7 '+TT('completado'):wlMeta(pid,s))+'</div>'+wlChips(s)+'</div>';
     (function(){var b=document.getElementById('wl-btn'),tt=null;try{tt=timesOf(currentPlayerId||ONLY_PLAYER_ID)[isoToday()];}catch(e){}
-      var started=!!(tt&&tt.s&&!tt.e);b.dataset.go=(!doneToday&&!started)?'1':'';
+      var started=!!(tt&&tt.s&&!tt.e);
+      if(isCoach){ /* el profe solo mira: no empieza nada, y ve el estado real del alumno */
+        b.dataset.go='';b.classList.remove('go');b.classList.add('coachv');
+        b.innerHTML='<span class="ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></span>'+tr('Ver entrenamiento de hoy');
+        var hh=function(iso){var d=new Date(iso);return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);};
+        var stx=(tt&&tt.e)?'<span class="dot ok"></span>'+tr('Terminó')+(tt.m?' · '+fmtDur(tt.m):''):(started?'<span class="dot live"></span>'+tr('En curso desde las')+' '+hh(tt.s):(doneToday?'<span class="dot ok"></span>'+tr('Completado'):'<span class="dot"></span>'+tr('Todavía no empezó')));
+        var se=document.getElementById('wl-btn-st');if(!se){se=document.createElement('div');se.id='wl-btn-st';b.parentNode.insertBefore(se,b.nextSibling);}
+        se.innerHTML=stx;se.style.display='';
+        return;
+      }
+      b.classList.remove('coachv');var _se=document.getElementById('wl-btn-st');if(_se)_se.style.display='none';
+      b.dataset.go=(!doneToday&&!started)?'1':'';
       b.classList.toggle('go',!doneToday);
       b.innerHTML=(!doneToday?'<span class="ico"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>':'')+(doneToday?wlBtnTxt('verMiSesion'):(started?tr('Seguir mi entrenamiento'):wlBtnTxt('empezar')));})();
   }else{
     t.innerHTML='<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:left;"><div style="font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px;">'+TT('hoy')+' \u00b7 '+fmtDateShort(today)+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:19px;font-weight:800;color:var(--muted);">'+TT('diaLibre')+'</div><div style="font-size:12px;color:var(--muted2);margin-top:2px;">'+TT('sinEntreno')+'</div></div>';
-    (function(){var b=document.getElementById('wl-btn');b.classList.remove('go');b.dataset.go='';b.textContent=wlBtnTxt('verMiPlan');})();
+    (function(){var b=document.getElementById('wl-btn');b.classList.remove('go');b.classList.remove('coachv');b.dataset.go='';b.textContent=wlBtnTxt('verMiPlan');var _se=document.getElementById('wl-btn-st');if(_se)_se.style.display='none';})();
   }
   // mini calendario del mes
   var d=isoToDate(today);var y=d.getFullYear(),mo=d.getMonth();
@@ -4979,7 +4997,7 @@ function wlTasks(p){
 function wlGoDay(iso){pendingDate=iso;enterPlan();}
 /* "Empezar entrenamiento" del Inicio: entra a la sesión de hoy y arranca el cronómetro de verdad */
 function wlBtnGo(){
-  var b=document.getElementById('wl-btn'),go=b&&b.dataset.go==='1';
+  var b=document.getElementById('wl-btn'),go=b&&b.dataset.go==='1'&&!isCoach;
   enterPlan();
   if(!go)return;
   setTimeout(function(){try{
@@ -7595,6 +7613,11 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Ver entrenamiento de hoy"]=["View today's workout","Vedi l'allenamento di oggi"];
+STATIC_I18N["Terminó"]=["Finished","Finito"];
+STATIC_I18N["En curso desde las"]=["In progress since","In corso dalle"];
+STATIC_I18N["Todavía no empezó"]=["Not started yet","Non ha ancora iniziato"];
+STATIC_I18N["Completado"]=STATIC_I18N["Completado"]||["Completed","Completato"];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
