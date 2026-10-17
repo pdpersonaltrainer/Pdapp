@@ -1643,7 +1643,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261016-6';
+var APP_VERSION='20261017-2';
 (function(){
   try{
     setTimeout(function(){
@@ -4680,7 +4680,7 @@ function wlTasks(p){
       if(String(e.vid.ex).indexOf('rm:')===0){if(!rmReqDone(pid,iso,e.n,String(e.vid.ex).slice(3)))items.push({ic:'vid',bg:'rgba(168,224,99,0.12)',t:tr('Medir RM')+' · '+wlEsc(e.n),s:iso===today?tr('En la sesión de hoy'):tr('Sesión del')+' '+fmtDateShort(iso).toLowerCase(),go:'wlGoDay(\''+iso+'\')'});return;}
       if(!MV.lists[pid]){needList=true;return;}
       if(mvReqDone(pid,iso,e.n))return;
-      items.push({ic:'vid',bg:'rgba(77,171,247,0.13)',t:tr('Filmar técnica')+' · '+wlEsc(e.n),s:iso===today?tr('En la sesión de hoy'):tr('Sesión del')+' '+fmtDateShort(iso).toLowerCase(),go:'wlGoDay(\''+iso+'\')'});
+      items.push({ic:'vid',bg:'rgba(77,171,247,0.13)',t:tr('Filmar técnica')+' · '+wlEsc(e.n),s:iso===today?tr('En la sesión de hoy'):tr('Sesión del')+' '+fmtDateShort(iso).toLowerCase(),go:'wlGoVid(\''+iso+'\')'});
     });});
   }
   if(needList&&!_mvReqFetching[pid]){_mvReqFetching[pid]=1;mvFetchList(pid).then(function(){_mvReqFetching[pid]=0;try{wlTasks(p);}catch(e){}}).catch(function(){_mvReqFetching[pid]=0;});}
@@ -4719,6 +4719,7 @@ function wlTasks(p){
     }).join('')+'</div>';
 }
 function wlGoDay(iso){pendingDate=iso;enterPlan();}
+function wlGoVid(iso){pendingDate=iso;enterPlan();setTimeout(function(){try{if(!sessionStarted())toast(tr('Se filma durante el entrenamiento: tocá Empezar mi entrenamiento.'));}catch(e){}},450);}
 function wlGoTest(k){enterPlan();setTimeout(function(){try{showTab('summary');}catch(e){}try{openTestModal(k);}catch(e){}},250);}
 function wlGoTests(){enterPlan();setTimeout(function(){try{showTab('summary');}catch(e){}setTimeout(function(){var b=document.getElementById('tests-athlete');if(b)b.scrollIntoView({behavior:'smooth',block:'start'});},350);},250);}
 function wlGoChat(){wlMarkMsgsSeen();enterPlan();setTimeout(function(){try{showTab('msg');}catch(e){}},200);}
@@ -7316,6 +7317,8 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Se filma durante el entrenamiento: tocá Empezar mi entrenamiento."]=["It is filmed during the workout: tap Start my workout.","Si filma durante l'allenamento: tocca Inizia il mio allenamento."];
+STATIC_I18N["Tu profe te pidió video de este ejercicio: se filma durante el entrenamiento"]=["Your coach asked for a video of this exercise: it is filmed during the workout","Il tuo coach ha chiesto un video di questo esercizio: si filma durante l'allenamento"];
 STATIC_I18N["este alumno"]=STATIC_I18N["este alumno"]||["this athlete","questo atleta"];
 STATIC_I18N["Grupo"]=STATIC_I18N["Grupo"]||["Group","Gruppo"];
 STATIC_I18N["Grupos"]=STATIC_I18N["Grupos"]||["Groups","Gruppi"];
@@ -9473,7 +9476,7 @@ function mvEma(k,a){var S=MV.S;if(!S.ema[k])S.ema[k]={a:a||0.35,v:null};var e=S.
 
 /* --- estado --- */
 function mvReset(){
-  MV.flash=null;MV.banner=null;
+  MV.flash=null;MV.banner=null;MV.stab=null;
   MV.S={bi:{},hj:[],hjs:null,reps:[],phase:'up',cur:null,ema:{},trail:[],jumps:[],j:{state:'ground',base:null,legLen:null,t0:0,prevY:null,prevT:null},side:null,last:{},shBase:null,snap:null,snapScore:null,curSnap:null,curScore:null};
   mvRenderMetrics();mvRenderLog();mvUpdSave();
 }
@@ -9510,6 +9513,52 @@ function mvRep(val,down,up,extra){
       S.phase='up';S.cur=null;S.y0=null;S.pb=null;
     }
   }
+}
+
+
+/* --- estabilizar puntos: filtro "One Euro" + control de largo de huesos ---
+   Evita que un punto (sobre todo la rodilla) salte a otro lugar en un fotograma suelto. */
+function mvOE(minCut,beta){return {x:null,dx:0,t:null,minCut:minCut,beta:beta};}
+function mvOEstep(f,v,t){
+  if(f.x==null||f.t==null||t<=f.t){f.x=v;f.t=t;f.dx=0;return v;}
+  var dt=Math.min(0.2,(t-f.t)/1000);f.t=t;
+  var a=function(c){var r=2*Math.PI*c*dt;return r/(r+1);};
+  var dx=(v-f.x)/dt;f.dx=f.dx+a(1.0)*(dx-f.dx);
+  var c=f.minCut+f.beta*Math.abs(f.dx);
+  f.x=f.x+a(c)*(v-f.x);return f.x;
+}
+var MV_LEGS=[[23,25,27],[24,26,28]],MV_ARMS=[[11,13,15],[12,14,16]];
+function mvStabilize(L,t,w,h){
+  if(!L)return L;
+  var st=MV.stab||(MV.stab={f:{},len:{},last:null});
+  var sc=Math.max(w,h)||1;
+  /* 1) control de largo: si la articulación del medio "estira" un hueso más de un 35% respecto a lo habitual, se usa la posición anterior */
+  [MV_LEGS,MV_ARMS].forEach(function(grp){grp.forEach(function(c){
+    var a=L[c[0]],m=L[c[1]],b=L[c[2]];if(!a||!m||!b)return;
+    var l1=Math.hypot(a.x-m.x,a.y-m.y),l2=Math.hypot(m.x-b.x,m.y-b.y),key=c[1];
+    var rec=st.len[key]||(st.len[key]={a:[],b:[]});
+    var med=function(arr){if(arr.length<8)return null;var s=arr.slice().sort(function(x,y){return x-y;});return s[Math.floor(s.length/2)];};
+    var m1=med(rec.a),m2=med(rec.b);
+    var bad=(m1&&m2)&&(Math.abs(l1-m1)/m1>0.35||Math.abs(l2-m2)/m2>0.35);
+    if(bad&&st.last&&st.last[key]){
+      /* se reemplaza por la posición anterior, movida junto con los puntos vecinos */
+      var pa=st.last[c[0]],pb=st.last[c[2]],pm=st.last[key];
+      if(pa&&pb){var dx=((a.x-pa.x)+(b.x-pb.x))/2,dy=((a.y-pa.y)+(b.y-pb.y))/2;L[key]={x:pm.x+dx,y:pm.y+dy,visibility:Math.min(m.visibility==null?1:m.visibility,0.6)};}
+      rec.miss=(rec.miss||0)+1;
+      if(rec.miss>12){rec.a=[];rec.b=[];rec.miss=0;} // si sigue "mal" mucho tiempo, puede que la persona haya cambiado de posición: se vuelve a aprender
+    }else{
+      rec.miss=0;rec.a.push(l1);rec.b.push(l2);if(rec.a.length>45){rec.a.shift();rec.b.shift();}
+    }
+  });});
+  /* 2) suavizado temporal suave (casi sin retraso en movimientos rápidos) */
+  if(MV.ex==='jump'||MV.ex==='hjump'){st.last=L;return L;} // en saltos se necesita el tiempo exacto de despegue y aterrizaje
+  var out=L.map(function(p,i){
+    if(!p)return p;
+    var f=st.f[i]||(st.f[i]={x:mvOE(1.6,0.004*sc/720),y:mvOE(1.6,0.004*sc/720)});
+    return {x:mvOEstep(f.x,p.x,t),y:mvOEstep(f.y,p.y,t),visibility:p.visibility};
+  });
+  st.last=out;
+  return out;
 }
 
 /* --- límites de la repetición, voz y fatiga --- */
@@ -10049,7 +10098,7 @@ function mvStep(now,meta){
     var L=null,labels=[];MV.lastFrame=performance.now();
     MV.msg=null;
     if(MV.landmarker)try{var r=MV.landmarker.detectForVideo(vid,t);
-      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});}
+      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});L=mvStabilize(L,t,cv.width,cv.height);}
       var S0=MV.S;
       if(!L||!mvBodyOk(L,cv.width,cv.height)){
         // cuerpo incompleto: no medimos nada y se corta la repetición en curso
@@ -10337,6 +10386,7 @@ function mvReqHtml(e,bi,ei,where){
     return '<div class="ex-vreq">'+ic+tr('Video pedido')+(iso<=isoToday()?' · '+tr('pendiente'):'')+'</div>';
   }
   if(done)return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:7px;font-size:12px;font-weight:700;color:var(--mob);">'+ic+tr('Video enviado a tu profe')+'</div>';
+  try{if(!sessionStarted())return '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;font-weight:700;color:#4dabf7;line-height:1.35;">'+ic+tr('Tu profe te pidió video de este ejercicio: se filma durante el entrenamiento')+'</div>';}catch(_e){}
   var nEsc=String(e.n||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
   return '<button onclick="event.stopPropagation();mvOpenReq(this)" data-ex="'+e.vid.ex+'" data-n="'+nEsc+'" data-b="'+bi+'" data-e="'+ei+'" data-load="'+((e.p&&e.p.load)||/kg/.test(String(e.l||''))?'bar':'free')+'" style="display:inline-flex;align-items:center;gap:7px;margin-top:8px;background:rgba(77,171,247,0.12);border:1px solid #4dabf7;color:#4dabf7;border-radius:8px;padding:7px 12px;font-family:\'Barlow Condensed\',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">'+ic+tr('Filmar técnica')+'</button>';
 }
