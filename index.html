@@ -657,8 +657,8 @@ html[data-theme="papel"] .modal,html[data-theme="papel"] .pin-box{box-shadow:ins
 </head>
 <body>
 <!-- LOGIN PROFE -->
-<div id="screen-login" style="position:fixed;inset:0;z-index:700;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
-  <div style="width:100%;max-width:340px;text-align:center;">
+<div id="screen-login" style="position:fixed;inset:0;z-index:700;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="width:100%;max-width:340px;text-align:center;margin:auto 0;">
     <img src="icon.png" alt="PDapp" style="width:96px;height:96px;object-fit:cover;border-radius:26px;display:block;margin:0 auto 14px;" onerror="this.style.display='none'">
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">PDapp</div>
 
@@ -1754,7 +1754,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261017-10';
+var APP_VERSION='20261017-11';
 (function(){
   try{
     setTimeout(function(){
@@ -2900,8 +2900,12 @@ async function login(){
   var email=document.getElementById('login-email').value.trim();
   var pass=document.getElementById('login-pass').value;
   var errEl=document.getElementById('login-err');errEl.textContent='Entrando...';
-  var r=await sb.auth.signInWithPassword({email:email,password:pass});
-  if(r.error){errEl.textContent='Error: '+r.error.message;return;}
+  if(!email||!pass){errEl.textContent='Completá email y contraseña.';return;}
+  var r;try{r=await authTimeout(sb.auth.signInWithPassword({email:email,password:pass}),20000);}catch(e){r={error:e};}
+  if(r.error){var em=authErrMsg(r.error);errEl.textContent=em;
+    if(/email not confirmed/i.test(String(r.error.message||'')))authNotice(em,false,[{t:'Reenviar el mail de confirmación',f:function(){authResend(email);}}]);
+    else authNotice(em,false);
+    return;}
   MY_UID=r.data.user.id;TRAINER_ID=MY_UID;
   clearAthToken();
   document.getElementById('screen-login').style.display='none';
@@ -2943,10 +2947,11 @@ async function sendReset(){
   var msg=document.getElementById('forgot-msg');var btn=document.getElementById('btn-forgot');
   if(!email){msg.style.color='#ff4d4d';msg.textContent='Ingres\u00e1 tu email.';return;}
   btn.disabled=true;btn.textContent='Enviando...';msg.style.color='#6b7280';msg.textContent='';
-  var r=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  var r;try{r=await authTimeout(sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname}),20000);}catch(e){r={error:e};}
   btn.disabled=false;btn.textContent='Enviar link';
-  if(r.error){msg.style.color='#ff4d4d';msg.textContent='Error: '+r.error.message;return;}
+  if(r.error){var em=authErrMsg(r.error);msg.style.color='#ff4d4d';msg.textContent=em;authNotice(em,false);return;}
   msg.style.color='#a8e063';msg.textContent='\u2705 Si el email existe, te enviamos un link. Revis\u00e1 tu casilla (y spam).';
+  authNotice('Si <b>'+email+'</b> tiene cuenta, te mandamos un enlace para crear una contraseña nueva. Mirá también en Spam o Promociones.',true);
 }
 async function doReset(){
   var p1=document.getElementById('reset-pass').value,p2=document.getElementById('reset-pass2').value;
@@ -2962,6 +2967,40 @@ async function doReset(){
   document.getElementById('screen-login').style.display='none';
   await bootApp();
 }
+/* ===== Ingreso / registro: errores claros y siempre visibles ===== */
+function authErrMsg(err){
+  var m=String((err&&(err.message||err.error_description))||err||'');
+  if(/not authorized|not allowed|cannot be used|sending confirmation|error sending|sending.*email/i.test(m))return 'No pudimos mandarte el mail de confirmación a esta dirección. Escribile a PD para que active tu cuenta.';
+  if(/rate limit|too many|security purposes|after \d+ seconds/i.test(m))return 'Hubo demasiados intentos seguidos. Esperá unos minutos y probá de nuevo (no hace falta cambiar nada).';
+  if(/already registered|already been registered|already exists|user_already_exists/i.test(m))return 'Ese email ya tiene una cuenta. Volvé a "Ingresar" o tocá "¿Olvidaste tu contraseña?".';
+  if(/database error saving new user|database error/i.test(m))return 'No se pudo crear la cuenta. Revisá el código de invitación (o dejalo vacío) y probá de nuevo. Si sigue, escribile a PD.';
+  if(/invalid login credentials/i.test(m))return 'Email o contraseña incorrectos.';
+  if(/email not confirmed/i.test(m))return 'Todavía no confirmaste tu email. Buscá el mail de PDapp (mirá también en Spam o Promociones) y tocá el enlace.';
+  if(/password.*(weak|short|least)|weak password/i.test(m))return 'La contraseña es muy débil: usá al menos 8 caracteres, con letras y números.';
+  if(/invalid.*email|email.*invalid|unable to validate email/i.test(m))return 'Ese email no parece válido. Revisalo (sin espacios).';
+  if(/failed to fetch|network|load failed|timeout|tard/i.test(m))return 'No hay conexión o tardó demasiado. Revisá internet y probá de nuevo.';
+  return 'No se pudo completar: '+m;
+}
+function authNotice(msg,ok,actions){
+  var o=document.getElementById('auth-notice');
+  if(!o){o=document.createElement('div');o.id='auth-notice';o.style.cssText='position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;';document.body.appendChild(o);}
+  var col=ok?'#a8e063':'#ff6b6b';
+  var bt='width:100%;padding:13px;margin-top:10px;border-radius:10px;font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;';
+  o.innerHTML='<div style="width:100%;max-width:360px;background:#181b23;border:1px solid '+col+';border-radius:18px;padding:22px 20px;box-shadow:0 30px 80px -20px rgba(0,0,0,0.9);text-align:center;">'
+    +'<div style="width:46px;height:46px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:'+(ok?'rgba(168,224,99,0.15)':'rgba(255,107,107,0.15)')+';color:'+col+';font-size:24px;font-weight:800;">'+(ok?'✓':'!')+'</div>'
+    +'<div style="font-size:15px;line-height:1.5;color:#eef0f5;">'+msg+'</div>'
+    +(actions||[]).map(function(a,i){return '<button data-i="'+i+'" style="'+bt+(i===0?'border:none;background:#a8e063;color:#0a0b0e;':'border:1px solid #2b2f3a;background:transparent;color:#9aa0aa;')+'">'+a.t+'</button>';}).join('')
+    +'<button data-x="1" style="'+bt+((actions&&actions.length)?'border:none;background:none;color:#6b7280;':'border:none;background:'+col+';color:#0a0b0e;')+'">'+((actions&&actions.length)?'Cerrar':'Entendido')+'</button></div>';
+  o.style.display='flex';
+  o.querySelectorAll('button').forEach(function(b){b.onclick=function(){o.style.display='none';if(b.dataset.i!=null){try{actions[+b.dataset.i].f();}catch(e){}}};});
+}
+function authTimeout(pr,ms){return Promise.race([pr,new Promise(function(_,rej){setTimeout(function(){rej(new Error('timeout'));},ms||20000);})]);}
+async function authResend(email){
+  try{var r=await authTimeout(sb.auth.resend({type:'signup',email:email}));
+    if(r&&r.error)authNotice(authErrMsg(r.error),false);
+    else authNotice('Te mandamos de nuevo el mail de confirmación a <b>'+email+'</b>. Mirá también en Spam o Promociones.',true);
+  }catch(e){authNotice(authErrMsg(e),false);}
+}
 async function registerCoach(){
   var name=document.getElementById('reg-name').value.trim();
   var email=document.getElementById('reg-email').value.trim();
@@ -2976,11 +3015,19 @@ async function registerCoach(){
   if(pass.length<6){msgEl.style.color='#ff4d4d';msgEl.textContent='La contrase\u00f1a debe tener al menos 6 caracteres.';return;}
   btn.disabled=true;btn.textContent='Creando cuenta...';
   msgEl.textContent='';
-  var r=await sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name,invite_code:code}}});
+  var r;
+  try{r=await authTimeout(sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name,invite_code:code},emailRedirectTo:location.origin+location.pathname}}),25000);}
+  catch(e){r={error:e};}
   btn.disabled=false;btn.textContent='Crear cuenta';
-  if(r.error){msgEl.style.color='#ff4d4d';msgEl.textContent='Error: '+r.error.message;return;}
+  if(r.error){var em=authErrMsg(r.error);msgEl.style.color='#ff4d4d';msgEl.textContent=em;authNotice(em,false);try{console.warn('signUp',r.error);}catch(_e){}return;}
+  var u=r.data&&r.data.user;
+  /* Supabase no avisa con error si el email ya existía: devuelve un usuario sin identidades */
+  if(u&&Array.isArray(u.identities)&&u.identities.length===0){var em2=authErrMsg('already registered');msgEl.style.color='#ff4d4d';msgEl.textContent=em2;authNotice(em2,false,[{t:'Ir a ingresar',f:function(){showLogin();var le=document.getElementById('login-email');if(le)le.value=email;}}]);return;}
+  /* Si el proyecto no pide confirmar el email, ya hay sesión: entramos directo */
+  if(r.data&&r.data.session){MY_UID=r.data.session.user.id;TRAINER_ID=MY_UID;try{clearAthToken();}catch(_e){}document.getElementById('screen-login').style.display='none';await bootApp();return;}
   msgEl.style.color='#a8e063';
   msgEl.textContent='\u00a1Cuenta creada! Revis\u00e1 tu email para confirmar y despu\u00e9s ingres\u00e1.';
+  authNotice('¡Cuenta creada! Te mandamos un mail a <b>'+email+'</b> para confirmarla. Tocá el enlace del mail y después ingresá.<br><span style="font-size:13px;color:#9aa0aa;">Si no llega en unos minutos, mirá en Spam o Promociones.</span>',true,[{t:'Reenviar el mail',f:function(){authResend(email);}},{t:'Ir a ingresar',f:function(){showLogin();var le=document.getElementById('login-email');if(le)le.value=email;}}]);
   document.getElementById('reg-name').value='';
   document.getElementById('reg-email').value='';
   document.getElementById('reg-pass').value='';
