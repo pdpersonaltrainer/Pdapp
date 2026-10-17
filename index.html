@@ -1643,7 +1643,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261017-5';
+var APP_VERSION='20261017-7';
 (function(){
   try{
     setTimeout(function(){
@@ -7317,6 +7317,10 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Cambiar video"]=["Change video","Cambia video"];
+STATIC_I18N["Ver de nuevo"]=["Watch again","Rivedi"];
+STATIC_I18N["Enviar a mi profe"]=["Send to my coach","Invia al mio coach"];
+STATIC_I18N["Enviando…"]=["Sending…","Invio…"];
 STATIC_I18N["valgo"]=["valgus","valgo"];
 STATIC_I18N["Valgo"]=["Valgus","Valgo"];
 STATIC_I18N["Vista"]=["View","Vista"];
@@ -9466,14 +9470,14 @@ function openMov(opts){
   ['mv-lbl-ex','mv-lbl-load','mv-lbl-src','mv-lbl-side'].forEach(function(id,i){mvEl(id).textContent=tr(['Ejercicio','Carga','Fuente','Lado'][i]);});
   MV.calStep=0;MV.calTmp=null;if(MV.testKey==='slj'||MV.testKey==='hip'||MV.testKey==='ankle')MV.side=MV.side||'l';
   mvEl('mv-t-cam').textContent=tr('Cámara en vivo');mvEl('mv-t-file').textContent=tr('Subir video');
-  mvEl('mv-save').textContent=tr('Guardar análisis');
+  mvEl('mv-save').textContent=mvSaveTxt();
   mvEl('mv-foot').textContent=tr('Todo se procesa en este teléfono: el video no se sube a ningún lado. Se guardan los resultados y una captura con las líneas. Los valores son estimaciones con una sola cámara (2D), útiles para seguimiento y feedback.');
   mvRenderChips();mvReset();mvStatus('');
   mvEl('mv-stage').style.display='none';mvEl('mv-ctrl').innerHTML='';
   mvEl('modal-mov').classList.add('open');mvEl('modal-mov').scrollTop=0;
   mvGetLandmarker().catch(function(){});
 }
-async function movClose(){await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');mvEl('mv-stage').style.display='none';mvEl('modal-mov').classList.remove('open');}
+async function movClose(){MV.lastFile=null;await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');mvEl('mv-stage').style.display='none';mvEl('modal-mov').classList.remove('open');}
 function mvRenderChips(){
   var order=MV_ORDER.slice();if(MV_EX[MV.ex].test&&order.indexOf(MV.ex)<0)order.unshift(MV.ex);
   var _lock=!!(MV.testKey||MV.req)||!!MV.rm;mvEl('mv-lbl-ex').style.display=_lock?'none':'';mvEl('mv-ex').style.display=_lock?'none':'';
@@ -10195,7 +10199,7 @@ function mvStep(now,meta){
     if(cv.width!==vid.videoWidth||cv.height!==vid.videoHeight){cv.width=vid.videoWidth;cv.height=vid.videoHeight;}
     var t=MV.mode==='file'?((meta&&meta.mediaTime!=null)?meta.mediaTime*1000:vid.currentTime*1000):((meta&&meta.captureTime)||now||performance.now());
     t+=MV.tOffset;if(t<=MV.lastTs){if(MV.mode==='file'&&t<MV.lastTs-500){MV.tOffset+=MV.lastTs;t+=MV.lastTs;}else t=MV.lastTs+1;}
-    MV.lastTs=t;if(MV.vload)mvVLoad(false);
+    MV.lastTs=t;MV.tsMax=t;if(MV.vload)mvVLoad(false);
     var L=null,labels=[];MV.lastFrame=performance.now();
     MV.msg=null;
     if(MV.landmarker)try{var r=MV.landmarker.detectForVideo(vid,t);
@@ -10230,7 +10234,7 @@ async function mvStopAll(){
   try{vid.pause();}catch(e){}vid.removeAttribute('src');vid.srcObject=null;
 }
 function mvPlay(vid){try{var pr=vid.play();if(pr&&pr.catch)pr.catch(function(){});}catch(e){}vid.onloadeddata=function(){try{var p2=vid.play();if(p2&&p2.catch)p2.catch(function(){});}catch(e){}};}
-function mvStartLoop(){mvReset();mvEl('mv-stage').style.display='block';mvRenderCal();MV.running=true;MV.fps=[];MV.lastTs=-1;MV.tOffset=0;MV.lastFrame=performance.now();mvSchedule();
+function mvStartLoop(){mvReset();mvEl('mv-stage').style.display='block';mvRenderCal();MV.running=true;MV.fps=[];MV.lastTs=MV.tsMax!=null?MV.tsMax:-1;MV.tOffset=0;MV.lastFrame=performance.now();mvSchedule();
   if(MV.wd)clearInterval(MV.wd);
   MV.wd=setInterval(function(){
     if(!MV.running){clearInterval(MV.wd);MV.wd=null;return;}
@@ -10261,6 +10265,7 @@ function mvFlip(){MV.facing=MV.facing==='user'?'environment':'user';movStartCam(
 function mvVLoad(on){var b=mvEl('mv-vload');if(!b)return;MV.vload=!!on;if(on){mvEl('mv-stage').style.display='block';mvEl('mv-vload-t').textContent=tr('Cargando video…');b.style.display='flex';mvEl('mv-ctrl').innerHTML='';}else b.style.display='none';}
 function movFilePicked(inp){mvSayUnlock();var f=inp.files&&inp.files[0];inp.value='';if(f)mvStartFile(f);}
 async function mvStartFile(file){
+  MV.lastFile=file;
   await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');
   mvVLoad(true);
   try{await mvGetLandmarker();}catch(e){mvVLoad(false);return;}
@@ -10270,8 +10275,10 @@ async function mvStartFile(file){
   vid.playbackRate=0.5;
   mvStartLoop();mvPlay(vid);
   vid.onended=function(){if(MV.rm){MV.running=false;rmSetEnd(true);mvStatus(tr('Carga medida. Subí el video de la próxima carga o tocá Detener para ver el resultado.'));return;}MV.running=false;mvRenderMetrics();mvRenderLog();mvUpdSave();mvStatus(tr('Análisis terminado. Guardalo o volvé a reproducirlo.'));};
-  mvEl('mv-ctrl').innerHTML='<button class="mv-btn" id="mv-c-play" onclick="mvPlayPause()">'+tr('Pausa')+'</button><button class="mv-btn" onclick="mvAgain()">'+tr('Desde el inicio')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
+  mvEl('mv-ctrl').innerHTML='<button class="mv-btn" id="mv-c-play" onclick="mvPlayPause()">'+tr('Pausa')+'</button><button class="mv-btn" onclick="mvAgain()">'+tr('Desde el inicio')+'</button><button class="mv-btn" onclick="mvPickFile()">'+tr('Cambiar video')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
 }
+function mvPickFile(){mvSayUnlock();document.getElementById('mv-file').click();}
+function mvReplay(){if(MV.lastFile)mvStartFile(MV.lastFile);}
 function mvPlayPause(){var vid=mvEl('mv-vid'),b=mvEl('mv-c-play');if(vid.paused){vid.play();MV.running=true;b.textContent=tr('Pausa');mvSchedule();}else{vid.pause();b.textContent=tr('Seguir');}}
 function mvAgain(){var vid=mvEl('mv-vid');mvReset();vid.currentTime=0;vid.play();MV.running=true;var b=mvEl('mv-c-play');if(b)b.textContent=tr('Pausa');mvSchedule();}
 async function mvStopStage(){
@@ -10292,7 +10299,7 @@ async function mvStopStage(){
       mvStatus(tr('No se registraron repeticiones. Tocá el botón rojo para empezar a medir.'));
     }
   }
-mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="movStartCam()">'+tr('Cámara en vivo')+'</button><button class="mv-btn" onclick="document.getElementById(\'mv-file\').click()">'+tr('Subir video')+'</button>';mvUpdSave();}
+mvEl('mv-ctrl').innerHTML=(!wasCam&&MV.lastFile?'<button class="mv-btn" onclick="mvReplay()">'+tr('Ver de nuevo')+'</button><button class="mv-btn" onclick="mvPickFile()">'+tr('Cambiar video')+'</button>':'<button class="mv-btn" onclick="movStartCam()">'+tr('Cámara en vivo')+'</button><button class="mv-btn" onclick="mvPickFile()">'+tr('Subir video')+'</button>');mvUpdSave();}
 
 /* --- grabar video con líneas (se guarda en el teléfono / se comparte) --- */
 function mvToggleRec(){
@@ -10349,9 +10356,10 @@ function mvSummary(ex,m){
   return n;
 }
 function mvRound(o){return JSON.parse(JSON.stringify(o,function(k,v){return typeof v==='number'?Math.round(v*100)/100:v;}));}
+function mvSaveTxt(){return tr(ATH_TOKEN?'Enviar a mi profe':'Guardar análisis');}
 async function movSave(){
   var S=MV.S;if(!mvHasData())return;
-  var btn=mvEl('mv-save');btn.disabled=true;btn.textContent=tr('Guardando...');
+  var btn=mvEl('mv-save');btn.disabled=true;btn.textContent=tr(ATH_TOKEN?'Enviando…':'Guardando...');
   var snap=MV.ex==='free'?mvGrab(null):(S.snap||S.curSnap||mvGrab(null));
   var hjOut=S.hj.slice(0,20).map(function(j){return Object.assign({},j,{cm:mvHjCm(j)});});
   var metrics=mvRound({reps:S.reps.slice(0,30),jumps:S.jumps.slice(0,20),free:S.free||null,bi:(MV.ex==='hipt'||MV.ex==='ankle')?S.bi:null,hj:MV.ex==='hjump'?hjOut:null,cal:MV.ex==='hjump'&&MV.cal?{cm:MV.cal.cm}:null});
@@ -10364,7 +10372,7 @@ async function movSave(){
     if(ATH_TOKEN)res=await sb.rpc('athlete_save_analysis',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_data:rec});
     else{var row=Object.assign({player_id:MV.pid,by_role:'coach'},rec);res=await sb.from('analyses').insert(row);}
   }catch(e){res={error:e};}
-  btn.disabled=false;btn.textContent=tr('Guardar análisis');
+  btn.disabled=false;btn.textContent=mvSaveTxt();
   if(res&&res.error){mvStatus(tr('No se pudo guardar')+': '+(res.error.message||res.error),true);return;}
   // test: CMJ -> completar el resultado con el mejor salto
   var filled=false;
@@ -10375,7 +10383,7 @@ async function movSave(){
   if(ATH_TOKEN){var p=PLAYERS.find(function(x){return x.id===MV.pid;});try{notifyCoach(tr(MV.req?'Video de técnica recibido':'Nuevo análisis de movimiento'),((p&&p.name)||'')+' · '+(MV.req?MV.req.n:mvExName(MV.ex))+(metrics.summary?' · '+metrics.summary:''));}catch(e){}}
   delete MV.lists[MV.pid];
   await movClose();
-  try{toast(tr(filled?'Análisis guardado. Se completó el resultado del test: revisalo y tocá Guardar.':(MV.testKey==='ankle'?'Análisis guardado con el ángulo de la tibia. Los cm del test se cargan a mano.':'Análisis guardado')));}catch(e){}
+  try{toast(tr(ATH_TOKEN&&!filled?'Video enviado a tu profe':filled?'Análisis guardado. Se completó el resultado del test: revisalo y tocá Guardar.':(MV.testKey==='ankle'?'Análisis guardado con el ángulo de la tibia. Los cm del test se cargan a mano.':'Análisis guardado')));}catch(e){}
   mvRefreshLists();
   if(MV.req){MV.req=null;mvFetchList(MV.pid,true).then(function(){try{refreshPlanUI();}catch(e){}});}
 }
