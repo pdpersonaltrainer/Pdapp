@@ -652,6 +652,38 @@ html[data-theme="papel"] .modal,html[data-theme="papel"] .pin-box{box-shadow:ins
 #sess-float.on{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
 #sess-float .ico{width:28px;height:28px;border-radius:50%;background:#0a0b0e;color:var(--mobfill);display:flex;align-items:center;justify-content:center;}
 @media (prefers-reduced-motion:reduce){.pnl-card,.player-card,.lib-card,.wl-card,#tpl-list>div,.pnl-stat{animation:none!important}.sess-go,#sess-float{animation:none!important}}
+/* Menú ⋯ de Mis sesiones */
+.tpl-more{flex:none;width:42px;display:flex;align-items:center;justify-content:center;background:var(--s2);border:1px solid var(--border2);color:var(--muted);border-radius:var(--rsm);cursor:pointer;box-shadow:var(--dp-btn2);}
+.tpl-menu{position:fixed;z-index:650;min-width:220px;padding:6px;border-radius:14px;background:var(--dp-sheen),var(--s1);border:1px solid var(--border2);box-shadow:inset 0 1px 0 var(--dp-hl),0 20px 50px -12px rgba(0,0,0,0.75);animation:pdUp .16s ease-out both;}
+.tpl-menu button{width:100%;display:flex;align-items:center;gap:11px;padding:11px 12px;border:none;background:none;color:var(--text);font-family:'Barlow',sans-serif;font-size:14.5px;font-weight:600;border-radius:9px;cursor:pointer;text-align:left;}
+.tpl-menu button svg{color:var(--muted);flex:none;}
+.tpl-menu button:hover{background:var(--s2);}
+.tpl-menu button.del{color:#ff6b6b;border-top:1px solid var(--border);border-radius:0 0 9px 9px;margin-top:4px;}
+.tpl-menu button.del svg{color:#ff6b6b;}
+/* Mini barra de la semana en el Panel */
+.pnl-week{display:flex;gap:4px;flex:none;margin-left:auto;margin-right:6px;}
+.pw-d{display:flex;flex-direction:column;align-items:center;gap:3px;width:20px;}
+.pw-d span{font-size:9px;font-weight:700;letter-spacing:0.04em;color:var(--muted2);}
+.pw-d i{display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:6px;font-style:normal;font-size:10px;line-height:1;background:rgba(255,255,255,0.05);border:1px solid var(--border2);}
+.pw-done i{background:var(--mobfill);border-color:transparent;box-shadow:0 0 10px -2px rgba(168,224,99,0.8);}
+.pw-miss i{background:rgba(255,107,107,0.35);border-color:rgba(255,107,107,0.7);}
+.pw-today i{background:var(--actfill);border-color:transparent;box-shadow:0 0 10px -2px rgba(249,200,70,0.8);}
+.pw-next i{background:rgba(77,171,247,0.15);border-color:rgba(77,171,247,0.55);}
+.pw-match i{background:rgba(255,255,255,0.10);border-color:var(--border2);}
+.pw-now span{color:var(--act);}
+html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
+@media (max-width:600px){.pnl-card>div:first-child{flex-wrap:wrap;}.pnl-week{order:5;width:100%;margin:10px 0 0;justify-content:space-between;}.pw-d{width:auto;flex:1;}.pw-d i{width:100%;max-width:34px;height:16px;}}
+/* Interruptor (switch) */
+.pd-switch{display:flex!important;align-items:center;gap:12px;cursor:pointer;margin:0!important;text-transform:none!important;letter-spacing:0!important;}
+.pd-switch input{position:absolute;opacity:0;width:1px;height:1px;}
+.pd-sw{flex:none;width:46px;height:26px;border-radius:999px;background:var(--s3);border:1px solid var(--border2);position:relative;transition:background .2s,box-shadow .2s;box-shadow:var(--dp-sunk);}
+.pd-sw i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);transition:transform .2s cubic-bezier(.2,.8,.2,1);}
+.pd-switch input:checked+.pd-sw{background:var(--dp-green);border-color:transparent;box-shadow:0 0 14px -3px rgba(168,224,99,0.7);}
+.pd-switch input:checked+.pd-sw i{transform:translateX(20px);}
+.pd-switch input:focus-visible+.pd-sw{outline:2px solid var(--mob);outline-offset:2px;}
+.pd-sw-txt{display:flex;flex-direction:column;gap:2px;text-align:left;}
+.pd-sw-txt b{font-size:14px;color:var(--text);font-weight:700;font-family:'Barlow',sans-serif;}
+.pd-sw-txt small{font-size:12px;color:var(--muted);font-weight:500;font-family:'Barlow',sans-serif;}
 /* ================= fin PD · PROFUNDIDAD ================= */
 </style>
 </head>
@@ -1211,6 +1243,13 @@ html[data-theme="papel"] .modal,html[data-theme="papel"] .pin-box{box-shadow:ins
       </select>
     </div>
     <div class="form-row"><label>Acción / Patrón de movimiento</label><select id="f-pattern"></select></div>
+    <div class="form-row" id="f-pd-row" style="display:none;">
+      <label class="pd-switch">
+        <input type="checkbox" id="f-pd">
+        <span class="pd-sw"><i></i></span>
+        <span class="pd-sw-txt"><b id="f-pd-lbl">Visible para todos los profes (PD)</b><small id="f-pd-sub">Lo ven todos los profes en la biblioteca, filtro PD.</small></span>
+      </label>
+    </div>
     <div class="form-row" id="f-share-row" style="display:none;">
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;">
         <input type="checkbox" id="f-share" style="width:18px;height:18px;accent-color:#a8e063;flex:none;">
@@ -1754,7 +1793,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261017-11';
+var APP_VERSION='20261017-13';
 (function(){
   try{
     setTimeout(function(){
@@ -3870,8 +3909,29 @@ function renderTemplates(){
     var foldBtn=mine?'<button onclick="assignFolder(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:var(--rsm);font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:8px 12px;font-family:\'Barlow Condensed\',sans-serif;">'+tr('Carpeta')+'</button>':'';
     var delBtn=mine?'<button onclick="delTemplate(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:none;color:#ff6b6b;font-size:12px;font-weight:700;cursor:pointer;padding:6px 10px;">Eliminar</button>':'';
     var pubBtn=(mine&&isAdmin)?'<button onclick="togglePDBase(this.dataset.id)" data-id="'+t.id+'" style="background:none;border:1px solid '+(t.is_base?'var(--muted2)':'var(--mob)')+';color:'+(t.is_base?'var(--muted)':'var(--mob)')+';border-radius:var(--rsm);font-size:11px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;padding:8px 12px;">'+(t.is_base?'Quitar de PD':'Publicar como PD')+'</button>':'';
-    return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;cursor:pointer;" onclick="previewTemplate(this.dataset.id)" data-id="'+t.id+'">'+t.name+baseTag+pdTag+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+((t.folder||'').trim()?'<span style="color:var(--mob);">'+t.folder+'</span> &#183; ':'')+bl.length+' '+(bl.length!==1?TT('bloques'):TT('bloque'))+' &#183; '+nEx+' '+(nEx!==1?TT('ejercicios'):TT('ejercicio'))+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;flex-wrap:wrap;"><button onclick="previewTemplate(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:90px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Ver</button><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:130px;background:var(--mobfill);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button>'+dupBtn+foldBtn+pubBtn+delBtn+'</div></div>';
+    return '<div style="background:var(--s);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="flex:1;min-width:0;"><div style="font-family:Barlow Condensed,sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;cursor:pointer;" onclick="previewTemplate(this.dataset.id)" data-id="'+t.id+'">'+t.name+baseTag+pdTag+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">'+((t.folder||'').trim()?'<span style="color:var(--mob);">'+t.folder+'</span> &#183; ':'')+bl.length+' '+(bl.length!==1?TT('bloques'):TT('bloque'))+' &#183; '+nEx+' '+(nEx!==1?TT('ejercicios'):TT('ejercicio'))+'</div></div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border2);padding-top:10px;flex-wrap:wrap;"><button onclick="previewTemplate(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:90px;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Ver</button><button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="flex:1;min-width:130px;background:var(--mobfill);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:9px;font-family:Barlow Condensed,sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Insertar en un d&#237;a</button>'+(mine?'<button class="tpl-more" onclick="tplMenu(this.dataset.id,this)" data-id="'+t.id+'" aria-label="'+tr('Más opciones')+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>':'')+'</div></div>';
   }).join('');
+}
+/* Menú "⋯" de cada sesión: Duplicar, Carpeta, Publicar como PD (admin), Eliminar */
+function tplMenuClose(){var m=document.getElementById('tpl-menu');if(m)m.remove();document.removeEventListener('pointerdown',_tplMenuOut,true);window.removeEventListener('scroll',tplMenuClose,true);}
+function _tplMenuOut(e){var m=document.getElementById('tpl-menu');if(m&&!m.contains(e.target)&&!(e.target.closest&&e.target.closest('.tpl-more')))tplMenuClose();}
+function tplMenu(id,btn){
+  var open=document.getElementById('tpl-menu');if(open&&open.dataset.id===id){tplMenuClose();return;}tplMenuClose();
+  var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
+  var ic=function(d){return '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';};
+  var items=[[tr('Duplicar'),ic('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>'),'duplicateTemplate'],
+             [tr('Mover a carpeta'),ic('<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'),'assignFolder']];
+  if(isAdmin)items.push([t.is_base?tr('Quitar de Metodología PD'):tr('Publicar como PD'),ic('<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>'),'togglePDBase']);
+  items.push([tr('Eliminar'),ic('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>'),'delTemplate','del']);
+  var m=document.createElement('div');m.id='tpl-menu';m.dataset.id=id;m.className='tpl-menu';
+  m.innerHTML=items.map(function(it){return '<button class="'+(it[3]||'')+'" data-f="'+it[2]+'">'+it[1]+'<span>'+it[0]+'</span></button>';}).join('');
+  document.body.appendChild(m);
+  var r=btn.getBoundingClientRect(),mw=m.offsetWidth,mh=m.offsetHeight;
+  var left=Math.min(window.innerWidth-mw-10,Math.max(10,r.right-mw)),top=r.bottom+6;
+  if(top+mh>window.innerHeight-10)top=Math.max(10,r.top-mh-6);
+  m.style.left=left+'px';m.style.top=top+'px';
+  m.querySelectorAll('button').forEach(function(b){b.onclick=function(){var f=window[b.dataset.f];tplMenuClose();if(typeof f==='function')f(id);};});
+  setTimeout(function(){document.addEventListener('pointerdown',_tplMenuOut,true);window.addEventListener('scroll',tplMenuClose,true);},0);
 }
 function renderPDMethod(){
   var el=document.getElementById('pdm-list');if(!el)return;
@@ -4254,6 +4314,40 @@ function panelRank(al){
   var w={alta:0,media:1,baja:2};
   return al[0].p*10+w[al[0].sev];
 }
+/* Mini barra de la semana (L a D): entrenó / no entrenó / hoy / próximos / partido */
+function pnlWeekHtml(pid){
+  var today=isoToday(),mon=weekMondayISO(today),sess=JB_SESSIONS[pid]||{},ch=JB_CHECKS[pid]||{},tm=JB_TIMES[pid]||{};
+  var pl=PLAYERS.find(function(x){return x.id===pid;})||{},mt=pl.matches||{};
+  var labels=t('dowL'),out='',any=false;
+  for(var i=0;i<7;i++){
+    var iso=addDaysISO(mon,i),s=sess[iso],has=!!(s&&s.blocks&&s.blocks.length),match=!!mt[iso];
+    var done=has&&(Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;})||!!(tm[iso]&&tm[iso].e));
+    if(has||match)any=true;
+    var st=match?'match':!has?'rest':done?'done':iso>today?'next':iso===today?'today':'miss';
+    out+='<div class="pw-d pw-'+st+(iso===today?' pw-now':'')+'"><span>'+labels[i]+'</span><i>'+(match?'⚽':'')+'</i></div>';
+  }
+  return any?'<div class="pnl-week" title="'+tr('Esta semana')+'">'+out+'</div>':'';
+}
+/* Números que suben contando (Panel, Resumen, Inicio del alumno). Solo cuando el valor cambia, no en cada redibujo. */
+var _pdCnt={};
+function pdCountUpIn(root,key,minFs){
+  if(!root)return;
+  try{if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(e){}
+  var els=[],all=root.querySelectorAll('*');
+  for(var i=0;i<all.length;i++){var e=all[i];if(e.children.length)continue;var tx=(e.textContent||'').trim();
+    if(!/^\d{1,6}([.,]\d{1,2})?%?$/.test(tx))continue;
+    if(parseFloat(getComputedStyle(e).fontSize)<(minFs||22))continue;els.push(e);}
+  var sig=els.map(function(e){return e.textContent.trim();}).join('|');
+  if(_pdCnt[key]===sig)return;_pdCnt[key]=sig;
+  els.forEach(function(e){
+    var tx=e.textContent.trim(),pct=/%$/.test(tx),num=tx.replace('%',''),sep=num.indexOf(',')>=0?',':'.',dec=(num.split(/[.,]/)[1]||'').length;
+    var to=parseFloat(num.replace(',','.'));if(!isFinite(to)||to===0)return;
+    var t0=performance.now(),D=Math.min(900,450+to*8);
+    (function step(now){var k=Math.min(1,(now-t0)/D),v=to*(1-Math.pow(1-k,3));
+      e.textContent=v.toFixed(dec).replace('.',sep)+(pct?'%':'');
+      if(k<1)requestAnimationFrame(step);else e.textContent=tx;})(t0);
+  });
+}
 function panelCard(p,al){
   var av=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">'+ICON('people')+'</div>';
   var meta=[p.pos,p.club].filter(Boolean).join(' · ')||'';
@@ -4271,7 +4365,7 @@ function panelCard(p,al){
   return '<div class="pnl-card'+(urg?' pnl-urg':'')+'" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)" style="--pd-al:'+ring+';--pd-alg:rgba('+rgb+','+(urg?0.5:0.3)+');">'
     +'<div style="display:flex;align-items:center;gap:11px;">'+av
     +'<div style="flex:1;min-width:0;"><div class="pnl-name">'+p.name+'</div>'
-    +(meta?'<div class="pnl-meta">'+meta+'</div>':'')+'</div>'
+    +(meta?'<div class="pnl-meta">'+meta+'</div>':'')+'</div>'+pnlWeekHtml(p.id)
     +'<span style="color:var(--muted2);font-size:18px;flex:none;">›</span></div>'
     +(chips?'<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);">'+chips+'</div>':'')
     +'</div>';
@@ -4322,6 +4416,7 @@ function renderPanel(){
       +'<div id="pnl-ok-body" style="display:none;">'+sinAlerta.map(function(x){return panelCard(x.p,[]);}).join('')+'</div>';
   }
   el.innerHTML=head+body;
+  try{pdCountUpIn(el,'pnl',20);}catch(_e){}
 }
 /* ===== fin panel ===== */
 function setCoachView(v){
@@ -6290,7 +6385,15 @@ function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){r
       document.getElementById('f-share-lbl').textContent=tr('Compartir con')+' '+orgName();
       document.getElementById('f-share').checked=!!(ex&&ex.org_id&&ex.org_id===orgId());
     }
-  }catch(e){}var vst=document.getElementById('f-video-status');if(vst)vst.textContent='';document.getElementById('modal-lib').classList.add('open');}
+  }catch(e){}
+  try{/* interruptor PD: solo el administrador y en sus propios ejercicios (o uno nuevo) */
+    var _pr=document.getElementById('f-pd-row'),_own=!ex||ex.trainer_id===MY_UID||!ex.trainer_id;
+    if(_pr){_pr.style.display=(isAdmin&&_own)?'block':'none';
+      document.getElementById('f-pd').checked=ex?!!ex.is_base:true;
+      document.getElementById('f-pd-lbl').textContent=tr('Visible para todos los profes (PD)');
+      document.getElementById('f-pd-sub').textContent=tr('Lo ven todos los profes en la biblioteca, filtro PD.');}
+  }catch(e){}
+  var vst=document.getElementById('f-video-status');if(vst)vst.textContent='';document.getElementById('modal-lib').classList.add('open');}
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
 async function saveLibExercise(){
   var name=document.getElementById('f-name').value.trim();
@@ -6305,6 +6408,7 @@ async function saveLibExercise(){
     var _sh=document.getElementById('f-share');
     if(hasOrg())fields.org_id=(_sh&&_sh.checked)?orgId():null;
   }catch(e){console.error('share',e);}
+  try{var _pd=document.getElementById('f-pd'),_pdr=document.getElementById('f-pd-row');if(isAdmin&&_pd&&_pdr&&_pdr.style.display!=='none')fields.is_base=!!_pd.checked;}catch(e){}
   showSyncStatus('saving');
   if(editingLibId){
     var r=await sb.from('exercises').update(fields).eq('id',editingLibId);
@@ -6315,7 +6419,7 @@ async function saveLibExercise(){
     var payload={trainer_id:MY_UID,is_base:false};for(var k in fields)payload[k]=fields[k];
     var ins=await sb.from('exercises').insert(payload).select('*').single();
     if(ins.error){showSyncStatus('error');showInfo('Error: '+ins.error.message);return;}
-    LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',pattern:ins.data.pattern||null,is_base:false});
+    LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',pattern:ins.data.pattern||null,is_base:!!ins.data.is_base,org_id:ins.data.org_id||null,trainer_id:ins.data.trainer_id||MY_UID});
   }
   showSyncStatus('ok');closeLibModal();renderLib();
 }
@@ -7491,6 +7595,15 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
+STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
+STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
+STATIC_I18N["Mover a carpeta"]=["Move to folder","Sposta nella cartella"];
+STATIC_I18N["Quitar de Metodología PD"]=["Remove from PD Method","Rimuovi da Metodo PD"];
+STATIC_I18N["Publicar como PD"]=STATIC_I18N["Publicar como PD"]||["Publish as PD","Pubblica come PD"];
+STATIC_I18N["Duplicar"]=STATIC_I18N["Duplicar"]||["Duplicate","Duplica"];
+STATIC_I18N["Eliminar"]=STATIC_I18N["Eliminar"]||["Delete","Elimina"];
+STATIC_I18N["Esta semana"]=STATIC_I18N["Esta semana"]||["This week","Questa settimana"];
 STATIC_I18N["Seguir mi entrenamiento"]=["Continue my workout","Continua il mio allenamento"];
 STATIC_I18N["Primero elegí qué versión hacés hoy y después tocá Empezar."]=["First choose which version you do today, then tap Start.","Prima scegli quale versione fai oggi, poi tocca Inizia."];
 STATIC_I18N["Tocalo antes del primer ejercicio: mide tu tiempo y habilita los videos."]=["Tap it before your first exercise: it times your workout and unlocks the videos.","Toccalo prima del primo esercizio: misura il tempo e sblocca i video."];
@@ -9077,6 +9190,12 @@ function weeklyVizHtml(p){
     +'<div class="sum-lbl" style="margin-top:12px;">Tendencia por semana</div>'+wkHeat(h)
     +'<div class="sum-lbl" style="margin-top:14px;">Perfil de la semana</div>'+wkRadar(last,prev)+legend;
 }
+(function(){/* contar en Resumen e Inicio del alumno sin tocar sus funciones */
+  setTimeout(function(){
+    try{var _rs=renderSummary;window.renderSummary=renderSummary=function(){var r=_rs.apply(this,arguments);var go=function(){try{pdCountUpIn(document.getElementById('screen-summary'),'sum',22);}catch(e){}};if(r&&r.then)r.then(function(){setTimeout(go,60);});else setTimeout(go,60);return r;};}catch(e){}
+    try{var _wh=wlHome;window.wlHome=wlHome=function(){var r=_wh.apply(this,arguments);setTimeout(function(){try{pdCountUpIn(document.getElementById('wl-prog'),'wl',22);}catch(e){}},80);return r;};}catch(e){}
+  },0);
+})();
 function renderSummary(){
   var tEl=document.getElementById('sum-title');var sEl=document.getElementById('sum-sub');
   /* Si hay un alumno abierto, el resumen es SOLO de ese alumno.
