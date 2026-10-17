@@ -1643,7 +1643,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261017-2';
+var APP_VERSION='20261017-5';
 (function(){
   try{
     setTimeout(function(){
@@ -7317,6 +7317,29 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["valgo"]=["valgus","valgo"];
+STATIC_I18N["Valgo"]=["Valgus","Valgo"];
+STATIC_I18N["Vista"]=["View","Vista"];
+STATIC_I18N["De frente"]=["Front","Frontale"];
+STATIC_I18N["de frente"]=["front","frontale"];
+STATIC_I18N["Valgo izq."]=["Valgus L","Valgo sx"];
+STATIC_I18N["Valgo der."]=["Valgus R","Valgo dx"];
+STATIC_I18N["Valgo (pierna izq.)"]=["Valgus (left leg)","Valgo (gamba sx)"];
+STATIC_I18N["Valgo (pierna der.)"]=["Valgus (right leg)","Valgo (gamba dx)"];
+STATIC_I18N["valgo izq."]=["valgus L","valgo sx"];
+STATIC_I18N["valgo der."]=["valgus R","valgo dx"];
+STATIC_I18N["Valgo máx."]=["Max valgus","Valgo max"];
+STATIC_I18N["valgo máx."]=["max valgus","valgo max"];
+STATIC_I18N["izq."]=STATIC_I18N["izq."]||["L","sx"];
+STATIC_I18N["der."]=STATIC_I18N["der."]||["R","dx"];
+STATIC_I18N["Estocada / búlgara"]=["Lunge / Bulgarian","Affondo / bulgaro"];
+STATIC_I18N["Teléfono <b>de costado</b> (profundidad y ángulos) o <b>de frente</b> (valgo de rodillas), a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero."]=["Phone <b>side-on</b> (depth and angles) or <b>facing</b> (knee valgus), at hip height, 2–3 m away. Whole body in frame.","Telefono <b>di lato</b> (profondità e angoli) o <b>di fronte</b> (valgo delle ginocchia), all'altezza dell'anca, a 2–3 m. Corpo intero nell'inquadratura."];
+STATIC_I18N["Teléfono <b>de costado</b> (cadera, tronco y recorrido de la barra) o <b>de frente</b> (valgo, también a una pierna), a la altura de la cadera."]=["Phone <b>side-on</b> (hip, trunk and bar path) or <b>facing</b> (valgus, single-leg too), at hip height.","Telefono <b>di lato</b> (anca, tronco e traiettoria del bilanciere) o <b>di fronte</b> (valgo, anche a una gamba), all'altezza dell'anca."];
+STATIC_I18N["Teléfono <b>de costado</b> (rodillas y tronco) o <b>de frente</b> (valgo de la pierna que trabaja), a la altura de la cadera."]=["Phone <b>side-on</b> (knees and trunk) or <b>facing</b> (valgus of the working leg), at hip height.","Telefono <b>di lato</b> (ginocchia e tronco) o <b>di fronte</b> (valgo della gamba che lavora), all'altezza dell'anca."];
+STATIC_I18N["Cargando video…"]=["Loading video…","Caricamento video…"];
+STATIC_I18N["Lo que pidió tu profe"]=["What your coach asked for","Cosa ha chiesto il tuo coach"];
+STATIC_I18N["Cortá la serie si pierde"]=["Stop the set if you lose","Ferma la serie se perdi"];
+STATIC_I18N["de velocidad"]=["of speed","di velocità"];
 STATIC_I18N["Se filma durante el entrenamiento: tocá Empezar mi entrenamiento."]=["It is filmed during the workout: tap Start my workout.","Si filma durante l'allenamento: tocca Inizia il mio allenamento."];
 STATIC_I18N["Tu profe te pidió video de este ejercicio: se filma durante el entrenamiento"]=["Your coach asked for a video of this exercise: it is filmed during the workout","Il tuo coach ha chiesto un video di questo esercizio: si filma durante l'allenamento"];
 STATIC_I18N["este alumno"]=STATIC_I18N["este alumno"]||["this athlete","questo atleta"];
@@ -9285,6 +9308,7 @@ initApp();
 #modal-mov .mv-btn.pri{background:#a8e063;color:#0a0b0e;border-color:#a8e063;}
 #modal-mov .mv-btn.red{background:#ff6b6b;border-color:#ff6b6b;color:#fff;}
 #modal-mov .mv-btn:disabled{opacity:.45;}
+@keyframes mvspin{to{transform:rotate(360deg)}}
 #modal-mov .mv-stage{position:relative;margin-top:10px;background:#000;border-radius:12px;overflow:hidden;border:1px solid var(--border2);display:none;}
 #modal-mov .mv-stage canvas{display:block;width:100%;height:auto;}
 #modal-mov .mv-stage video{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
@@ -9370,7 +9394,7 @@ initApp();
     </div>
     <div class="mv-status" id="mv-status"></div>
     <div class="mv-stage" id="mv-stage">
-      <div style="position:relative;"><canvas id="mv-cv" onclick="mvCanvasTap(event)"></canvas><button id="mv-shutter" class="mv-shutter" onclick="mvToggleRec()" aria-label="Grabar"><span></span></button></div>
+      <div style="position:relative;"><div id="mv-vload" style="display:none;position:absolute;inset:0;z-index:3;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#000;color:#fff;font-weight:700;font-size:15px;min-height:220px;"><div style="width:34px;height:34px;border:3px solid rgba(168,224,99,.25);border-top-color:#a8e063;border-radius:50%;animation:mvspin 0.8s linear infinite;"></div><span id="mv-vload-t"></span></div><canvas id="mv-cv" onclick="mvCanvasTap(event)"></canvas><button id="mv-shutter" class="mv-shutter" onclick="mvToggleRec()" aria-label="Grabar"><span></span></button></div>
       <video id="mv-vid" playsinline muted></video>
       <div class="mv-badge" id="mv-badge"></div>
       <div id="rm-rest"></div>
@@ -9404,10 +9428,10 @@ initApp();
 var MV_VER='0.10.14';
 var MV={counting:false,cd:(function(){try{var v=parseInt(localStorage.getItem('pd_mv_cd'),10);return isNaN(v)?5:v;}catch(e){return 5;}})(),cdEnd:null,cdTimer:null,side:'l',cal:null,calStep:0,calTmp:null,calCm:100,pid:null,testKey:null,ex:'squat',load:{},landmarker:null,loading:null,running:false,pending:false,lastTs:-1,tOffset:0,mode:null,stream:null,frameCb:null,fps:[],facing:'environment',mirror:false,rec:null,chunks:[],S:null,lists:{}};
 var MV_EX={
-  squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b>, a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder',load:true},
+  squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b> (profundidad y ángulos) o <b>de frente</b> (valgo de rodillas), a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder',load:true},
   valgus:{n:'Sentadilla de frente (valgo)',hint:'Teléfono <b>de frente</b>, a la altura de la rodilla, a 2–3 m. Mide si las rodillas se van hacia adentro.',load:true},
-  deadlift:{n:'Peso muerto',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Con carga se dibuja el recorrido de la barra (manos).',trail:'wrist',load:true},
-  lunge:{n:'Estocada',hint:'Teléfono <b>de costado</b>, a la altura de la cadera. Mide la rodilla de adelante y la inclinación del tronco.',trail:'shoulder',load:true},
+  deadlift:{n:'Peso muerto',hint:'Teléfono <b>de costado</b> (cadera, tronco y recorrido de la barra) o <b>de frente</b> (valgo, también a una pierna), a la altura de la cadera.',trail:'wrist',load:true},
+  lunge:{n:'Estocada / búlgara',hint:'Teléfono <b>de costado</b> (rodillas y tronco) o <b>de frente</b> (valgo de la pierna que trabaja), a la altura de la cadera.',trail:'shoulder',load:true},
   bench:{n:'Press de banca',hint:'Teléfono <b>de costado</b>, a la altura del banco, un poco hacia la cabeza. Mide el codo, el recorrido de la barra y si el hombro se adelanta (se despega la escápula).',trail:'wrist',load:true},
   jump:{n:'CMJ / Saltos',hint:'Teléfono <b>fijo, de costado o de frente</b>, que se vean bien los pies. Calcula la altura por el tiempo de vuelo. Mejor a 60 fps (no cámara lenta).'},
   pullup:{n:'Dominada',hint:'Teléfono <b>de costado</b>, a la altura del pecho, a 2–3 m. Que se vea el cuerpo colgado de la barra.'},
@@ -9455,7 +9479,7 @@ function mvRenderChips(){
   var _lock=!!(MV.testKey||MV.req)||!!MV.rm;mvEl('mv-lbl-ex').style.display=_lock?'none':'';mvEl('mv-ex').style.display=_lock?'none':'';
   mvEl('mv-ex').innerHTML=order.map(function(k){return '<button class="mv-chip'+(k===MV.ex?' on':'')+'" onclick="mvSetEx(\''+k+'\')">'+mvExName(k)+'</button>';}).join('');
   var e=MV_EX[MV.ex];
-  mvEl('mv-load-row').style.display=e.load?'block':'none';
+  var _ro=mvReadOnly();mvEl('mv-load-row').style.display=(e.load&&!_ro)?'block':'none';
   if(e.load)mvEl('mv-load').innerHTML=['free','bar'].map(function(v){return '<button class="mv-chip'+(mvLoadOf(MV.ex)===v?' on':'')+'" onclick="mvSetLoad(\''+v+'\')">'+tr(v==='bar'?'Con carga':'Sin carga')+'</button>';}).join('');
   var sr=mvEl('mv-side-row');sr.style.display=mvIsBi()?'block':'none';
   if(mvIsBi())mvEl('mv-side').innerHTML=['l','r'].map(function(v){return '<button class="mv-chip'+(MV.side===v?' on':'')+'" onclick="mvSetSide(\''+v+'\')">'+mvSideTxt(v)+'</button>';}).join('');
@@ -9611,8 +9635,26 @@ function mvSetLim(m){var ex=MV.ex,prev=MV.lim[ex]||{};MV.lim[ex]={m:m,v:prev.m==
 function mvSetLimV(inp){var ex=MV.ex,c=MV.lim[ex]||{m:(mvLimOf(ex)||{}).m||'off'};var v=parseFloat(String(inp.value).replace(',','.'));c.v=isFinite(v)?v:null;MV.lim[ex]=c;mvSavePrefs();}
 function mvSetFat(v){MV.fatTh[MV.ex]=v;mvSavePrefs();mvRenderLim();}
 function mvToggleSound(){MV.sound=!MV.sound;mvSavePrefs();mvRenderLim();if(MV.sound){mvSayUnlock(true);mvSay('good');}}
+/* alumno con pedido del profe: ve lo pedido, no lo cambia */
+function mvReadOnly(){try{return !isCoach&&!!MV.req&&!MV.rm;}catch(e){return false;}}
+function mvReqSpecHtml(){
+  var ex=MV.ex,e=MV_EX[ex]||{},it=[];
+  if(e.load)it.push([tr('Carga'),tr(mvLoadOf(ex)==='bar'?'Con carga':'Sin carga')]);
+  var cur=mvLimOf(ex);
+  if(MV_LIMS[ex]){var lv=tr('Sin límite');if(cur){var tx=MV_LIMTXT[ex+'_'+cur.m]||['',''],hasV=(MV_LIMS[ex].filter(function(d){return d[0]===cur.m;})[0]||[])[2]!=null;
+      lv=hasV?tr(tx[0])+' '+(cur.m==='ratio'?cur.v:Math.round(cur.v))+' '+tr(tx[1]):tr(tx[0]);}
+    it.push([tr('Límite de la repetición'),lv]);}
+  if(MV_FAT_EX[ex]){var th=mvFatTh(ex);it.push([tr('Aviso de fatiga'),th?tr('Cortá la serie si pierde')+' '+th+'% '+tr('de velocidad'):tr('Apagado')]);}
+  var h='<div style="margin-top:10px;border:1px solid var(--border2);border-radius:12px;padding:10px 13px;background:var(--s1);">'
+    +'<div class="mv-lbl" style="margin-top:0;">'+tr('Lo que pidió tu profe')+'</div>'
+    +it.map(function(x){return '<div style="display:flex;gap:10px;justify-content:space-between;padding:5px 0;border-top:1px solid var(--border2);font-size:14px;"><span style="color:var(--muted);">'+x[0]+'</span><b style="text-align:right;">'+x[1]+'</b></div>';}).join('')+'</div>';
+  if(cur&&cur.m==='cm'){var H=mvHeight();h+='<div class="mv-limv">'+tr('Altura del alumno')+' <input type="number" inputmode="numeric" placeholder="175" value="'+(H||'')+'" onchange="mvSetHeight(this)"> cm'+(H?'':'<span class="warn">'+tr('Cargá la altura para medir en centímetros (se guarda para la próxima).')+'</span>')+'</div>';}
+  if(cur||mvFatTh(ex))h+='<div class="mv-chips" style="margin-top:8px;"><button class="mv-chip'+(MV.sound?' on':'')+'" onclick="mvToggleSound()">'+(MV.sound?tr('Voz activada'):tr('Voz apagada'))+'</button></div>';
+  return h;
+}
 function mvRenderLim(){
   var row=mvEl('mv-lim-row');if(!row)return;var ex=MV.ex,o=MV_LIMS[ex];
+  if(mvReadOnly()){row.innerHTML=(MV_EX[ex]&&MV_EX[ex].load)||o||MV_FAT_EX[ex]?mvReqSpecHtml():'';return;}
   if(!o&&!MV_FAT_EX[ex]){row.innerHTML='';return;}
   var cur=mvLimOf(ex),cm=cur?cur.m:'off',h='';
   if(o){
@@ -9667,7 +9709,9 @@ function mvRepDone(c){
   var S=MV.S,ex=MV.ex,lim=mvLimOf(ex);
   if(ex==='pullup'){if(c.py!=null&&c.ty!=null){var dtp=(c.tt-c.pt)/1000,dyp=c.py-c.ty;if(dtp>0.1&&dyp>0)c.v=dyp/dtp;}delete c.py;delete c.pt;delete c.ty;delete c.tt;}
   else if(c.tb!=null&&c.by!=null&&S.vyNow!=null){var dt=(MV.lastTs-c.tb)/1000,dy=c.by-S.vyNow;if(dt>0.08&&dy>0)c.v=dy/dt;}
-  if(lim&&!(lim.m==='cm'&&!mvCmPerPx())){
+  if(c.fr){var vm=Math.max(c.vL==null?-99:c.vL,c.vR==null?-99:c.vR);c.ok=!(vm>=MV_VALG_TH);
+    if(!c.ok){mvFeedback(false);MV.banner={t:tr('Valgo'),until:Date.now()+1100};}else if(lim)mvFeedback(true);}
+  else if(lim&&!(lim.m==='cm'&&!mvCmPerPx())){
     if(ex==='valgus'){c.ok=isFinite(c.mnRatio)&&c.mnRatio>=lim.v;mvFeedback(c.ok);}
     else{c.ok=!!c.hit;if(!c.ok)mvFeedback(false);}
   }
@@ -9696,8 +9740,8 @@ function mvFatCard(){
 function mvRepsCard(){
   var S=MV.S,r=S.reps,lim=mvLimOf(MV.ex);
   var bad=r.filter(function(x){return x.ok===false;}).length;
-  if(!lim&&!bad)return mvCard('Reps',r.length);
-  return mvCard('Reps',r.length-bad,bad?'<span style="color:#ff6b6b;"> · '+bad+' '+tr(MV.ex==='valgus'?'con valgo':'cortas')+'</span>':'');
+  if(!bad&&(!lim||(S.last&&S.last.fr)))return mvCard('Reps',r.length);
+  return mvCard('Reps',r.length-bad,bad?'<span style="color:#ff6b6b;"> · '+bad+' '+tr(MV.ex==='valgus'||(S.last&&S.last.fr)?'con valgo':'cortas')+'</span>':'');
 }
 function mvJumpsCard(){
   var j=MV.S.jumps,bad=j.filter(function(x){return x.ok===false;}).length;
@@ -9732,7 +9776,7 @@ function mvSay(kind){
 (function(){var _s=mvSummary;mvSummary=function(ex,m){
   var out=_s(ex,m)||'';var list=(ex==='jump'?m.jumps:m.reps)||[];
   var def=list.filter(function(r){return r.ok!=null;});
-  if(def.length){var bad=def.filter(function(r){return r.ok===false;}).length;out+=' · '+(def.length-bad)+' '+tr(ex==='jump'?'válidos':'válidas')+(bad?' · '+bad+' '+tr(ex==='valgus'?'con valgo':(ex==='jump'?'bajos':'cortas')):'');}
+  if(def.length){var bad=def.filter(function(r){return r.ok===false;}).length;out+=' · '+(def.length-bad)+' '+tr(ex==='jump'?'válidos':'válidas')+(bad?' · '+bad+' '+tr(ex==='valgus'||list.some(function(r){return r.fr;})?'con valgo':(ex==='jump'?'bajos':'cortas')):'');}
   var vls=list.map(function(r){return r.vl;}).filter(isFinite);if(vls.length)out+=' · '+tr('pérdida máx.')+' '+Math.max.apply(null,vls)+'%';
   return out;};})();
 /* límite y fatiga al pedir video (Prescripción) */
@@ -9759,8 +9803,44 @@ function prVidLimChg(){
 }
 
 /* --- análisis por ejercicio --- */
+/* ===== De frente: valgo por pierna (ángulo de proyección frontal de rodilla) =====
+   + = rodilla hacia adentro. Sirve para bilateral (sentadilla, peso muerto) y unilateral (búlgara, estocada, peso muerto a una pierna). */
+var MV_VALG_TH=10,MV_VALG_WARN=5,MV_FRONT_EX={squat:1,deadlift:1,lunge:1,free:1};
+function mvValg(H,K,A,midX){
+  var a=mvAng(H,K,A);if(!isFinite(a))return NaN;
+  var dy=A.y-H.y;if(Math.abs(dy)<1)return NaN;
+  var lx=H.x+(A.x-H.x)*(K.y-H.y)/dy,dev=K.x-lx,med=midX-lx;
+  return (180-a)*((dev*med)>=0?1:-1);
+}
+function mvValgCol(v){return !isFinite(v)?'#fff':v>=MV_VALG_TH?'#ff6b6b':v>=MV_VALG_WARN?'#ffd166':'#a8e063';}
+function mvFront(L,t){
+  var P=MV_P,S=MV.S,ex=MV.ex,out=[];
+  var midX=(L[P.LH].x+L[P.RH].x)/2;
+  var vL=mvEma('vL').push(mvValg(L[P.LH],L[P.LK],L[P.LA],midX)),vR=mvEma('vR').push(mvValg(L[P.RH],L[P.RK],L[P.RA],midX));
+  // ¿trabaja una sola pierna? (búlgara, estocada, a una pierna): la que tiene el pie más abajo y apoyado
+  var sh=(Math.hypot(L[P.LK].x-L[P.LA].x,L[P.LK].y-L[P.LA].y)+Math.hypot(L[P.RK].x-L[P.RA].x,L[P.RK].y-L[P.RA].y))/2||1;
+  var dA=(L[P.LA].y-L[P.RA].y)/sh,w=S.fWork||'B';
+  if(Math.abs(dA)>0.35)w=dA>0?'L':'R';else if(Math.abs(dA)<0.2)w='B';S.fWork=w;
+  var useL=w!=='R',useR=w!=='L';
+  // profundidad: altura de los hombros sobre el pie de apoyo, contra la altura de parado
+  var ay=w==='L'?L[P.LA].y:w==='R'?L[P.RA].y:(L[P.LA].y+L[P.RA].y)/2,shM=mvMid(L[P.LS],L[P.RS]);
+  var hgt=mvEma('fH',0.4).push(ay-shM.y);
+  if(S.phase==='up'||!S.cur)S.fBase=S.fBase==null?hgt:Math.max(S.fBase*0.998,hgt);
+  var pct=S.fBase?hgt/S.fBase*100:NaN;
+  if(ex!=='free'){
+    mvLimTrack({vy:shM.y});
+    mvRep(pct,85,95,{fr:1});
+    var c=S.cur;if(c){c.fr=1;c.w=w;if(useL&&isFinite(vL)&&(c.vL==null||vL>c.vL))c.vL=vL;if(useR&&isFinite(vR)&&(c.vR==null||vR>c.vR))c.vR=vR;}
+  }else{S.free=S.free||{};if(useL&&isFinite(vL))S.free.vL=Math.max(S.free.vL==null?-99:S.free.vL,vL);if(useR&&isFinite(vR))S.free.vR=Math.max(S.free.vR==null?-99:S.free.vR,vR);S.free.fr=1;}
+  S.last={vL:useL?vL:null,vR:useR?vR:null,fr:1,w:w};
+  if(useL)out.push([L[P.LK],vL,mvValgCol(vL),midX]);if(useR)out.push([L[P.RK],vR,mvValgCol(vR),midX]);
+  return out;
+}
 function mvAnalyze(L,t){
   var P=MV_P,S=MV.S,out=[],ex=MV.ex,s,knee,hip,trunk;
+  if(MV_FRONT_EX[ex]&&!MV.rm){var _vw=mvView(L);
+    if(S.lastView&&S.lastView!==_vw){S.phase='up';S.cur=null;S.curSnap=null;S.curScore=null;S.fBase=null;}S.lastView=_vw;
+    if(_vw==='front')return mvFront(L,t);}
   if(ex==='squat'){
     s=mvSide(L);knee=mvEma('knee').push(mvAng(s.H,s.K,s.A));hip=mvEma('hip').push(mvAng(s.S,s.H,s.K));trunk=mvEma('trunk').push(mvVert(s.H,s.S));
     var depth=(s.H.y-s.K.y)/(Math.hypot(s.H.x-s.K.x,s.H.y-s.K.y)||1);
@@ -9991,6 +10071,9 @@ function mvRenderMetrics(){
   if(ex==='hjump'){var hj=S.hj,lj=hj[hj.length-1],cmL=lj?mvHjCm(lj):null,bst=mvHjBest(hj,null);
     h=mvCard('Saltos',hj.length)+mvCard('Último',lj?(cmL!=null?mvF0(cmL):'–'):'–','cm','ok')+mvCard('Mejor',bst!=null?mvF0(bst):'–','cm')+(mvIsBi()?mvCard('Lado',mvSideTxt(MV.side)):mvCard('Calibración',MV.cal?'✓':'–','',MV.cal?'ok':'warn'));}
   if(ex==='free')h=mvCard('Rodilla izq.',mvF0(l.kL),'°')+mvCard('Rodilla der.',mvF0(l.kR),'°')+mvCard('Cadera izq.',mvF0(l.hL),'°')+mvCard('Cadera der.',mvF0(l.hR),'°');
+  if(l.fr&&MV_FRONT_EX[ex]){var _w=l.w||'B';h=(ex==='free'?'':mvRepsCard()+mvFatCard())+mvCard('Vista',tr('De frente'))
+    +(_w!=='R'?mvCard(_w==='L'?'Valgo (pierna izq.)':'Valgo izq.',mvF0(l.vL),'°',isFinite(l.vL)?(l.vL>=MV_VALG_TH?'bad':l.vL>=MV_VALG_WARN?'warn':'ok'):''):'')
+    +(_w!=='L'?mvCard(_w==='R'?'Valgo (pierna der.)':'Valgo der.',mvF0(l.vR),'°',isFinite(l.vR)?(l.vR>=MV_VALG_TH?'bad':l.vR>=MV_VALG_WARN?'warn':'ok'):''):'');}
   if(MV.rm)h=rmCards();
   mvEl('mv-metrics').innerHTML=h;
   try{var hud=mvEl('mv-hud');if(hud&&mvEl('modal-mov').classList.contains('mv-fs')){var tmp=document.createElement('div');tmp.innerHTML=h;
@@ -9998,6 +10081,7 @@ function mvRenderMetrics(){
 }
 function mvHjBest(hj,side){var v=(hj||[]).filter(function(j){return side==null||j.side===side;}).map(function(j){return j.cm!=null?j.cm:mvHjCm(j);}).filter(function(x){return x!=null&&isFinite(x);});return v.length?Math.max.apply(null,v):null;}
 function mvRepLine(ex,r){
+  if(r.fr)return tr('de frente')+' · '+[r.vL!=null?tr('valgo izq.')+' '+mvF0(r.vL)+'°':null,r.vR!=null?tr('valgo der.')+' '+mvF0(r.vR)+'°':null].filter(Boolean).join(' · ');
   if(ex==='squat')return tr('rodilla')+' '+mvF0(r.min)+'° · '+tr('cadera')+' '+mvF0(r.mnHip)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°'+(r.maxDepth>0?' · '+tr('bajo paralelo'):'');
   if(ex==='valgus')return tr('rodillas/tobillos')+' '+(isFinite(r.mnRatio)?r.mnRatio.toFixed(2):'–')+(r.mnRatio<0.8?' · '+tr('VALGO'):r.mnRatio<0.95?' · '+tr('leve valgo'):' · ok');
   if(ex==='deadlift')return tr('cadera')+' '+mvF0(r.min)+'° · '+tr('rodilla')+' '+mvF0(r.mnKnee)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°';
@@ -10009,8 +10093,9 @@ function mvRows(ex,m){
   if(ex==='jump')return (m.jumps||[]).map(function(j,i){return [tr('Salto')+' '+(i+1)+(j.ok===false?' · <b style="color:#ff6b6b">'+tr('BAJO')+'</b>':''),mvF1(j.h)+' cm · '+tr('vuelo')+' '+Math.round(j.ft*1000)+' ms'+mvVlTxt(j)];});
   if(ex==='hipt'||ex==='ankle'){var b=m.bi||{},rr=[];if(b.l!=null)rr.push([tr('Izquierda'),mvF0(b.l)+'°']);if(b.r!=null)rr.push([tr('Derecha'),mvF0(b.r)+'°']);return rr;}
   if(ex==='hjump')return (m.hj||[]).map(function(j,i){var cm=j.cm!=null?j.cm:mvHjCm(j);return [tr('Salto')+' '+(i+1)+(j.side?' · '+mvSideTxt(j.side):''),(cm!=null?mvF0(cm)+' cm':tr('falta calibrar'))];});
+  if(ex==='free'&&m.free&&m.free.fr){var g=m.free;return [[tr('Valgo máx.'),[g.vL!=null?tr('izq.')+' '+mvF0(g.vL)+'°':null,g.vR!=null?tr('der.')+' '+mvF0(g.vR)+'°':null].filter(Boolean).join(' · ')]];}
   if(ex==='free'){var f=m.free||{};return f.kL==null?[]:[[tr('Mínimos'),tr('rodilla izq.')+' '+mvF0(f.kL)+'° · '+tr('der.')+' '+mvF0(f.kR)+'° · '+tr('cadera izq.')+' '+mvF0(f.hL)+'° · '+tr('der.')+' '+mvF0(f.hR)+'°']];}
-  return (m.reps||[]).map(function(r,i){return [tr('Rep')+' '+(i+1)+(r.ok===false?' · <b style="color:#ff6b6b">'+tr(ex==='valgus'?'CON VALGO':'CORTA')+'</b>':(r.ok===true?' <span style="color:#a8e063">✓</span>':'')),mvRepLine(ex,r)+(r.dcm!=null?' · '+tr('bajó')+' '+mvF0(r.dcm)+' cm':'')+(r.gcm!=null?' · '+tr('rodilla al piso')+' '+mvF0(r.gcm)+' cm':'')+mvVlTxt(r)+((MV.rm&&isFinite(r.v)&&rmCmPerPx())?' · <b style="color:#a8e063">'+(r.v*rmCmPerPx()/100).toFixed(2)+' m/s</b>':'')];});
+  return (m.reps||[]).map(function(r,i){return [tr('Rep')+' '+(i+1)+(r.ok===false?' · <b style="color:#ff6b6b">'+tr(ex==='valgus'||r.fr?'CON VALGO':'CORTA')+'</b>':(r.ok===true?' <span style="color:#a8e063">✓</span>':'')),mvRepLine(ex,r)+(r.dcm!=null?' · '+tr('bajó')+' '+mvF0(r.dcm)+' cm':'')+(r.gcm!=null?' · '+tr('rodilla al piso')+' '+mvF0(r.gcm)+' cm':'')+mvVlTxt(r)+((MV.rm&&isFinite(r.v)&&rmCmPerPx())?' · <b style="color:#a8e063">'+(r.v*rmCmPerPx()/100).toFixed(2)+' m/s</b>':'')];});
 }
 function mvRenderLog(){
   var S=MV.S,el=mvEl('mv-log');if(!S){el.style.display='none';return;}
@@ -10018,19 +10103,34 @@ function mvRenderLog(){
   el.style.display=rows.length?'block':'none';
   el.innerHTML=rows.slice(-12).reverse().map(function(r){return '<div><span>'+r[0]+'</span><span>'+r[1]+'</span></div>';}).join('');
 }
-function mvHasData(){var S=MV.S;return !!S&&(S.reps.length>0||S.jumps.length>0||S.hj.length>0||S.bi.l!=null||S.bi.r!=null||(MV.ex==='free'&&S.free&&S.free.kL!=null));}
+function mvHasData(){var S=MV.S;return !!S&&(S.reps.length>0||S.jumps.length>0||S.hj.length>0||S.bi.l!=null||S.bi.r!=null||(MV.ex==='free'&&S.free&&(S.free.kL!=null||S.free.vL!=null||S.free.vR!=null)));}
 function mvUpdSave(){var b=mvEl('mv-save');if(!b)return;if(MV.rm){b.style.display='none';return;}b.style.display=(MV.running||mvHasData())&&MV.S?'flex':'none';b.disabled=!mvHasData();}
 
 /* --- dibujo --- */
 /* De costado se dibuja solo el lado más cercano a la cámara (el lejano suele quedar tapado y mal detectado). */
 var MV_ONE_EX={squat:1,deadlift:1,bench:1,jump:1,free:1,hjump:1,ankle:1,pullup:1};
 var MV_SIDE_PTS={L:[11,13,15,23,25,27,29,31],R:[12,14,16,24,26,28,30,32]};
+/* piernas: hombro-cadera-rodilla-tobillo-punta (sin brazo ni talón); brazos solo donde se miden (banca, dominadas) */
+var MV_SIDE_LEG={L:[11,23,25,27,31],R:[12,24,26,28,32]};var MV_ARM_EX={bench:1,pullup:1};
+/* de frente o de costado: se detecta solo por el ancho de caderas/hombros vs. el largo del tronco */
+var MV_VIEW_EX={squat:1,deadlift:1,lunge:1,valgus:1,free:1,jump:1};
+var MV_LEG_BOTH=[11,12,23,24,25,26,27,28,31,32];
+function mvView(L){
+  var S=MV.S,v=(S&&S.view)||'side';
+  try{var w=(Math.abs(L[23].x-L[24].x)+Math.abs(L[11].x-L[12].x))/2,
+    t=Math.hypot((L[11].x+L[12].x)/2-(L[23].x+L[24].x)/2,(L[11].y+L[12].y)/2-(L[23].y+L[24].y)/2);
+    if(t>0){var r=w/t;if(r>0.38)v='front';else if(r<0.25)v='side';}}catch(e){}
+  if(S)S.view=v;return v;
+}
 function mvOneSide(L){
-  if(!L||!MV_ONE_EX[MV.ex])return null;
+  if(!L)return null;
+  if(MV_VIEW_EX[MV.ex]){var vw=mvView(L);
+    if(vw==='front'||MV.ex==='valgus'||MV.ex==='lunge'){var mb={};MV_LEG_BOTH.forEach(function(i){mb[i]=1;});return mb;}}
+  if(!MV_ONE_EX[MV.ex])return null;
   var sd;
   if(MV.ex==='ankle')sd=MV.side==='r'?'R':'L';
   else{try{mvSide(L);}catch(e){}sd=(MV.S&&MV.S.side)||'L';}
-  var m={};MV_SIDE_PTS[sd].forEach(function(i){m[i]=1;});return m;
+  var m={};(MV_ARM_EX[MV.ex]?MV_SIDE_PTS:MV_SIDE_LEG)[sd].forEach(function(i){m[i]=1;});if(MV_ARM_EX[MV.ex]){delete m[29];delete m[31];delete m[sd==='L'?27:28];}return m;
 }
 function mvDraw(L,labels){
   var cv=mvEl('mv-cv'),ctx=cv.getContext('2d'),vid=mvEl('mv-vid'),w=cv.width,h=cv.height,s=Math.max(w,h)/720,G='#a8e063';if(!w)return;
@@ -10058,9 +10158,10 @@ function mvDraw(L,labels){
   }
   ctx.restore();
   if(L)labels.forEach(function(lb){var p=lb[0],v=lb[1];if(v==null||!isFinite(v)||mvVis(p)<0.35)return;
-    var x=MV.mirror?w-p.x:p.x,y=p.y;ctx.font='800 '+(18*s)+'px "Barlow Condensed",sans-serif';var tx=Math.round(v)+'°',tw=ctx.measureText(tx).width;
-    ctx.fillStyle='rgba(14,16,21,0.82)';mvRR(ctx,x+10*s,y-14*s,tw+12*s,24*s,6*s);ctx.fill();ctx.fillStyle=G;ctx.fillText(tx,x+16*s,y+4*s);
-    ctx.strokeStyle=G;ctx.lineWidth=2*s;ctx.beginPath();ctx.arc(x,y,9*s,0,7);ctx.stroke();});
+    var x=MV.mirror?w-p.x:p.x,y=p.y,C=lb[2]||G;ctx.font='800 '+(18*s)+'px "Barlow Condensed",sans-serif';var tx=Math.round(v)+'°',tw=ctx.measureText(tx).width;
+    var bx=x+10*s;if(lb[3]!=null){var xm=MV.mirror?w-lb[3]:lb[3];if(x<xm)bx=x-10*s-tw-12*s;}
+    ctx.fillStyle='rgba(14,16,21,0.82)';mvRR(ctx,bx,y-14*s,tw+12*s,24*s,6*s);ctx.fill();ctx.fillStyle=C;ctx.fillText(tx,bx+6*s,y+4*s);
+    ctx.strokeStyle=C;ctx.lineWidth=2*s;ctx.beginPath();ctx.arc(x,y,9*s,0,7);ctx.stroke();});
   mvDrawFx(ctx,w,h,s);
   if(MV.cdEnd){var n=Math.ceil((MV.cdEnd-Date.now())/1000);if(n>0){ctx.fillStyle='rgba(14,16,21,0.6)';ctx.beginPath();ctx.arc(w/2,h/2,70*s,0,7);ctx.fill();
     ctx.strokeStyle='#ffd166';ctx.lineWidth=5*s;ctx.stroke();ctx.fillStyle='#ffd166';ctx.font='800 '+(84*s)+'px "Barlow Condensed",sans-serif';ctx.textAlign='center';ctx.fillText(String(n),w/2,h/2+29*s);ctx.textAlign='left';}}
@@ -10094,7 +10195,7 @@ function mvStep(now,meta){
     if(cv.width!==vid.videoWidth||cv.height!==vid.videoHeight){cv.width=vid.videoWidth;cv.height=vid.videoHeight;}
     var t=MV.mode==='file'?((meta&&meta.mediaTime!=null)?meta.mediaTime*1000:vid.currentTime*1000):((meta&&meta.captureTime)||now||performance.now());
     t+=MV.tOffset;if(t<=MV.lastTs){if(MV.mode==='file'&&t<MV.lastTs-500){MV.tOffset+=MV.lastTs;t+=MV.lastTs;}else t=MV.lastTs+1;}
-    MV.lastTs=t;
+    MV.lastTs=t;if(MV.vload)mvVLoad(false);
     var L=null,labels=[];MV.lastFrame=performance.now();
     MV.msg=null;
     if(MV.landmarker)try{var r=MV.landmarker.detectForVideo(vid,t);
@@ -10157,14 +10258,15 @@ async function movStartCam(){
   mvEl('mv-ctrl').innerHTML='<button class="mv-btn" onclick="mvFlip()">'+tr('Girar')+'</button><button class="mv-btn" id="mv-c-cd" onclick="mvCdCycle()">'+mvCdTxt()+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
 }
 function mvFlip(){MV.facing=MV.facing==='user'?'environment':'user';movStartCam();}
+function mvVLoad(on){var b=mvEl('mv-vload');if(!b)return;MV.vload=!!on;if(on){mvEl('mv-stage').style.display='block';mvEl('mv-vload-t').textContent=tr('Cargando video…');b.style.display='flex';mvEl('mv-ctrl').innerHTML='';}else b.style.display='none';}
 function movFilePicked(inp){mvSayUnlock();var f=inp.files&&inp.files[0];inp.value='';if(f)mvStartFile(f);}
 async function mvStartFile(file){
   await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');
-  mvStatus(tr('Cargando el analizador (solo la primera vez)…'));
-  try{await mvGetLandmarker();}catch(e){return;}
+  mvVLoad(true);
+  try{await mvGetLandmarker();}catch(e){mvVLoad(false);return;}
   mvStatus('');
-  var vid=mvEl('mv-vid');MV.mode='file';MV.mirror=false;vid.muted=true;vid.setAttribute('playsinline','');vid.src=URL.createObjectURL(file);vid.loop=false;
-  await new Promise(function(r){var done=false;var f=function(){if(!done){done=true;r();}};vid.onloadedmetadata=f;setTimeout(f,4000);});
+  var vid=mvEl('mv-vid');MV.mode='file';MV.mirror=false;vid.muted=true;vid.setAttribute('playsinline','');vid.preload='auto';vid.src=URL.createObjectURL(file);vid.loop=false;try{vid.load();}catch(e){}
+  await new Promise(function(r){var done=false;var f=function(){if(!done){done=true;r();}};vid.onloadedmetadata=f;vid.onloadeddata=f;vid.oncanplay=f;setTimeout(f,2500);});
   vid.playbackRate=0.5;
   mvStartLoop();mvPlay(vid);
   vid.onended=function(){if(MV.rm){MV.running=false;rmSetEnd(true);mvStatus(tr('Carga medida. Subí el video de la próxima carga o tocá Detener para ver el resultado.'));return;}MV.running=false;mvRenderMetrics();mvRenderLog();mvUpdSave();mvStatus(tr('Análisis terminado. Guardalo o volvé a reproducirlo.'));};
@@ -10235,8 +10337,10 @@ function mvSummary(ex,m){
   if(ex==='hjump'){var hj=m.hj||[];if(!hj.length)return '';if(!m.cal)return hj.length+' '+tr(hj.length===1?'salto':'saltos')+' · '+tr('falta calibrar');
     var bl=mvHjBest(hj,'l'),br=mvHjBest(hj,'r'),ba=mvHjBest(hj,null);
     return hj.length+' '+tr(hj.length===1?'salto':'saltos')+' · '+(hj.some(function(j){return j.side;})?[bl!=null?tr('Izq.')+' '+mvF0(bl)+' cm':null,br!=null?tr('Der.')+' '+mvF0(br)+' cm':null].filter(Boolean).join(' · '):tr('mejor')+' '+mvF0(ba)+' cm');}
+  if(ex==='free'&&m.free&&m.free.fr){var g=m.free;return tr('De frente')+' · '+tr('valgo máx.')+' '+mvF0(Math.max(g.vL==null?-99:g.vL,g.vR==null?-99:g.vR))+'°';}
   if(ex==='free'){var f=m.free||{};return f.kL==null?'':tr('Rodilla mín.')+' '+mvF0(Math.min(f.kL,f.kR))+'° · '+tr('Cadera mín.')+' '+mvF0(Math.min(f.hL,f.hR))+'°';}
   var n=reps.length+' reps';
+  if(reps.some(function(r){return r.fr;})){var vv=Math.max(mx('vL')==null?-99:mx('vL'),mx('vR')==null?-99:mx('vR')),nb=reps.filter(function(r){return r.ok===false;}).length;return n+' · '+tr('de frente')+' · '+tr('valgo máx.')+' '+mvF0(vv)+'°';}
   if(ex==='squat')return n+' · '+tr('rodilla')+' '+mvF0(mn('min'))+'° · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°';
   if(ex==='valgus'){var r=mn('mnRatio');return n+' · '+tr('rodillas/tobillos')+' '+(r==null?'–':r.toFixed(2))+(r!=null&&r<0.8?' · '+tr('VALGO'):r!=null&&r<0.95?' · '+tr('leve valgo'):'');}
   if(ex==='deadlift')return n+' · '+tr('cadera')+' '+mvF0(mn('min'))+'° · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°';
