@@ -1800,7 +1800,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261017-14';
+var APP_VERSION='20261019-1';
 (function(){
   try{
     setTimeout(function(){
@@ -4187,6 +4187,14 @@ function openLibFromHome(){
   var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!(isCoach&&isAdmin));
   currentTab='lib';renderLib();
 }
+/* ¿Entrenó ese día? Un solo criterio para toda la app:
+   marcó algún bloque como completado O empezó y finalizó el entrenamiento con el cronómetro. */
+function dayTrained(pid,iso){
+  var ch=JB_CHECKS[pid]||{};
+  for(var k in ch){if(k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done)return true;}
+  var t=(JB_TIMES[pid]||{})[iso];
+  return !!(t&&t.s&&t.e);
+}
 function getInactiveDays(pid){
   var today=isoToday();var sess=JB_SESSIONS[pid]||{};var ch=JB_CHECKS[pid]||{};
   var lastDone=null;
@@ -4194,6 +4202,7 @@ function getInactiveDays(pid){
     var m=/^(\d{4}-\d{2}-\d{2})-/.exec(k);if(!m)return;
     if(ch[k]&&ch[k].done&&m[1]<=today&&(!lastDone||m[1]>lastDone))lastDone=m[1];
   });
+  var _tm=JB_TIMES[pid]||{};Object.keys(_tm).forEach(function(iso){if(iso<=today&&dayTrained(pid,iso)&&(!lastDone||iso>lastDone))lastDone=iso;});
   var missed=0,firstMissed=null;
   Object.keys(sess).forEach(function(iso){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))return;
@@ -4215,7 +4224,7 @@ function getStreak(pid){
   var streak=0;
   for(var i=0;i<days.length;i++){
     var iso=days[i];
-    var done=Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    var done=dayTrained(pid,iso);
     if(done){streak++;}
     else if(iso===today){continue;}
     else break;
@@ -4230,7 +4239,7 @@ function getAdherence(pid){
     if(iso<start||iso>today)return;
     var s=sess[iso];if(!s||!s.blocks||!s.blocks.length)return;
     total++;
-    if(Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;}))done++;
+    if(dayTrained(pid,iso))done++;
   });
   if(!total)return null;
   return {pct:Math.round(done/total*100),done:done,total:total};
@@ -4248,7 +4257,7 @@ function getWeekStrip(pid){
   if(!hasSessThisWeek)return '<div style="font-size:10px;color:var(--muted2);margin-top:6px;font-style:italic;">'+t('sinSesSemana')+'</div>';
   return '<div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end;">'+days.map(function(iso,i){
     var hasSess=sess[iso]&&sess[iso].blocks&&sess[iso].blocks.length>0;
-    var done=hasSess&&Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    var done=hasSess&&dayTrained(pid,iso);
     var col,border;
     if(!hasSess){col='rgba(255,255,255,0.08)';border='1px solid rgba(255,255,255,0.12)';}
     else if(done){col='var(--mobfill)';border='none';}
@@ -4328,7 +4337,7 @@ function pnlWeekHtml(pid){
   var labels=t('dowL'),out='',any=false;
   for(var i=0;i<7;i++){
     var iso=addDaysISO(mon,i),s=sess[iso],has=!!(s&&s.blocks&&s.blocks.length),match=!!mt[iso];
-    var done=has&&(Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;})||!!(tm[iso]&&tm[iso].e));
+    var done=has&&dayTrained(pid,iso);
     if(has||match)any=true;
     var st=match?'match':!has?'rest':done?'done':iso>today?'next':iso===today?'today':'miss';
     out+='<div class="pw-d pw-'+st+(iso===today?' pw-now':'')+'"><span>'+labels[i]+'</span><i>'+(match?'⚽':'')+'</i></div>';
@@ -4617,7 +4626,7 @@ function renderWeekOverview(){
     var cells=days.map(function(iso){
       var s=sess[iso];var has=s&&s.blocks&&s.blocks.length>0;
       if(!has)return '<div style="width:88px;flex:none;height:48px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;"><span style="color:var(--muted2);font-size:15px;">\u00b7</span></div>';
-      var done=Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+      var done=dayTrained(p.id,iso);
       var bg,fg,bd;
       if(done){bg='rgba(168,224,99,0.15)';fg='var(--mobfill)';bd='var(--mobfill)';}
       else if(iso>today){bg='rgba(77,171,247,0.12)';fg='#4dabf7';bd='rgba(77,171,247,0.45)';}
@@ -4801,7 +4810,7 @@ function renderAthleteHome(){
   var today=isoToday();
   var sess=JB_SESSIONS[pid]||{};var ch=JB_CHECKS[pid]||{};
   var s=sess[today];var has=s&&s.blocks&&s.blocks.length;
-  var doneToday=has&&Object.keys(ch).some(function(k){return k.indexOf(today+'-')===0&&ch[k]&&ch[k].done;});
+  var doneToday=has&&dayTrained(pid,today);
   // racha
   var stk=getStreak(pid);
   var se=document.getElementById('wl-streak');
@@ -4842,7 +4851,7 @@ function renderAthleteHome(){
   for(var dd=1;dd<=dim;dd++){
     var iso=y+'-'+('0'+(mo+1)).slice(-2)+'-'+('0'+dd).slice(-2);
     var ss=sess[iso];var hs=ss&&ss.blocks&&ss.blocks.length;
-    var dn=hs&&Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    var dn=hs&&dayTrained(pid,iso);
     var bg='transparent',col='var(--muted2)',bd='none';
     if(hs){
       if(dn){bg='var(--mobfill)';col='#0a0b0e';}
@@ -5016,7 +5025,7 @@ function wlWeekHtml(p){
   var lbl=TT('dowL'),cells='',plan=0,done=0;
   for(var i=0;i<7;i++){
     var iso=addDaysISO(mon,i),s=sess[iso],hs=s&&s.blocks&&s.blocks.length;
-    var dn=hs&&Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    var dn=hs&&dayTrained(pid,iso);
     if(hs){plan++;if(dn)done++;}
     var dd=+iso.slice(8),st='color:var(--muted2);',inner=dd;
     if(hs){
@@ -5059,7 +5068,7 @@ function wlProgHtml(p){
   var sess=JB_SESSIONS[pid]||{},ch=JB_CHECKS[pid]||{},mo=today.slice(0,7),pl=0,dn=0,tot=0;
   Object.keys(sess).forEach(function(iso){
     var s=sess[iso];if(!/^\d{4}-\d{2}-\d{2}$/.test(iso)||!s||!s.blocks||!s.blocks.length||iso>today)return;
-    var d=Object.keys(ch).some(function(k){return k.indexOf(iso+'-')===0&&ch[k]&&ch[k].done;});
+    var d=dayTrained(pid,iso);
     if(d)tot++;
     if(iso.slice(0,7)===mo&&iso<today){pl++;if(d)dn++;}
     else if(iso===today&&d){pl++;dn++;}
