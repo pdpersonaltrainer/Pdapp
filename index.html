@@ -918,7 +918,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <div id="q-pname" style="font-size:16px;font-weight:700;color:var(--mob);margin:3px 0;"></div>
       <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;">Complet&#225; esta ficha antes de ver tu plan.<br>Tu profe la usa para adaptar tu entrenamiento.</div>
     </div>
-    <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Deporte <span style="color:var(--muted2);font-weight:600;text-transform:none;letter-spacing:0;">(opcional · podés elegirlo después)</span></label><select id="q-sport" onchange="updateSportPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225; tu deporte...</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="voley">V&#243;ley</option><option value="handball">Handball</option><option value="tenis">Tenis</option><option value="padel">P&#225;del</option><option value="running">Running / Atletismo</option><option value="wellness">Wellness / Sin deporte</option></select></div>
+    <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Deporte <span class="q-opt-lbl" style="color:var(--muted2);font-weight:600;text-transform:none;letter-spacing:0;">(opcional · podés elegirlo después)</span></label><select id="q-sport" onchange="updateSportPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225; tu deporte...</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="voley">V&#243;ley</option><option value="handball">Handball</option><option value="tenis">Tenis</option><option value="padel">P&#225;del</option><option value="running">Running / Atletismo</option><option value="wellness">Wellness / Sin deporte</option></select></div>
     <div id="q-pos-wrap" style="display:none;margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Posici&#243;n</label><select id="q-position" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Seleccion&#225;...</option></select></div>
     <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Lesiones actuales <span style="font-weight:400;color:var(--muted2);">(opcional)</span></label><textarea id="q-inj-current" placeholder="Describ&#237; si ten&#233;s alguna molestia o lesi&#243;n activa..." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;resize:none;height:68px;font-family:'Barlow',sans-serif;"></textarea></div>
     <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Lesiones pasadas relevantes <span style="font-weight:400;color:var(--muted2);">(opcional)</span></label><textarea id="q-inj-past" placeholder="Cirug&#237;as, rupturas, fracturas u otras lesiones importantes..." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;resize:none;height:68px;font-family:'Barlow',sans-serif;"></textarea></div>
@@ -1838,7 +1838,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261019-6';
+var APP_VERSION='20261019-7';
 (function(){
   try{
     setTimeout(function(){
@@ -2985,11 +2985,11 @@ async function bootApp(){
 async function login(){
   var email=document.getElementById('login-email').value.trim();
   var pass=document.getElementById('login-pass').value;
-  var errEl=document.getElementById('login-err');errEl.textContent='Entrando...';
-  if(!email||!pass){errEl.textContent='Completá email y contraseña.';return;}
+  var errEl=document.getElementById('login-err');errEl.textContent=tr('Entrando...');
+  if(!email||!pass){errEl.textContent=tr('Completá email y contraseña.');return;}
   var r;try{r=await authTimeout(sb.auth.signInWithPassword({email:email,password:pass}),20000);}catch(e){r={error:e};}
   if(r.error){var em=authErrMsg(r.error);errEl.textContent=em;
-    if(/email not confirmed/i.test(String(r.error.message||'')))authNotice(em,false,[{t:'Reenviar el mail de confirmación',f:function(){authResend(email);}}]);
+    if(/email not confirmed/i.test(String(r.error.message||'')))authNotice(em,false,[{t:tr('Reenviar el mail de confirmación'),f:function(){authResend(email);}}]);
     else authNotice(em,false);
     return;}
   MY_UID=r.data.user.id;TRAINER_ID=MY_UID;
@@ -3037,7 +3037,7 @@ async function sendReset(){
   btn.disabled=false;btn.textContent='Enviar link';
   if(r.error){var em=authErrMsg(r.error);msg.style.color='#ff4d4d';msg.textContent=em;authNotice(em,false);return;}
   msg.style.color='#a8e063';msg.textContent='\u2705 Si el email existe, te enviamos un link. Revis\u00e1 tu casilla (y spam).';
-  authNotice('Si <b>'+email+'</b> tiene cuenta, te mandamos un enlace para crear una contraseña nueva. Mirá también en Spam o Promociones.',true);
+  authNotice(tr('Si tu email tiene cuenta, te mandamos un enlace para crear una contraseña nueva.')+' <b>'+email+'</b><br>'+tr('Mirá también en Spam o Promociones.'),true);
 }
 async function doReset(){
   var p1=document.getElementById('reset-pass').value,p2=document.getElementById('reset-pass2').value;
@@ -3054,7 +3054,8 @@ async function doReset(){
   await bootApp();
 }
 /* ===== Ingreso / registro: errores claros y siempre visibles ===== */
-function authErrMsg(err){
+function authErrMsg(err){return tr(_authErrMsg(err));}
+function _authErrMsg(err){
   var m=String((err&&(err.message||err.error_description))||err||'');
   if(/not authorized|not allowed|cannot be used|sending confirmation|error sending|sending.*email/i.test(m))return 'No pudimos mandarte el mail de confirmación a esta dirección. Escribile a PD para que active tu cuenta.';
   if(/rate limit|too many|security purposes|after \d+ seconds/i.test(m))return 'Hubo demasiados intentos seguidos. Esperá unos minutos y probá de nuevo (no hace falta cambiar nada).';
@@ -3065,7 +3066,7 @@ function authErrMsg(err){
   if(/password.*(weak|short|least)|weak password/i.test(m))return 'La contraseña es muy débil: usá al menos 8 caracteres, con letras y números.';
   if(/invalid.*email|email.*invalid|unable to validate email/i.test(m))return 'Ese email no parece válido. Revisalo (sin espacios).';
   if(/failed to fetch|network|load failed|timeout|tard/i.test(m))return 'No hay conexión o tardó demasiado. Revisá internet y probá de nuevo.';
-  return 'No se pudo completar: '+m;
+  return 'No se pudo completar:'+' '+m;
 }
 function authNotice(msg,ok,actions){
   var o=document.getElementById('auth-notice');
@@ -3076,7 +3077,7 @@ function authNotice(msg,ok,actions){
     +'<div style="width:46px;height:46px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:'+(ok?'rgba(168,224,99,0.15)':'rgba(255,107,107,0.15)')+';color:'+col+';font-size:24px;font-weight:800;">'+(ok?'✓':'!')+'</div>'
     +'<div style="font-size:15px;line-height:1.5;color:#eef0f5;">'+msg+'</div>'
     +(actions||[]).map(function(a,i){return '<button data-i="'+i+'" style="'+bt+(i===0?'border:none;background:#a8e063;color:#0a0b0e;':'border:1px solid #2b2f3a;background:transparent;color:#9aa0aa;')+'">'+a.t+'</button>';}).join('')
-    +'<button data-x="1" style="'+bt+((actions&&actions.length)?'border:none;background:none;color:#6b7280;':'border:none;background:'+col+';color:#0a0b0e;')+'">'+((actions&&actions.length)?'Cerrar':'Entendido')+'</button></div>';
+    +'<button data-x="1" style="'+bt+((actions&&actions.length)?'border:none;background:none;color:#6b7280;':'border:none;background:'+col+';color:#0a0b0e;')+'">'+tr((actions&&actions.length)?'Cerrar':'Entendido')+'</button></div>';
   o.style.display='flex';
   o.querySelectorAll('button').forEach(function(b){b.onclick=function(){o.style.display='none';if(b.dataset.i!=null){try{actions[+b.dataset.i].f();}catch(e){}}};});
 }
@@ -3084,7 +3085,7 @@ function authTimeout(pr,ms){return Promise.race([pr,new Promise(function(_,rej){
 async function authResend(email){
   try{var r=await authTimeout(sb.auth.resend({type:'signup',email:email}));
     if(r&&r.error)authNotice(authErrMsg(r.error),false);
-    else authNotice('Te mandamos de nuevo el mail de confirmación a <b>'+email+'</b>. Mirá también en Spam o Promociones.',true);
+    else authNotice(tr('Te mandamos de nuevo el mail de confirmación a')+' <b>'+email+'</b>. '+tr('Mirá también en Spam o Promociones.'),true);
   }catch(e){authNotice(authErrMsg(e),false);}
 }
 async function registerCoach(){
@@ -3097,23 +3098,23 @@ async function registerCoach(){
   var btn=document.getElementById('btn-register');
   msgEl.style.color='#6b7280';
   if(!name||!email||!pass||!pass2){msgEl.style.color='#ff4d4d';msgEl.textContent=tr('Completá nombre, email y contraseña.');return;}
-  if(pass!==pass2){msgEl.style.color='#ff4d4d';msgEl.textContent='Las contrase\u00f1as no coinciden.';return;}
-  if(pass.length<6){msgEl.style.color='#ff4d4d';msgEl.textContent='La contrase\u00f1a debe tener al menos 6 caracteres.';return;}
-  btn.disabled=true;btn.textContent='Creando cuenta...';
+  if(pass!==pass2){msgEl.style.color='#ff4d4d';msgEl.textContent=tr('Las contraseñas no coinciden.');return;}
+  if(pass.length<6){msgEl.style.color='#ff4d4d';msgEl.textContent=tr('La contraseña debe tener al menos 6 caracteres.');return;}
+  btn.disabled=true;btn.textContent=tr('Creando cuenta...');
   msgEl.textContent='';
   var r;
   try{r=await authTimeout(sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name,invite_code:code},emailRedirectTo:location.origin+location.pathname}}),25000);}
   catch(e){r={error:e};}
-  btn.disabled=false;btn.textContent='Crear cuenta';
+  btn.disabled=false;btn.textContent=tr('Crear cuenta');
   if(r.error){var em=authErrMsg(r.error);msgEl.style.color='#ff4d4d';msgEl.textContent=em;authNotice(em,false);try{console.warn('signUp',r.error);}catch(_e){}return;}
   var u=r.data&&r.data.user;
   /* Supabase no avisa con error si el email ya existía: devuelve un usuario sin identidades */
-  if(u&&Array.isArray(u.identities)&&u.identities.length===0){var em2=authErrMsg('already registered');msgEl.style.color='#ff4d4d';msgEl.textContent=em2;authNotice(em2,false,[{t:'Ir a ingresar',f:function(){showLogin();var le=document.getElementById('login-email');if(le)le.value=email;}}]);return;}
+  if(u&&Array.isArray(u.identities)&&u.identities.length===0){var em2=authErrMsg('already registered');msgEl.style.color='#ff4d4d';msgEl.textContent=em2;authNotice(em2,false,[{t:tr('Ir a ingresar'),f:function(){showLogin();var le=document.getElementById('login-email');if(le)le.value=email;}}]);return;}
   /* Si el proyecto no pide confirmar el email, ya hay sesión: entramos directo */
   if(r.data&&r.data.session){MY_UID=r.data.session.user.id;TRAINER_ID=MY_UID;try{clearAthToken();}catch(_e){}document.getElementById('screen-login').style.display='none';await bootApp();return;}
   msgEl.style.color='#a8e063';
-  msgEl.textContent='\u00a1Cuenta creada! Revis\u00e1 tu email para confirmar y despu\u00e9s ingres\u00e1.';
-  authNotice('¡Cuenta creada! Te mandamos un mail a <b>'+email+'</b> para confirmarla. Tocá el enlace del mail y después ingresá.<br><span style="font-size:13px;color:#9aa0aa;">Si no llega en unos minutos, mirá en Spam o Promociones.</span>',true,[{t:'Reenviar el mail',f:function(){authResend(email);}},{t:'Ir a ingresar',f:function(){showLogin();var le=document.getElementById('login-email');if(le)le.value=email;}}]);
+  msgEl.textContent=tr('¡Cuenta creada! Revisá tu email para confirmar y después ingresá.');
+  authNotice(tr('¡Cuenta creada! Te mandamos un mail a')+' <b>'+email+'</b>. '+tr('Tocá el enlace del mail y después ingresá.')+'<br><span style="font-size:13px;color:#9aa0aa;">'+tr('Si no llega en unos minutos, mirá en Spam o Promociones.')+'</span>',true,[{t:tr('Reenviar el mail'),f:function(){authResend(email);}},{t:tr('Ir a ingresar'),f:function(){showLogin();var le=document.getElementById('login-email');if(le)le.value=email;}}]);
   document.getElementById('reg-name').value='';
   document.getElementById('reg-email').value='';
   document.getElementById('reg-pass').value='';
@@ -4410,7 +4411,7 @@ function pdCountUpIn(root,key,minFs){
 }
 function panelCard(p,al){
   var av=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">'+ICON('people')+'</div>';
-  var meta=[p.pos,p.club].filter(Boolean).join(' · ')||'';
+  var meta=[tr(p.pos),p.club].filter(Boolean).join(' · ')||'';
   var chips=al.map(function(a){
     var c=PANEL_SEV[a.sev].c;
     return '<div style="display:flex;align-items:center;gap:7px;padding:5px 0;">'
@@ -4778,7 +4779,7 @@ function renderSelect(){
 function renderPlayerCard(p){
   {
     var av=p.photo?'<div class="player-photo"><img src="'+p.photo+'"/></div>':'<div class="player-photo">\ud83d\udc64</div>';
-    var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
+    var meta=[tr(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
     if(activePid&&activePid!==p.id&&!isCoach){return '<div class="player-card-locked"><div class="player-card-inner">'+av+'<div style="flex:1"><div class="player-name">'+p.name+'</div><div class="player-meta">'+meta+'</div></div><span style="font-size:16px">\ud83d\udd12</span></div></div>';}
     var pinBadge=isCoach&&p.pin?'<div class="player-pin-badge">PIN: '+p.pin.replace(/./g,'\u25cf')+'</div>':'';
     var strip=isCoach?getWeekStrip(p.id):'';
@@ -4815,7 +4816,7 @@ function doSelectPlayer(pid){
   var av=document.getElementById('welcome-av');
   av.innerHTML=p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';
   document.getElementById('welcome-name').textContent=p.name;
-  var sub=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
+  var sub=[tr(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
   document.getElementById('welcome-sub').textContent=sub;
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');
   var wb=document.getElementById('wl-back');if(wb)wb.style.display=(isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN))?'flex':'none';
@@ -4943,7 +4944,7 @@ function wlHome(p){
   var av=p.photo?'<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover;"/>':'<span>'+wlEsc((String(p.name||'?').split(/\s+/).map(function(w){return w.charAt(0);}).join('').slice(0,2)).toUpperCase())+'</span>';
   var stk=getStreak(pid);
   var stkH=stk>=2?'<span style="flex:none;display:inline-flex;align-items:center;gap:4px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);color:var(--mob);border-radius:20px;padding:4px 10px;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;" title="'+wlEsc(stk+' '+TT('enRacha'))+'">🔥 '+stk+'</span>':'';
-  var sub=[p.pos,p.club].filter(Boolean).join(' · ');
+  var sub=[tr(p.pos),p.club].filter(Boolean).join(' · ');
   var _wbv=isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN);document.getElementById('wl-head').innerHTML='<div style="display:flex;align-items:center;gap:12px;text-align:left;margin:'+(_wbv?'44px':'0')+' auto 16px;padding-right:46px;">'
     +'<div style="width:54px;height:54px;border-radius:50%;border:2.5px solid var(--mob);background:var(--s2);overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:19px;color:var(--text);">'+av+'</div>'
     +'<div style="flex:1;min-width:0;"><div style="font-size:12.5px;color:var(--muted);">'+wlEsc(dtxt)+'</div>'
@@ -5068,7 +5069,7 @@ function wlPickSport(){
     +'<div style="display:flex;gap:10px;"><button class="mbtn mbtn-cancel" onclick="document.getElementById(\'sport-pick\').classList.remove(\'open\')">'+tr('Después')+'</button><button class="mbtn mbtn-save" id="sp-save" style="background:var(--mobfill)!important;" onclick="wlSaveSport()">'+tr('Guardar')+'</button></div></div>';
   var ss=document.getElementById('sp-sport');
   ss.onchange=function(){var v=ss.value,w=document.getElementById('sp-pos-wrap'),ps=document.getElementById('sp-pos');
-    if(v&&v!=='wellness'&&SPORT_POSITIONS[v]){ps.innerHTML='<option value="">'+tr('Sin posición')+'</option>'+SPORT_POSITIONS[v].map(function(x){return '<option value="'+x+'">'+x+'</option>';}).join('');w.style.display='';}else{ps.innerHTML='';w.style.display='none';}};
+    if(v&&v!=='wellness'&&SPORT_POSITIONS[v]){ps.innerHTML='<option value="">'+tr('Sin posición')+'</option>'+SPORT_POSITIONS[v].map(function(x){return '<option value="'+x+'">'+tr(x)+'</option>';}).join('');w.style.display='';}else{ps.innerHTML='';w.style.display='none';}};
   o.classList.add('open');
 }
 async function wlSaveSport(){
@@ -5352,7 +5353,7 @@ function updatePSportPositions(){
   var clubWrap=document.getElementById('f-pclub-wrap');
   if(clubWrap)clubWrap.style.display=sport?'':'none';
   if(sport&&sport!=='wellness'&&SPORT_POSITIONS[sport]){
-    sel.innerHTML='<option value="">Seleccion\u00e1...</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+pos+'</option>';}).join('');
+    sel.innerHTML='<option value="">'+tr('Seleccioná...')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+tr(pos)+'</option>';}).join('');
     wrap.style.display='';
   }else{sel.innerHTML='<option value="">Seleccion\u00e1...</option>';wrap.style.display='none';}
 }
@@ -6635,7 +6636,7 @@ function importLibFromFile(input){
     var arr;
     try{arr=JSON.parse(reader.result);}catch(e){showInfo('El archivo no es un JSON valido.');return;}
     if(!Array.isArray(arr)||!arr.length){showInfo('El archivo no tiene ejercicios.');return;}
-    askConfirm('Esto reemplaza TODA tu biblioteca por el archivo ('+arr.length+' ejercicios). Tus planes NO se tocan. \u00bfContinuar?',function(){doImportLib(arr);},{danger:true,okLabel:'Reemplazar'});
+    askConfirm(tr('Esto reemplaza TODA tu biblioteca por el archivo')+' ('+arr.length+' '+tr('ejercicios')+'). '+tr('Tus planes NO se tocan. ¿Continuar?'),function(){doImportLib(arr);},{danger:true,okLabel:tr('Reemplazar')});
   };
   reader.readAsText(file);
 }
@@ -6649,7 +6650,7 @@ async function doImportLib(arr){
   var exr=await sb.from('exercises').select('*').order('type');
   if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base,org_id:e.org_id||null,trainer_id:e.trainer_id||null};});
   showSyncStatus('ok');renderLib();
-  showInfo('Listo! Biblioteca actualizada: '+payload.length+' ejercicios.');
+  showInfo(tr('¡Listo! Biblioteca actualizada:')+' '+payload.length+' '+tr('ejercicios')+'.');
 }
 function exportLib(){
   try{
@@ -7441,7 +7442,7 @@ function buildPlayerReport(pid){
   var S=[];
 
   // ── Encabezado
-  var meta=[p.pos,p.club].filter(Boolean).join(' · ');
+  var meta=[tr(p.pos),p.club].filter(Boolean).join(' · ');
   S.push('<header><div class="who"><h1>'+_rpEsc(p.name)+'</h1>'
     +(meta?'<div class="sub">'+_rpEsc(meta)+'</div>':'')
     +'<div class="sub">'+tr('Informe generado el')+' '+fecha+'</div></div>'
@@ -7714,6 +7715,111 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Arquero"]=STATIC_I18N["Arquero"]||["Goalkeeper", "Portiere"];
+STATIC_I18N["Defensor central"]=STATIC_I18N["Defensor central"]||["Centre-back", "Difensore centrale"];
+STATIC_I18N["Lateral derecho"]=STATIC_I18N["Lateral derecho"]||["Right-back", "Terzino destro"];
+STATIC_I18N["Lateral izquierdo"]=STATIC_I18N["Lateral izquierdo"]||["Left-back", "Terzino sinistro"];
+STATIC_I18N["Mediocampista defensivo"]=STATIC_I18N["Mediocampista defensivo"]||["Defensive midfielder", "Mediano"];
+STATIC_I18N["Mediocampista central"]=STATIC_I18N["Mediocampista central"]||["Central midfielder", "Centrocampista centrale"];
+STATIC_I18N["Mediocampista ofensivo"]=STATIC_I18N["Mediocampista ofensivo"]||["Attacking midfielder", "Trequartista"];
+STATIC_I18N["Extremo derecho"]=STATIC_I18N["Extremo derecho"]||["Right winger", "Ala destra"];
+STATIC_I18N["Extremo izquierdo"]=STATIC_I18N["Extremo izquierdo"]||["Left winger", "Ala sinistra"];
+STATIC_I18N["Delantero centro"]=STATIC_I18N["Delantero centro"]||["Striker", "Centravanti"];
+STATIC_I18N["Delantero"]=STATIC_I18N["Delantero"]||["Forward", "Attaccante"];
+STATIC_I18N["Defensor"]=STATIC_I18N["Defensor"]||["Defender", "Difensore"];
+STATIC_I18N["Volante"]=STATIC_I18N["Volante"]||["Midfielder", "Centrocampista"];
+STATIC_I18N["Mediocampista"]=STATIC_I18N["Mediocampista"]||["Midfielder", "Centrocampista"];
+STATIC_I18N["Base"]=STATIC_I18N["Base"]||["Point guard", "Playmaker"];
+STATIC_I18N["Escolta"]=STATIC_I18N["Escolta"]||["Shooting guard", "Guardia"];
+STATIC_I18N["Alero"]=STATIC_I18N["Alero"]||["Small forward", "Ala piccola"];
+STATIC_I18N["Ala-Pívot"]=STATIC_I18N["Ala-Pívot"]||["Power forward", "Ala grande"];
+STATIC_I18N["Pívot"]=STATIC_I18N["Pívot"]||["Center", "Centro"];
+STATIC_I18N["Libre"]=STATIC_I18N["Libre"]||["Freestyle", "Stile libero"];
+STATIC_I18N["Pecho"]=STATIC_I18N["Pecho"]||["Breaststroke", "Rana"];
+STATIC_I18N["Espalda"]=STATIC_I18N["Espalda"]||["Backstroke", "Dorso"];
+STATIC_I18N["Mariposa"]=STATIC_I18N["Mariposa"]||["Butterfly", "Farfalla"];
+STATIC_I18N["Combinado"]=STATIC_I18N["Combinado"]||["Individual medley", "Misti"];
+STATIC_I18N["Armador"]=STATIC_I18N["Armador"]||["Setter", "Palleggiatore"];
+STATIC_I18N["Punta"]=STATIC_I18N["Punta"]||["Outside hitter", "Schiacciatore"];
+STATIC_I18N["Opuesto"]=STATIC_I18N["Opuesto"]||["Opposite", "Opposto"];
+STATIC_I18N["Central"]=STATIC_I18N["Central"]||["Center", "Centrale"];
+STATIC_I18N["Líbero"]=STATIC_I18N["Líbero"]||["Libero", "Libero"];
+STATIC_I18N["Pivote"]=STATIC_I18N["Pivote"]||["Pivot", "Pivot"];
+STATIC_I18N["Pilar izquierdo"]=STATIC_I18N["Pilar izquierdo"]||["Loosehead prop", "Pilone sinistro"];
+STATIC_I18N["Hooker"]=STATIC_I18N["Hooker"]||["Hooker", "Tallonatore"];
+STATIC_I18N["Pilar derecho"]=STATIC_I18N["Pilar derecho"]||["Tighthead prop", "Pilone destro"];
+STATIC_I18N["Segunda línea"]=STATIC_I18N["Segunda línea"]||["Lock", "Seconda linea"];
+STATIC_I18N["Flanker ciego"]=STATIC_I18N["Flanker ciego"]||["Blindside flanker", "Flanker lato chiuso"];
+STATIC_I18N["Flanker abierto"]=STATIC_I18N["Flanker abierto"]||["Openside flanker", "Flanker lato aperto"];
+STATIC_I18N["N°8"]=STATIC_I18N["N°8"]||["Number 8", "Numero 8"];
+STATIC_I18N["Medio scrum"]=STATIC_I18N["Medio scrum"]||["Scrum-half", "Mediano di mischia"];
+STATIC_I18N["Apertura"]=STATIC_I18N["Apertura"]||["Fly-half", "Mediano di apertura"];
+STATIC_I18N["Centro"]=STATIC_I18N["Centro"]||["Centre", "Centro"];
+STATIC_I18N["Wing"]=STATIC_I18N["Wing"]||["Wing", "Ala"];
+STATIC_I18N["Fullback"]=STATIC_I18N["Fullback"]||["Fullback", "Estremo"];
+STATIC_I18N["Defensor lateral"]=STATIC_I18N["Defensor lateral"]||["Full-back", "Terzino"];
+STATIC_I18N["Volante central"]=STATIC_I18N["Volante central"]||["Holding midfielder", "Mediano"];
+STATIC_I18N["Enganche"]=STATIC_I18N["Enganche"]||["Playmaker", "Trequartista"];
+STATIC_I18N["Mediocentro"]=STATIC_I18N["Mediocentro"]||["Central midfielder", "Centrocampista"];
+STATIC_I18N["Portero"]=STATIC_I18N["Portero"]||["Goalkeeper", "Portiere"];
+STATIC_I18N["Fútbol"]=STATIC_I18N["Fútbol"]||["Football", "Calcio"];
+STATIC_I18N["Básquetbol"]=STATIC_I18N["Básquetbol"]||["Basketball", "Pallacanestro"];
+STATIC_I18N["Hockey"]=STATIC_I18N["Hockey"]||["Hockey", "Hockey"];
+STATIC_I18N["Natación"]=STATIC_I18N["Natación"]||["Swimming", "Nuoto"];
+STATIC_I18N["Vóley"]=STATIC_I18N["Vóley"]||["Volleyball", "Pallavolo"];
+STATIC_I18N["Handball"]=STATIC_I18N["Handball"]||["Handball", "Pallamano"];
+STATIC_I18N["Rugby"]=STATIC_I18N["Rugby"]||["Rugby", "Rugby"];
+STATIC_I18N["Tenis"]=STATIC_I18N["Tenis"]||["Tennis", "Tennis"];
+STATIC_I18N["Pádel"]=STATIC_I18N["Pádel"]||["Padel", "Padel"];
+STATIC_I18N["Running / Atletismo"]=STATIC_I18N["Running / Atletismo"]||["Running / Athletics", "Corsa / Atletica"];
+STATIC_I18N["Wellness"]=STATIC_I18N["Wellness"]||["Wellness", "Benessere"];
+STATIC_I18N["Seleccioná..."]=STATIC_I18N["Seleccioná..."]||["Select...", "Seleziona..."];
+STATIC_I18N["Seleccioná tu posición..."]=STATIC_I18N["Seleccioná tu posición..."]||["Select your position...", "Seleziona la tua posizione..."];
+STATIC_I18N["Las contraseñas no coinciden."]=STATIC_I18N["Las contraseñas no coinciden."]||["Passwords do not match.", "Le password non coincidono."];
+STATIC_I18N["La contraseña debe tener al menos 6 caracteres."]=STATIC_I18N["La contraseña debe tener al menos 6 caracteres."]||["Password must be at least 6 characters.", "La password deve avere almeno 6 caratteri."];
+STATIC_I18N["Crear cuenta"]=STATIC_I18N["Crear cuenta"]||["Create account", "Crea account"];
+STATIC_I18N["Creando cuenta..."]=STATIC_I18N["Creando cuenta..."]||["Creating account...", "Creazione account..."];
+STATIC_I18N["¡Cuenta creada! Revisá tu email para confirmar y después ingresá."]=STATIC_I18N["¡Cuenta creada! Revisá tu email para confirmar y después ingresá."]||["Account created! Check your email to confirm, then sign in.", "Account creato! Controlla la tua email per confermare e poi accedi."];
+STATIC_I18N["¡Cuenta creada! Te mandamos un mail a"]=STATIC_I18N["¡Cuenta creada! Te mandamos un mail a"]||["Account created! We sent an email to", "Account creato! Abbiamo inviato una email a"];
+STATIC_I18N["Tocá el enlace del mail y después ingresá."]=STATIC_I18N["Tocá el enlace del mail y después ingresá."]||["Tap the link in the email and then sign in.", "Tocca il link nell'email e poi accedi."];
+STATIC_I18N["Si no llega en unos minutos, mirá en Spam o Promociones."]=STATIC_I18N["Si no llega en unos minutos, mirá en Spam o Promociones."]||["If it doesn't arrive in a few minutes, check Spam or Promotions.", "Se non arriva tra qualche minuto, controlla Spam o Promozioni."];
+STATIC_I18N["Reenviar el mail"]=STATIC_I18N["Reenviar el mail"]||["Resend email", "Reinvia l'email"];
+STATIC_I18N["Ir a ingresar"]=STATIC_I18N["Ir a ingresar"]||["Go to sign in", "Vai all'accesso"];
+STATIC_I18N["Reenviar el mail de confirmación"]=STATIC_I18N["Reenviar el mail de confirmación"]||["Resend confirmation email", "Reinvia l'email di conferma"];
+STATIC_I18N["Te mandamos de nuevo el mail de confirmación a"]=STATIC_I18N["Te mandamos de nuevo el mail de confirmación a"]||["We sent the confirmation email again to", "Abbiamo inviato di nuovo l'email di conferma a"];
+STATIC_I18N["Mirá también en Spam o Promociones."]=STATIC_I18N["Mirá también en Spam o Promociones."]||["Also check Spam or Promotions.", "Controlla anche Spam o Promozioni."];
+STATIC_I18N["Si tu email tiene cuenta, te mandamos un enlace para crear una contraseña nueva."]=STATIC_I18N["Si tu email tiene cuenta, te mandamos un enlace para crear una contraseña nueva."]||["If your email has an account, we sent you a link to create a new password.", "Se la tua email ha un account, ti abbiamo inviato un link per creare una nuova password."];
+STATIC_I18N["Entendido"]=STATIC_I18N["Entendido"]||["Got it", "Ho capito"];
+STATIC_I18N["Completá email y contraseña."]=STATIC_I18N["Completá email y contraseña."]||["Enter your email and password.", "Inserisci email e password."];
+STATIC_I18N["Entrando..."]=STATIC_I18N["Entrando..."]||["Signing in...", "Accesso..."];
+STATIC_I18N["No pudimos mandarte el mail de confirmación a esta dirección. Escribile a PD para que active tu cuenta."]=STATIC_I18N["No pudimos mandarte el mail de confirmación a esta dirección. Escribile a PD para que active tu cuenta."]||["We couldn't send the confirmation email to this address. Write to PD to activate your account.", "Non siamo riusciti a inviare l'email di conferma a questo indirizzo. Scrivi a PD per attivare il tuo account."];
+STATIC_I18N["Hubo demasiados intentos seguidos. Esperá unos minutos y probá de nuevo (no hace falta cambiar nada)."]=STATIC_I18N["Hubo demasiados intentos seguidos. Esperá unos minutos y probá de nuevo (no hace falta cambiar nada)."]||["Too many attempts in a row. Wait a few minutes and try again (no need to change anything).", "Troppi tentativi di fila. Aspetta qualche minuto e riprova (non serve cambiare nulla)."];
+STATIC_I18N["Ese email ya tiene una cuenta. Volvé a \"Ingresar\" o tocá \"¿Olvidaste tu contraseña?\"."]=STATIC_I18N["Ese email ya tiene una cuenta. Volvé a \"Ingresar\" o tocá \"¿Olvidaste tu contraseña?\"."]||["That email already has an account. Go back to \"Sign in\" or tap \"Forgot your password?\".", "Questa email ha già un account. Torna ad \"Accedi\" o tocca \"Password dimenticata?\"."];
+STATIC_I18N["No se pudo crear la cuenta. Revisá el código de invitación (o dejalo vacío) y probá de nuevo. Si sigue, escribile a PD."]=STATIC_I18N["No se pudo crear la cuenta. Revisá el código de invitación (o dejalo vacío) y probá de nuevo. Si sigue, escribile a PD."]||["Couldn't create the account. Check the invitation code (or leave it empty) and try again. If it persists, write to PD.", "Impossibile creare l'account. Controlla il codice d'invito (o lascialo vuoto) e riprova. Se continua, scrivi a PD."];
+STATIC_I18N["Email o contraseña incorrectos."]=STATIC_I18N["Email o contraseña incorrectos."]||["Wrong email or password.", "Email o password errati."];
+STATIC_I18N["Todavía no confirmaste tu email. Buscá el mail de PDapp (mirá también en Spam o Promociones) y tocá el enlace."]=STATIC_I18N["Todavía no confirmaste tu email. Buscá el mail de PDapp (mirá también en Spam o Promociones) y tocá el enlace."]||["You haven't confirmed your email yet. Look for the PDapp email (also check Spam or Promotions) and tap the link.", "Non hai ancora confermato la tua email. Cerca l'email di PDapp (controlla anche Spam o Promozioni) e tocca il link."];
+STATIC_I18N["La contraseña es muy débil: usá al menos 8 caracteres, con letras y números."]=STATIC_I18N["La contraseña es muy débil: usá al menos 8 caracteres, con letras y números."]||["Password is too weak: use at least 8 characters, with letters and numbers.", "La password è troppo debole: usa almeno 8 caratteri, con lettere e numeri."];
+STATIC_I18N["Ese email no parece válido. Revisalo (sin espacios)."]=STATIC_I18N["Ese email no parece válido. Revisalo (sin espacios)."]||["That email doesn't look valid. Check it (no spaces).", "Questa email non sembra valida. Controllala (senza spazi)."];
+STATIC_I18N["No hay conexión o tardó demasiado. Revisá internet y probá de nuevo."]=STATIC_I18N["No hay conexión o tardó demasiado. Revisá internet y probá de nuevo."]||["No connection or it took too long. Check your internet and try again.", "Nessuna connessione o ci è voluto troppo. Controlla internet e riprova."];
+STATIC_I18N["No se pudo completar:"]=STATIC_I18N["No se pudo completar:"]||["Couldn't complete:", "Impossibile completare:"];
+STATIC_I18N["Ver video"]=STATIC_I18N["Ver video"]||["Watch video", "Guarda video"];
+STATIC_I18N["Esto reemplaza TODA tu biblioteca por el archivo"]=STATIC_I18N["Esto reemplaza TODA tu biblioteca por el archivo"]||["This replaces your ENTIRE library with the file", "Questo sostituisce TUTTA la tua libreria con il file"];
+STATIC_I18N["Tus planes NO se tocan. ¿Continuar?"]=STATIC_I18N["Tus planes NO se tocan. ¿Continuar?"]||["Your plans are NOT touched. Continue?", "I tuoi piani NON vengono toccati. Continuare?"];
+STATIC_I18N["Reemplazar"]=STATIC_I18N["Reemplazar"]||["Replace", "Sostituisci"];
+STATIC_I18N["¡Listo! Biblioteca actualizada:"]=STATIC_I18N["¡Listo! Biblioteca actualizada:"]||["Done! Library updated:", "Fatto! Libreria aggiornata:"];
+STATIC_I18N["ejercicios"]=STATIC_I18N["ejercicios"]||["exercises", "esercizi"];
+STATIC_I18N["(opcional · podés elegirlo después)"]=STATIC_I18N["(opcional · podés elegirlo después)"]||["(optional · you can choose it later)", "(facoltativo · puoi sceglierlo dopo)"];
+STATIC_I18N["Ej: Pablo PT"]=STATIC_I18N["Ej: Pablo PT"]||["E.g. Pablo PT", "Es: Pablo PT"];
+STATIC_I18N["Ej: +54 9 11 ..."]=STATIC_I18N["Ej: +54 9 11 ..."]||["E.g. +54 9 11 ...", "Es: +54 9 11 ..."];
+STATIC_I18N["Ej: @pablo.pt"]=STATIC_I18N["Ej: @pablo.pt"]||["E.g. @pablo.pt", "Es: @pablo.pt"];
+STATIC_I18N["Ej: Lionel Messi"]=STATIC_I18N["Ej: Lionel Messi"]||["E.g. Lionel Messi", "Es: Lionel Messi"];
+STATIC_I18N["Ej: Inter Miami"]=STATIC_I18N["Ej: Inter Miami"]||["E.g. Inter Miami", "Es: Inter Miami"];
+STATIC_I18N["Ej: 1234"]=STATIC_I18N["Ej: 1234"]||["E.g. 1234", "Es: 1234"];
+STATIC_I18N["Ej: Hip CARs"]=STATIC_I18N["Ej: Hip CARs"]||["E.g. Hip CARs", "Es: Hip CARs"];
+STATIC_I18N["Ej: 4x6 @80kg"]=STATIC_I18N["Ej: 4x6 @80kg"]||["E.g. 4x6 @80kg", "Es: 4x6 @80kg"];
+STATIC_I18N["Ej: 70"]=STATIC_I18N["Ej: 70"]||["E.g. 70", "Es: 70"];
+STATIC_I18N["opc."]=STATIC_I18N["opc."]||["opt.", "opz."];
+STATIC_I18N["Ninguna"]=STATIC_I18N["Ninguna"]||["None", "Nessuna"];
 STATIC_I18N["Notificaciones"]=["Notifications","Notifiche"];
 STATIC_I18N["Todas"]=STATIC_I18N["Todas"]||["All","Tutte"];
 STATIC_I18N["Videos y tests"]=["Videos & tests","Video e test"];
@@ -9516,7 +9622,7 @@ function renderSummary(){
   if(!LIST.length){document.getElementById('summary-content').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udcca</div><p>No hay alumnos.</p></div>';return;}
   var html=LIST.map(function(p){
     var avH=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">\ud83d\udc64</div>';
-    var meta=[p.pos,p.club].filter(Boolean).join(' \u00b7 ')||'';
+    var meta=[tr(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
     var ss=JB_SESSIONS[p.id]||{};
     var checks=JB_CHECKS[p.id]||{};
     var byDate={};
@@ -9636,6 +9742,7 @@ var SPORT_POSITIONS={
 var SPORT_LABELS={futbol:'F\u00fatbol',basquetbol:'B\u00e1squetbol',hockey:'Hockey',natacion:'Nataci\u00f3n',voley:'V\u00f3ley',handball:'Handball',rugby:'Rugby',tenis:'Tenis',padel:'P\u00e1del',running:'Running / Atletismo',wellness:'Wellness'};
 function showQuestionnaire(pid){
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
+  try{document.querySelectorAll('.q-opt-lbl').forEach(function(e){e.textContent=tr('(opcional · podés elegirlo después)');});}catch(e){}
   document.getElementById('screen-select').style.display='none';
   document.getElementById('screen-questionnaire').style.display='block';
   var av=document.getElementById('q-av');
@@ -9651,7 +9758,7 @@ function updateSportPositions(){
   var wrap=document.getElementById('q-pos-wrap');
   var sel=document.getElementById('q-position');
   if(sport&&sport!=='wellness'&&SPORT_POSITIONS[sport]){
-    sel.innerHTML='<option value="">Seleccion\u00e1 tu posici\u00f3n...</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+pos+'</option>';}).join('');
+    sel.innerHTML='<option value="">'+tr('Seleccioná tu posición...')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+tr(pos)+'</option>';}).join('');
     wrap.style.display='';
   }else{sel.innerHTML='';wrap.style.display='none';}
 }
@@ -9832,7 +9939,7 @@ function updateFichaPositions(){
   var wrap=document.getElementById('f-q-pos-wrap');
   var sel=document.getElementById('f-q-position');
   if(sport&&sport!=='wellness'&&SPORT_POSITIONS[sport]){
-    sel.innerHTML='<option value="">Sin posici\u00f3n</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+pos+'</option>';}).join('');
+    sel.innerHTML='<option value="">'+tr('Sin posición')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+tr(pos)+'</option>';}).join('');
     wrap.style.display='';
   }else{sel.innerHTML='';wrap.style.display='none';}
 }
