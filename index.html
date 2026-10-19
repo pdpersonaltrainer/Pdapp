@@ -120,7 +120,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .da-opt:active{border-color:var(--mob);color:var(--mob);}
 .select-header p{font-size:10px;color:var(--muted);letter-spacing:0.07em;text-transform:uppercase;margin-top:1px;}
 .coach-toggle{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);cursor:pointer;}
-.coach-toggle.active{background:rgba(249,200,70,0.12);border-color:var(--act);color:var(--act);}
+.coach-toggle.active{background:rgba(168,224,99,0.12);border-color:var(--mob);color:var(--mob);}
 .select-body{flex:1;max-width:var(--cw);margin:0 auto;width:100%;padding:24px 16px 100px;position:relative;z-index:1;}
 #screen-select.with-side .select-header,#screen-select.with-side .select-body{padding-left:80px;}
 .pd-side{position:fixed;top:0;left:0;bottom:0;width:64px;background:var(--veil);border-right:1px solid var(--border);z-index:400;display:none;flex-direction:column;padding:calc(16px + env(safe-area-inset-top)) 0 16px;transition:width .22s ease;overflow:hidden;}
@@ -384,7 +384,7 @@ html.dragging-ex ::-moz-selection{background:transparent;}
   .lib-topbar-inner>div{flex:1;min-width:0;gap:7px!important;}
   .lib-topbar .add-lib-btn{flex:1;min-width:0;padding:9px 4px;font-size:11px;letter-spacing:0.03em;white-space:nowrap;}
 }
-.add-lib-btn{background:var(--actfill);color:#0a0b0e;border:none;border-radius:8px;padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.add-lib-btn{background:var(--dp-green,var(--mobfill));box-shadow:var(--dp-btn);color:#0a0b0e;border:none;border-radius:8px;padding:7px 13px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
 .add-lib-btn.hidden{display:none;}
 .lib-filters{max-width:var(--cw);margin:0 auto;padding:10px 13px 4px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
 .lib-filters::-webkit-scrollbar{display:none;}
@@ -506,7 +506,7 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .form-row select option{background:var(--s2);}
 .modal-btns{display:flex;gap:8px;margin-top:16px;}
 .mbtn{flex:1;padding:11px;border-radius:var(--rsm);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border:none;}
-.mbtn-cancel{background:var(--s2);color:var(--muted);}.mbtn-save{background:var(--actfill);color:#0a0b0e;}
+.mbtn-cancel{background:var(--s2);color:var(--muted);}.mbtn-save{background:var(--dp-green,var(--mobfill));color:#0a0b0e;box-shadow:var(--dp-btn);}
 .avatar-upload-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
 .av-preview{width:64px;height:64px;border-radius:50%;background:var(--s2);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;}
 .av-preview img{width:64px;height:64px;object-fit:cover;}
@@ -530,7 +530,7 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .pin-box p{font-size:12px;color:var(--muted);margin-bottom:20px;}
 .pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:20px;}
 .pin-dot{width:14px;height:14px;border-radius:50%;background:var(--s3);border:2px solid var(--border2);}
-.pin-dot.filled{background:var(--actfill);border-color:var(--act);}
+.pin-dot.filled{background:var(--mobfill);border-color:var(--mob);}
 .pin-dot.error{background:var(--danger);border-color:var(--danger);}
 .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
 .pin-key{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:15px 8px;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--text);cursor:pointer;}
@@ -927,7 +927,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
     <div style="margin-bottom:14px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Objetivos de la temporada <span style="font-weight:400;color:var(--muted2);">(opcional)</span></label><textarea id="q-goals" placeholder="&#191;Qu&#233; quer&#233;s lograr con este entrenamiento?" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;resize:none;height:68px;font-family:'Barlow',sans-serif;"></textarea></div>
     <div style="margin-bottom:24px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Notas m&#233;dicas <span style="font-weight:400;color:var(--muted2);">(opcional)</span></label><textarea id="q-medical" placeholder="Condiciones de salud, medicaci&#243;n, alergias u otro dato relevante..." style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-size:14px;color:var(--text);outline:none;resize:none;height:60px;font-family:'Barlow',sans-serif;"></textarea></div>
     <div id="q-msg" style="color:#ff6b6b;font-size:13px;margin-bottom:10px;min-height:16px;text-align:center;"></div>
-    <button onclick="submitQuestionnaire()" id="btn-q-submit" style="width:100%;padding:15px;border-radius:var(--rsm);border:none;background:var(--actfill);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Comenzar &#8594;</button>
+    <button onclick="submitQuestionnaire()" id="btn-q-submit" style="width:100%;padding:15px;border-radius:var(--rsm);border:none;background:var(--mobfill);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">Comenzar &#8594;</button>
   </div>
 </div>
 
@@ -1758,7 +1758,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Para qui&#233;n es (opcional)</label>
       <input type="text" id="f-invite-note" placeholder="Ej: Profe Mart&#237;n" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);color:var(--text);padding:10px 12px;font-size:14px;outline:none;"/>
     </div>
-    <button onclick="generateInvite()" id="btn-gen-invite" style="width:100%;padding:11px;border-radius:var(--rsm);border:none;background:var(--actfill);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;margin-bottom:16px;">+ Generar c&#243;digo</button>
+    <button onclick="generateInvite()" id="btn-gen-invite" style="width:100%;padding:11px;border-radius:var(--rsm);border:none;background:var(--mobfill);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;margin-bottom:16px;">+ Generar c&#243;digo</button>
     <div id="invites-list" style="max-height:280px;overflow-y:auto;"></div>
     <div class="modal-btns" style="margin-top:12px;">
       <button class="mbtn mbtn-cancel" onclick="closeInvitesModal()" style="width:100%;">Cerrar</button>
@@ -1838,7 +1838,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261019-7';
+var APP_VERSION='20261019-9';
 (function(){
   try{
     setTimeout(function(){
@@ -5406,7 +5406,7 @@ function showTab(name){try{if(name!=='plan')sessFloatSet(false);}catch(e){}
   var tabEl=document.getElementById('atab-'+name);if(tabEl)tabEl.classList.add('active');
   if(name==='lib'){document.getElementById('add-lib-btn').classList.toggle('hidden',!isCoach);var rlb=document.getElementById('import-lib-btn');if(rlb)rlb.classList.toggle('hidden',!(isCoach&&isAdmin));var elb=document.getElementById('export-lib-btn');if(elb)elb.classList.toggle('hidden',!(isCoach&&isAdmin));renderLib();}
   if(name==='week'){weekViewW=cW;renderWeekView();}
-  if(name==='msg')renderMsgTab();
+  if(name==='msg'){if(isCoach&&currentPlayerId&&_cambio){msgView='chat';chatPlayerId=currentPlayerId;}renderMsgTab();}
   if(name==='summary')renderSummary();
 }
 
@@ -9691,7 +9691,7 @@ function setWRating(field,val){
   if(field==='sleep')wSleep=val;else wEnergy=val;
   for(var i=1;i<=5;i++){
     var b=document.getElementById('w-'+field+'-'+i);if(!b)continue;
-    if(i<=val){b.style.background='var(--actfill)';b.style.color='#0a0b0e';b.style.borderColor='var(--actfill)';}
+    if(i<=val){b.style.background='var(--mobfill)';b.style.color='#0a0b0e';b.style.borderColor='var(--mobfill)';}
     else{b.style.background='transparent';b.style.color='var(--muted)';b.style.borderColor='var(--border2)';}
   }
 }
