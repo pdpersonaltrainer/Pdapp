@@ -1,7 +1,10 @@
 /* PDapp - Service Worker
    IMPORTANTE: este SW NO cachea nada a propósito.
    Solo maneja notificaciones push. Si cacheara archivos, rompería
-   el auto-actualizador de versiones de la app en iOS. */
+   el auto-actualizador de versiones de la app en iOS.
+
+   v2 (2026-10-19): tocar la notificación lleva al lugar exacto
+   (chat, video, día del plan…) aunque la app ya esté abierta. */
 
 self.addEventListener('install', function(e){
   self.skipWaiting();
@@ -18,13 +21,16 @@ self.addEventListener('push', function(e){
     try { d = { body: e.data.text() }; } catch(err2){ d = {}; }
   }
   var title = d.title || 'PDapp';
+  var url = d.url || '/';
   var opts = {
     body: d.body || '',
     icon: d.icon || '/icon.png',
     badge: '/icon.png',
-    tag: d.tag || 'pdapp',
+    /* Una etiqueta por destino: los mensajes del mismo chat se agrupan,
+       pero un video no pisa a un mensaje de otro alumno. */
+    tag: d.tag || ('pd-' + url),
     renotify: true,
-    data: { url: d.url || '/' }
+    data: { url: url }
   };
   e.waitUntil(self.registration.showNotification(title, opts));
 });
@@ -33,12 +39,21 @@ self.addEventListener('push', function(e){
 self.addEventListener('notificationclick', function(e){
   e.notification.close();
   var target = (e.notification.data && e.notification.data.url) || '/';
+  var abs = new URL(target, self.location.origin).href;
   e.waitUntil(
     self.clients.matchAll({ type:'window', includeUncontrolled:true }).then(function(list){
       for (var i=0; i<list.length; i++){
-        if ('focus' in list[i]) return list[i].focus();
+        var c = list[i];
+        if ('focus' in c){
+          /* La app ya está abierta: la traemos al frente y le decimos qué abrir */
+          return c.focus().then(function(fc){
+            try { (fc || c).postMessage({ type:'pd-open', url: abs }); } catch(err){}
+            return fc;
+          });
+        }
       }
-      if (self.clients.openWindow) return self.clients.openWindow(target);
+      /* La app estaba cerrada: se abre directo en el destino */
+      if (self.clients.openWindow) return self.clients.openWindow(abs);
     })
   );
 });

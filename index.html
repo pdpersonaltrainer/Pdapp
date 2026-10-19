@@ -1837,7 +1837,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261019-4';
+var APP_VERSION='20261019-5';
 (function(){
   try{
     setTimeout(function(){
@@ -9254,7 +9254,10 @@ var PD_LINK=null;
   /* Si la app ya estaba abierta, el service worker nos avisa qué abrir */
   try{if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',function(ev){
     var d=ev.data||{};if(d.type!=='pd-open'||!d.url)return;
-    try{var u=new URL(d.url,location.origin),l=u.searchParams.get('pdl');if(l)pdOpenLink(JSON.parse(l));}catch(e){}
+    try{var u=new URL(d.url,location.origin),l=u.searchParams.get('pdl');if(!l)return;var lk=JSON.parse(l);
+      var lg=document.getElementById('screen-login'),notReady=!PLAYERS.length||(lg&&lg.style.display!=='none')||(ATH_TOKEN&&!ATH_PIN);
+      if(notReady){PD_LINK=lk;try{sessionStorage.setItem('pd_link',JSON.stringify({l:lk,t:Date.now()}));}catch(e){}}
+      else pdOpenLink(lk);}catch(e){}
   });}catch(e){}
 })();
 function pdLinkUrl(link){return '/'+(link?'?pdl='+encodeURIComponent(JSON.stringify(link)):'');}
