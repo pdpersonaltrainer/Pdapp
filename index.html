@@ -1840,7 +1840,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261020-1';
+var APP_VERSION='20261020-2';
 (function(){
   try{
     setTimeout(function(){
@@ -4834,7 +4834,7 @@ function doSelectPlayer(pid){
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');
   var wb=document.getElementById('wl-back');if(wb)wb.style.display=(isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN))?'flex':'none';
   var wsg=document.getElementById('wl-set');if(wsg)wsg.style.display=isCoach?'none':'flex';
-  var wch=document.getElementById('wl-chat');if(wch)wch.style.display=isCoach?'none':'flex';
+  var wch=document.getElementById('wl-chat');if(wch){wch.style.display='flex';wch.style.right=isCoach?'18px':'64px';wlCoachChatBadge();}
   document.getElementById('screen-select').style.display='none';
   try{renderAthleteHome();}catch(e){console.error('athleteHome',e);}
   /* iOS cierra la app en segundo plano: si el alumno tenía un entrenamiento
@@ -5112,7 +5112,16 @@ function wlBtnGo(){
 function wlGoVid(iso){pendingDate=iso;enterPlan();setTimeout(function(){try{if(!sessionStarted())toast(tr('Se filma durante el entrenamiento: tocá Empezar mi entrenamiento.'));}catch(e){}},450);}
 function wlGoTest(k){enterPlan();setTimeout(function(){try{showTab('summary');}catch(e){}try{openTestModal(k);}catch(e){}},250);}
 function wlGoTests(){enterPlan();setTimeout(function(){try{showTab('summary');}catch(e){}setTimeout(function(){var b=document.getElementById('tests-athlete');if(b)b.scrollIntoView({behavior:'smooth',block:'start'});},350);},250);}
-function wlGoChat(){wlMarkMsgsSeen();enterPlan();setTimeout(function(){try{showTab('msg');}catch(e){}},200);}
+/* En la vista del profe: puntito con los mensajes sin leer de ESTE alumno */
+async function wlCoachChatBadge(){
+  if(!isCoach||!currentPlayerId)return;
+  var pid=currentPlayerId,n=0;
+  try{var r=await sb.from('messages').select('id').eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false);n=r.error?0:(r.data||[]).length;}catch(e){}
+  if(pid!==currentPlayerId)return;
+  var b=document.getElementById('wl-chat-n');if(b){b.textContent=n>9?'9+':String(n);b.style.display=n?'flex':'none';}
+  var w=document.getElementById('wl-chat');if(w){w.title=w.ariaLabel=tr('Chat con')+' '+(((PLAYERS.find(function(x){return x.id===pid;})||{}).name||'').split(' ')[0]);}
+}
+function wlGoChat(){if(isCoach){var _b=document.getElementById('wl-chat-n');if(_b)_b.style.display='none';currentTab='';enterPlan();setTimeout(function(){try{showTab('msg');}catch(e){}},200);return;}wlMarkMsgsSeen();enterPlan();setTimeout(function(){try{showTab('msg');}catch(e){}},200);}
 function wlWeekHtml(p){
   var pid=p.id,today=isoToday(),mon=isoMonday();
   var sess=JB_SESSIONS[pid]||{},ch=JB_CHECKS[pid]||{},mt=p.matches||{};
@@ -5235,7 +5244,7 @@ function athBackHome(){
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');ws.scrollTop=0;
   var wb=document.getElementById('wl-back');if(wb)wb.style.display=(isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN))?'flex':'none';
   var wsg=document.getElementById('wl-set');if(wsg)wsg.style.display=isCoach?'none':'flex';
-  var wch=document.getElementById('wl-chat');if(wch)wch.style.display=isCoach?'none':'flex';
+  var wch=document.getElementById('wl-chat');if(wch){wch.style.display='flex';wch.style.right=isCoach?'18px':'64px';wlCoachChatBadge();}
   try{renderAthleteHome();}catch(e){console.error('athBackHome',e);}
 }
 function welcomeBack(){
@@ -7728,6 +7737,7 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N['Chat con']=STATIC_I18N['Chat con']||['Chat with','Chat con'];
 STATIC_I18N["Arquero"]=STATIC_I18N["Arquero"]||["Goalkeeper", "Portiere"];
 STATIC_I18N["Defensor central"]=STATIC_I18N["Defensor central"]||["Centre-back", "Difensore centrale"];
 STATIC_I18N["Lateral derecho"]=STATIC_I18N["Lateral derecho"]||["Right-back", "Terzino destro"];
