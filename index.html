@@ -691,6 +691,42 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 .pd-sw-txt{display:flex;flex-direction:column;gap:2px;text-align:left;}
 .pd-sw-txt b{font-size:14px;color:var(--text);font-weight:700;font-family:'Barlow',sans-serif;}
 .pd-sw-txt small{font-size:12px;color:var(--muted);font-weight:500;font-family:'Barlow',sans-serif;}
+/* Centro de notificaciones */
+.pd-nb{position:absolute;left:30px;top:5px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ff5a5a;color:#fff;font-family:'Barlow',sans-serif;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);box-shadow:0 0 10px rgba(255,90,90,0.7);line-height:1;}
+#side-chat-dot{z-index:2;}
+#side-notif-n{z-index:2;}
+#notif-panel{position:fixed;inset:0;z-index:640;display:none;}
+#notif-panel.open{display:block;}
+#notif-panel .np-scrim{position:absolute;inset:0;background:rgba(0,0,0,0.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);animation:npFade .2s ease both;}
+#notif-panel .np-box{position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);display:flex;flex-direction:column;background:var(--dp-sheen),var(--s1);border-left:1px solid var(--border2);box-shadow:-30px 0 80px -20px rgba(0,0,0,0.8);animation:npIn .28s cubic-bezier(.2,.8,.2,1) both;padding-top:env(safe-area-inset-top);}
+@keyframes npIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes npFade{from{opacity:0}to{opacity:1}}
+@media (max-width:600px){#notif-panel .np-box{top:auto;left:0;width:100%;height:88vh;border-left:none;border-top:1px solid var(--border2);border-radius:20px 20px 0 0;animation-name:npUp;}}
+@keyframes npUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.np-hdr{display:flex;align-items:center;gap:10px;padding:18px 18px 10px;}
+.np-t{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;}
+.np-s{font-size:12.5px;color:var(--muted);}
+.np-all{background:none;border:none;padding:0;color:var(--mob);font-family:'Barlow',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+.np-x{flex:none;width:38px;height:38px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.np-chips{display:flex;gap:7px;padding:4px 18px 10px;overflow-x:auto;scrollbar-width:none;}
+.np-chip{flex:none;padding:7px 13px;border-radius:999px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:12.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;}
+.np-chip.on{background:var(--mobfill);color:#0a0b0e;border-color:transparent;}
+.np-list{flex:1;overflow-y:auto;padding:0 10px 30px;-webkit-overflow-scrolling:touch;}
+.np-g{font-size:10.5px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted2);padding:14px 8px 6px;}
+.np-it{width:100%;display:flex;align-items:flex-start;gap:12px;padding:11px 10px;border:none;background:none;border-radius:12px;text-align:left;color:var(--text);cursor:pointer;position:relative;}
+.np-it:hover{background:var(--s2);}
+.np-it.new{background:rgba(168,224,99,0.06);}
+.np-av{position:relative;flex:none;width:44px;height:44px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;color:var(--muted);}
+.np-av img{width:44px;height:44px;border-radius:50%;object-fit:cover;}
+.np-av i{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--s1);}
+.np-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.np-tx b{font-size:14px;font-weight:700;line-height:1.3;}
+.np-tx span{font-size:13px;color:var(--muted);line-height:1.4;}
+.np-tx small{font-size:11.5px;color:var(--muted2);margin-top:2px;}
+.np-it em{flex:none;width:9px;height:9px;border-radius:50%;background:var(--mobfill);margin-top:6px;box-shadow:0 0 8px rgba(168,224,99,0.8);}
+.np-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:50px 24px;color:var(--muted);font-size:13.5px;line-height:1.5;}
+.np-empty b{color:var(--text);font-size:16px;}
+.np-empty-ic{width:64px;height:64px;border-radius:50%;background:rgba(168,224,99,0.10);display:flex;align-items:center;justify-content:center;margin-bottom:4px;box-shadow:0 0 30px -6px rgba(168,224,99,0.5);}
 /* ================= fin PD · PROFUNDIDAD ================= */
 </style>
 </head>
@@ -777,8 +813,9 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
   <nav class="pd-side" id="pd-sidebar">
     <div class="pd-side-logo" onclick="toggleSidebar()"><img src="icon.png" alt="PDapp" onerror="this.style.display='none'"><span>PDapp</span></div>
     <div class="pd-nav">
+      <button class="pd-nav-item" id="side-notif" onclick="openNotifPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Notificaciones</span><b id="side-notif-n" class="pd-nb" style="display:none;">0</b></button>
       <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Alumnos</span></button>
-      <button class="pd-nav-item" id="side-chat" onclick="sideNav('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Chat</span><span id="side-chat-dot" style="display:none;position:absolute;left:32px;top:9px;width:9px;height:9px;border-radius:50%;background:#ff7043;border:2px solid var(--bg);"></span></button>
+      <button class="pd-nav-item" id="side-chat" onclick="sideNav('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Chat</span><b id="side-chat-dot" class="pd-nb" style="display:none;">0</b></button>
       <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg><span>Biblioteca</span></button>
       <button class="pd-nav-item" id="side-templates" onclick="sideNav('templates')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Mis Sesiones</span></button>
       <button class="pd-nav-item" id="side-pdmethod" onclick="sideNav('pdmethod')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Metodología PD</span></button>
@@ -1800,7 +1837,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261019-3';
+var APP_VERSION='20261019-4';
 (function(){
   try{
     setTimeout(function(){
@@ -2479,7 +2516,7 @@ async function saveBodyPains(){
       var _z=_fuertes.slice(0,2).map(function(x){return tr(BODY_LBL[x.z]||x.z);}).join(', ');
       if(_fuertes.length>2)_z+=' +'+(_fuertes.length-2);
       var _hasS=(function(){var s=(JB_SESSIONS[p.id]||{})[isoToday()];return !!(s&&s.blocks&&s.blocks.length&&!s.bDec);})();
-      notifyCoach((p&&p.name)||'PDapp',tr('Reportó dolor fuerte:')+' '+_z+(_hasS?' · '+tr('se le recomienda la versión suave'):''));
+      pdNotify('pain',(p&&p.name)||'PDapp',tr('Reportó dolor fuerte:')+' '+_z+(_hasS?' · '+tr('se le recomienda la versión suave'):''),{k:'day',pid:p.id,d:isoToday()});
       try{if(currentPlayerId===p.id)renderPlan();}catch(e){}
     }
   }catch(e){}
@@ -2563,8 +2600,8 @@ async function submitWeekly(){
       var _d=[];
       if(entry.fatiga>=8)_d.push(tr('fatiga')+' '+entry.fatiga);
       if(entry.dolor>=8)_d.push(tr('dolor')+' '+entry.dolor);
-      notifyCoach((p&&p.name)||'PDapp',tr('Autoevaluación en rojo')+' ('+_d.join(' · ')+')');
-    }
+      pdNotify('weekly',(p&&p.name)||'PDapp',tr('Autoevaluación en rojo')+' ('+_d.join(' · ')+')',{k:'summary',pid:p.id});
+    }else if(p){pdNotify('weekly',p.name||'PDapp',tr('Respondió la encuesta de la semana')+' · '+tr('fatiga')+' '+entry.fatiga+' · '+tr('dolor')+' '+entry.dolor,{k:'summary',pid:p.id},false);}
   }catch(e){}
   document.getElementById('screen-weekly').style.display='none';
   doSelectPlayer(currentPlayerId);
@@ -2753,7 +2790,7 @@ function addMatch(){
   var g=document.getElementById('mt-group');
   if(isCoach&&g&&g.checked&&p.group_id)targets=PLAYERS.filter(function(x){return x.group_id===p.group_id;});
   targets.forEach(function(t){if(!t.matches)t.matches={};t.matches[d]=JSON.parse(JSON.stringify(m));_saveMatches(t);});
-  if(!isCoach)notifyCoach(p.name||'PDapp',tr('Cargó un partido')+': '+fmtDateLong(d)+(rival?' · '+rival:''));
+  if(!isCoach)pdNotify('match',p.name||'PDapp',tr('Cargó un partido')+': '+fmtDateLong(d)+(rival?' · '+rival:''),{k:'day',pid:p.id,d:d});
   var r=document.getElementById('mt-rival');if(r)r.value='';
   renderMatchesModal(p);_mtRefresh();
   toast(tr('Partido agregado')+(targets.length>1?' · '+targets.length+' '+tr('alumnos'):''));
@@ -2930,6 +2967,8 @@ async function bootApp(){
     migrateAllChecks();
     overlay.style.display='none';
     activateCoach();
+    try{notifStartPolling();}catch(e){}
+    try{pdConsumeLink();}catch(e){}
     var ib=document.getElementById('invites-btn');if(ib)ib.style.display=isAdmin?'':'none';
     var sp=document.getElementById('side-profes');if(sp)sp.style.display=isAdmin?'':'none';
     try{if(!isAdmin&&PLAYERS.length===0&&!localStorage.getItem('pd_welcome_done')){document.getElementById('modal-welcome').classList.add('open');}}catch(e){}
@@ -3708,7 +3747,7 @@ async function refreshChatBadge(){
   if(!isCoach)return;
   await loadUnreadCounts();
   var total=0;Object.keys(CHAT_UNREAD).forEach(function(k){total+=CHAT_UNREAD[k];});
-  var d=document.getElementById('side-chat-dot');if(d)d.style.display=total?'block':'none';
+  var d=document.getElementById('side-chat-dot');if(d){d.textContent=total>9?'9+':String(total);d.style.display=total?'flex':'none';}
 }
 function openTestsFromHome(){
   openSideScreen('screen-tests');
@@ -5251,6 +5290,7 @@ async function checkAthletePin(){
   closePlayerPinModal();
   renderSelect();
   doSelectPlayer(pid);
+  try{pdConsumeLink();}catch(e){}
 }
 function checkPlayerPin(){if(ATH_TOKEN){checkAthletePin();return;}var p=PLAYERS.find(function(x){return x.id===pendingSelectPid;});var stored=p?String(p.pin||'').trim():'';var entered=String(playerPinBuffer).trim();if(p&&stored===entered&&entered.length===4){var pid=pendingSelectPid;closePlayerPinModal();doSelectPlayer(pid);}else{for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}}
 
@@ -5623,7 +5663,7 @@ function choosePlanB(v){
   renderPlan();
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;})||{};
   var zs=strongPainZones(currentPlayerId,curDate).slice(0,2).map(function(z){return tr(BODY_LBL[z]||z);}).join(', ');
-  notifyCoach(p.name||'PDapp',tr('Molestia fuerte')+(zs?' ('+zs+')':'')+' · '+(v==='b'?tr('eligió la versión suave'):tr('eligió la sesión normal')));
+  pdNotify('pain',p.name||'PDapp',tr('Molestia fuerte')+(zs?' ('+zs+')':'')+' · '+(v==='b'?tr('eligió la versión suave'):tr('eligió la sesión normal')),{k:'day',pid:currentPlayerId,d:curDate});
 }
 function changePlanBChoice(){
   if(isCoach||planBStarted(currentPlayerId,curDate))return;
@@ -7095,7 +7135,7 @@ async function openChatThread(pid){
   var r=ATH_TOKEN?(await sb.rpc('athlete_messages',{p_token:ATH_TOKEN,p_pin:ATH_PIN})):(await sb.from('messages').select('*').eq('player_id',pid).order('created_at'));
   CHAT=r.error?[]:(r.data||[]);
   // marcar leídos
-  if(isCoach){sb.from('messages').update({read_by_coach:true}).eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false).then(function(){});}
+  if(isCoach){sb.from('messages').update({read_by_coach:true}).eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false).then(function(){try{refreshChatBadge();}catch(e){}});}
   else{try{wlMarkMsgsSeen();}catch(e){}sb.from('messages').update({read_by_athlete:true}).eq('player_id',pid).eq('sender','coach').eq('read_by_athlete',false).then(function(){});}
   renderChatThread();
   refreshChatBadge();
@@ -7133,10 +7173,10 @@ async function sendChat(){
   var prev=body.length>90?(body.slice(0,90)+'…'):body;
   if(sender==='coach'){
     var _prof=(MY_PROFILE&&MY_PROFILE.display_name)?MY_PROFILE.display_name:tr('Tu profe');
-    notifyPlayer(chatPlayerId,_prof,prev,'/');
+    notifyPlayer(chatPlayerId,_prof,prev,pdLinkUrl({k:'chat'}));
   } else {
     var _p=PLAYERS.find(function(x){return x.id===chatPlayerId;});
-    notifyCoach((_p&&_p.name)||'PDapp',prev);
+    pdNotify('msg',(_p&&_p.name)||'PDapp',prev,{k:'chat',pid:chatPlayerId});
   }
 }
 function renderMessages(){
@@ -7343,6 +7383,7 @@ async function saveTest(){
   btn.disabled=false;btn.textContent=tr('Guardar');
   if(r2.error){msg.style.color='#ff6b6b';msg.textContent='Error: '+r2.error.message;return;}
   if(p)p.tests=all;
+  try{if(ATH_TOKEN&&p)pdNotify('test',p.name||'PDapp',tr('Cargó un test')+': '+tr(x.n)+' · '+(x.bi?(tr('izq.')+' '+entry.l+' · '+tr('der.')+' '+entry.r):entry.v)+(x.u?' '+x.u:''),{k:'summary',pid:p.id},false);}catch(e){}
   closeTestModal();testTargetPid=null;try{renderTestsAthlete();}catch(e){}try{renderTestsScreen();}catch(e){}
 }
 
@@ -7669,6 +7710,27 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Notificaciones"]=["Notifications","Notifiche"];
+STATIC_I18N["Todas"]=STATIC_I18N["Todas"]||["All","Tutte"];
+STATIC_I18N["Videos y tests"]=["Videos & tests","Video e test"];
+STATIC_I18N["Alertas"]=STATIC_I18N["Alertas"]||["Alerts","Avvisi"];
+STATIC_I18N["Mensajes"]=STATIC_I18N["Mensajes"]||["Messages","Messaggi"];
+STATIC_I18N["sin leer"]=["unread","non lette"];
+STATIC_I18N["Estás al día"]=["You're all caught up","Sei in pari"];
+STATIC_I18N["Marcar todo como leído"]=["Mark all as read","Segna tutto come letto"];
+STATIC_I18N["Acá vas a ver los videos, RM, tests, molestias, encuestas y mensajes de tus alumnos."]=["Here you'll see your athletes' videos, 1RMs, tests, pain reports, surveys and messages.","Qui vedrai video, 1RM, test, fastidi, sondaggi e messaggi dei tuoi atleti."];
+STATIC_I18N["No se pudieron cargar las notificaciones. Revisá la conexión."]=["Couldn't load notifications. Check your connection.","Impossibile caricare le notifiche. Controlla la connessione."];
+STATIC_I18N["Hoy"]=STATIC_I18N["Hoy"]||["Today","Oggi"];
+STATIC_I18N["Ayer"]=STATIC_I18N["Ayer"]||["Yesterday","Ieri"];
+STATIC_I18N["Esta semana"]=STATIC_I18N["Esta semana"]||["This week","Questa settimana"];
+STATIC_I18N["Antes"]=STATIC_I18N["Antes"]||["Earlier","Prima"];
+STATIC_I18N["recién"]=["just now","adesso"];
+STATIC_I18N["hace"]=STATIC_I18N["hace"]||["","fa"];
+STATIC_I18N["Ese alumno ya no está en tu lista."]=["That athlete is no longer on your list.","Quell'atleta non è più nella tua lista."];
+STATIC_I18N["Terminó el entrenamiento"]=["Finished the workout","Ha finito l'allenamento"];
+STATIC_I18N["Cargó un test"]=["Logged a test","Ha registrato un test"];
+STATIC_I18N["Respondió la encuesta de la semana"]=["Answered the weekly survey","Ha risposto al sondaggio settimanale"];
+STATIC_I18N["Cerrar"]=STATIC_I18N["Cerrar"]||["Close","Chiudi"];
 STATIC_I18N["Elegí tu deporte"]=["Choose your sport","Scegli il tuo sport"];
 STATIC_I18N["Falta elegir su deporte"]=["Sport not chosen yet","Sport non ancora scelto"];
 STATIC_I18N["Así se activan los partidos y la posición"]=["This enables matches and your position","Così si attivano partite e posizione"];
@@ -8506,7 +8568,7 @@ function maybeNotifyLoadPeak(pid){
     var key='pd_loadpk_'+pid+'_'+weekMondayISO(isoToday());
     try{if(localStorage.getItem(key))return;localStorage.setItem(key,'1');}catch(e){}
     var p=PLAYERS.find(function(x){return x.id===pid;})||{};
-    notifyCoach(p.name||'PDapp',tr('Pico de carga')+': '+tr('ratio')+' '+st.ratio.toFixed(2));
+    pdNotify('load',p.name||'PDapp',tr('Pico de carga')+': '+tr('ratio')+' '+st.ratio.toFixed(2),{k:'summary',pid:pid});
   }catch(e){console.error('loadPeak',e);}
 }
 /* Promedio de duración de las últimas N sesiones finalizadas */
@@ -8570,6 +8632,10 @@ function finishSession(auto){
   saveTimes(currentPlayerId);
   refreshPlanUI();
   if(!auto)toast(tr('Entrenamiento finalizado')+' · '+fmtDur(cur.m));
+  try{if(!auto&&!isCoach&&ATH_TOKEN){var _pp=PLAYERS.find(function(x){return x.id===currentPlayerId;})||{};var _ss=(JB_SESSIONS[currentPlayerId]||{})[curDate]||{};
+    var _rp=[];Object.keys(checkState||{}).forEach(function(k){var c=checkState[k];if(c&&c.rpe)_rp.push(+c.rpe);});
+    var _avg=_rp.length?Math.round(_rp.reduce(function(a,b){return a+b;},0)/_rp.length*10)/10:null;
+    pdNotify('done',_pp.name||'PDapp',tr('Terminó el entrenamiento')+(_ss.title?' «'+_ss.title+'»':'')+' · '+fmtDur(cur.m)+(_avg!=null?' · RPE '+_avg:''),{k:'day',pid:currentPlayerId,d:curDate});}}catch(e){}
   maybeNotifyLoadPeak(currentPlayerId);
 }
 /* Si quedó abierta de un día anterior, se cierra sola con el último bloque */
@@ -9174,6 +9240,149 @@ async function renderWlPush(){
 }
 /* Aviso del profe hacia un alumno (sesión suelta cargada o duplicada).
    No se usa al asignar programas: ahí serían decenas de avisos de golpe. */
+/* ===================== NOTIFICACIONES (centro de avisos del profe) ===================== */
+/* Link de destino: {k:'chat'|'analysis'|'day'|'summary'|'profes', pid, id, d}
+   Viaja en la URL de la notificación del teléfono como ?pdl=... y también se guarda en la tabla notifications. */
+var PD_LINK=null;
+(function(){
+  try{
+    var q=new URLSearchParams(location.search),l=q.get('pdl');
+    if(l){PD_LINK=JSON.parse(l);try{sessionStorage.setItem('pd_link',JSON.stringify({l:PD_LINK,t:Date.now()}));}catch(e){}
+      q.delete('pdl');var qs=q.toString();history.replaceState(null,'',location.pathname+(qs?'?'+qs:''));}
+    else{var s=JSON.parse(sessionStorage.getItem('pd_link')||'null');if(s&&Date.now()-s.t<180000)PD_LINK=s.l;}
+  }catch(e){}
+  /* Si la app ya estaba abierta, el service worker nos avisa qué abrir */
+  try{if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',function(ev){
+    var d=ev.data||{};if(d.type!=='pd-open'||!d.url)return;
+    try{var u=new URL(d.url,location.origin),l=u.searchParams.get('pdl');if(l)pdOpenLink(JSON.parse(l));}catch(e){}
+  });}catch(e){}
+})();
+function pdLinkUrl(link){return '/'+(link?'?pdl='+encodeURIComponent(JSON.stringify(link)):'');}
+function pdConsumeLink(){
+  var l=PD_LINK;PD_LINK=null;try{sessionStorage.removeItem('pd_link');}catch(e){}
+  if(l)setTimeout(function(){pdOpenLink(l);},350);
+}
+/* Desde el alumno: guarda el aviso para el profe y (si corresponde) le manda la notificación al teléfono */
+function pdNotify(type,title,body,link,push){
+  if(!ATH_TOKEN)return;
+  try{sb.rpc('athlete_notify',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_type:type,p_title:String(title||'').slice(0,140),p_body:String(body||'').slice(0,400),p_link:link||null})
+    .then(function(r){if(r&&r.error)console.warn('athlete_notify',r.error);},function(e){console.warn('athlete_notify',e);});}catch(e){}
+  if(push!==false)notifyCoach(title,body,link);
+}
+/* ---- lado profe ---- */
+var NOTIF=[],NOTIF_F='all',NOTIF_T=0,_notifTimer=null;
+var NOTIF_TYPES={
+  video:{c:'#4dabf7',bg:'rgba(77,171,247,0.15)',f:'vt',i:'<path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>'},
+  rm:{c:'#a8e063',bg:'rgba(168,224,99,0.15)',f:'vt',i:'<path d="M12 14l4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>'},
+  test:{c:'#a8e063',bg:'rgba(168,224,99,0.15)',f:'vt',i:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'},
+  done:{c:'#a8e063',bg:'rgba(168,224,99,0.15)',f:'vt',i:'<path d="M20 6L9 17l-5-5"/>'},
+  pain:{c:'#ff6b6b',bg:'rgba(255,107,107,0.15)',f:'al',i:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>'},
+  weekly:{c:'#c77dff',bg:'rgba(199,125,255,0.15)',f:'al',i:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4"/>'},
+  load:{c:'#ffb020',bg:'rgba(255,176,32,0.15)',f:'al',i:'<path d="M12 22c4.97 0 8-3.58 8-8 0-4-3-7-4-8 0 3-2 5-4 5 1-3 0-6-3-8 0 4-5 7-5 11 0 4.42 3.03 8 8 8z"/>'},
+  match:{c:'#ffffff',bg:'rgba(255,255,255,0.10)',f:'al',i:'<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10z"/>'},
+  msg:{c:'#f9c846',bg:'rgba(249,200,70,0.15)',f:'ms',i:'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>'},
+  coach:{c:'#a8e063',bg:'rgba(168,224,99,0.15)',f:'al',i:'<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/>'}
+};
+function notifIcon(t){var x=NOTIF_TYPES[t]||NOTIF_TYPES.done;return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="'+x.c+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+x.i+'</svg>';}
+async function notifLoad(){
+  if(!isCoach||!MY_UID)return;
+  var r;try{r=await sb.from('notifications').select('*').eq('trainer_id',MY_UID).order('created_at',{ascending:false}).limit(80);}catch(e){r={error:e};}
+  if(r&&r.error){NOTIF_T=-1;notifBadge();return;}
+  NOTIF=(r.data||[]);NOTIF_T=Date.now();notifBadge();
+  var pn=document.getElementById('notif-panel');if(pn&&pn.classList.contains('open'))notifRender();
+}
+function notifUnread(){return NOTIF.filter(function(n){return !n.read_at;}).length;}
+function notifBadge(){
+  var n=notifUnread(),b=document.getElementById('side-notif-n');
+  if(b){b.textContent=n>9?'9+':String(n);b.style.display=n?'flex':'none';}
+  var hb=document.getElementById('hdr-notif-n');if(hb){hb.textContent=n>9?'9+':String(n);hb.style.display=n?'flex':'none';}
+}
+function notifStartPolling(){
+  if(_notifTimer)return;
+  var tick=function(){if(document.hidden)return;try{notifLoad();}catch(e){}try{refreshChatBadge();}catch(e){}};
+  _notifTimer=setInterval(tick,45000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)tick();});
+  tick();
+}
+function notifAgo(iso){
+  var s=(Date.now()-new Date(iso).getTime())/1000;
+  if(s<60)return tr('recién');if(s<3600)return tr('hace')+' '+Math.floor(s/60)+' min';
+  if(s<86400)return tr('hace')+' '+Math.floor(s/3600)+' h';
+  var d=new Date(iso);return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+}
+function notifGroupOf(iso){
+  var t=isoToday(),d=String(iso).slice(0,10);try{var dd=new Date(iso);d=dd.getFullYear()+'-'+('0'+(dd.getMonth()+1)).slice(-2)+'-'+('0'+dd.getDate()).slice(-2);}catch(e){}
+  if(d===t)return 'Hoy';if(d===addDaysISO(t,-1))return 'Ayer';if(d>=addDaysISO(t,-6))return 'Esta semana';return 'Antes';
+}
+function openNotifPanel(){
+  var o=document.getElementById('notif-panel');
+  if(!o){o=document.createElement('div');o.id='notif-panel';o.innerHTML='<div class="np-scrim" onclick="closeNotifPanel()"></div><div class="np-box" role="dialog" aria-label="'+tr('Notificaciones')+'"></div>';document.body.appendChild(o);}
+  o.classList.add('open');notifRender();notifLoad();
+}
+function closeNotifPanel(){var o=document.getElementById('notif-panel');if(o)o.classList.remove('open');}
+function setNotifF(f){NOTIF_F=f;notifRender();}
+function notifRender(){
+  var o=document.getElementById('notif-panel');if(!o)return;var box=o.querySelector('.np-box');
+  var list=NOTIF.filter(function(n){var f=(NOTIF_TYPES[n.type]||{}).f;return NOTIF_F==='all'||f===NOTIF_F;});
+  var un=notifUnread();
+  var chips=[['all','Todas'],['vt','Videos y tests'],['al','Alertas'],['ms','Mensajes']].map(function(c){return '<button class="np-chip'+(NOTIF_F===c[0]?' on':'')+'" onclick="setNotifF(\''+c[0]+'\')">'+tr(c[1])+'</button>';}).join('');
+  var h='<div class="np-hdr"><div style="flex:1;min-width:0;"><div class="np-t">'+tr('Notificaciones')+'</div><div class="np-s">'+(un?un+' '+tr('sin leer')+' · <button class="np-all" onclick="notifReadAll()">'+tr('Marcar todo como leído')+'</button>':tr('Estás al día'))+'</div></div>'
+    +'<button class="np-x" onclick="closeNotifPanel()" aria-label="'+tr('Cerrar')+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'
+    +'<div class="np-chips">'+chips+'</div><div class="np-list">';
+  if(NOTIF_T===-1)h+='<div class="np-empty">'+tr('No se pudieron cargar las notificaciones. Revisá la conexión.')+'</div>';
+  else if(!NOTIF_T&&!NOTIF.length)h+='<div class="np-empty">'+tr('Cargando...')+'</div>';
+  else if(!list.length)h+='<div class="np-empty"><div class="np-empty-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--mob)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><b>'+tr('Estás al día')+'</b><span>'+tr('Acá vas a ver los videos, RM, tests, molestias, encuestas y mensajes de tus alumnos.')+'</span></div>';
+  else{
+    var g=null;
+    list.forEach(function(n){
+      var gg=notifGroupOf(n.created_at);if(gg!==g){g=gg;h+='<div class="np-g">'+tr(g)+'</div>';}
+      var p=PLAYERS.find(function(x){return x.id===n.player_id;});
+      var av=p&&p.photo?'<img src="'+p.photo+'">':'<span>'+String((p&&p.name)||n.title||'?').trim().split(/\s+/).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase()+'</span>';
+      var x=NOTIF_TYPES[n.type]||NOTIF_TYPES.done;
+      h+='<button class="np-it'+(n.read_at?'':' new')+'" onclick="notifOpen(\''+n.id+'\')">'
+        +'<div class="np-av">'+av+'<i style="background:'+x.bg+';">'+notifIcon(n.type)+'</i></div>'
+        +'<div class="np-tx"><b>'+wlEsc(n.title||'')+'</b><span>'+wlEsc(n.body||'')+'</span><small>'+notifAgo(n.created_at)+'</small></div>'
+        +(n.read_at?'':'<em></em>')+'</button>';
+    });
+  }
+  box.innerHTML=h+'</div>';
+}
+async function notifOpen(id){
+  var n=NOTIF.find(function(x){return x.id===id;});if(!n)return;
+  if(!n.read_at){n.read_at=new Date().toISOString();notifBadge();try{sb.from('notifications').update({read_at:n.read_at}).eq('id',id).then(function(){});}catch(e){}}
+  closeNotifPanel();
+  if(n.link)pdOpenLink(n.link);else if(n.player_id)pdOpenLink({k:'summary',pid:n.player_id});
+}
+async function notifReadAll(){
+  var now=new Date().toISOString(),ids=NOTIF.filter(function(n){return !n.read_at;}).map(function(n){n.read_at=now;return n.id;});
+  notifBadge();notifRender();
+  if(ids.length)try{await sb.from('notifications').update({read_at:now}).in('id',ids);}catch(e){}
+}
+/* Abrir el destino de un aviso (desde el panel o desde la notificación del teléfono) */
+async function pdOpenLink(l){
+  if(!l||typeof l!=='object')return;
+  try{
+    if(!isCoach){ /* alumno: por ahora solo el chat */
+      if(l.k==='chat'){try{wlGoChat();}catch(e){enterPlan();setTimeout(function(){showTab('msg');},200);}}
+      return;
+    }
+    var pid=l.pid,p=pid?PLAYERS.find(function(x){return x.id===pid;}):null;
+    if(l.k==='profes'){sideNav('profes');return;}
+    if(pid&&!p){toast(tr('Ese alumno ya no está en tu lista.'));return;}
+    if(l.k==='chat'){sideNav('chat');setTimeout(function(){try{openChatThread(pid);}catch(e){}},150);return;}
+    if(l.k==='analysis'){
+      await mvFetchList(pid,true);
+      var L=MV.lists[pid],it=null;
+      if(L&&L.items&&L.items.length){it=l.id?L.items.find(function(a){return a.id===l.id;}):null;if(!it)it=L.items[0];}
+      if(it){movView(pid,it.id);}else{doSelectPlayer(pid);enterPlan();setTimeout(function(){try{showTab('summary');}catch(e){}},250);}
+      return;
+    }
+    if(l.k==='day'){doSelectPlayer(pid);setTimeout(function(){pendingDate=l.d||isoToday();enterPlan();},150);return;}
+    if(l.k==='summary'){doSelectPlayer(pid);setTimeout(function(){enterPlan();setTimeout(function(){try{showTab('summary');}catch(e){}},250);},150);return;}
+  }catch(e){console.error('pdOpenLink',e);}
+}
+/* ===================== fin NOTIFICACIONES ===================== */
+
 function notifyPlayer(pid,title,text,url){
   if(!isCoach||!pid){console.warn('notifyPlayer: sin coach o sin pid',isCoach,pid);return;}
   try{
@@ -9184,10 +9393,10 @@ function notifyPlayer(pid,title,text,url){
       },function(e){console.error('notifyPlayer fallo',e);});
   }catch(e){console.error('notifyPlayer excepcion',e);}
 }
-function notifyCoach(title,text){
+function notifyCoach(title,text,link){
   if(!ATH_TOKEN){console.warn('notifyCoach: sin token de alumno');return;}
   try{
-    sb.functions.invoke('send-push',{body:{to:'my_coach',athlete_token:ATH_TOKEN,title:title,body:text,url:'/'}})
+    sb.functions.invoke('send-push',{body:{to:'my_coach',athlete_token:ATH_TOKEN,title:title,body:text,url:pdLinkUrl(link)}})
       .then(function(r){
         if(r&&r.error)console.error('notifyCoach error',r.error);
         else console.log('notifyCoach ok',r&&r.data);
@@ -10863,7 +11072,7 @@ async function movSave(){
   if(MV.testKey==='hip'){['l','r'].forEach(function(sd){var v=S.bi[sd],f=mvEl('test-'+sd);if(v!=null&&f){f.value=Math.round(v);filled=true;}});}
   if(MV.testKey==='sbj'){var b0=mvHjBest(hjOut,null),f0=mvEl('test-v');if(b0!=null&&f0){f0.value=Math.round(b0);filled=true;}}
   if(MV.testKey==='slj'){['l','r'].forEach(function(sd){var v=mvHjBest(hjOut,sd),f=mvEl('test-'+sd);if(v!=null&&f){f.value=Math.round(v);filled=true;}});}
-  if(ATH_TOKEN){var p=PLAYERS.find(function(x){return x.id===MV.pid;});try{notifyCoach(tr(MV.req?'Video de técnica recibido':'Nuevo análisis de movimiento'),((p&&p.name)||'')+' · '+(MV.req?MV.req.n:mvExName(MV.ex))+(metrics.summary?' · '+metrics.summary:''));}catch(e){}}
+  if(ATH_TOKEN){var p=PLAYERS.find(function(x){return x.id===MV.pid;});try{var _aid=res&&res.data?(typeof res.data==='string'?res.data:(res.data.id||null)):null;pdNotify('video',((p&&p.name)||'PDapp')+' · '+tr(MV.req?'Video de técnica recibido':'Nuevo análisis de movimiento'),(MV.req?MV.req.n:mvExName(MV.ex))+(metrics.summary?' · '+metrics.summary:''),{k:'analysis',pid:MV.pid,id:_aid});}catch(e){}}
   delete MV.lists[MV.pid];
   await movClose();
   try{toast(tr(ATH_TOKEN&&!filled?'Video enviado a tu profe':filled?'Análisis guardado. Se completó el resultado del test: revisalo y tocá Guardar.':(MV.testKey==='ankle'?'Análisis guardado con el ángulo de la tibia. Los cm del test se cargan a mano.':'Análisis guardado')));}catch(e){}
@@ -11226,7 +11435,7 @@ async function rmSave(){
   if(isCoach&&fc&&fc.checked&&fn&&fn.value){if(!p.maxes)p.maxes={};p.maxes[fn.value]=rm;saveMaxes(p);}
   if(btn){btn.textContent='✓ '+tr('Guardado');}
   try{toast(tr('RM estimado guardado'));}catch(e2){}
-  if(ATH_TOKEN){try{notifyCoach(tr('RM medido'),(p.name||'')+' · '+tr(RM_EX[R.ex].n)+': '+mvF1(rm).replace(/\.0$/,'')+' kg');}catch(e5){}}
+  if(ATH_TOKEN){try{pdNotify('rm',(p.name||'PDapp')+' · '+tr('RM medido'),tr(RM_EX[R.ex].n)+': '+mvF1(rm).replace(/\.0$/,'')+' kg',{k:'summary',pid:p.id});}catch(e5){}}
   try{renderTestsScreen();}catch(e3){}try{renderTestsAthlete();}catch(e6){}try{refreshPlanUI();}catch(e7){}try{renderAthleteHome();}catch(e8){}
 }
 function rmHist(p,ex){return ((p&&p.tests&&p.tests['rm_'+ex])||[]).slice().sort(function(a,b){return a.d<b.d?-1:1;});}
