@@ -933,6 +933,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 
 <!-- WELCOME -->
 <div id="screen-welcome" class="gone">
+  <button id="wl-chat" onclick="wlGoChat()" title="Chat con tu profe" aria-label="Chat con tu profe" style="display:none;position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:64px;z-index:5;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:var(--rsm);width:38px;height:38px;cursor:pointer;align-items:center;justify-content:center;padding:0;box-shadow:var(--dp-btn2);"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><b id="wl-chat-n" class="pd-nb" style="display:none;left:auto;right:-7px;top:-7px;">0</b></button>
   <button id="wl-set" onclick="openAthSettings()" title="Mis ajustes" style="display:none;position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:18px;z-index:5;background:var(--s2);border:1px solid var(--border2);color:var(--muted);border-radius:var(--rsm);width:38px;height:38px;cursor:pointer;align-items:center;justify-content:center;padding:0;">
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6h.09A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
@@ -1837,7 +1838,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261019-5';
+var APP_VERSION='20261019-6';
 (function(){
   try{
     setTimeout(function(){
@@ -4819,6 +4820,7 @@ function doSelectPlayer(pid){
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');
   var wb=document.getElementById('wl-back');if(wb)wb.style.display=(isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN))?'flex':'none';
   var wsg=document.getElementById('wl-set');if(wsg)wsg.style.display=isCoach?'none':'flex';
+  var wch=document.getElementById('wl-chat');if(wch)wch.style.display=isCoach?'none':'flex';
   document.getElementById('screen-select').style.display='none';
   try{renderAthleteHome();}catch(e){console.error('athleteHome',e);}
   /* iOS cierra la app en segundo plano: si el alumno tenía un entrenamiento
@@ -4994,7 +4996,7 @@ var WL_IC={
 };
 var WL_MSGS=null,WL_MSG_T=0;
 function wlSeenKey(){return 'pd_msgseen_'+(currentPlayerId||'');}
-function wlMarkMsgsSeen(){try{localStorage.setItem(wlSeenKey(),new Date().toISOString());}catch(e){}WL_MSGS=null;}
+function wlMarkMsgsSeen(){try{localStorage.setItem(wlSeenKey(),new Date().toISOString());}catch(e){}WL_MSGS=null;try{var _cb=document.getElementById('wl-chat-n');if(_cb)_cb.style.display='none';}catch(e){}}
 function wlTasks(p){
   var box=document.getElementById('wl-tasks');if(!box)return;
   var pid=p.id,today=isoToday(),items=[];
@@ -5032,6 +5034,7 @@ function wlTasks(p){
     }else{
       var seen='';try{seen=localStorage.getItem(wlSeenKey())||'';}catch(e){}
       var nw=WL_MSGS.filter(function(m){return m.sender==='coach'&&!m.read_by_athlete&&(!seen||String(m.created_at)>seen);});
+      try{var _cb=document.getElementById('wl-chat-n');if(_cb){_cb.textContent=nw.length>9?'9+':String(nw.length);_cb.style.display=nw.length?'flex':'none';}}catch(e){}
       if(nw.length){var lm=nw[nw.length-1];var body=String(lm.body||lm.text||'').replace(/\s+/g,' ');if(body.length>46)body=body.slice(0,44)+'…';
         var cn=(MY_PROFILE&&MY_PROFILE.display_name)?String(MY_PROFILE.display_name).split(/\s+/)[0]:tr('tu profe');
         items.push({ic:'msg',bg:'rgba(249,200,70,0.13)',t:(nw.length===1?tr('1 mensaje nuevo de'):nw.length+' '+tr('mensajes nuevos de'))+' '+wlEsc(cn),s:body?'“'+wlEsc(body)+'”':'',go:'wlGoChat()'});}
@@ -5218,6 +5221,7 @@ function athBackHome(){
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');ws.scrollTop=0;
   var wb=document.getElementById('wl-back');if(wb)wb.style.display=(isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN))?'flex':'none';
   var wsg=document.getElementById('wl-set');if(wsg)wsg.style.display=isCoach?'none':'flex';
+  var wch=document.getElementById('wl-chat');if(wch)wch.style.display=isCoach?'none':'flex';
   try{renderAthleteHome();}catch(e){console.error('athBackHome',e);}
 }
 function welcomeBack(){
