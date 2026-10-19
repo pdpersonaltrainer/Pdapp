@@ -490,6 +490,8 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px 20px 0 0;width:100%;max-width:560px;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
 .modal-handle{width:36px;height:4px;background:var(--muted2);border-radius:2px;margin:0 auto 16px;}
 .modal-overlay>.modal{border-top:3px solid var(--mobfill);}
+.modal{max-height:calc(100dvh - 20px - env(safe-area-inset-top));overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+.modal>div:last-child:has(>.mbtn-save),.modal>.modal-btns:last-child{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom));z-index:3;background:var(--s1);margin-bottom:calc(-20px - env(safe-area-inset-bottom));padding-top:10px;padding-bottom:calc(20px + env(safe-area-inset-bottom));box-shadow:0 -14px 14px -6px var(--s1);}
 .pd-mh{display:flex;align-items:center;gap:10px;margin:-4px 0 16px;}
 .pd-mh .pd-ml{width:28px;height:28px;border-radius:8px;object-fit:cover;flex:none;}
 .pd-mh h3{flex:1;min-width:0;margin:0!important;font-size:18px!important;line-height:1.15;}
@@ -1838,7 +1840,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261019-9';
+var APP_VERSION='20261020-1';
 (function(){
   try{
     setTimeout(function(){
@@ -2727,6 +2729,17 @@ function mdChip(p,iso,big){
   var bg=isM?'#4dabf7':'transparent', fg=isM?'#0a0b0e':'#4dabf7';
   var txt=isM?(tr('Partido')+(md.m&&md.m.rival?' · '+md.m.rival:'')):md.t;
   return '<span style="display:inline-block;font-family:\'Barlow Condensed\',sans-serif;font-size:'+(big?'11px':'9.5px')+';font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:'+fg+';background:'+bg+';border:1px solid #4dabf7;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;">'+String(txt).replace(/</g,'&lt;')+'</span>';
+}
+var SPORT_ICO={futbol:'\u26bd',basquetbol:'\ud83c\udfc0',hockey:'\ud83c\udfd1',rugby:'\ud83c\udfc9',voley:'\ud83c\udfd0',handball:'\ud83e\udd3e',tenis:'\ud83c\udfbe',padel:'\ud83c\udfbe'};
+/* Celda del calendario mensual: el partido es un círculo azul con el deporte y el rival abajo */
+function mdCell(p,iso){
+  var md=mdOf(p,iso);if(!md)return '';
+  if(md.t!=='MD')return '<div style="margin-top:2px;"><span style="display:inline-block;font-family:\'Barlow Condensed\',sans-serif;font-size:9px;font-weight:800;letter-spacing:0;color:#4dabf7;border:1px solid #4dabf7;border-radius:4px;padding:1px 2px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box;">'+md.t+'</span></div>';
+  var sp=(p&&p.questionnaire&&p.questionnaire.sport)||'futbol',rv=md.m&&md.m.rival?String(md.m.rival).replace(/</g,'&lt;'):'';
+  return '<div style="margin-top:4px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;max-width:100%;" title="'+tr('Partido')+(rv?' · '+rv:'')+'">'
+    +'<span style="width:26px;height:26px;border-radius:50%;background:rgba(77,171,247,0.18);border:1.5px solid #4dabf7;box-shadow:0 0 10px -2px rgba(77,171,247,0.7);display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;">'+(SPORT_ICO[sp]||'\u26bd')+'</span>'
+    +(rv?'<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:'+(rv.length>6?'9px':'10.5px')+';font-weight:800;letter-spacing:0;text-transform:uppercase;color:#4dabf7;line-height:1.1;max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">'+rv+'</span>':'')
+    +'</div>';
 }
 function nextMatch(p){
   var ms=matchesOf(p), today=isoToday();
@@ -5124,7 +5137,7 @@ function wlWeekHtml(p){
   if(lz)foot='<div style="display:flex;align-items:center;margin-top:8px;padding-top:9px;border-top:1px solid var(--border);font-size:12.5px;"><span style="color:var(--muted);">'+tr('Carga de los últimos 7 días')+'</span><span style="margin-left:auto;color:'+lz.c+';font-weight:800;">● '+tr(lz.t)+'</span></div>';
   return '<div class="wl-card"><div style="display:flex;align-items:center;margin-bottom:8px;"><div class="wl-lbl" style="margin:0;">'+(isCoach?tr('Semana'):tr('Tu semana'))+'</div>'
     +(plan?'<div style="margin-left:auto;font-size:12px;font-weight:800;color:var(--mob);">'+done+' '+tr('de')+' '+plan+' '+tr('sesiones')+'</div>':'')+'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">'+cells+'</div>'+foot
+    +'<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;">'+cells+'</div>'+foot
     +'<div onclick="wlToggleMonth()" style="text-align:center;margin-top:9px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;">'+(WL_MONTH?tr('Ocultar mes')+' ⌃':tr('Ver mes completo')+' ›')+'</div></div>';
 }
 function wlProgHtml(p){
@@ -6745,30 +6758,30 @@ function renderMonthView(p){
   var todayISO=isoToday();
   var header='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 2px;"><button onclick="moveMonth(-1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u2039</button><div style="font-family:Barlow Condensed,sans-serif;font-weight:800;font-size:18px;letter-spacing:0.04em;text-transform:uppercase;">'+meses[mo]+' '+y+'</div><button onclick="moveMonth(1)" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font-size:16px;">\u203a</button></div>';
   var dows=TT('dow3');
-  var dowH='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">'+dows.map(function(dn){return '<div style="text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);font-weight:700;">'+dn+'</div>';}).join('')+'</div>';
+  var dowH='<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;">'+dows.map(function(dn){return '<div style="text-align:center;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);font-weight:700;">'+dn+'</div>';}).join('')+'</div>';
   var todayBtn='<div style="text-align:center;margin-bottom:10px;"><button onclick="goToToday()" style="padding:5px 16px;border-radius:14px;border:1px solid var(--border2);background:var(--s2);color:var(--mob);cursor:pointer;font-size:11px;font-family:Barlow Condensed,sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">'+TT('hoy')+'</button></div>';
   var cells='';
   for(var i=0;i<startWd;i++)cells+='<div></div>';
   for(var dnum=1;dnum<=dim;dnum++){
     var iso=y+'-'+('0'+(mo+1)).slice(-2)+'-'+('0'+dnum).slice(-2);
     var tHi=(iso===todayISO)?'outline:2px solid var(--mob);outline-offset:-2px;':'';
-    var head='<div style="font-weight:700;font-size:13px;margin-bottom:3px;">'+dnum+mdChip(p,iso)+'</div>';
+    var head='<div style="font-weight:700;font-size:13px;margin-bottom:3px;min-width:0;">'+dnum+mdCell(p,iso)+'</div>';
     var day=ss[iso];
     if(day&&day.blocks&&day.blocks.length){
       var blocksList=day.blocks.map(function(b){var bt=b.t||'mob';var exs=(b.exs||[]).map(function(e){var ld=e.l?' <span style=\"color:var(--mob);font-weight:700;\">'+e.l+'</span>':'';return '<div style=\"font-size:12px;color:var(--muted);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">'+e.n+ld+'</div>';}).join('');return '<div style=\"margin-top:5px;\"><div style=\"font-size:12px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;color:#eef0f5;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">'+(b.title||'')+'</div>'+exs+'</div>';}).join('');
       var _ch=JB_CHECKS[p.id]||{};var _tot=day.blocks.length,_dn=0;for(var _bi=0;_bi<_tot;_bi++){if(_ch[iso+'-'+_bi]&&_ch[iso+'-'+_bi].done)_dn++;}var st=((_tot>0&&_dn===_tot)?'<span style="float:right;color:var(--mob);font-weight:800;">\u2713</span>':(_dn>0?'<span style="float:right;color:var(--act);font-weight:800;">~</span>':''));
       /* Duración real de la sesión, si el alumno la cronometró */
       var _tm=(JB_TIMES[p.id]||{})[iso];
-      var _tmH=((_tm&&_tm.e&&_tm.m)?('<div style="font-size:9px;color:var(--mob);letter-spacing:0.03em;margin-top:1px;">'+fmtDur(_tm.m)+'</div>'):'')+(softTagHtml(p.id,iso)?'<div style="margin-top:2px;margin-left:-5px;">'+softTagHtml(p.id,iso)+'</div>':'')+(mdChip(p,iso)?'<div style="margin-top:2px;margin-left:-5px;">'+mdChip(p,iso)+'</div>':'');
+      var _tmH=((_tm&&_tm.e&&_tm.m)?('<div style="font-size:9px;color:var(--mob);letter-spacing:0.03em;margin-top:1px;">'+fmtDur(_tm.m)+'</div>'):'')+(softTagHtml(p.id,iso)?'<div style="margin-top:2px;margin-left:-5px;">'+softTagHtml(p.id,iso)+'</div>':'')+mdCell(p,iso);
       var mn=(isCoach?'<span class="daymenu-btn" onclick="openDayMenu(\''+iso+'\',event,this)" onmouseenter="dmHover(\''+iso+'\',event,this)" onmouseleave="dmScheduleClose()" style="float:left;margin-right:6px;padding:0 4px;color:var(--muted2);font-weight:800;letter-spacing:1.5px;cursor:pointer;line-height:1;">\u22ef</span>':'');
       cells+='<div onclick="openDate(\''+iso+'\')" style="cursor:pointer;background:var(--s2);border-left:3px solid var(--mob);border-radius:10px;padding:9px 10px;min-height:110px;min-width:0;overflow:hidden;'+tHi+'"><div style="font-weight:700;font-size:13px;margin-bottom:2px;">'+mn+dnum+st+'</div><div style="font-size:13px;font-weight:800;color:var(--mob);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:0.02em;">'+(day.title||'Entrenamiento')+'</div>'+_tmH+blocksList+'</div>';
     } else if(isCoach){
-      cells+='<div onclick="openEmptyDayMenu(\''+iso+'\',event,this)" style="cursor:pointer;background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'display:flex;flex-direction:column;">'+head+'<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:20px;opacity:0.45;">+</div></div>';
+      cells+='<div onclick="openEmptyDayMenu(\''+iso+'\',event,this)" style="cursor:pointer;background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;min-width:0;overflow:hidden;'+tHi+'display:flex;flex-direction:column;">'+head+'<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:20px;opacity:0.45;">+</div></div>';
     } else {
-      cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;'+tHi+'">'+head+'</div>';
+      cells+='<div style="background:var(--s1);border-radius:8px;padding:6px 7px;min-height:96px;min-width:0;overflow:hidden;'+tHi+'">'+head+'</div>';
     }
   }
-  cont.innerHTML=calToggleHtml()+header+todayBtn+dowH+'<div class="mv-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">'+cells+'</div>';
+  cont.innerHTML=calToggleHtml()+header+todayBtn+dowH+'<div class="mv-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;">'+cells+'</div>';
 }
 function renderWeekList(p,cont){
   var ss=sessionsOf(p.id);var ch=JB_CHECKS[p.id]||{};
