@@ -490,6 +490,9 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px 20px 0 0;width:100%;max-width:560px;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
 .modal-handle{width:36px;height:4px;background:var(--muted2);border-radius:2px;margin:0 auto 16px;}
 .modal-overlay>.modal{border-top:3px solid var(--mobfill);}
+input[type="date"],input[type="time"]{box-sizing:border-box;max-width:100%;min-width:0;-webkit-appearance:none;appearance:none;display:block;min-height:44px;}
+input[type="date"]::-webkit-date-and-time-value{text-align:center;}
+.modal input,.modal select,.modal textarea{box-sizing:border-box;max-width:100%;}
 .modal{max-height:calc(100dvh - 20px - env(safe-area-inset-top));overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
 .modal>div:last-child:has(>.mbtn-save),.modal>.modal-btns:last-child{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom));z-index:3;background:var(--s1);margin-bottom:calc(-20px - env(safe-area-inset-bottom));padding-top:10px;padding-bottom:calc(20px + env(safe-area-inset-bottom));box-shadow:0 -14px 14px -6px var(--s1);}
 .pd-mh{display:flex;align-items:center;gap:10px;margin:-4px 0 16px;}
@@ -1840,7 +1843,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261020-2';
+var APP_VERSION='20261020-3';
 (function(){
   try{
     setTimeout(function(){
