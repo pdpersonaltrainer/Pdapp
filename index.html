@@ -490,7 +490,7 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px 20px 0 0;width:100%;max-width:560px;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
 .modal-handle{width:36px;height:4px;background:var(--muted2);border-radius:2px;margin:0 auto 16px;}
 .modal-overlay>.modal{border-top:3px solid var(--mobfill);}
-.turn-bar{max-width:var(--cw);margin:10px auto 0;padding:0 13px;display:flex;gap:6px;}
+.turn-bar{max-width:var(--cw);margin:12px auto 18px;padding:0 13px;display:flex;gap:6px;}
 .turn-tab{flex:1;min-width:0;padding:9px 6px;border-radius:10px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .turn-tab.on{background:var(--dp-green,var(--mobfill));color:#0a0b0e;border-color:transparent;box-shadow:var(--dp-btn);}
 .turn-tab .tk{color:var(--mob);}.turn-tab.on .tk{color:#0a0b0e;}
@@ -1855,7 +1855,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261021-1';
+var APP_VERSION='20261021-2';
 (function(){
   try{
     setTimeout(function(){
@@ -5882,7 +5882,7 @@ function turnBarHtml(){
   var can=isCoach&&hasBlk(ss[iso])&&!!nextFreeTurn(pid,iso)&&ks.length<3;
   if(ks.length<=1){
     if(!can)return '';
-    return '<div style="max-width:var(--cw);margin:10px auto 0;padding:0 13px;display:flex;justify-content:flex-end;"><button class="turn-add" onclick="planAddTurn()">+ '+tr('Agregar turno')+'</button></div>';
+    return '<div style="max-width:var(--cw);margin:12px auto 18px;padding:0 13px;display:flex;justify-content:flex-end;"><button class="turn-add" onclick="planAddTurn()">+ '+tr('Agregar turno')+'</button></div>';
   }
   var tabs=ks.map(function(k){var on=k===curDate,dn=hasBlk(ss[k])&&dayTrained(pid,k);
     return '<button class="turn-tab'+(on?' on':'')+'" onclick="openTurn(\''+k+'\')">'+tkLabel(k)+(dn?' <span class="tk">\u2713</span>':'')+(hasBlk(ss[k])?'':' <span style="opacity:.6">·</span>')+'</button>';}).join('');
