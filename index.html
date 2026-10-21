@@ -144,7 +144,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 body.side-visible #screen-lib,body.side-visible #screen-profile,body.side-visible #screen-ajustes,
 body.side-visible #screen-templates,body.side-visible #screen-pdmethod,body.side-visible #screen-programs,
 body.side-visible #screen-progedit,body.side-visible #screen-draft,body.side-visible #screen-chat,
-body.side-visible #screen-tests,body.side-visible #screen-profes,body.side-visible #screen-plan,
+body.side-visible #screen-tests,body.side-visible #screen-videos,body.side-visible #screen-profes,body.side-visible #screen-plan,
 body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #screen-summary{padding-left:64px;}
 .select-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;margin-bottom:4px;}
 .select-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
@@ -833,6 +833,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <button class="pd-nav-item" id="side-notif" onclick="openNotifPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Notificaciones</span><b id="side-notif-n" class="pd-nb" style="display:none;">0</b></button>
       <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Alumnos</span></button>
       <button class="pd-nav-item" id="side-chat" onclick="sideNav('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Chat</span><b id="side-chat-dot" class="pd-nb" style="display:none;">0</b></button>
+      <button class="pd-nav-item" id="side-videos" onclick="sideNav('videos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>Videoanálisis</span><b id="side-vid-n" class="pd-nb" style="display:none;">0</b></button>
       <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg><span>Biblioteca</span></button>
       <button class="pd-nav-item" id="side-templates" onclick="sideNav('templates')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Mis Sesiones</span></button>
       <button class="pd-nav-item" id="side-pdmethod" onclick="sideNav('pdmethod')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Metodología PD</span></button>
@@ -1180,6 +1181,18 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
   </header>
   <div style="max-width:var(--cw);margin:0 auto;width:100%;padding:20px 16px;box-sizing:border-box;">
     <div id="tests-screen"></div>
+  </div>
+</div>
+
+<div id="screen-videos" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left"><div><div class="hdr-name">Videoanálisis</div><div class="hdr-sub">Lo que te mandan tus alumnos</div></div></div>
+      <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
+    </div>
+  </header>
+  <div style="max-width:var(--cw);margin:0 auto;width:100%;padding:16px 16px 20px;box-sizing:border-box;">
+    <div id="va-screen"></div>
   </div>
 </div>
 
@@ -1855,7 +1868,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261021-2';
+var APP_VERSION='20261021-3';
 (function(){
   try{
     setTimeout(function(){
@@ -3469,10 +3482,11 @@ function sideNav(section){
   else if(section==='programs'){openProgramsFromHome();}
   else if(section==='profes'){openProfesFromHome();}
   else if(section==='tests'){openTestsFromHome();}
+  else if(section==='videos'){openVideosFromHome();}
   else if(section==='perfil'){openProfileFromHome();}
   else if(section==='ajustes'){openSettingsFromHome();}
 }
-var ALL_SCREENS=['screen-select','screen-welcome','screen-plan','screen-lib','screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-profes','screen-tests'];
+var ALL_SCREENS=['screen-select','screen-welcome','screen-plan','screen-lib','screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-profes','screen-tests','screen-videos'];
 var CLASS_SCREENS=['screen-plan','screen-lib','screen-welcome'];
 function hideAllScreens(except){
   ALL_SCREENS.forEach(function(id){
@@ -3815,6 +3829,81 @@ async function refreshChatBadge(){
   var total=0;Object.keys(CHAT_UNREAD).forEach(function(k){total+=CHAT_UNREAD[k];});
   var d=document.getElementById('side-chat-dot');if(d){d.textContent=total>9?'9+':String(total);d.style.display=total?'flex':'none';}
 }
+/* ===== VIDEOANÁLISIS: todo lo que mandan los alumnos, en un solo lugar ===== */
+var VA={items:[],f:'new',pid:'',ex:'',loaded:false,noSeen:false,busy:false};
+function openVideosFromHome(){openSideScreen('screen-videos');setSideActive('videos');vaLoad(true);}
+async function vaLoad(render){
+  if(!isCoach)return;
+  var ids=PLAYERS.map(function(p){return p.id;});
+  if(!ids.length){VA.items=[];VA.loaded=true;if(render)vaRender();return;}
+  if(render&&!VA.loaded)vaRender();
+  var cols='id,created_at,by_role,ex,load,src,test_key,metrics,thumb,player_id';
+  var r;
+  try{r=await sb.from('analyses').select(cols+',seen_at').eq('by_role','athlete').in('player_id',ids).order('created_at',{ascending:false}).limit(150);}catch(e){r={error:e};}
+  if(r&&r.error){VA.noSeen=true;try{r=await sb.from('analyses').select(cols).eq('by_role','athlete').in('player_id',ids).order('created_at',{ascending:false}).limit(150);}catch(e){r={error:e};}}
+  else VA.noSeen=false;
+  VA.items=(r&&!r.error&&r.data)||[];VA.loaded=true;
+  if(VA.noSeen)VA.items.forEach(function(a){a.seen_at=a.seen_at||'x';});
+  vaBadge();
+  if(render||document.getElementById('screen-videos').style.display==='block')vaRender();
+}
+function vaUnseen(){return VA.items.filter(function(a){return !a.seen_at;});}
+function vaBadge(){var n=vaUnseen().length,b=document.getElementById('side-vid-n');if(b){b.textContent=n>9?'9+':String(n);b.style.display=n?'flex':'none';}}
+async function vaPoll(){
+  if(!isCoach||!PLAYERS.length)return;
+  try{var r=await sb.from('analyses').select('id').eq('by_role','athlete').is('seen_at',null).in('player_id',PLAYERS.map(function(p){return p.id;})).limit(50);
+    if(r&&!r.error){var n=(r.data||[]).length,b=document.getElementById('side-vid-n');if(b){b.textContent=n>9?'9+':String(n);b.style.display=n?'flex':'none';}
+      if(VA.loaded&&n!==vaUnseen().length)vaLoad(false);}}catch(e){}
+}
+function vaSet(k,v){VA[k]=v;vaRender();}
+function vaGroup(iso){var d=new Date(iso),t=new Date();var a=new Date(d.getFullYear(),d.getMonth(),d.getDate()),b=new Date(t.getFullYear(),t.getMonth(),t.getDate());var n=Math.round((b-a)/86400000);return n<=0?'Hoy':n===1?'Ayer':n<7?'Esta semana':'Antes';}
+function vaRender(){
+  var box=document.getElementById('va-screen');if(!box)return;
+  if(!VA.loaded){box.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:13px;padding:24px 0;">'+tr('Cargando...')+'</div>';return;}
+  var un=vaUnseen().length;
+  var list=VA.items.filter(function(a){return (VA.f!=='new'||!a.seen_at)&&(!VA.pid||a.player_id===VA.pid)&&(!VA.ex||a.ex===VA.ex);});
+  var exs={};VA.items.forEach(function(a){if(a.ex)exs[a.ex]=1;});
+  var chips='<div class="va-bar"><button class="np-chip'+(VA.f==='new'?' on':'')+'" onclick="vaSet(\'f\',\'new\')">'+tr('Sin ver')+(un?' · '+un:'')+'</button><button class="np-chip'+(VA.f==='all'?' on':'')+'" onclick="vaSet(\'f\',\'all\')">'+tr('Todos')+'</button>'
+    +(un?'<button class="va-allseen" onclick="vaMarkAll()">'+tr('Marcar todo como visto')+'</button>':'')+'</div>'
+    +'<div class="va-sels"><select onchange="vaSet(\'pid\',this.value)"><option value="">'+tr('Todos los alumnos')+'</option>'+PLAYERS.map(function(p){return '<option value="'+p.id+'"'+(VA.pid===p.id?' selected':'')+'>'+String(p.name||'').replace(/</g,'&lt;')+'</option>';}).join('')+'</select>'
+    +'<select onchange="vaSet(\'ex\',this.value)"><option value="">'+tr('Todos los ejercicios')+'</option>'+Object.keys(exs).map(function(e){return '<option value="'+e+'"'+(VA.ex===e?' selected':'')+'>'+mvExName(e)+'</option>';}).join('')+'</select></div>'
+    +(VA.noSeen?'<div class="va-warn">'+tr('Falta correr el SQL de videoanálisis para marcar lo visto.')+'</div>':'');
+  if(!list.length){
+    box.innerHTML=chips+'<div class="empty-state" style="padding:34px 10px;"><div style="font-size:30px;margin-bottom:8px;">🎬</div><div style="color:var(--muted);font-size:14px;">'+tr(VA.f==='new'&&!VA.pid&&!VA.ex?'Viste todo. Cuando un alumno te mande un video, aparece acá.':'No hay videoanálisis con estos filtros.')+'</div></div>';
+    return;
+  }
+  var g='',out='';
+  list.forEach(function(a){
+    var gr=vaGroup(a.created_at);if(gr!==g){g=gr;out+='<div class="va-grp">'+tr(gr)+'</div>';}
+    var p=PLAYERS.find(function(x){return x.id===a.player_id;})||{};
+    var req=a.metrics&&a.metrics.req?'<span class="va-req">'+tr('Pedido')+'</span>':'';
+    var av=p.photo?'<img class="va-av" src="'+p.photo+'"/>':'<span class="va-av ph">'+String(p.name||'?').slice(0,1)+'</span>';
+    out+='<div class="va-card'+(a.seen_at?'':' new')+'" onclick="vaOpen(\''+a.id+'\')">'
+      +(a.thumb?'<img class="va-th" src="'+a.thumb+'" alt=""/>':'<div class="va-th ph">🎬</div>')
+      +'<div class="va-mid"><div class="va-who">'+av+'<b>'+String(p.name||'').replace(/</g,'&lt;')+'</b>'+req+'</div>'
+      +'<div class="va-ex">'+mvExName(a.ex)+(a.load?' <span>· '+tr(a.load==='bar'?'con carga':'sin carga')+'</span>':'')+'</div>'
+      +'<div class="va-sum">'+((a.metrics&&a.metrics.summary)||'')+'</div>'
+      +'<div class="va-dt">'+mvDateTxt(a.created_at)+'</div></div>'
+      +(a.seen_at?'':'<i class="va-dot"></i>')+'</div>';
+  });
+  box.innerHTML=chips+out;
+}
+function vaOpen(id){
+  var a=VA.items.find(function(x){return x.id===id;});if(!a)return;
+  var pid=a.player_id;
+  if(!MV.lists[pid]||!MV.lists[pid].items)MV.lists[pid]={items:[]};
+  if(!MV.lists[pid].items.some(function(x){return x.id===id;}))MV.lists[pid].items.unshift(a);
+  movView(pid,id);
+}
+async function vaMarkSeen(ids){
+  ids=(ids||[]).filter(Boolean);if(!ids.length||!isCoach)return;
+  var now=new Date().toISOString();
+  VA.items.forEach(function(a){if(ids.indexOf(a.id)>=0)a.seen_at=a.seen_at||now;});
+  Object.keys(MV.lists||{}).forEach(function(k){var L=MV.lists[k];(L&&L.items||[]).forEach(function(a){if(ids.indexOf(a.id)>=0)a.seen_at=a.seen_at||now;});});
+  vaBadge();if(document.getElementById('screen-videos').style.display==='block')vaRender();
+  try{var r=await sb.rpc('coach_mark_analyses_seen',{p_ids:ids.map(String)});if(r&&r.error)console.error('vaSeen',r.error);}catch(e){}
+}
+function vaMarkAll(){vaMarkSeen(vaUnseen().map(function(a){return a.id;}));}
 function openTestsFromHome(){
   openSideScreen('screen-tests');
   renderTestsScreen();
@@ -7856,6 +7945,20 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Videoanálisis"]=STATIC_I18N["Videoanálisis"]||["Video analysis", "Videoanalisi"];
+STATIC_I18N["Lo que te mandan tus alumnos"]=STATIC_I18N["Lo que te mandan tus alumnos"]||["What your athletes send you", "Cosa ti inviano i tuoi atleti"];
+STATIC_I18N["Sin ver"]=STATIC_I18N["Sin ver"]||["Unseen", "Da vedere"];
+STATIC_I18N["Marcar todo como visto"]=STATIC_I18N["Marcar todo como visto"]||["Mark all as seen", "Segna tutto come visto"];
+STATIC_I18N["Todos los alumnos"]=STATIC_I18N["Todos los alumnos"]||["All athletes", "Tutti gli atleti"];
+STATIC_I18N["Todos los ejercicios"]=STATIC_I18N["Todos los ejercicios"]||["All exercises", "Tutti gli esercizi"];
+STATIC_I18N["Falta correr el SQL de videoanálisis para marcar lo visto."]=STATIC_I18N["Falta correr el SQL de videoanálisis para marcar lo visto."]||["The video analysis SQL still needs to be run to track what you have seen.", "Manca eseguire l'SQL della videoanalisi per segnare ciò che hai visto."];
+STATIC_I18N["Viste todo. Cuando un alumno te mande un video, aparece acá."]=STATIC_I18N["Viste todo. Cuando un alumno te mande un video, aparece acá."]||["You're all caught up. When an athlete sends you a video, it shows up here.", "Hai visto tutto. Quando un atleta ti invia un video, appare qui."];
+STATIC_I18N["No hay videoanálisis con estos filtros."]=STATIC_I18N["No hay videoanálisis con estos filtros."]||["No video analyses with these filters.", "Nessuna videoanalisi con questi filtri."];
+STATIC_I18N["Hoy"]=STATIC_I18N["Hoy"]||["Today", "Oggi"];
+STATIC_I18N["Ayer"]=STATIC_I18N["Ayer"]||["Yesterday", "Ieri"];
+STATIC_I18N["Esta semana"]=STATIC_I18N["Esta semana"]||["This week", "Questa settimana"];
+STATIC_I18N["Antes"]=STATIC_I18N["Antes"]||["Earlier", "Prima"];
+STATIC_I18N["Pedido"]=STATIC_I18N["Pedido"]||["Requested", "Richiesto"];
 STATIC_I18N['Empezar']=STATIC_I18N['Empezar']||['Start','Inizia'];
 STATIC_I18N["Turno"]=STATIC_I18N["Turno"]||["Session", "Turno"];
 STATIC_I18N["Agregar turno"]=STATIC_I18N["Agregar turno"]||["Add session", "Aggiungi turno"];
@@ -9566,7 +9669,7 @@ function notifBadge(){
 }
 function notifStartPolling(){
   if(_notifTimer)return;
-  var tick=function(){if(document.hidden)return;try{notifLoad();}catch(e){}try{refreshChatBadge();}catch(e){}};
+  var tick=function(){if(document.hidden)return;try{notifLoad();}catch(e){}try{refreshChatBadge();}catch(e){}try{vaPoll();}catch(e){}};
   _notifTimer=setInterval(tick,45000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)tick();});
   tick();
@@ -10263,6 +10366,27 @@ initApp();
 #mv-hud .h:first-child .v{color:#a8e063;font-size:28px;}
 #modal-mov-view{position:fixed;inset:0;z-index:530;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:16px;}
 #modal-mov-view.open{display:flex;}
+.va-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.va-allseen{margin-left:auto;background:none;border:0;color:var(--mob);font-family:'Barlow',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;padding:4px 2px;}
+.va-sels{display:flex;gap:8px;margin-bottom:14px;}
+.va-sels select{flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:9px 10px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;}
+.va-warn{background:rgba(255,176,32,0.10);border:1px solid rgba(255,176,32,0.35);color:#ffb020;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;}
+.va-grp{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted2);margin:14px 2px 8px;}
+.va-card{position:relative;display:flex;gap:12px;align-items:center;background:var(--dp-sheen,none),var(--s1);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:9px;cursor:pointer;box-shadow:var(--dp-lift,none);transition:transform .15s ease;}
+.va-card:active{transform:scale(.985);}
+.va-card.new{border-color:rgba(77,171,247,0.45);}
+.va-th{width:84px;height:84px;border-radius:10px;object-fit:cover;flex:none;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:26px;}
+.va-mid{flex:1;min-width:0;}
+.va-who{display:flex;align-items:center;gap:7px;min-width:0;}
+.va-who b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.va-av{width:22px;height:22px;border-radius:50%;object-fit:cover;flex:none;}
+.va-av.ph{display:flex;align-items:center;justify-content:center;background:var(--s3);font-size:11px;font-weight:800;color:var(--muted);}
+.va-req{flex:none;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:#4dabf7;border:1px solid rgba(77,171,247,0.5);border-radius:4px;padding:0 5px;}
+.va-ex{font-size:14px;font-weight:700;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.va-ex span{font-weight:500;color:var(--muted2);font-size:12px;}
+.va-sum{font-size:12.5px;color:var(--mob);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.va-dt{font-size:11px;color:var(--muted2);margin-top:3px;}
+.va-dot{position:absolute;top:10px;right:10px;width:9px;height:9px;border-radius:50%;background:#4dabf7;box-shadow:0 0 8px rgba(77,171,247,0.9);}
 .mv-card{display:flex;gap:10px;align-items:center;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:8px;margin-bottom:7px;cursor:pointer;}
 .mv-card img,.mv-card .ph{width:64px;height:48px;object-fit:cover;border-radius:7px;flex:none;background:#000;}
 </style>
@@ -11354,7 +11478,8 @@ async function mvFetchList(pid,force){
   var r;
   try{
     if(ATH_TOKEN)r=await sb.rpc('athlete_list_analyses',{p_token:ATH_TOKEN,p_pin:ATH_PIN});
-    else r=await sb.from('analyses').select('id,created_at,by_role,ex,load,src,test_key,metrics,thumb').eq('player_id',pid).order('created_at',{ascending:false}).limit(40);
+    else r=await sb.from('analyses').select('id,created_at,by_role,ex,load,src,test_key,metrics,thumb,seen_at').eq('player_id',pid).order('created_at',{ascending:false}).limit(40);
+    if(r&&r.error&&!ATH_TOKEN)r=await sb.from('analyses').select('id,created_at,by_role,ex,load,src,test_key,metrics,thumb').eq('player_id',pid).order('created_at',{ascending:false}).limit(40);
   }catch(e){r={error:e};}
   if(r.error){MV.lists[pid]={error:true,items:[]};return MV.lists[pid];}
   MV.lists[pid]={items:r.data||[]};return MV.lists[pid];
@@ -11398,6 +11523,7 @@ function mvRefreshLists(){
 }
 async function movView(pid,id){
   var L=MV.lists[pid];var a=L&&L.items.find(function(x){return x.id===id;});if(!a)return;
+  if(isCoach&&a.by_role==='athlete'&&!a.seen_at)try{vaMarkSeen([id]);}catch(e){}
   mvEl('mvv-title').textContent=mvExName(a.ex)+(a.load?' · '+tr(a.load==='bar'?'con carga':'sin carga'):'');
   var tst=a.test_key&&testDef(a.test_key)?' · '+tr('Test')+' '+tr(testDef(a.test_key).n):'';
   mvEl('mvv-sub').textContent=mvDateTxt(a.created_at)+' · '+(a.by_role==='athlete'?tr('lo hizo el alumno'):tr('lo hizo el profe'))+tst;
