@@ -1868,7 +1868,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261022-2';
+var APP_VERSION='20261023-1';
 (function(){
   try{
     setTimeout(function(){
@@ -12021,23 +12021,34 @@ function prRmRender(box,exk,vid){
 /* iOS/iPadOS: al cerrar el teclado (o el selector de fecha) la barra de abajo puede quedar corrida.
    Se recalcula con el viewport visual y se fuerza un reacomodo. */
 (function(){
+  /* Solo en pantallas táctiles (iPhone/iPad). En compus y notebooks la barra queda siempre abajo.
+     Con teclado inalámbrico en iPad solo aparece la barrita de atajos: se tolera un corrimiento chico,
+     y cualquier valor raro (negativo o enorme) vuelve a 0. No se recalcula al hacer scroll. */
+  var TOUCH=false;try{TOUCH=(navigator.maxTouchPoints||0)>0||window.matchMedia('(pointer:coarse)').matches;}catch(e){}
+  function set(v){document.documentElement.style.setProperty('--vvb',v+'px');}
   function fix(){
-    try{var vv=window.visualViewport;if(!vv)return;
-      var kb=(window.innerHeight-vv.height)>140;
-      var off=kb?0:Math.round(window.innerHeight-(vv.height+vv.offsetTop));
-      if(Math.abs(off)<2)off=0;
-      document.documentElement.style.setProperty('--vvb',off+'px');
-    }catch(e){}
+    try{
+      var vv=window.visualViewport;
+      if(!TOUCH||!vv){set(0);return;}
+      if(vv.scale&&vv.scale>1.05){set(0);return;}
+      var diff=window.innerHeight-vv.height;
+      if(diff>150){set(0);return;}           /* teclado de pantalla abierto: no se toca */
+      var off=Math.round(window.innerHeight-(vv.height+vv.offsetTop));
+      if(off<2||off>120)off=0;               /* tope: nunca más que una barra de atajos */
+      set(off);
+    }catch(e){set(0);}
   }
-  if(window.visualViewport){visualViewport.addEventListener('resize',fix);visualViewport.addEventListener('scroll',fix);}
-  window.addEventListener('scroll',fix,{passive:true});
-  window.addEventListener('orientationchange',function(){setTimeout(fix,300);});
+  if(window.visualViewport)visualViewport.addEventListener('resize',fix);
+  window.addEventListener('orientationchange',function(){setTimeout(fix,300);setTimeout(fix,900);});
+  window.addEventListener('resize',function(){setTimeout(fix,150);});
   document.addEventListener('focusout',function(e){var t=e.target;
     if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)){
       setTimeout(function(){try{window.scrollTo(window.pageXOffset,window.pageYOffset);}catch(_){}fix();},100);
       setTimeout(fix,450);}
   });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(fix,200);});
   document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('.modal-overlay button,.pd-mx');if(b)setTimeout(fix,350);},true);
+  fix();
 })();
 
 /* --- enganches con la app --- */
