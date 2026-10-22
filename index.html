@@ -1868,7 +1868,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261022-1';
+var APP_VERSION='20261022-2';
 (function(){
   try{
     setTimeout(function(){
@@ -7945,6 +7945,14 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["¿Finalizar el entrenamiento?"]=STATIC_I18N["¿Finalizar el entrenamiento?"]||["Finish the workout?", "Terminare l'allenamento?"];
+STATIC_I18N["Te quedan"]=STATIC_I18N["Te quedan"]||["You still have", "Ti restano"];
+STATIC_I18N["de"]=STATIC_I18N["de"]||["of", "di"];
+STATIC_I18N["bloque sin marcar."]=STATIC_I18N["bloque sin marcar."]||["block unchecked.", "blocco non segnato."];
+STATIC_I18N["bloques sin marcar."]=STATIC_I18N["bloques sin marcar."]||["blocks unchecked.", "blocchi non segnati."];
+STATIC_I18N["Después solo vas a ver el resumen."]=STATIC_I18N["Después solo vas a ver el resumen."]||["After that you'll only see the summary.", "Dopo vedrai solo il riepilogo."];
+STATIC_I18N["Finalizar"]=STATIC_I18N["Finalizar"]||["Finish", "Termina"];
+STATIC_I18N["Seguir entrenando"]=STATIC_I18N["Seguir entrenando"]||["Keep training", "Continua ad allenarti"];
 STATIC_I18N["Estabilidad / Core"]=STATIC_I18N["Estabilidad / Core"]||["Stability / Core", "Stabilità / Core"];
 STATIC_I18N["Videoanálisis"]=STATIC_I18N["Videoanálisis"]||["Video analysis", "Videoanalisi"];
 STATIC_I18N["Lo que te mandan tus alumnos"]=STATIC_I18N["Lo que te mandan tus alumnos"]||["What your athletes send you", "Cosa ti inviano i tuoi atleti"];
@@ -8989,6 +8997,14 @@ function startSession(){
   refreshPlanUI();
   toast(tr('¡Arrancaste! Buen entrenamiento.'));
 }
+/* Antes de cerrar se pregunta: un toque sin querer dejaba al alumno sin ver su sesión */
+function askFinishSession(){
+  var day=(PLAN&&PLAN[0]&&PLAN[0][0])||getCurSession(false)||{},tot=(day.blocks||[]).length,dn=0;
+  for(var i=0;i<tot;i++){var c=checkState['0-0-'+i];if(c&&c.done)dn++;}
+  var left=tot-dn;
+  var msg=tr('¿Finalizar el entrenamiento?')+' '+(left>0?(tr('Te quedan')+' '+left+' '+tr('de')+' '+tot+' '+tr(tot===1?'bloque sin marcar.':'bloques sin marcar.')):tr('Después solo vas a ver el resumen.'));
+  askConfirm(msg,function(){finishSession(false);},{okLabel:tr('Finalizar'),cancelLabel:tr('Seguir entrenando')});
+}
 function finishSession(auto){
   if(!currentPlayerId||!curDate)return;
   var t=timesOf(currentPlayerId), cur=t[curDate];
@@ -9044,7 +9060,7 @@ function renderTimer(){
       +'<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;">'
       +'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--mob)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>'
       +'<span id="tm-clock" style="font-family:\'Barlow Condensed\',sans-serif;font-size:26px;font-weight:800;letter-spacing:0.03em;color:var(--text);font-variant-numeric:tabular-nums;">'+fmtClock((Date.now()-new Date(cur.s).getTime())/1000)+'</span></div>'
-      +'<button onclick="finishSession(false)" style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--mobfill);color:#0a0b0e;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">'+tr('Finalizar mi entrenamiento')+'</button></div>';
+      +'<button onclick="askFinishSession()" style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--mobfill);color:#0a0b0e;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">'+tr('Finalizar mi entrenamiento')+'</button></div>';
     _tmTick=setInterval(function(){
       var el=document.getElementById('tm-clock');
       var c=curTime();
