@@ -1029,7 +1029,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
     <div class="filter-chip" onclick="filterLib('fza',this)">Fuerza</div>
     <div class="filter-chip" onclick="filterLib('exp',this)">Explosivos</div>
     <div class="filter-chip" onclick="filterLib('cam',this)">Carrera</div>
-    <div class="filter-chip" onclick="filterLib('cm',this)">Control Motor</div>
+    <div class="filter-chip" onclick="filterLib('cm',this)">Estabilidad / Core</div>
     <div class="filter-chip" onclick="filterLib('est',this)">Estiramientos din&#225;micos</div>
   </div>
   <div class="lib-grid" id="lib-grid"></div>
@@ -1311,7 +1311,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
         <option value="mob">Movilidad</option>
         <option value="act">Activaci&#243;n y Prevenci&#243;n</option>
         <option value="fza">Fuerza</option>
-        <option value="cm">Control Motor</option>
+        <option value="cm">Estabilidad / Core</option>
         <option value="exp">Explosivos / Velocidad</option>
         <option value="cam">Carrera</option>
         <option value="est">Estiramientos din&#225;micos</option>
@@ -1353,7 +1353,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted);pointer-events:none;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input id="pick-search" type="text" oninput="setPickSearch(this.value)" placeholder="Buscar ejercicio..." style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px 9px 34px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"/>
     </div>
-    <select id="pick-type-filter" onchange="setPickType(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:8px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todos los tipos</option><option value="mob">Movilidad</option><option value="act">Activaci&#243;n y Prevenci&#243;n</option><option value="fza">Fuerza</option><option value="cm">Control Motor</option><option value="exp">Explosivos / Velocidad</option><option value="cam">Carrera</option><option value="est">Estiramientos din&#225;micos</option></select>
+    <select id="pick-type-filter" onchange="setPickType(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:8px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todos los tipos</option><option value="mob">Movilidad</option><option value="act">Activaci&#243;n y Prevenci&#243;n</option><option value="fza">Fuerza</option><option value="cm">Estabilidad / Core</option><option value="exp">Explosivos / Velocidad</option><option value="cam">Carrera</option><option value="est">Estiramientos din&#225;micos</option></select>
     <select id="pick-pat-filter" onchange="setPickPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla &middot; Bi</option><option value="dr_uni">Dominante rodilla &middot; Uni</option><option value="dc_bi">Dominante cadera &middot; Bi</option><option value="dc_uni">Dominante cadera &middot; Uni</option><option value="eh_bi">Empuje horizontal &middot; Bi</option><option value="eh_uni">Empuje horizontal &middot; Uni</option><option value="ev_bi">Empuje vertical &middot; Bi</option><option value="ev_uni">Empuje vertical &middot; Uni</option><option value="th">Tracci&#243;n horizontal</option><option value="tv">Tracci&#243;n vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select>
     <div class="pick-list" id="pick-list"></div>
     <div style="display:flex;gap:8px;margin-top:4px;">
@@ -1868,7 +1868,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261021-3';
+var APP_VERSION='20261022-1';
 (function(){
   try{
     setTimeout(function(){
@@ -5084,7 +5084,7 @@ function wlMeta(pid,s){
   var pr=(s.pills||[]).filter(function(x){return /^RPE|^RIR/.test(x);})[0];if(pr)out+=' · '+pr;
   return out;
 }
-var WL_BT={mob:'Movilidad',act:'Activación',fza:'Fuerza',exp:'Explosivos',cam:'Campo',cm:'Control motor',est:'Estiramientos'};
+var WL_BT={mob:'Movilidad',act:'Activación',fza:'Fuerza',exp:'Explosivos',cam:'Campo',cm:'Estabilidad / Core',est:'Estiramientos'};
 function wlChips(s){
   var seen={},out=[];
   (s.blocks||[]).forEach(function(b){var t=WL_BT[b.t]||b.title||'';t=String(t).trim();if(!t||seen[t])return;seen[t]=1;out.push(t);});
@@ -6599,7 +6599,7 @@ function addFromLib(id){
 
 function renderLib(){
   try{renderLibSource();}catch(e){}
-  var labels={mob:'ED + Movilidad',act:'Activaci\u00f3n',fza:'Fuerza',exp:'Explosivos',cam:'Campo',cm:'Control Motor',est:'Estiramientos din\u00e1micos'};
+  var labels={mob:'ED + Movilidad',act:'Activaci\u00f3n',fza:'Fuerza',exp:'Explosivos',cam:'Campo',cm:'Estabilidad / Core',est:'Estiramientos din\u00e1micos'};
   var qEl=document.getElementById('lib-search');var q=qEl?qEl.value.toLowerCase().trim():'';
   var items=LIB.slice();
   if(libSource!=='all')items=items.filter(function(e){return srcOf(e)===libSource;});
@@ -7945,6 +7945,7 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Estabilidad / Core"]=STATIC_I18N["Estabilidad / Core"]||["Stability / Core", "Stabilità / Core"];
 STATIC_I18N["Videoanálisis"]=STATIC_I18N["Videoanálisis"]||["Video analysis", "Videoanalisi"];
 STATIC_I18N["Lo que te mandan tus alumnos"]=STATIC_I18N["Lo que te mandan tus alumnos"]||["What your athletes send you", "Cosa ti inviano i tuoi atleti"];
 STATIC_I18N["Sin ver"]=STATIC_I18N["Sin ver"]||["Unseen", "Da vedere"];
