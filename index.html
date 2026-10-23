@@ -1687,7 +1687,6 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
     <div class="modal-handle"></div>
     <h3>&#128203; Ficha del alumno</h3>
     <div id="ficha-player-name" style="font-size:13px;color:var(--muted);margin-bottom:12px;"></div>
-    <button onclick="openMaxes(fichaPlayerId)" style="width:100%;padding:11px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.08);color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:16px;"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><rect x="1.5" y="9" width="3" height="6" rx="1"/><rect x="4.5" y="6.5" width="3" height="11" rx="1"/><rect x="16.5" y="6.5" width="3" height="11" rx="1"/><rect x="19.5" y="9" width="3" height="6" rx="1"/><line x1="7.5" y1="12" x2="16.5" y2="12"/></svg>Cargas máximas (1RM)</button>
     <div id="ficha-empty" style="display:none;text-align:center;padding:16px 0 20px;font-size:13px;color:var(--muted2);line-height:1.6;">Este alumno a&#250;n no complet&#243; su ficha.<br>Aparecer&#225; autom&#225;ticamente la pr&#243;xima vez que ingrese.</div>
     <div id="ficha-form">
       <div style="margin-bottom:12px;"><label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;">Deporte</label><select id="f-q-sport" onchange="updateFichaPositions()" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-size:14px;color:var(--text);outline:none;font-family:'Barlow',sans-serif;"><option value="">Sin especificar</option><option value="futbol">F&#250;tbol</option><option value="basquetbol">B&#225;squetbol</option><option value="hockey">Hockey</option><option value="natacion">Nataci&#243;n</option><option value="rugby">Rugby</option><option value="voley">V&#243;ley</option><option value="handball">Handball</option><option value="tenis">Tenis</option><option value="padel">P&#225;del</option><option value="running">Running / Atletismo</option><option value="wellness">Wellness / Sin deporte</option></select></div>
@@ -1870,7 +1869,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261023-2';
+var APP_VERSION='20261023-3';
 (function(){
   try{
     setTimeout(function(){
@@ -7991,6 +7990,14 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Todavía no cargaste ninguna carga máxima."]=STATIC_I18N["Todavía no cargaste ninguna carga máxima."]||["You haven't added any max loads yet.", "Non hai ancora inserito carichi massimi."];
+STATIC_I18N["Todavía no hay cargas máximas."]=STATIC_I18N["Todavía no hay cargas máximas."]||["No max loads yet.", "Ancora nessun carico massimo."];
+STATIC_I18N["Todavía no cargaste tus cargas máximas."]=STATIC_I18N["Todavía no cargaste tus cargas máximas."]||["You haven't added your max loads yet.", "Non hai ancora inserito i tuoi carichi massimi."];
+STATIC_I18N["Cargar o editar"]=STATIC_I18N["Cargar o editar"]||["Add or edit", "Aggiungi o modifica"];
+STATIC_I18N["Cargar 1RM"]=STATIC_I18N["Cargar 1RM"]||["Add 1RM", "Aggiungi 1RM"];
+STATIC_I18N["Se usa para pasar los % a kg y calcular el tonelaje."]=STATIC_I18N["Se usa para pasar los % a kg y calcular el tonelaje."]||["Used to convert % to kg and calculate tonnage.", "Serve per convertire le % in kg e calcolare il tonnellaggio."];
+STATIC_I18N["Cargó su 1RM"]=STATIC_I18N["Cargó su 1RM"]||["Added their 1RM", "Ha inserito il suo 1RM"];
+STATIC_I18N["alumno"]=STATIC_I18N["alumno"]||["athlete", "atleta"];
 STATIC_I18N["Rendimiento"]=STATIC_I18N["Rendimiento"]||["Performance", "Prestazioni"];
 STATIC_I18N["Buscar alumno..."]=STATIC_I18N["Buscar alumno..."]||["Search athlete...", "Cerca atleta..."];
 STATIC_I18N["Ir al plan"]=STATIC_I18N["Ir al plan"]||["Go to plan", "Vai al piano"];
@@ -9983,6 +9990,7 @@ function renderSummary(){
     if(isCoach){var _pc=painsCoachHtml(p);if(_pc)secs+=sumSec(ICON('bandage'),tr('Molestias (30 días)'),stripLbl(_pc),false);}
     if(isCoach){var _ph=planBHistoryHtml(p);if(_ph)secs+=sumSec(ICON('battery'),tr('Versión suave (60 días)'),_ph,false);}
     secs+=sumSec(ICON('bars'),'Carga y volumen',rpeInner,!isCoach);
+    secs+=sumSec(ICON('dumbbell'),tr('Cargas máximas (1RM)'),maxesSumHtml(p),false);
     secs+=sumSec(ICON('pencil'),TT('notasRec'),notesH,false);
     var _pdfBtn=isCoach?('<button onclick="event.stopPropagation();exportPlayerPDF(\''+p.id+'\')" title="'+tr('Descargar informe')+'" style="flex:none;background:var(--s2);border:1px solid var(--border2);color:var(--mob);border-radius:8px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:\'Barlow Condensed\',sans-serif;font-size:11.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'
       +'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>PDF</button>'):'';
@@ -10105,6 +10113,25 @@ async function submitQuestionnaire(){
 }
 var fichaPlayerId=null;
 var maxesPlayerId=null,maxesSearchQ='',maxesPending=null;
+/* 1RM: p.maxes = {"Sentadilla":120,...}. "__by" guarda quién cargó cada uno ("athlete"). */
+/* Ejercicios para elegir: el profe ve su biblioteca; el alumno, los ejercicios de sus sesiones */
+function maxesSource(p){
+  if(isCoach&&LIB.length)return LIB;
+  var out=[],seen={},ss=JB_SESSIONS[p.id]||{};
+  Object.keys(ss).forEach(function(k){var d=ss[k];(d&&d.blocks||[]).forEach(function(b){(b.exs||[]).forEach(function(e){if(e&&e.n&&!seen[e.n]){seen[e.n]=1;out.push({id:'s'+out.length,name:e.n,type:b.t||'fza'});}});});});
+  maxesKeys(p).forEach(function(k){if(!seen[k]){seen[k]=1;out.push({id:'s'+out.length,name:k,type:'fza'});}});
+  return out;
+}
+function maxesKeys(p){return Object.keys((p&&p.maxes)||{}).filter(function(k){return k.indexOf('__')!==0;});}
+function maxesBy(p){return (p&&p.maxes&&p.maxes.__by)||{};}
+function maxSetBy(p,name,who){if(!p.maxes)p.maxes={};var by=p.maxes.__by||{};if(who==='athlete')by[name]='athlete';else delete by[name];if(Object.keys(by).length)p.maxes.__by=by;else delete p.maxes.__by;}
+function maxesSumHtml(p){
+  var ks=maxesKeys(p).sort(),by=maxesBy(p);
+  var list=ks.length?'<div class="mx-grid">'+ks.map(function(k){return '<div class="mx-it"><span>'+String(k).replace(/</g,'&lt;')+(by[k]==='athlete'?' <i class="mx-by">'+tr('alumno')+'</i>':'')+'</span><b>'+p.maxes[k]+' kg</b></div>';}).join('')+'</div>'
+    :'<div class="sum-empty">'+tr(isCoach?'Todavía no hay cargas máximas.':'Todavía no cargaste tus cargas máximas.')+'</div>';
+  return list+'<button class="mx-btn" onclick="event.stopPropagation();openMaxes(\''+p.id+'\')">'+tr(ks.length?'Cargar o editar':'Cargar 1RM')+'</button>'
+    +'<div style="font-size:11.5px;color:var(--muted2);margin-top:8px;line-height:1.5;">'+tr('Se usa para pasar los % a kg y calcular el tonelaje.')+'</div>';
+}
 function openMaxes(pid){
   maxesPlayerId=pid;maxesSearchQ='';maxesPending=null;
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
@@ -10114,16 +10141,19 @@ function openMaxes(pid){
   renderMaxesPending();renderMaxesList();renderMaxesLib();
   document.getElementById('modal-maxes').classList.add('open');
 }
-function closeMaxes(){document.getElementById('modal-maxes').classList.remove('open');maxesPlayerId=null;}
+function closeMaxes(){document.getElementById('modal-maxes').classList.remove('open');maxesPlayerId=null;try{var sc=document.getElementById('screen-summary');if(sc&&sc.style.display==='block')renderSummary();}catch(e){}}
 function renderMaxesList(){
   var el=document.getElementById('maxes-list');if(!el)return;
   var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p)return;
-  var keys=Object.keys(p.maxes||{});
-  if(!keys.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:12.5px;padding:14px 0;">Todavía no cargaste ninguna carga máxima.</div>';return;}
+  var keys=maxesKeys(p);
+  if(!keys.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:12.5px;padding:14px 0;">'+tr('Todavía no cargaste ninguna carga máxima.')+'</div>';return;}
   keys.sort();
   el.innerHTML=keys.map(function(k){
     return '<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--border2);border-radius:10px;margin-bottom:7px;background:var(--s2);"><div style="flex:1;min-width:0;font-size:14px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+k+'</div><div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:15px;color:var(--mob);white-space:nowrap;">'+p.maxes[k]+' kg</div><button data-k="'+String(k).replace(/"/g,'&quot;')+'" onclick="delMax(this.dataset.k)" style="flex:none;width:26px;height:26px;border-radius:7px;border:1px solid #ff4d4d;background:transparent;color:#ff7043;cursor:pointer;font-size:16px;line-height:1;padding:0;">\u00d7</button></div>';
   }).join('');
+  try{var by=maxesBy(p);el.querySelectorAll(':scope>div').forEach(function(row,ix){var k=keys[ix];
+    if(by[k]==='athlete'){var nm=row.firstElementChild;if(nm)nm.insertAdjacentHTML('beforeend',' <span class="mx-by">'+tr('alumno')+'</span>');}
+    if(!isCoach){row.querySelectorAll('button').forEach(function(b){if(/delMax/.test(b.getAttribute('onclick')||''))b.style.display='none';});}});}catch(e){}
 }
 function maxesFilter(v){maxesSearchQ=v;renderMaxesLib();}
 function renderMaxesLib(){
@@ -10131,7 +10161,7 @@ function renderMaxesLib(){
   var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p)return;
   var q=(maxesSearchQ||'').trim().toLowerCase();
   var seen={},items=[];
-  LIB.forEach(function(e){if(!e.name)return;if(seen[e.name])return;if(q&&e.name.toLowerCase().indexOf(q)===-1)return;seen[e.name]=1;items.push(e);});
+  maxesSource(p).forEach(function(e){if(!e.name)return;if(seen[e.name])return;if(q&&e.name.toLowerCase().indexOf(q)===-1)return;seen[e.name]=1;items.push(e);});
   items.sort(function(a,b){return a.name.localeCompare(b.name);});
   if(!items.length){el.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:12.5px;padding:12px 0;">Sin resultados.</div>';return;}
   el.innerHTML=items.slice(0,80).map(function(e){
@@ -10140,8 +10170,8 @@ function renderMaxesLib(){
   }).join('');
 }
 function pickMax(lid){
-  var e=LIB.find(function(x){return x.id===lid;});if(!e)return;
   var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p)return;
+  var e=maxesSource(p).find(function(x){return x.id===lid;});if(!e)return;
   maxesPending={name:e.name,cur:(p.maxes&&p.maxes[e.name]!=null)?p.maxes[e.name]:''};
   renderMaxesPending();
   setTimeout(function(){var i=document.getElementById('maxes-kg-in');if(i)i.focus();},60);
@@ -10158,17 +10188,20 @@ function saveMaxPending(){
   if(!kg||kg<=0){showInfo('Ingresá un valor de kg válido.');return;}
   if(!p.maxes)p.maxes={};
   p.maxes[maxesPending.name]=Math.round(kg*10)/10;
+  maxSetBy(p,maxesPending.name,isCoach?'coach':'athlete');
+  if(!isCoach){try{pdNotify('rm',p.name||'PDapp',tr('Cargó su 1RM')+': '+maxesPending.name+' '+p.maxes[maxesPending.name]+' kg',{k:'summary',pid:p.id});}catch(e){}}
   maxesPending=null;
   renderMaxesPending();renderMaxesList();renderMaxesLib();saveMaxes(p);
 }
 function cancelMaxPending(){maxesPending=null;renderMaxesPending();}
 function delMax(k){
   var p=PLAYERS.find(function(x){return x.id===maxesPlayerId;});if(!p||!p.maxes)return;
-  delete p.maxes[k];renderMaxesList();saveMaxes(p);
+  if(!isCoach)return;
+  delete p.maxes[k];maxSetBy(p,k,'coach');renderMaxesList();saveMaxes(p);
 }
 function saveMaxes(p){
   showSyncStatus('saving');
-  sb.from('players').update({maxes:p.maxes}).eq('id',p.id).then(function(r){
+  (ATH_TOKEN?sb.rpc('athlete_save_maxes',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_maxes:p.maxes}):sb.from('players').update({maxes:p.maxes}).eq('id',p.id)).then(function(r){
     if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
     showSyncStatus('ok');
   });
@@ -10444,6 +10477,12 @@ initApp();
 .rd-av em{font-style:normal;font-size:11.5px;color:var(--muted);max-width:62px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .rd-av.on img,.rd-av.on span{box-shadow:0 0 0 2px var(--s1),0 0 0 4px var(--mob),0 0 16px 2px rgba(168,224,99,0.45);transform:scale(1.05);}
 .rd-av.on em{color:var(--mob);font-weight:700;}
+.mx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:7px;margin-bottom:10px;}
+.mx-it{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:9px 11px;min-width:0;}
+.mx-it span{font-size:13px;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mx-it b{flex:none;font-family:'Barlow Condensed',sans-serif;font-size:16px;color:var(--mob);}
+.mx-by{font-style:normal;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:#4dabf7;border:1px solid rgba(77,171,247,0.5);border-radius:4px;padding:0 4px;margin-left:4px;vertical-align:1px;}
+.mx-btn{width:100%;padding:11px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.08);color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-size:13.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
 .va-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
 .va-allseen{margin-left:auto;background:none;border:0;color:var(--mob);font-family:'Barlow',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;padding:4px 2px;}
 .va-sels{display:flex;gap:8px;margin-bottom:14px;}
@@ -11695,7 +11734,7 @@ function rmPrefs(){try{return JSON.parse(localStorage.getItem('pd_rm')||'{}')||{
 function rmSavePrefs(){var R=MV.rm;if(!R)return;var pr=rmPrefs();pr.solo=R.solo;pr.rest=R.rest;pr.ex=R.ex;pr.cal=R.cal;pr.disc=R.disc;pr.dist=R.dist;pr.loads=pr.loads||{};pr.loads[R.ex]=R.loads;try{localStorage.setItem('pd_rm',JSON.stringify(pr));}catch(e){}}
 function rmP(){return PLAYERS.find(function(x){return x.id===MV.pid;});}
 function rmMaxName(p,ex){
-  var E=RM_EX[ex];var keys=Object.keys((p&&p.maxes)||{});
+  var E=RM_EX[ex];var keys=maxesKeys(p);
   var c=keys.filter(function(k){return E.re.test(k)&&!(E.no&&E.no.test(k));});
   if(E.pref){var pp=c.filter(function(k){return E.pref.test(k);});if(pp.length)c=pp;}
   return c[0]||null;
@@ -11904,7 +11943,7 @@ async function rmSave(){
   if(!ok){if(btn){btn.disabled=false;btn.textContent=tr('Guardar RM estimado');}return;}
   p.tests=all;
   var fc=mvEl('rm-ficha'),fn=mvEl('rm-ficha-n');
-  if(isCoach&&fc&&fc.checked&&fn&&fn.value){if(!p.maxes)p.maxes={};p.maxes[fn.value]=rm;saveMaxes(p);}
+  if(isCoach&&fc&&fc.checked&&fn&&fn.value){if(!p.maxes)p.maxes={};p.maxes[fn.value]=rm;maxSetBy(p,fn.value,isCoach?'coach':'athlete');saveMaxes(p);}
   if(btn){btn.textContent='✓ '+tr('Guardado');}
   try{toast(tr('RM estimado guardado'));}catch(e2){}
   if(ATH_TOKEN){try{pdNotify('rm',(p.name||'PDapp')+' · '+tr('RM medido'),tr(RM_EX[R.ex].n)+': '+mvF1(rm).replace(/\.0$/,'')+' kg',{k:'summary',pid:p.id});}catch(e5){}}
@@ -11914,7 +11953,7 @@ function rmHist(p,ex){return ((p&&p.tests&&p.tests['rm_'+ex])||[]).slice().sort(
 function rmToFicha(pid,ex){
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var h=rmHist(p,ex),last=h[h.length-1];if(!last)return;
   var nm=rmLibNames(p,ex)[0];
-  askConfirm(tr('¿Guardar')+' '+last.v+' kg '+tr('como carga máxima de')+' “'+nm+'” '+tr('en su ficha?'),function(){if(!p.maxes)p.maxes={};p.maxes[nm]=last.v;saveMaxes(p);try{toast(tr('Guardado en la ficha'));}catch(e){}});
+  askConfirm(tr('¿Guardar')+' '+last.v+' kg '+tr('como carga máxima de')+' “'+nm+'” '+tr('en su ficha?'),function(){if(!p.maxes)p.maxes={};p.maxes[nm]=last.v;maxSetBy(p,nm,isCoach?'coach':'athlete');saveMaxes(p);try{toast(tr('Guardado en la ficha'));}catch(e){}});
 }
 function rmSectionHtml(pid){
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return '';
