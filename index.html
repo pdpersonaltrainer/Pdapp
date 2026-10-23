@@ -838,6 +838,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <button class="pd-nav-item" id="side-templates" onclick="sideNav('templates')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Mis Sesiones</span></button>
       <button class="pd-nav-item" id="side-pdmethod" onclick="sideNav('pdmethod')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Metodología PD</span></button>
       <button class="pd-nav-item" id="side-programs" onclick="sideNav('programs')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="22"/><line x1="15" y1="10" x2="15" y2="22"/></svg><span>Programas</span></button>
+      <button class="pd-nav-item" id="side-rend" onclick="sideNav('rend')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg><span>Rendimiento</span></button>
       <button class="pd-nav-item" id="side-tests" onclick="sideNav('tests')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z"/><path d="M6 6h12v15H6z"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg><span>Evaluaciones</span></button>
       <button class="pd-nav-item" id="side-profes" style="display:none;" onclick="sideNav('profes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M5.5 17c.6-2 2-3 3.5-3s2.9 1 3.5 3"/><line x1="15" y1="9" x2="19" y2="9"/><line x1="15" y1="13" x2="19" y2="13"/></svg><span>Profes</span></button>
     </div>
@@ -1261,6 +1262,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
+  <div id="rend-bar" style="display:none;max-width:var(--cw);margin:0 auto;padding:14px 13px 0;"></div>
   <div style="max-width:var(--cw);margin:0 auto;padding:16px 13px 20px;" id="summary-content"></div>
   <div style="max-width:var(--cw);margin:0 auto;padding:0 13px 24px;" id="tests-athlete"></div>
 </div>
@@ -1868,7 +1870,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261023-1';
+var APP_VERSION='20261023-2';
 (function(){
   try{
     setTimeout(function(){
@@ -3470,6 +3472,7 @@ function hideSidebar(){var s=document.getElementById('pd-sidebar');if(s){s.style
 function toggleSidebar(){var s=document.getElementById('pd-sidebar');if(s)s.classList.toggle('expanded');}
 function setSideActive(section){document.querySelectorAll('.pd-nav-item').forEach(function(n){n.classList.remove('active');});var el=document.getElementById('side-'+section);if(el)el.classList.add('active');}
 function sideNav(section){
+  if(section!=='rend')rendOff();
   setSideActive(section);
   var s=document.getElementById('pd-sidebar');
   if(s){s.classList.remove('expanded');try{s.blur();}catch(e){}
@@ -3483,6 +3486,7 @@ function sideNav(section){
   else if(section==='profes'){openProfesFromHome();}
   else if(section==='tests'){openTestsFromHome();}
   else if(section==='videos'){openVideosFromHome();}
+  else if(section==='rend'){openRendFromHome();}
   else if(section==='perfil'){openProfileFromHome();}
   else if(section==='ajustes'){openSettingsFromHome();}
 }
@@ -3904,6 +3908,46 @@ async function vaMarkSeen(ids){
   try{var r=await sb.rpc('coach_mark_analyses_seen',{p_ids:ids.map(String)});if(r&&r.error)console.error('vaSeen',r.error);}catch(e){}
 }
 function vaMarkAll(){vaMarkSeen(vaUnseen().map(function(a){return a.id;}));}
+/* ===== RENDIMIENTO: el resumen de cualquier alumno sin entrar a su plan ===== */
+var REND={on:false,q:''};
+function rendSavedPid(){try{return localStorage.getItem('pd_rend_pid')||'';}catch(e){return '';}}
+function openRendFromHome(){
+  if(!isCoach)return;
+  if(!PLAYERS.length){openSideScreen('screen-summary');setSideActive('rend');document.getElementById('summary-content').innerHTML='<div class="empty-state"><p>'+tr('Todavía no tenés alumnos.')+'</p></div>';return;}
+  var pid=rendSavedPid();if(!PLAYERS.some(function(p){return p.id===pid;}))pid=PLAYERS[0].id;
+  REND.on=true;REND.q='';
+  openSideScreen('screen-summary');setSideActive('rend');
+  rendSelect(pid);
+}
+function rendOff(){
+  if(!REND.on)return;REND.on=false;
+  var b=document.getElementById('rend-bar');if(b){b.style.display='none';b.innerHTML='';}
+}
+function rendSelect(pid){
+  if(!REND.on)return;
+  currentPlayerId=pid;activePid=pid;checkState={};
+  try{localStorage.setItem('pd_rend_pid',pid);}catch(e){}
+  rendBar();
+  try{renderSummary();}catch(e){console.error('rend',e);}
+  var p=PLAYERS.find(function(x){return x.id===pid;})||{};
+  var tEl=document.getElementById('sum-title'),sEl=document.getElementById('sum-sub');
+  if(tEl)tEl.textContent=tr('Rendimiento');if(sEl)sEl.textContent=p.name||'';
+  try{window.scrollTo(0,0);}catch(e){}
+}
+function rendSearch(v){REND.q=v;rendBar(true);}
+function rendBar(keepFocus){
+  var b=document.getElementById('rend-bar');if(!b)return;b.style.display='block';
+  var q=String(REND.q||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  var list=PLAYERS.filter(function(p){return !q||String(p.name||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').indexOf(q)>=0;});
+  var av=list.map(function(p){var on=p.id===currentPlayerId;
+    var img=p.photo?'<img src="'+p.photo+'"/>':'<span>'+String(p.name||'?').slice(0,1)+'</span>';
+    return '<button class="rd-av'+(on?' on':'')+'" onclick="rendSelect(\''+p.id+'\')">'+img+'<em>'+String((p.name||'').split(' ')[0]).replace(/</g,'&lt;')+'</em></button>';}).join('')||'<div style="font-size:13px;color:var(--muted2);padding:14px 4px;">'+tr('Sin resultados')+'</div>';
+  if(keepFocus&&document.getElementById('rd-row')){document.getElementById('rd-row').innerHTML=av;return;}
+  b.innerHTML='<div class="rd-top"><div class="rd-search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="search" placeholder="'+tr('Buscar alumno...')+'" value="'+String(REND.q||'').replace(/"/g,'&quot;')+'" oninput="rendSearch(this.value)"></div>'
+    +'<button class="rd-go" onclick="rendGoPlan()">'+tr('Ir al plan')+' ›</button></div>'
+    +'<div class="rd-row" id="rd-row">'+av+'</div>';
+}
+function rendGoPlan(){var pid=currentPlayerId;rendOff();if(pid)openPlayerAtDate(pid,isoToday());}
 function openTestsFromHome(){
   openSideScreen('screen-tests');
   renderTestsScreen();
@@ -5366,6 +5410,7 @@ function wlIdeaHtml(){
 
 function wlGoDate(iso){var sess=JB_SESSIONS[currentPlayerId]||{};var s=sess[iso];if(!s||!s.blocks||!s.blocks.length)return;pendingDate=iso;enterPlan();}
 function enterPlan(){
+  rendOff();
   hideSidebar();
   var ws=document.getElementById('screen-welcome');ws.classList.add('hidden');
   var _wb=document.getElementById('wl-back');if(_wb)_wb.style.display='none';
@@ -5383,7 +5428,7 @@ function enterPlan(){
 }
 function athBackHome(){
   ['screen-plan','screen-lib'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('active');});
-  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes','screen-videos'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   try{document.getElementById('screen-select').style.display='none';}catch(e){}
   currentTab='plan';
@@ -5401,9 +5446,10 @@ function welcomeBack(){
   if(isCoach){showSidebar();setSideActive('alumnos');}
 }
 function goBack(){
+  rendOff();
   if(!isCoach&&currentPlayerId&&PLAYERS.some(function(x){return x.id===currentPlayerId;})){athBackHome();return;}
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes','screen-videos'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   showSelectContent();
   currentPlayerId=null;activePid=null;PLAN=[];checkState={};curDate=null;calCursor=null;currentTab='plan';renderSelect();if(isCoach){showSidebar();setSideActive('alumnos');}
@@ -7945,6 +7991,10 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Rendimiento"]=STATIC_I18N["Rendimiento"]||["Performance", "Prestazioni"];
+STATIC_I18N["Buscar alumno..."]=STATIC_I18N["Buscar alumno..."]||["Search athlete...", "Cerca atleta..."];
+STATIC_I18N["Ir al plan"]=STATIC_I18N["Ir al plan"]||["Go to plan", "Vai al piano"];
+STATIC_I18N["Todavía no tenés alumnos."]=STATIC_I18N["Todavía no tenés alumnos."]||["You don't have athletes yet.", "Non hai ancora atleti."];
 STATIC_I18N["¿Finalizar el entrenamiento?"]=STATIC_I18N["¿Finalizar el entrenamiento?"]||["Finish the workout?", "Terminare l'allenamento?"];
 STATIC_I18N["Te quedan"]=STATIC_I18N["Te quedan"]||["You still have", "Ti restano"];
 STATIC_I18N["de"]=STATIC_I18N["de"]||["of", "di"];
@@ -10383,6 +10433,17 @@ initApp();
 #mv-hud .h:first-child .v{color:#a8e063;font-size:28px;}
 #modal-mov-view{position:fixed;inset:0;z-index:530;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;padding:16px;}
 #modal-mov-view.open{display:flex;}
+.rd-top{display:flex;gap:10px;align-items:center;margin-bottom:12px;}
+.rd-search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:0 12px;color:var(--muted2);box-shadow:var(--dp-sunk,none);}
+.rd-search input{flex:1;min-width:0;background:transparent;border:0;outline:none;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:11px 0;}
+.rd-go{flex:none;background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:11px 14px;color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;box-shadow:var(--dp-btn2,none);}
+.rd-row{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.rd-row::-webkit-scrollbar{display:none;}
+.rd-av{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:0;cursor:pointer;padding:0;width:62px;}
+.rd-av img,.rd-av span{width:50px;height:50px;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;background:var(--s3);color:var(--muted);font-weight:800;font-size:18px;box-shadow:0 0 0 2px var(--s1),0 0 0 3px var(--border2);transition:box-shadow .2s,transform .2s;}
+.rd-av em{font-style:normal;font-size:11.5px;color:var(--muted);max-width:62px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rd-av.on img,.rd-av.on span{box-shadow:0 0 0 2px var(--s1),0 0 0 4px var(--mob),0 0 16px 2px rgba(168,224,99,0.45);transform:scale(1.05);}
+.rd-av.on em{color:var(--mob);font-weight:700;}
 .va-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
 .va-allseen{margin-left:auto;background:none;border:0;color:var(--mob);font-family:'Barlow',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;padding:4px 2px;}
 .va-sels{display:flex;gap:8px;margin-bottom:14px;}
