@@ -1869,7 +1869,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261023-3';
+var APP_VERSION='20261024-1';
 (function(){
   try{
     setTimeout(function(){
@@ -2545,10 +2545,10 @@ async function saveBodyPains(){
   try{
     var _fuertes=arr.filter(function(x){return x.lvl===3;});
     if(_fuertes.length&&ATH_TOKEN){
-      var _z=_fuertes.slice(0,2).map(function(x){return tr(BODY_LBL[x.z]||x.z);}).join(', ');
+      var _z=_fuertes.slice(0,2).map(function(x){return BODY_LBL[x.z]||x.z;}).join(', ');
       if(_fuertes.length>2)_z+=' +'+(_fuertes.length-2);
       var _hasS=(function(){var s=(JB_SESSIONS[p.id]||{})[isoToday()];return !!(s&&s.blocks&&s.blocks.length&&!s.bDec);})();
-      pdNotify('pain',(p&&p.name)||'PDapp',tr('Reportó dolor fuerte:')+' '+_z+(_hasS?' · '+tr('se le recomienda la versión suave'):''),{k:'day',pid:p.id,d:isoToday()});
+      pdNotify('pain',(p&&p.name)||'PDapp',trN('Reportó dolor fuerte:')+' '+_z+(_hasS?' · '+trN('se le recomienda la versión suave'):''),{k:'day',pid:p.id,d:isoToday()});
       try{if(currentPlayerId===p.id)renderPlan();}catch(e){}
     }
   }catch(e){}
@@ -2632,8 +2632,8 @@ async function submitWeekly(){
       var _d=[];
       if(entry.fatiga>=8)_d.push(tr('fatiga')+' '+entry.fatiga);
       if(entry.dolor>=8)_d.push(tr('dolor')+' '+entry.dolor);
-      pdNotify('weekly',(p&&p.name)||'PDapp',tr('Autoevaluación en rojo')+' ('+_d.join(' · ')+')',{k:'summary',pid:p.id});
-    }else if(p){pdNotify('weekly',p.name||'PDapp',tr('Respondió la encuesta de la semana')+' · '+tr('fatiga')+' '+entry.fatiga+' · '+tr('dolor')+' '+entry.dolor,{k:'summary',pid:p.id},false);}
+      pdNotify('weekly',(p&&p.name)||'PDapp',trN('Autoevaluación en rojo')+' ('+_d.join(' · ')+')',{k:'summary',pid:p.id});
+    }else if(p){pdNotify('weekly',p.name||'PDapp',trN('Respondió la encuesta de la semana')+' · '+trN('fatiga')+' '+entry.fatiga+' · '+trN('dolor')+' '+entry.dolor,{k:'summary',pid:p.id},false);}
   }catch(e){}
   document.getElementById('screen-weekly').style.display='none';
   doSelectPlayer(currentPlayerId);
@@ -2833,7 +2833,7 @@ function addMatch(){
   var g=document.getElementById('mt-group');
   if(isCoach&&g&&g.checked&&p.group_id)targets=PLAYERS.filter(function(x){return x.group_id===p.group_id;});
   targets.forEach(function(t){if(!t.matches)t.matches={};t.matches[d]=JSON.parse(JSON.stringify(m));_saveMatches(t);});
-  if(!isCoach)pdNotify('match',p.name||'PDapp',tr('Cargó un partido')+': '+fmtDateLong(d)+(rival?' · '+rival:''),{k:'day',pid:p.id,d:d});
+  if(!isCoach)pdNotify('match',p.name||'PDapp',trN('Cargó un partido')+': '+fmtDateLong(d)+(rival?' · '+rival:''),{k:'day',pid:p.id,d:d});
   var r=document.getElementById('mt-rival');if(r)r.value='';
   renderMatchesModal(p);_mtRefresh();
   toast(tr('Partido agregado')+(targets.length>1?' · '+targets.length+' '+tr('alumnos'):''));
@@ -5880,8 +5880,8 @@ function choosePlanB(v){
   saveTimes(currentPlayerId);
   renderPlan();
   var p=PLAYERS.find(function(x){return x.id===currentPlayerId;})||{};
-  var zs=strongPainZones(currentPlayerId,curDate).slice(0,2).map(function(z){return tr(BODY_LBL[z]||z);}).join(', ');
-  pdNotify('pain',p.name||'PDapp',tr('Molestia fuerte')+(zs?' ('+zs+')':'')+' · '+(v==='b'?tr('eligió la versión suave'):tr('eligió la sesión normal')),{k:'day',pid:currentPlayerId,d:curDate});
+  var zs=strongPainZones(currentPlayerId,curDate).slice(0,2).map(function(z){return BODY_LBL[z]||z;}).join(', ');
+  pdNotify('pain',p.name||'PDapp',trN('Molestia fuerte')+(zs?' ('+zs+')':'')+' · '+(v==='b'?trN('eligió la versión suave'):trN('eligió la sesión normal')),{k:'day',pid:currentPlayerId,d:curDate});
 }
 function changePlanBChoice(){
   if(isCoach||planBStarted(currentPlayerId,curDate))return;
@@ -7663,7 +7663,7 @@ async function saveTest(){
   btn.disabled=false;btn.textContent=tr('Guardar');
   if(r2.error){msg.style.color='#ff6b6b';msg.textContent='Error: '+r2.error.message;return;}
   if(p)p.tests=all;
-  try{if(ATH_TOKEN&&p)pdNotify('test',p.name||'PDapp',tr('Cargó un test')+': '+tr(x.n)+' · '+(x.bi?(tr('izq.')+' '+entry.l+' · '+tr('der.')+' '+entry.r):entry.v)+(x.u?' '+x.u:''),{k:'summary',pid:p.id},false);}catch(e){}
+  try{if(ATH_TOKEN&&p)pdNotify('test',p.name||'PDapp',trN('Cargó un test')+': '+trN(x.n)+' · '+(x.bi?(trN('izq.')+' '+entry.l+' · '+trN('der.')+' '+entry.r):entry.v)+(x.u?' '+x.u:''),{k:'summary',pid:p.id},false);}catch(e){}
   closeTestModal();testTargetPid=null;try{renderTestsAthlete();}catch(e){}try{renderTestsScreen();}catch(e){}
 }
 
@@ -7990,6 +7990,39 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Nuevo profe registrado"]=STATIC_I18N["Nuevo profe registrado"]||["New coach signed up", "Nuovo coach registrato"];
+STATIC_I18N["Deltoides post. izq."]=STATIC_I18N["Deltoides post. izq."]||["Left rear deltoid", "Deltoide post. sin."];
+STATIC_I18N["Deltoides post. der."]=STATIC_I18N["Deltoides post. der."]||["Right rear deltoid", "Deltoide post. des."];
+STATIC_I18N["Pectoral mayor izq."]=STATIC_I18N["Pectoral mayor izq."]||["Left pec major", "Gran pettorale sin."];
+STATIC_I18N["Pectoral mayor der."]=STATIC_I18N["Pectoral mayor der."]||["Right pec major", "Gran pettorale des."];
+STATIC_I18N["Deltoides ant. izq."]=STATIC_I18N["Deltoides ant. izq."]||["Left front deltoid", "Deltoide ant. sin."];
+STATIC_I18N["Deltoides ant. der."]=STATIC_I18N["Deltoides ant. der."]||["Right front deltoid", "Deltoide ant. des."];
+STATIC_I18N["Recto femoral izq."]=STATIC_I18N["Recto femoral izq."]||["Left rectus femoris", "Retto femorale sin."];
+STATIC_I18N["Recto femoral der."]=STATIC_I18N["Recto femoral der."]||["Right rectus femoris", "Retto femorale des."];
+STATIC_I18N["Vasto externo izq."]=STATIC_I18N["Vasto externo izq."]||["Left vastus lateralis", "Vasto laterale sin."];
+STATIC_I18N["Vasto externo der."]=STATIC_I18N["Vasto externo der."]||["Right vastus lateralis", "Vasto laterale des."];
+STATIC_I18N["Vasto interno izq."]=STATIC_I18N["Vasto interno izq."]||["Left vastus medialis", "Vasto mediale sin."];
+STATIC_I18N["Vasto interno der."]=STATIC_I18N["Vasto interno der."]||["Right vastus medialis", "Vasto mediale des."];
+STATIC_I18N["Semitendinoso izq."]=STATIC_I18N["Semitendinoso izq."]||["Left semitendinosus", "Semitendinoso sin."];
+STATIC_I18N["Semitendinoso der."]=STATIC_I18N["Semitendinoso der."]||["Right semitendinosus", "Semitendinoso des."];
+STATIC_I18N["Tibial ant. izq."]=STATIC_I18N["Tibial ant. izq."]||["Left tibialis anterior", "Tibiale ant. sin."];
+STATIC_I18N["Tibial ant. der."]=STATIC_I18N["Tibial ant. der."]||["Right tibialis anterior", "Tibiale ant. des."];
+STATIC_I18N["Cuello (frente)"]=STATIC_I18N["Cuello (frente)"]||["Neck (front)", "Collo (davanti)"];
+STATIC_I18N["Cuello (atrás)"]=STATIC_I18N["Cuello (atrás)"]||["Neck (back)", "Collo (dietro)"];
+STATIC_I18N["Antebrazo izq."]=STATIC_I18N["Antebrazo izq."]||["Left forearm", "Avambraccio sin."];
+STATIC_I18N["Antebrazo der."]=STATIC_I18N["Antebrazo der."]||["Right forearm", "Avambraccio des."];
+STATIC_I18N["Aductores izq."]=STATIC_I18N["Aductores izq."]||["Left adductors", "Adduttori sin."];
+STATIC_I18N["Aductores der."]=STATIC_I18N["Aductores der."]||["Right adductors", "Adduttori des."];
+STATIC_I18N["Oblicuo izq."]=STATIC_I18N["Oblicuo izq."]||["Left oblique", "Obliquo sin."];
+STATIC_I18N["Oblicuo der."]=STATIC_I18N["Oblicuo der."]||["Right oblique", "Obliquo des."];
+STATIC_I18N["Tobillo izq."]=STATIC_I18N["Tobillo izq."]||["Left ankle", "Caviglia sin."];
+STATIC_I18N["Tobillo der."]=STATIC_I18N["Tobillo der."]||["Right ankle", "Caviglia des."];
+STATIC_I18N["Dorsal izq."]=STATIC_I18N["Dorsal izq."]||["Left lat", "Dorsale sin."];
+STATIC_I18N["Dorsal der."]=STATIC_I18N["Dorsal der."]||["Right lat", "Dorsale des."];
+STATIC_I18N["Psoas izq."]=STATIC_I18N["Psoas izq."]||["Left psoas", "Psoas sin."];
+STATIC_I18N["Psoas der."]=STATIC_I18N["Psoas der."]||["Right psoas", "Psoas des."];
+STATIC_I18N["Lumbares"]=STATIC_I18N["Lumbares"]||["Lower back", "Lombari"];
+STATIC_I18N['Entrenos']=STATIC_I18N['Entrenos']||['Workouts','Allenamenti'];
 STATIC_I18N["Todavía no cargaste ninguna carga máxima."]=STATIC_I18N["Todavía no cargaste ninguna carga máxima."]||["You haven't added any max loads yet.", "Non hai ancora inserito carichi massimi."];
 STATIC_I18N["Todavía no hay cargas máximas."]=STATIC_I18N["Todavía no hay cargas máximas."]||["No max loads yet.", "Ancora nessun carico massimo."];
 STATIC_I18N["Todavía no cargaste tus cargas máximas."]=STATIC_I18N["Todavía no cargaste tus cargas máximas."]||["You haven't added your max loads yet.", "Non hai ancora inserito i tuoi carichi massimi."];
@@ -9001,7 +9034,7 @@ function maybeNotifyLoadPeak(pid){
     var key='pd_loadpk_'+pid+'_'+weekMondayISO(isoToday());
     try{if(localStorage.getItem(key))return;localStorage.setItem(key,'1');}catch(e){}
     var p=PLAYERS.find(function(x){return x.id===pid;})||{};
-    pdNotify('load',p.name||'PDapp',tr('Pico de carga')+': '+tr('ratio')+' '+st.ratio.toFixed(2),{k:'summary',pid:pid});
+    pdNotify('load',p.name||'PDapp',trN('Pico de carga')+': '+trN('ratio')+' '+st.ratio.toFixed(2),{k:'summary',pid:pid});
   }catch(e){console.error('loadPeak',e);}
 }
 /* Promedio de duración de las últimas N sesiones finalizadas */
@@ -9076,7 +9109,7 @@ function finishSession(auto){
   try{if(!auto&&!isCoach&&ATH_TOKEN){var _pp=PLAYERS.find(function(x){return x.id===currentPlayerId;})||{};var _ss=(JB_SESSIONS[currentPlayerId]||{})[curDate]||{};
     var _rp=[];Object.keys(checkState||{}).forEach(function(k){var c=checkState[k];if(c&&c.rpe)_rp.push(+c.rpe);});
     var _avg=_rp.length?Math.round(_rp.reduce(function(a,b){return a+b;},0)/_rp.length*10)/10:null;
-    pdNotify('done',_pp.name||'PDapp',tr('Terminó el entrenamiento')+(_ss.title?' «'+_ss.title+'»':'')+' · '+fmtDur(cur.m)+(_avg!=null?' · RPE '+_avg:''),{k:'day',pid:currentPlayerId,d:curDate});}}catch(e){}
+    pdNotify('done',_pp.name||'PDapp',trN('Terminó el entrenamiento')+(_ss.title?' «'+_ss.title+'»':'')+' · '+fmtDur(cur.m)+(_avg!=null?' · RPE '+_avg:''),{k:'day',pid:currentPlayerId,d:curDate});}}catch(e){}
   maybeNotifyLoadPeak(currentPlayerId);
 }
 /* Si quedó abierta de un día anterior, se cierra sola con el último bloque */
@@ -9707,6 +9740,27 @@ function pdConsumeLink(){
   if(l)setTimeout(function(){pdOpenLink(l);},350);
 }
 /* Desde el alumno: guarda el aviso para el profe y (si corresponde) le manda la notificación al teléfono */
+/* Las notificaciones se guardan siempre en castellano (idioma base) y se traducen
+   al idioma del profe al mostrarlas: así no importa en qué idioma use la app el alumno. */
+function trN(x){return x;}
+var _NPH=null;
+function notifPhrases(){
+  if(_NPH)return _NPH;
+  var a=['Reportó dolor fuerte:','se le recomienda la versión suave','Autoevaluación en rojo','Respondió la encuesta de la semana','fatiga','dolor','Cargó un partido','Molestia fuerte','eligió la versión suave','eligió la sesión normal','Cargó un test','izq.','der.','Pico de carga','ratio','Terminó el entrenamiento','Cargó su 1RM','Video de técnica recibido','Nuevo análisis de movimiento','RM medido','Nuevo profe registrado'];
+  try{Object.keys(BODY_LBL).forEach(function(k){a.push(BODY_LBL[k]);});}catch(e){}
+  try{TESTS.forEach(function(t){if(t&&t.n)a.push(t.n);});}catch(e){}
+  try{Object.keys(MV_EX).forEach(function(k){if(MV_EX[k].n)a.push(MV_EX[k].n);});}catch(e){}
+  try{Object.keys(RM_EX).forEach(function(k){if(RM_EX[k].n)a.push(RM_EX[k].n);});}catch(e){}
+  var seen={};_NPH=a.filter(function(x){if(!x||seen[x])return false;seen[x]=1;return true;}).sort(function(x,y){return y.length-x.length;});
+  return _NPH;
+}
+function notifTr(txt){
+  if(!txt||LANG==='es')return txt;
+  var out=String(txt),ph=notifPhrases(),marks=[];
+  ph.forEach(function(x){if(out.indexOf(x)<0)return;var t=tr(x);if(!t||t===x)return;var m='\u0001'+marks.length+'\u0002';marks.push(t);out=out.split(x).join(m);});
+  marks.forEach(function(t,i){out=out.split('\u0001'+i+'\u0002').join(t);});
+  return out;
+}
 function pdNotify(type,title,body,link,push){
   if(!ATH_TOKEN)return;
   try{sb.rpc('athlete_notify',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_type:type,p_title:String(title||'').slice(0,140),p_body:String(body||'').slice(0,400),p_link:link||null})
@@ -9719,7 +9773,7 @@ var NOTIF_TYPES={
   video:{c:'#4dabf7',bg:'rgba(77,171,247,0.15)',f:'vt',i:'<path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>'},
   rm:{c:'#a8e063',bg:'rgba(168,224,99,0.15)',f:'vt',i:'<path d="M12 14l4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>'},
   test:{c:'#a8e063',bg:'rgba(168,224,99,0.15)',f:'vt',i:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'},
-  done:{c:'#a8e063',bg:'rgba(168,224,99,0.15)',f:'vt',i:'<path d="M20 6L9 17l-5-5"/>'},
+  done:{c:'#a8e063',bg:'rgba(168,224,99,0.15)',f:'tr',i:'<path d="M20 6L9 17l-5-5"/>'},
   pain:{c:'#ff6b6b',bg:'rgba(255,107,107,0.15)',f:'al',i:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>'},
   weekly:{c:'#c77dff',bg:'rgba(199,125,255,0.15)',f:'al',i:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4"/>'},
   load:{c:'#ffb020',bg:'rgba(255,176,32,0.15)',f:'al',i:'<path d="M12 22c4.97 0 8-3.58 8-8 0-4-3-7-4-8 0 3-2 5-4 5 1-3 0-6-3-8 0 4-5 7-5 11 0 4.42 3.03 8 8 8z"/>'},
@@ -9769,7 +9823,7 @@ function notifRender(){
   var o=document.getElementById('notif-panel');if(!o)return;var box=o.querySelector('.np-box');
   var list=NOTIF.filter(function(n){var f=(NOTIF_TYPES[n.type]||{}).f;return NOTIF_F==='all'||f===NOTIF_F;});
   var un=notifUnread();
-  var chips=[['all','Todas'],['vt','Videos y tests'],['al','Alertas'],['ms','Mensajes']].map(function(c){return '<button class="np-chip'+(NOTIF_F===c[0]?' on':'')+'" onclick="setNotifF(\''+c[0]+'\')">'+tr(c[1])+'</button>';}).join('');
+  var chips=[['all','Todas'],['tr','Entrenos'],['vt','Videos y tests'],['al','Alertas'],['ms','Mensajes']].map(function(c){return '<button class="np-chip'+(NOTIF_F===c[0]?' on':'')+'" onclick="setNotifF(\''+c[0]+'\')">'+tr(c[1])+'</button>';}).join('');
   var h='<div class="np-hdr"><div style="flex:1;min-width:0;"><div class="np-t">'+tr('Notificaciones')+'</div><div class="np-s">'+(un?un+' '+tr('sin leer')+' · <button class="np-all" onclick="notifReadAll()">'+tr('Marcar todo como leído')+'</button>':tr('Estás al día'))+'</div></div>'
     +'<button class="np-x" onclick="closeNotifPanel()" aria-label="'+tr('Cerrar')+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>'
     +'<div class="np-chips">'+chips+'</div><div class="np-list">';
@@ -9785,7 +9839,7 @@ function notifRender(){
       var x=NOTIF_TYPES[n.type]||NOTIF_TYPES.done;
       h+='<button class="np-it'+(n.read_at?'':' new')+'" onclick="notifOpen(\''+n.id+'\')">'
         +'<div class="np-av">'+av+'<i style="background:'+x.bg+';">'+notifIcon(n.type)+'</i></div>'
-        +'<div class="np-tx"><b>'+wlEsc(n.title||'')+'</b><span>'+wlEsc(n.body||'')+'</span><small>'+notifAgo(n.created_at)+'</small></div>'
+        +'<div class="np-tx"><b>'+wlEsc(notifTr(n.title||''))+'</b><span>'+wlEsc(n.type==='msg'?(n.body||''):notifTr(n.body||''))+'</span><small>'+notifAgo(n.created_at)+'</small></div>'
         +(n.read_at?'':'<em></em>')+'</button>';
     });
   }
@@ -10189,7 +10243,7 @@ function saveMaxPending(){
   if(!p.maxes)p.maxes={};
   p.maxes[maxesPending.name]=Math.round(kg*10)/10;
   maxSetBy(p,maxesPending.name,isCoach?'coach':'athlete');
-  if(!isCoach){try{pdNotify('rm',p.name||'PDapp',tr('Cargó su 1RM')+': '+maxesPending.name+' '+p.maxes[maxesPending.name]+' kg',{k:'summary',pid:p.id});}catch(e){}}
+  if(!isCoach){try{pdNotify('rm',p.name||'PDapp',trN('Cargó su 1RM')+': '+maxesPending.name+' '+p.maxes[maxesPending.name]+' kg',{k:'summary',pid:p.id});}catch(e){}}
   maxesPending=null;
   renderMaxesPending();renderMaxesList();renderMaxesLib();saveMaxes(p);
 }
@@ -11581,7 +11635,7 @@ async function movSave(){
   if(MV.testKey==='hip'){['l','r'].forEach(function(sd){var v=S.bi[sd],f=mvEl('test-'+sd);if(v!=null&&f){f.value=Math.round(v);filled=true;}});}
   if(MV.testKey==='sbj'){var b0=mvHjBest(hjOut,null),f0=mvEl('test-v');if(b0!=null&&f0){f0.value=Math.round(b0);filled=true;}}
   if(MV.testKey==='slj'){['l','r'].forEach(function(sd){var v=mvHjBest(hjOut,sd),f=mvEl('test-'+sd);if(v!=null&&f){f.value=Math.round(v);filled=true;}});}
-  if(ATH_TOKEN){var p=PLAYERS.find(function(x){return x.id===MV.pid;});try{var _aid=res&&res.data?(typeof res.data==='string'?res.data:(res.data.id||null)):null;pdNotify('video',((p&&p.name)||'PDapp')+' · '+tr(MV.req?'Video de técnica recibido':'Nuevo análisis de movimiento'),(MV.req?MV.req.n:mvExName(MV.ex))+(metrics.summary?' · '+metrics.summary:''),{k:'analysis',pid:MV.pid,id:_aid});}catch(e){}}
+  if(ATH_TOKEN){var p=PLAYERS.find(function(x){return x.id===MV.pid;});try{var _aid=res&&res.data?(typeof res.data==='string'?res.data:(res.data.id||null)):null;pdNotify('video',((p&&p.name)||'PDapp')+' · '+trN(MV.req?'Video de técnica recibido':'Nuevo análisis de movimiento'),(MV.req?MV.req.n:(MV_EX[MV.ex]||MV_EX.free).n)+(metrics.summary?' · '+metrics.summary:''),{k:'analysis',pid:MV.pid,id:_aid});}catch(e){}}
   delete MV.lists[MV.pid];
   await movClose();
   try{toast(tr(ATH_TOKEN&&!filled?'Video enviado a tu profe':filled?'Análisis guardado. Se completó el resultado del test: revisalo y tocá Guardar.':(MV.testKey==='ankle'?'Análisis guardado con el ángulo de la tibia. Los cm del test se cargan a mano.':'Análisis guardado')));}catch(e){}
@@ -11946,7 +12000,7 @@ async function rmSave(){
   if(isCoach&&fc&&fc.checked&&fn&&fn.value){if(!p.maxes)p.maxes={};p.maxes[fn.value]=rm;maxSetBy(p,fn.value,isCoach?'coach':'athlete');saveMaxes(p);}
   if(btn){btn.textContent='✓ '+tr('Guardado');}
   try{toast(tr('RM estimado guardado'));}catch(e2){}
-  if(ATH_TOKEN){try{pdNotify('rm',(p.name||'PDapp')+' · '+tr('RM medido'),tr(RM_EX[R.ex].n)+': '+mvF1(rm).replace(/\.0$/,'')+' kg',{k:'summary',pid:p.id});}catch(e5){}}
+  if(ATH_TOKEN){try{pdNotify('rm',(p.name||'PDapp')+' · '+trN('RM medido'),trN(RM_EX[R.ex].n)+': '+mvF1(rm).replace(/\.0$/,'')+' kg',{k:'summary',pid:p.id});}catch(e5){}}
   try{renderTestsScreen();}catch(e3){}try{renderTestsAthlete();}catch(e6){}try{refreshPlanUI();}catch(e7){}try{renderAthleteHome();}catch(e8){}
 }
 function rmHist(p,ex){return ((p&&p.tests&&p.tests['rm_'+ex])||[]).slice().sort(function(a,b){return a.d<b.d?-1:1;});}
