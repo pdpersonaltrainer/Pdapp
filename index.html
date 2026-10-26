@@ -1869,7 +1869,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261024-1';
+var APP_VERSION='20261026-1';
 (function(){
   try{
     setTimeout(function(){
@@ -6821,6 +6821,28 @@ function dupWeek(srcPid,dstPid,sMon,tMon){var src=sessionsOf(srcPid),dst=session
     ks.forEach(function(k,ix){var dk=tkKey(td,ix+1);dst[dk]=cloneSessionNoNotes(src[k]);resetDayProgress(dstPid,dk);});n++;}
   return n;}
 function executeDuplicate(){
+  var _sel=document.getElementById('dup-player').value||'',tgtDate=document.getElementById('dup-date').value;
+  if(!_sel||!tgtDate){_execDuplicate();return;}
+  var pids=_sel.indexOf('g:')===0?dupTargets():[_sel],msg='';
+  var pn=function(id){return ((PLAYERS.find(function(x){return x.id===id;})||{}).name)||'';};
+  if(dupMode==='semana'){
+    var tMon=weekMondayISO(tgtDate),hit=[];
+    pids.forEach(function(id){for(var i=0;i<7;i++){var d=addDaysISO(tMon,i);if(dayTurnsB(id,d).length&&!(id===currentPlayerId&&weekMondayISO(curDate)===tMon)){hit.push({id:id,d:d});}}});
+    if(hit.length){
+      if(pids.length>1){var ps={};hit.forEach(function(h){ps[h.id]=1;});msg=tr('La semana del')+' '+fmtDateLong(tMon)+' '+tr('ya tiene entrenamientos en')+' '+Object.keys(ps).length+' '+tr('alumnos del grupo')+'. '+tr('Se van a reemplazar.');}
+      else msg=pn(pids[0])+' '+tr('ya tiene entrenamiento el')+' '+hit.map(function(h){return fmtDateShort(h.d).toLowerCase();}).join(', ')+'. '+tr('Se van a reemplazar.');
+    }
+  }else{
+    var occ=pids.filter(function(id){var k=dupDst(id,curDate,tgtDate);return !(id===currentPlayerId&&k===curDate)&&hasBlk(sessionsOf(id)[k]);});
+    if(occ.length){
+      if(pids.length>1)msg=tr('El')+' '+fmtDateLong(tgtDate)+' '+occ.length+' '+tr('alumnos del grupo ya tienen entrenamiento.')+' '+tr('Se va a reemplazar.');
+      else{var k0=dupDst(occ[0],curDate,tgtDate),d0=sessionsOf(occ[0])[k0];msg=tr('El')+' '+fmtDateLong(tgtDate)+(tkTurn(k0)>1?' ('+tkLabel(k0)+')':'')+' '+pn(occ[0])+' '+tr('ya tiene')+' «'+((d0&&d0.title)||tr('Entrenamiento'))+'». '+tr('Se va a reemplazar.');}
+    }
+  }
+  if(msg)askConfirm(msg+' '+tr('¿Continuar?'),_execDuplicate,{danger:true,okLabel:tr('Reemplazar')});
+  else _execDuplicate();
+}
+function _execDuplicate(){
   var _sel=document.getElementById('dup-player').value||'';
   var tgtDate=document.getElementById('dup-date').value;
   if(_sel.indexOf('g:')===0){
@@ -7264,7 +7286,7 @@ function executeMove(){
     toast(tr('Entrenamiento movido a')+' '+fmtDateLong(tgt)+(tkTurn(tgt)>1?' · '+tkLabel(tgt):''));
     moveIso=null;
   };
-  if(occ)askConfirm(tr('Ese día ya tiene entrenamiento. Se agrega como')+' '+tkLabel(tgt)+'. '+tr('¿Continuar?'),run,{okLabel:tr('Agregar')});
+  if(occ)askConfirm(tr('El')+' '+fmtDateLong(tgtD)+' '+tr('ya tiene')+' «'+((ss[tgtD]&&ss[tgtD].title)||tr('Entrenamiento'))+'». '+tr('No se borra: se agrega como')+' '+tkLabel(tgt)+'. '+tr('¿Continuar?'),run,{okLabel:tr('Agregar')});
   else run();
 }
 function goToToday(){var d=new Date();calCursor=new Date(d.getFullYear(),d.getMonth(),1);calWeekStart=mondayOf(d);renderMonthView(PLAYERS.find(function(x){return x.id===currentPlayerId;}));}
@@ -7990,6 +8012,15 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["El"]=STATIC_I18N["El"]||["On", "Il"];
+STATIC_I18N["ya tiene"]=STATIC_I18N["ya tiene"]||["already has", "ha già"];
+STATIC_I18N["No se borra: se agrega como"]=STATIC_I18N["No se borra: se agrega como"]||["Nothing is deleted: it's added as", "Non si cancella nulla: viene aggiunto come"];
+STATIC_I18N["La semana del"]=STATIC_I18N["La semana del"]||["The week of", "La settimana del"];
+STATIC_I18N["ya tiene entrenamientos en"]=STATIC_I18N["ya tiene entrenamientos en"]||["already has workouts for", "ha già allenamenti per"];
+STATIC_I18N["Se van a reemplazar."]=STATIC_I18N["Se van a reemplazar."]||["They will be replaced.", "Verranno sostituiti."];
+STATIC_I18N["ya tiene entrenamiento el"]=STATIC_I18N["ya tiene entrenamiento el"]||["already has a workout on", "ha già un allenamento il"];
+STATIC_I18N["alumnos del grupo ya tienen entrenamiento."]=STATIC_I18N["alumnos del grupo ya tienen entrenamiento."]||["athletes in the group already have a workout.", "atleti del gruppo hanno già un allenamento."];
+STATIC_I18N["Se va a reemplazar."]=STATIC_I18N["Se va a reemplazar."]||["It will be replaced.", "Verrà sostituito."];
 STATIC_I18N["Nuevo profe registrado"]=STATIC_I18N["Nuevo profe registrado"]||["New coach signed up", "Nuovo coach registrato"];
 STATIC_I18N["Deltoides post. izq."]=STATIC_I18N["Deltoides post. izq."]||["Left rear deltoid", "Deltoide post. sin."];
 STATIC_I18N["Deltoides post. der."]=STATIC_I18N["Deltoides post. der."]||["Right rear deltoid", "Deltoide post. des."];
@@ -9112,24 +9143,30 @@ function finishSession(auto){
     pdNotify('done',_pp.name||'PDapp',trN('Terminó el entrenamiento')+(_ss.title?' «'+_ss.title+'»':'')+' · '+fmtDur(cur.m)+(_avg!=null?' · RPE '+_avg:''),{k:'day',pid:currentPlayerId,d:curDate});}}catch(e){}
   maybeNotifyLoadPeak(currentPlayerId);
 }
-/* Si quedó abierta de un día anterior, se cierra sola con el último bloque */
-function autoCloseStale(){
-  if(!currentPlayerId)return;
-  var t=timesOf(currentPlayerId);
-  Object.keys(t).forEach(function(iso){
-    var x=t[iso];
-    if(!x||!x.s||x.e)return;
-    var hrs=(Date.now()-new Date(x.s).getTime())/3600000;
-    if(hrs<TM_MAX_H)return;
-    var prevDate=curDate, prevChecks=checkState;
-    if(iso===curDate){finishSession(true);return;}
-    /* Días anteriores: sin sus checks en memoria, se cierra con el tope */
-    x.e=new Date(new Date(x.s).getTime()+TM_MAX_H*3600000).toISOString();
-    x.m=TM_MAX_H*60;
-    x.auto=true;
+/* Sesión que quedó abierta más de TM_MAX_H horas (el alumno se olvidó de finalizar):
+   se cierra sola a la hora del último bloque marcado; si no marcó nada, con su duración
+   promedio (o 60 min). Queda marcada como "auto". Corre al abrir la app el alumno y,
+   del lado del profe, al cargar y cada vez que se actualizan las notificaciones. */
+function autoCloseFor(pid){
+  var t=JB_TIMES[pid];if(!t)return false;
+  var ch=JB_CHECKS[pid]||{},changed=false,now=Date.now();
+  Object.keys(t).forEach(function(k){
+    var x=t[k];if(!x||!x.s||x.e)return;
+    var s0=new Date(x.s).getTime();if(!(s0>0))return;
+    if((now-s0)/3600000<TM_MAX_H)return;
+    var last=null;
+    Object.keys(ch).forEach(function(ck){if(ck.indexOf(k+'-')!==0)return;var c=ch[ck];if(c&&c.done&&c.ts){var v=new Date(c.ts).getTime();if(v>=s0&&(!last||v>last))last=v;}});
+    var end;
+    if(last)end=Math.min(last,s0+TM_MAX_H*3600000);
+    else{var av=null;try{var a=avgDuration(pid,60);av=a?a.avg:null;}catch(e){}end=s0+Math.min(av||60,TM_MAX_H*60)*60000;}
+    x.e=new Date(end).toISOString();x.m=Math.max(1,Math.round((end-s0)/60000));x.auto=true;changed=true;
   });
-  saveTimes(currentPlayerId);
+  if(changed){saveTimes(pid);if(pid===currentPlayerId){try{refreshPlanUI();}catch(e){}}try{if(document.getElementById('screen-welcome')&&!document.getElementById('screen-welcome').classList.contains('gone'))renderAthleteHome();}catch(e){}}
+  return changed;
 }
+function autoCloseStale(){if(currentPlayerId)autoCloseFor(currentPlayerId);}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&!isCoach&&currentPlayerId){try{autoCloseStale();}catch(e){}}});
+function autoCloseAll(){if(!isCoach)return;try{PLAYERS.forEach(function(p){autoCloseFor(p.id);});}catch(e){console.error('autoCloseAll',e);}}
 function renderTimer(){
   sessFloatSet(false);if(_sessObs){try{_sessObs.disconnect();}catch(e){}_sessObs=null;}
   var box=document.getElementById('sess-timer');if(!box)return;
@@ -9797,7 +9834,7 @@ function notifBadge(){
 }
 function notifStartPolling(){
   if(_notifTimer)return;
-  var tick=function(){if(document.hidden)return;try{notifLoad();}catch(e){}try{refreshChatBadge();}catch(e){}try{vaPoll();}catch(e){}};
+  var tick=function(){if(document.hidden)return;try{autoCloseAll();}catch(e){}try{notifLoad();}catch(e){}try{refreshChatBadge();}catch(e){}try{vaPoll();}catch(e){}};
   _notifTimer=setInterval(tick,45000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)tick();});
   tick();
