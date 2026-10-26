@@ -1871,7 +1871,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261026-2';
+var APP_VERSION='20261026-3';
 (function(){
   try{
     setTimeout(function(){
@@ -9986,12 +9986,12 @@ function wkColor(v){v=Math.max(1,Math.min(10,v));if(v<=5.5)return lerpHex('#ff6b
 var WK_DIMS=[['fatiga','battery'],['dolor','leg'],['estres','brain'],['motiv','flame']];
 function wkHeat(h){
   var weeks=h.slice(-8);var nc=weeks.length;
-  var CELL=34;var html='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:4px;"><div style="width:max-content;margin:0 auto;display:grid;grid-template-columns:24px repeat('+nc+','+CELL+'px);gap:3px;">';
+  var html='<div style="margin-top:4px;"><div style="width:100%;max-width:'+(26+nc*44)+'px;margin:0 auto;display:grid;grid-template-columns:22px repeat('+nc+',minmax(0,1fr));gap:3px;">';
   html+='<div></div>';
   weeks.forEach(function(x){var d=isoToDate(x.w);html+='<div style="font-size:8.5px;color:var(--muted2);text-align:center;line-height:1.05;">'+d.getDate()+'/'+(d.getMonth()+1)+'</div>';});
   WK_DIMS.forEach(function(dm){
     html+='<div style="font-size:14px;color:var(--mob);display:flex;align-items:center;justify-content:center;">'+ICON(dm[1])+'</div>';
-    weeks.forEach(function(x){var v=x.e[dm[0]];var _wv=(dm[0]==='motiv')?v:wb(v);html+='<div style="width:'+CELL+'px;height:'+CELL+'px;border-radius:6px;background:'+wkColor(_wv)+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0a0b0e;">'+v+'</div>';});
+    weeks.forEach(function(x){var v=x.e[dm[0]];var _wv=(dm[0]==='motiv')?v:wb(v);html+='<div style="aspect-ratio:1;min-width:0;border-radius:6px;background:'+wkColor(_wv)+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0a0b0e;">'+v+'</div>';});
   });
   html+='</div></div>';
   return html;
@@ -10009,8 +10009,10 @@ function wkRadar(cur,prev){
   svg+='<polygon points="'+mid+'" fill="none" stroke="var(--border2)" stroke-width="0.7" stroke-dasharray="2 2"/>';
   if(prev)svg+='<polygon points="'+poly(prev)+'" fill="none" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="3 3"/>';
   svg+='<polygon points="'+poly(cur)+'" fill="rgba(168,224,99,0.22)" stroke="var(--mob)" stroke-width="2"/>';
-  axes.forEach(function(ax){var p=pt(cur[ax[0]],ax[2]);svg+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.4" fill="var(--mob)"/>';});
-  axes.forEach(function(ax){var p=pt(13.5,ax[2]);svg+='<foreignObject x="'+(p[0]-8).toFixed(1)+'" y="'+(p[1]-8).toFixed(1)+'" width="16" height="16" style="overflow:visible;"><div xmlns="http://www.w3.org/1999/xhtml" style="width:16px;height:16px;color:var(--mob);display:flex;align-items:center;justify-content:center;">'+ICON(ax[1])+'</div></foreignObject>';});
+  axes.forEach(function(ax){var _v=(ax[0]==='motiv')?(+cur[ax[0]]||0):wb(cur[ax[0]]);var p=pt(_v,ax[2]);svg+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.4" fill="var(--mob)"/>';});
+  /* Íconos como SVG anidado (no foreignObject: Safari no los escala y quedaban encima de las líneas) */
+  axes.forEach(function(ax){var _a=ax[2]*Math.PI/180,p=[cx+(R+22)*Math.cos(_a),cy+(R+22)*Math.sin(_a)];var inner=String(ICON(ax[1])).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
+    svg+='<svg x="'+(p[0]-8).toFixed(1)+'" y="'+(p[1]-8).toFixed(1)+'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mob)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" overflow="visible">'+inner+'</svg>';});
   svg+='</svg>';
   return svg;
 }
