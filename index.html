@@ -1871,7 +1871,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261026-3';
+var APP_VERSION='20261028-1';
 (function(){
   try{
     setTimeout(function(){
@@ -8014,6 +8014,11 @@ STATIC_I18N["Pedido"]=["Requested", "Richiesto"];
 STATIC_I18N["Análisis libre: el alumno puede filmarse cuando quiera"]=["Free analysis: the athlete can film themselves anytime", "Analisi libera: l’atleta può filmarsi quando vuole"];
 STATIC_I18N["Video pedido"]=["Video requested","Video richiesto"];
 /* inicio del alumno */
+STATIC_I18N["Teléfono <b>a la altura de la cadera</b> (no en el piso), a 3–4 m, <b>de costado o un poco en diagonal desde adelante</b> para que el disco no tape la rodilla. <b>De frente</b> mide el valgo (también a una pierna)."]=STATIC_I18N["Teléfono <b>a la altura de la cadera</b> (no en el piso), a 3–4 m, <b>de costado o un poco en diagonal desde adelante</b> para que el disco no tape la rodilla. <b>De frente</b> mide el valgo (también a una pierna)."]||["Phone <b>at hip height</b> (not on the floor), 3–4 m away, <b>side-on or slightly diagonal from the front</b> so the plate doesn't hide the knee. <b>Facing</b> measures valgus (single-leg too).", "Telefono <b>all’altezza dell’anca</b> (non a terra), a 3–4 m, <b>di lato o un po’ in diagonale da davanti</b> così il disco non copre il ginocchio. <b>Di fronte</b> misura il valgo (anche a una gamba)."];
+STATIC_I18N["Rodilla tapada por el disco: mido cadera y tronco"]=STATIC_I18N["Rodilla tapada por el disco: mido cadera y tronco"]||["Knee hidden by the plate: measuring hip and trunk", "Ginocchio coperto dal disco: misuro anca e tronco"];
+STATIC_I18N["Tocá el centro del disco para empezar"]=STATIC_I18N["Tocá el centro del disco para empezar"]||["Tap the center of the plate to start", "Tocca il centro del disco per iniziare"];
+STATIC_I18N["Seguir sin marcar"]=STATIC_I18N["Seguir sin marcar"]||["Continue without marking", "Continua senza segnare"];
+STATIC_I18N["Tocá el centro del disco en el video: así la línea amarilla sigue la barra. O tocá Seguir sin marcar."]=STATIC_I18N["Tocá el centro del disco en el video: así la línea amarilla sigue la barra. O tocá Seguir sin marcar."]||["Tap the center of the plate in the video so the yellow line follows the bar. Or tap Continue without marking.", "Tocca il centro del disco nel video così la linea gialla segue il bilanciere. Oppure tocca Continua senza segnare."];
 STATIC_I18N["El"]=STATIC_I18N["El"]||["On", "Il"];
 STATIC_I18N["ya tiene"]=STATIC_I18N["ya tiene"]||["already has", "ha già"];
 STATIC_I18N["No se borra: se agrega como"]=STATIC_I18N["No se borra: se agrega como"]||["Nothing is deleted: it's added as", "Non si cancella nulla: viene aggiunto come"];
@@ -10660,7 +10665,7 @@ var MV={counting:false,cd:(function(){try{var v=parseInt(localStorage.getItem('p
 var MV_EX={
   squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b> (profundidad y ángulos) o <b>de frente</b> (valgo de rodillas), a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder',load:true},
   valgus:{n:'Sentadilla de frente (valgo)',hint:'Teléfono <b>de frente</b>, a la altura de la rodilla, a 2–3 m. Mide si las rodillas se van hacia adentro.',load:true},
-  deadlift:{n:'Peso muerto',hint:'Teléfono <b>de costado</b> (cadera, tronco y recorrido de la barra) o <b>de frente</b> (valgo, también a una pierna), a la altura de la cadera.',trail:'wrist',load:true},
+  deadlift:{n:'Peso muerto',hint:'Teléfono <b>a la altura de la cadera</b> (no en el piso), a 3–4 m, <b>de costado o un poco en diagonal desde adelante</b> para que el disco no tape la rodilla. <b>De frente</b> mide el valgo (también a una pierna).',trail:'wrist',load:true},
   lunge:{n:'Estocada / búlgara',hint:'Teléfono <b>de costado</b> (rodillas y tronco) o <b>de frente</b> (valgo de la pierna que trabaja), a la altura de la cadera.',trail:'shoulder',load:true},
   bench:{n:'Press de banca',hint:'Teléfono <b>de costado</b>, a la altura del banco, un poco hacia la cabeza. Mide el codo, el recorrido de la barra y si el hombro se adelanta (se despega la escápula).',trail:'wrist',load:true},
   jump:{n:'CMJ / Saltos',hint:'Teléfono <b>fijo, de costado o de frente</b>, que se vean bien los pies. Calcula la altura por el tiempo de vuelo. Mejor a 60 fps (no cámara lenta).'},
@@ -10730,7 +10735,7 @@ function mvEma(k,a){var S=MV.S;if(!S.ema[k])S.ema[k]={a:a||0.35,v:null};var e=S.
 
 /* --- estado --- */
 function mvReset(){
-  MV.flash=null;MV.banner=null;MV.stab=null;
+  MV.flash=null;MV.banner=null;MV.stab=null;MV.occ=null;
   MV.S={bi:{},hj:[],hjs:null,reps:[],phase:'up',cur:null,ema:{},trail:[],jumps:[],j:{state:'ground',base:null,legLen:null,t0:0,prevY:null,prevT:null},side:null,last:{},shBase:null,snap:null,snapScore:null,curSnap:null,curScore:null};
   mvRenderMetrics();mvRenderLog();mvUpdSave();
 }
@@ -10815,6 +10820,38 @@ function mvStabilize(L,t,w,h){
   return out;
 }
 
+/* --- puntos tapados (por el disco, por el otro lado del cuerpo o con baja confianza) ---
+   El detector "adivina" los puntos que no ve y los mueve de un cuadro a otro (la pierna "baila" detrás del disco).
+   Un punto se considera tapado si: tiene baja confianza, cae adentro del disco marcado, o salta en un cuadro
+   mucho más de lo que se movió la cadera. En ese caso se deja en su última posición buena (pies y rodillas casi
+   no se mueven en el peso muerto) y se marca .occ para dibujarlo punteado y no usarlo para medir. */
+var MV_OCC_PTS=[13,14,15,16,25,26,27,28,29,30,31,32];
+function mvOcclude(L,t,w,h){
+  if(!L||MV.ex==='jump'||MV.ex==='hjump'||MV.ex==='ankle'||MV.ex==='hipt')return L;
+  var O=MV.occ||(MV.occ={held:{},hip:null});
+  var st=MV.stab||{},lenA=function(k){var r=st.len&&st.len[k];if(!r||!r.a||r.a.length<5)return null;var a=r.a.slice().sort(function(x,y){return x-y;});return a[Math.floor(a.length/2)];};
+  var thigh=lenA(25)||lenA(26)||h*0.12;
+  var hip=mvMid(L[23],L[24]),hipMove=O.hip?Math.hypot(hip.x-O.hip.x,hip.y-O.hip.y):0;O.hip={x:hip.x,y:hip.y};
+  var disc=null;if(MV.bar&&MV.bar.ok&&MV.bar.p){var rr=Math.min(h*0.2,Math.max(h*0.04,thigh*0.6));disc={x:MV.bar.p.x,y:MV.bar.p.y,r:rr};}
+  MV_OCC_PTS.forEach(function(i){
+    var q=L[i];if(!q)return;var H=O.held[i];
+    var occ=mvVis(q)<0.5;
+    if(!occ&&disc&&i>=25&&Math.hypot(q.x-disc.x,q.y-disc.y)<disc.r*0.92)occ=true;
+    if(!occ&&H&&t-H.t<1500){var d=Math.hypot(q.x-H.x,q.y-H.y);if(d>thigh*0.35&&d>hipMove*2.2)occ=true;}
+    if(occ){
+      if((i===15||i===16)&&disc){L[i]={x:disc.x,y:disc.y,visibility:0.5,occ:true};return;} // la mano está en la barra
+      if(H&&t-H.t<4000)L[i]={x:H.x,y:H.y,visibility:0.5,occ:true};
+      else L[i]={x:q.x,y:q.y,visibility:0,occ:true};
+    }else{
+      /* mediana de los últimos 5 cuadros en piernas: saca el "temblor" sin casi atrasar */
+      if(i>=25){var hs=O.hist||(O.hist={}),a=hs[i]||(hs[i]=[]);a.push({x:q.x,y:q.y,t:t});while(a.length>5||(a.length&&t-a[0].t>400))a.shift();
+        if(a.length>=3){var mx_=a.map(function(o){return o.x;}).sort(function(x,y){return x-y;}),my_=a.map(function(o){return o.y;}).sort(function(x,y){return x-y;});
+          L[i]={x:mx_[Math.floor(mx_.length/2)],y:my_[Math.floor(my_.length/2)],visibility:q.visibility};}}
+      O.held[i]={x:L[i].x,y:L[i].y,t:t};
+    }
+  });
+  return L;
+}
 /* --- límites de la repetición, voz y fatiga --- */
 var MV_LIMS={
   squat:[['off','Sin límite'],['par','Paralelo'],['ang','Ángulo de rodilla',90,'°'],['cm','Centímetros',40,'cm']],
@@ -11088,10 +11125,14 @@ function mvAnalyze(L,t){
     mvRep(rel*100,70,88,{mnRatio:ratio});
     S.last={ratio:ratio,knee:knee};out.push([L[P.LK],null],[L[P.RK],null]);
   }else if(ex==='deadlift'){
-    s=mvSide(L);hip=mvEma('hip').push(mvAng(s.S,s.H,s.K));knee=mvEma('knee').push(mvAng(s.H,s.K,s.A));trunk=mvEma('trunk').push(mvVert(s.H,s.S));
+    s=mvSide(L);trunk=mvEma('trunk').push(mvVert(s.H,s.S));
+    var kOk=mvVis(s.K)>=0.35,aOk=kOk&&mvVis(s.A)>=0.35&&!s.K.occ&&!s.A.occ;
+    hip=kOk?mvEma('hip').push(mvAng(s.S,s.H,s.K)):NaN;knee=aOk?mvEma('knee').push(mvAng(s.H,s.K,s.A)):NaN;
+    S.kneeHidden=!kOk||!!s.K.occ;
     mvLimTrack({hip:hip,wy:s.W.y,ky:s.K.y,vy:mvMid(L[P.LW],L[P.RW]).y,leg:mvLeg(s)});
-    mvRep(hip,120,160,{maxTrunk:trunk,mnKnee:knee});
-    S.last={hip:hip,knee:knee,trunk:trunk};out.push([s.H,hip],[s.K,knee]);
+    /* sin rodilla visible, la repetición se sigue con la inclinación del tronco */
+    mvRep(isFinite(hip)?hip:180-1.3*trunk,120,160,{maxTrunk:trunk,mnKnee:knee});
+    S.last={hip:hip,knee:knee,trunk:trunk};out.push([s.H,hip]);if(aOk)out.push([s.K,knee]);
     mvTrailPush(s.W,t);
   }else if(ex==='lunge'){
     var kL=mvAng(L[P.LH],L[P.LK],L[P.LA]),kR=mvAng(L[P.RH],L[P.RK],L[P.RA]);
@@ -11248,7 +11289,8 @@ function mvCanvasTap(e){
   var cv=mvEl('mv-cv'),r=cv.getBoundingClientRect();
   var x=(e.clientX-r.left)*cv.width/r.width,y=(e.clientY-r.top)*cv.height/r.height;
   if(MV.mirror)x=cv.width-x;
-  if(MV.calStep<1){if(mvTrailOn()&&!MV.rm){var vd=mvEl('mv-vid');if(vd.readyState>=2){mvBarInit(vd,x,y);try{toast(tr('Barra marcada: la línea amarilla sigue el disco'));}catch(err){}mvRedrawStill();}}return;}
+  if(MV.calStep<1){if(mvTrailOn()&&!MV.rm){var vd=mvEl('mv-vid');if(vd.readyState>=2){mvBarInit(vd,x,y);try{toast(tr('Barra marcada: la línea amarilla sigue el disco'));}catch(err){}
+      if(MV.waitTap&&vd.paused){MV.waitTap=false;MV.msg=null;mvStatus('');vd.play();MV.running=true;var _pb=mvEl('mv-c-play');if(_pb)_pb.textContent=tr('Pausa');mvSchedule();}else mvRedrawStill();}}return;}
   if(MV.calStep===1){MV.calTmp={x:x,y:y};MV.calStep=2;}
   else{var a=MV.calTmp,b={x:x,y:y},d=Math.hypot(b.x-a.x,b.y-a.y);
     if(d<10){return;}
@@ -11270,15 +11312,19 @@ function mvBodyOk(L,w,h){
   else if(ex==='jump'||ex==='hjump'||ex==='valgus')need=legs.concat([P.LHE,P.RHE,P.LF,P.RF]);
   else need=legs.concat([P.LS,P.RS]);
   var mx=w*0.01,my=h*0.01,bad=0;
+  if(ex==='deadlift'&&!MV.rm){
+    var okS=function(a){return a.every(function(i){var q=L[i];return q&&!q.occ&&mvVis(q)>=0.55&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});};
+    return okS([P.LS,P.LH])||okS([P.RS,P.RH]);
+  }
   for(var i=0;i<need.length;i++){var q=L[need[i]];
-    if(!q||mvVis(q)<0.55||q.x<mx||q.x>w-mx||q.y<my||q.y>h-my)bad++;}
+    if(!q||(q.occ?mvVis(q)<0.35:mvVis(q)<0.55)||q.x<mx||q.x>w-mx||q.y<my||q.y>h-my)bad++;}
   // de perfil se tapa un lado: alcanza con que falten pocos puntos del lado de atrás
   var allow=(ex==='bench'||ex==='pullup'||ex==='squat'||ex==='deadlift'||ex==='hipt'||ex==='free'||ex==='lunge')?Math.floor(need.length/2)-1:1;
   if(bad>allow)return false;
   // los puntos del lado que se mide tienen que estar sí o sí
   if(ex==='squat'||ex==='deadlift'||ex==='lunge'||ex==='free'){
-    var okL=[P.LS,P.LH,P.LK,P.LA].every(function(i){var q=L[i];return mvVis(q)>=0.55&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});
-    var okR=[P.RS,P.RH,P.RK,P.RA].every(function(i){var q=L[i];return mvVis(q)>=0.55&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});
+    var okL=[P.LS,P.LH,P.LK,P.LA].every(function(i){var q=L[i];return (q&&q.occ?mvVis(q)>=0.35:mvVis(q)>=0.55)&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});
+    var okR=[P.RS,P.RH,P.RK,P.RA].every(function(i){var q=L[i];return (q&&q.occ?mvVis(q)>=0.35:mvVis(q)>=0.55)&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});
     if(!okL&&!okR)return false;
   }
   return true;
@@ -11330,7 +11376,7 @@ function mvBarTrack(vid){
 function mvBarHint(){return mvTrailOn()&&!MV.rm&&!(MV.bar&&MV.bar.ok)&&!(MV.S&&MV.S.view==='front');}
 function mvTrailPush(p,t){var S=MV.S;
   if(MV.bar){if(!MV.bar.ok)return;p=MV.bar.p;}
-  else if((MV_EX[MV.ex]||{}).trail==='shoulder')return;
+  else if((MV_EX[MV.ex]||{}).trail==='shoulder'||(MV_EX[MV.ex]||{}).trail==='wrist')return;
   if(mvVis(p)<0.4)return;S.trail.push({x:p.x,y:p.y,t:t});while(S.trail.length&&t-S.trail[0].t>4000)S.trail.shift();}
 
 /* --- métricas --- */
@@ -11420,9 +11466,12 @@ function mvDraw(L,labels){
     ctx.lineCap='round';
     var _one=mvOneSide(L);
     MV_BONES.forEach(function(b){if(_one&&(!_one[b[0]]||!_one[b[1]]))return;var A=L[b[0]],B=L[b[1]];if(mvVis(A)<0.35||mvVis(B)<0.35)return;
+      if(A.occ||B.occ){ctx.setLineDash([7*s,7*s]);ctx.strokeStyle='rgba(168,224,99,0.5)';ctx.lineWidth=3*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();ctx.setLineDash([]);return;}
       ctx.strokeStyle='rgba(0,0,0,0.55)';ctx.lineWidth=7*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
       ctx.strokeStyle=G;ctx.lineWidth=4*s;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();});
-    for(var i=11;i<33;i++){if(_one&&!_one[i])continue;var p=L[i];if(mvVis(p)<0.35)continue;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4.2*s,0,7);ctx.fill();}
+    for(var i=11;i<33;i++){if(_one&&!_one[i])continue;var p=L[i];if(mvVis(p)<0.35)continue;
+      if(p.occ){ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=1.5*s;ctx.beginPath();ctx.arc(p.x,p.y,4.2*s,0,7);ctx.stroke();continue;}
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4.2*s,0,7);ctx.fill();}
   }
   if(MV.ex==='valgus'&&L){var r=MV.S.last.ratio,c=!isFinite(r)?'#fff':r<0.8?'#ff6b6b':r<0.95?'#ffd166':G;
       ctx.setLineDash([8*s,7*s]);ctx.lineWidth=2.5*s;ctx.strokeStyle=c;
@@ -11498,7 +11547,7 @@ function mvStep(now,meta){
     // el detector exige tiempos SIEMPRE crecientes (enteros en ms); si falla una vez queda roto: se reinicia solo
     var dts=Math.max((MV.detTs||0)+1,Math.round(t));
     if(MV.landmarker)try{var r;try{r=MV.landmarker.detectForVideo(mvDetSrc(vid),dts);MV.detTs=dts;}catch(de){MV.detTs=dts;mvResetLandmarker(de);throw de;}
-      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});L=mvStabilize(L,t,cv.width,cv.height);}
+      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});L=mvStabilize(L,t,cv.width,cv.height);L=mvOcclude(L,t,cv.width,cv.height);}
       var S0=MV.S;
       if(!L||!mvBodyOk(L,cv.width,cv.height)){
         // cuerpo incompleto: no medimos nada y se corta la repetición en curso
@@ -11508,9 +11557,10 @@ function mvStep(now,meta){
         if(S0.okSince==null)S0.okSince=t;
         if(t-S0.okSince<900){MV.msg=tr('Detectando…');}
         else if(MV.mode==='cam'&&!MV.counting){MV.msg=(MV.cdEnd||(MV.rm&&MV.rm.phase))?null:tr('Tocá ● para grabar y medir');}
-        else labels=mvAnalyze(L,t);
+        else{labels=mvAnalyze(L,t);if(MV.ex==='deadlift'&&S0.kneeHidden&&S0.view!=='front'&&!MV.rm)MV.msg=tr('Rodilla tapada: mido cadera y tronco');}
       }
     }catch(e){console.warn(e);}
+    if(MV.waitTap&&!MV.waitTapDone&&MV.mode==='file'){MV.waitTapDone=true;try{vid.pause();}catch(e){}MV.msg=tr('Tocá el centro del disco para empezar');var _pb=mvEl('mv-c-play');if(_pb)_pb.textContent=tr('Seguir sin marcar');mvStatus(tr('Tocá el centro del disco en el video: así la línea amarilla sigue la barra. O tocá Seguir sin marcar.'));}
     mvDraw(L,labels);
     // captura del punto más profundo de la rep en curso (después de dibujar)
     var S=MV.S;if(S.phase==='down'&&S.cur&&MV.ex!=='jump'){mvSnapCandidate(S.cur.min);}
@@ -11569,13 +11619,14 @@ async function mvStartFile(file){
   var vid=mvEl('mv-vid');MV.mode='file';MV.mirror=false;vid.muted=true;vid.setAttribute('playsinline','');vid.preload='auto';vid.src=URL.createObjectURL(file);vid.loop=false;try{vid.load();}catch(e){}
   await new Promise(function(r){var done=false;var f=function(){if(!done){done=true;r();}};vid.onloadedmetadata=f;vid.onloadeddata=f;vid.oncanplay=f;setTimeout(f,2500);});
   vid.playbackRate=0.5;
+  MV.waitTap=!MV.barReq&&!MV.rm&&(MV.ex==='deadlift'||MV.ex==='bench')&&mvLoadOf(MV.ex)==='bar';MV.waitTapDone=false;
   mvStartLoop();mvPlay(vid);
   vid.onended=function(){if(MV.rm){MV.running=false;rmSetEnd(true);mvStatus(tr('Carga medida. Subí el video de la próxima carga o tocá Detener para ver el resultado.'));return;}MV.running=false;mvRenderMetrics();mvRenderLog();mvUpdSave();mvStatus(tr('Análisis terminado. Guardalo o volvé a reproducirlo.'));};
   mvEl('mv-ctrl').innerHTML='<button class="mv-btn" id="mv-c-play" onclick="mvPlayPause()">'+tr('Pausa')+'</button><button class="mv-btn" onclick="mvAgain()">'+tr('Desde el inicio')+'</button><button class="mv-btn" onclick="mvPickFile()">'+tr('Cambiar video')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
 }
 function mvPickFile(){mvSayUnlock();document.getElementById('mv-file').click();}
 function mvReplay(){if(MV.lastFile)mvStartFile(MV.lastFile);}
-function mvPlayPause(){var vid=mvEl('mv-vid'),b=mvEl('mv-c-play');if(vid.paused){vid.play();MV.running=true;b.textContent=tr('Pausa');mvSchedule();}else{vid.pause();b.textContent=tr('Seguir');}}
+function mvPlayPause(){var vid=mvEl('mv-vid'),b=mvEl('mv-c-play');if(vid.paused){if(MV.waitTap){MV.waitTap=false;MV.msg=null;mvStatus('');}vid.play();MV.running=true;b.textContent=tr('Pausa');mvSchedule();}else{vid.pause();b.textContent=tr('Seguir');}}
 function mvAgain(){var vid=mvEl('mv-vid');mvReset();MV.bar=null;MV.barReq=MV.barInitPt||null;vid.currentTime=0;vid.play();MV.running=true;var b=mvEl('mv-c-play');if(b)b.textContent=tr('Pausa');mvSchedule();}
 async function mvStopStage(){
   if(MV.rm){rmSoloStop();if(MV.counting)rmSetEnd(false,true);await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');mvEl('mv-stage').style.display='none';mvEl('mv-ctrl').innerHTML='';rmRenderResult();return;}
