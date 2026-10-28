@@ -1871,7 +1871,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261028-2';
+var APP_VERSION='20261028-3';
 (function(){
   try{
     setTimeout(function(){
@@ -10745,7 +10745,7 @@ function mvEma(k,a){var S=MV.S;if(!S.ema[k])S.ema[k]={a:a||0.35,v:null};var e=S.
 
 /* --- estado --- */
 function mvReset(){
-  MV.flash=null;MV.banner=null;MV.stab=null;MV.occ=null;MV.discR=null;MV.lastL=null;
+  MV.flash=null;MV.banner=null;MV.stab=null;MV.occ=null;MV.discR=null;MV.lastL=null;MV.leg=null;
   MV.S={bi:{},hj:[],hjs:null,reps:[],phase:'up',cur:null,ema:{},trail:[],jumps:[],j:{state:'ground',base:null,legLen:null,t0:0,prevY:null,prevT:null},side:null,last:{},shBase:null,snap:null,snapScore:null,curSnap:null,curScore:null};
   mvRenderMetrics();mvRenderLog();mvUpdSave();
 }
@@ -10867,6 +10867,65 @@ function mvOcclude(L,t,w,h){
           L[i]={x:mx_[Math.floor(mx_.length/2)],y:my_[Math.floor(my_.length/2)],visibility:q.visibility};}}
       O.held[i]={x:L[i].x,y:L[i].y,t:t};
     }
+  });
+  return L;
+}
+/* Peso muerto de costado: los pies NO se mueven y muslo/pierna tienen largo fijo.
+   1) tobillo, talón y punta se fijan en su lugar (mediana de los cuadros donde se ven bien, lejos del disco);
+   2) se aprenden los largos de muslo y pierna cuando la rodilla se ve clara;
+   3) cada cuadro se controla la rodilla: si los largos no cierran o queda "para atrás", el detector se equivocó
+      (el disco la tapa) y se reconstruye con geometría: círculo de muslo desde la cadera + círculo de pierna desde el tobillo fijo. */
+function mvLegLock(L,t,w,h){
+  if(!L||MV.ex!=='deadlift'||MV.rm||(MV.S&&MV.S.view==='front'))return L;
+  var G=MV.leg||(MV.leg={}),disc=(MV.bar&&MV.bar.ok&&MV.bar.p&&MV.discR)?{x:MV.bar.p.x,y:MV.bar.p.y,r:MV.discR}:null;
+  var farDisc=function(q,k){return !disc||Math.hypot(q.x-disc.x,q.y-disc.y)>disc.r*k;};
+  var med=function(a,k){var b=a.map(function(o){return o[k];}).sort(function(x,y){return x-y;});return b[Math.floor(b.length/2)];};
+  var st=MV.stab||{},th0=(function(){var r=st.len&&(st.len[25]||st.len[26]);if(!r||!r.a||r.a.length<5)return h*0.12;return med(r.a.map(function(v){return {v:v};}),'v');})();
+  ['L','R'].forEach(function(sd){
+    var I=sd==='L'?{H:23,K:25,A:27,E:29,F:31}:{H:24,K:26,A:28,E:30,F:32};
+    var g=G[sd]||(G[sd]={ft:{},lt:[],lastS:0,est:false,good:0});
+    var Hp=L[I.H];if(!Hp||mvVis(Hp)<0.35)return;
+    /* 1) pies fijos. Se aprenden sobre todo PARADO (tronco casi vertical): ahí el disco está a la altura de la cadera
+       y los pies se ven limpios. Abajo, el disco los tapa y el detector los "corre". */
+    var Sp=L[sd==='L'?11:12],up=!!(Sp&&mvVis(Sp)>=0.5&&mvVert(Hp,Sp)<30);
+    [I.A,I.E,I.F].forEach(function(i){
+      var q=L[i],F=g.ft[i]||(g.ft[i]={a:[],u:[],lt:0});
+      if(q&&!q.occ&&mvVis(q)>=0.6&&farDisc(q,1.3)&&t-F.lt>=100){
+        var arr=up?F.u:F.a;arr.push({x:q.x,y:q.y});F.lt=t;if(arr.length>80)arr.shift();
+      }
+      var src=F.u.length>=4?F.u:F.a.length>=4?F.a:null;F.std=src===F.u;
+      if(src)L[i]={x:med(src,'x'),y:med(src,'y'),visibility:Math.max(0.8,q?mvVis(q):0),lock:true};
+    });
+    var Al=L[I.A]&&L[I.A].lock&&g.ft[I.A].std?L[I.A]:null;if(!Al)return; /* la rodilla se corrige solo con el tobillo aprendido parado */
+    var toe=L[I.F],heel=L[I.E],dir=(toe&&heel&&toe.lock&&heel.lock&&Math.abs(toe.x-heel.x)>2)?(toe.x>heel.x?1:-1):(toe&&toe.lock?(toe.x>Al.x?1:-1):0);
+    /* 2) largos de muslo y pierna (cuando la rodilla se ve clara y la pierna cierra) */
+    var K=L[I.K],dH=Math.hypot(Hp.x-Al.x,Hp.y-Al.y);
+    g.mx=Math.max(g.mx||0,dH);
+    var ahead=function(P){if(!dir)return 0;var cx=(Al.x-Hp.x)*(P.y-Hp.y)-(Al.y-Hp.y)*(P.x-Hp.x);var side=Al.y>Hp.y?-cx:cx;return side*dir/(dH||1);}; /* >0 = rodilla hacia la punta del pie */
+    if(up&&K&&!K.occ&&mvVis(K)>=0.7&&mvVis(Hp)>=0.6&&farDisc(K,1.3)&&t-g.lastS>=100){
+      var a=Math.hypot(Hp.x-K.x,Hp.y-K.y),b=Math.hypot(K.x-Al.x,K.y-Al.y),rt=a/(b||1);
+      if(rt>0.7&&rt<1.45&&a+b>=dH*0.98&&a+b<dH*1.6&&ahead(K)>-th0*0.1){g.lt.push({a:a,b:b});g.lastS=t;if(g.lt.length>80)g.lt.shift();}
+    }
+    /* largo del tronco (hombro-cadera): se ve siempre; sirve de referencia mientras no se aprendieron muslo y pierna */
+    if(Sp&&mvVis(Sp)>=0.6&&t-(g.lastTr||0)>=100&&(g.tr||(g.tr=[])).length<60){g.tr.push({v:Math.hypot(Sp.x-Hp.x,Sp.y-Hp.y)});g.lastTr=t;}
+    var T,Sh;if(g.lt.length>=5){T=med(g.lt,'a');Sh=med(g.lt,'b');}
+    else if(g.tr&&g.tr.length>=5){T=Sh=Math.max(med(g.tr,'v')*0.82,g.mx*0.51);}else return;
+    if(!dir)return;
+    /* 3) control de la rodilla */
+    var ok=K&&!K.occ&&mvVis(K)>=0.6;
+    if(ok){var a2=Math.hypot(Hp.x-K.x,Hp.y-K.y),b2=Math.hypot(K.x-Al.x,K.y-Al.y);
+      ok=Math.abs(a2/T-1)<0.2&&Math.abs(b2/Sh-1)<0.2&&ahead(K)>-T*0.12;}
+    if(ok){g.good++;if(g.est&&g.good<4)ok=false;}else g.good=0;
+    if(ok){g.est=false;return;}
+    g.est=true;
+    var dx=Al.x-Hp.x,dy=Al.y-Hp.y,d=Math.hypot(dx,dy)||1,ux=dx/d,uy=dy/d,P;
+    if(d>=T+Sh||d<=Math.abs(T-Sh))P={x:Hp.x+ux*d*T/(T+Sh),y:Hp.y+uy*d*T/(T+Sh)};
+    else{var aa=(T*T-Sh*Sh+d*d)/(2*d),hh=Math.sqrt(Math.max(0,T*T-aa*aa)),px=Hp.x+ux*aa,py=Hp.y+uy*aa,
+      c1={x:px-uy*hh,y:py+ux*hh},c2={x:px+uy*hh,y:py-ux*hh};P=ahead(c1)>=ahead(c2)?c1:c2;}
+    /* suavizado corto para que no "tiemble" al cambiar de real a estimada */
+    if(g.kp&&t-g.kp.t<300){P={x:g.kp.x+(P.x-g.kp.x)*0.6,y:g.kp.y+(P.y-g.kp.y)*0.6};}
+    g.kp={x:P.x,y:P.y,t:t};
+    L[I.K]={x:P.x,y:P.y,visibility:0.7,est:true};
   });
   return L;
 }
@@ -11150,7 +11209,7 @@ function mvAnalyze(L,t){
     mvLimTrack({hip:hip,wy:s.W.y,ky:s.K.y,vy:mvMid(L[P.LW],L[P.RW]).y,leg:mvLeg(s)});
     /* sin rodilla visible, la repetición se sigue con la inclinación del tronco */
     mvRep(isFinite(hip)?hip:180-1.3*trunk,120,160,{maxTrunk:trunk,mnKnee:knee});
-    S.last={hip:hip,knee:knee,trunk:trunk};out.push([s.H,hip]);if(aOk)out.push([s.K,knee]);
+    S.last={hip:hip,knee:knee,trunk:trunk};out.push([s.H,hip]);if(aOk)out.push([s.K,knee,null,null,!!s.K.est]);
     mvTrailPush(s.W,t);
   }else if(ex==='lunge'){
     var kL=mvAng(L[P.LH],L[P.LK],L[P.LA]),kR=mvAng(L[P.RH],L[P.RK],L[P.RA]);
@@ -11507,7 +11566,7 @@ function mvDraw(L,labels){
   if(mvBarHint()){var ht=tr(MV.bar?'Se perdió la barra: tocá el centro del disco':'Tocá el centro del disco para seguir la barra');ctx.font='800 '+(17*s)+'px "Barlow Condensed",sans-serif';var hw=ctx.measureText(ht).width;
     ctx.fillStyle='rgba(14,16,21,0.85)';mvRR(ctx,w/2-hw/2-14*s,h-62*s,hw+28*s,32*s,8*s);ctx.fill();ctx.fillStyle='#ffd166';ctx.textAlign='center';ctx.fillText(ht,w/2,h-40*s);ctx.textAlign='left';}
   if(L)labels.forEach(function(lb){var p=lb[0],v=lb[1];if(v==null||!isFinite(v)||mvVis(p)<0.35)return;
-    var x=MV.mirror?w-p.x:p.x,y=p.y,C=lb[2]||G;ctx.font='800 '+(18*s)+'px "Barlow Condensed",sans-serif';var tx=Math.round(v)+'°',tw=ctx.measureText(tx).width;
+    var x=MV.mirror?w-p.x:p.x,y=p.y,C=lb[2]||G;ctx.font='800 '+(18*s)+'px "Barlow Condensed",sans-serif';var tx=(lb[4]?'~':'')+Math.round(v)+'°',tw=ctx.measureText(tx).width;
     var bx=x+10*s;if(lb[3]!=null){var xm=MV.mirror?w-lb[3]:lb[3];if(x<xm)bx=x-10*s-tw-12*s;}
     ctx.fillStyle='rgba(14,16,21,0.82)';mvRR(ctx,bx,y-14*s,tw+12*s,24*s,6*s);ctx.fill();ctx.fillStyle=C;ctx.fillText(tx,bx+6*s,y+4*s);
     ctx.strokeStyle=C;ctx.lineWidth=2*s;ctx.beginPath();ctx.arc(x,y,9*s,0,7);ctx.stroke();});
@@ -11566,7 +11625,7 @@ function mvStep(now,meta){
     // el detector exige tiempos SIEMPRE crecientes (enteros en ms); si falla una vez queda roto: se reinicia solo
     var dts=Math.max((MV.detTs||0)+1,Math.round(t));
     if(MV.landmarker)try{var r;try{r=MV.landmarker.detectForVideo(mvDetSrc(vid),dts);MV.detTs=dts;}catch(de){MV.detTs=dts;mvResetLandmarker(de);throw de;}
-      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});L=mvStabilize(L,t,cv.width,cv.height);L=mvOcclude(L,t,cv.width,cv.height);MV.lastL=L;}
+      if(r.landmarks&&r.landmarks[0]){L=r.landmarks[0].map(function(p){return {x:p.x*cv.width,y:p.y*cv.height,visibility:p.visibility};});L=mvStabilize(L,t,cv.width,cv.height);L=mvOcclude(L,t,cv.width,cv.height);L=mvLegLock(L,t,cv.width,cv.height);MV.lastL=L;}
       var S0=MV.S;
       if(!L||!mvBodyOk(L,cv.width,cv.height)){
         // cuerpo incompleto: no medimos nada y se corta la repetición en curso
