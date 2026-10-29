@@ -747,6 +747,65 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 .np-empty b{color:var(--text);font-size:16px;}
 .np-empty-ic{width:64px;height:64px;border-radius:50%;background:rgba(168,224,99,0.10);display:flex;align-items:center;justify-content:center;margin-bottom:4px;box-shadow:0 0 30px -6px rgba(168,224,99,0.5);}
 /* ================= fin PD · PROFUNDIDAD ================= */
+/* ===== PLANIFICADOR DE CARRERA ===== */
+#modal-run{z-index:620;}
+.rn-tpls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.rn-tpl{padding:7px 11px;border-radius:16px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.03em;cursor:pointer;}
+.rn-tpl:active{transform:scale(0.97);}
+.rn-lbl{font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.rn-step{position:relative;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:9px 9px 9px 14px;margin-bottom:8px;}
+.rn-step::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:4px;border-radius:0 3px 3px 0;background:var(--rk,#888);}
+.rn-row{display:flex;gap:6px;align-items:center;min-width:0;}
+.rn-row+.rn-row{margin-top:7px;}
+.rn-step select,.rn-step input,.rn-grp-h input{background:var(--s1);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:7px 8px;outline:none;min-width:0;height:36px;box-sizing:border-box;}
+.rn-step select.rn-kind{flex:1;font-weight:700;}
+.rn-num{width:72px;flex:none;}
+.rn-unit{flex:none;height:36px;min-width:46px;padding:0 8px;border-radius:8px;border:1px solid var(--border2);background:var(--s3);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;cursor:pointer;}
+.rn-iu{width:96px;flex:none;}
+.rn-iv{flex:1;}
+.rn-ib{flex:none;width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.rn-ib.rn-del{color:#ff6b6b;border-color:rgba(255,107,107,0.35);}
+.rn-grp{border:1.5px dashed rgba(56,217,192,0.55);border-radius:12px;padding:10px 9px 4px;margin-bottom:10px;background:rgba(56,217,192,0.04);}
+.rn-grp-h{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:9px;font-size:13px;color:var(--text);font-weight:600;}
+.rn-grp-h input{width:58px;height:34px;text-align:center;font-weight:700;}
+.rn-grp-h .rn-sp{flex:1;}
+.rn-add{display:flex;gap:6px;margin:4px 0 12px;}
+.rn-add button{flex:1;padding:9px 6px;border-radius:9px;border:1px dashed var(--border2);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;}
+.rn-sum{background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:11px 12px;margin-bottom:12px;font-size:13px;line-height:1.5;color:var(--text);}
+.rn-sum b{font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:0.02em;}
+.rn-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:1px;background:var(--s3);margin:8px 0 4px;}
+.rn-bar i{display:block;height:100%;min-width:2px;}
+.rn-leg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11px;color:var(--muted);}
+.rn-leg span::before{content:'';display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--rk);margin-right:4px;vertical-align:0;}
+/* en la sesión */
+.rn-ex{margin-top:6px;}
+.rn-ex .rn-bar{margin:4px 0 5px;height:8px;}
+.rn-ex-txt{font-size:12px;color:var(--muted);line-height:1.45;}
+.rn-ex-txt b{color:var(--text);font-weight:700;}
+.rn-go{margin-top:7px;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;border:none;background:var(--cam);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.rn-lib-btn{width:100%;padding:11px;border-radius:var(--rsm);border:1.5px solid var(--cam);background:rgba(56,217,192,0.08);color:var(--cam);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+/* timer del alumno */
+#run-timer{position:fixed;inset:0;z-index:900;background:#0b0d12;color:#fff;display:none;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));box-sizing:border-box;font-family:'Barlow',sans-serif;}
+#run-timer.open{display:flex;}
+.rt-top{display:flex;align-items:center;gap:10px;}
+.rt-top .rt-name{flex:1;min-width:0;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#cfd5df;}
+.rt-x{width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#fff;font-size:18px;cursor:pointer;flex:none;}
+.rt-snd{width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:#fff;font-size:17px;cursor:pointer;flex:none;}
+.rt-prog{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:1px;margin:12px 0 6px;background:rgba(255,255,255,0.08);}
+.rt-prog i{display:block;height:100%;opacity:0.35;}
+.rt-prog i.on{opacity:1;}
+.rt-meta{display:flex;justify-content:space-between;font-size:13px;color:#9aa3b2;}
+.rt-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-radius:22px;margin:14px 0;padding:18px;transition:background .25s;min-height:0;}
+.rt-kind{font-family:'Barlow Condensed',sans-serif;font-size:clamp(34px,9vw,64px);font-weight:800;letter-spacing:0.03em;text-transform:uppercase;line-height:1;}
+.rt-int{font-size:clamp(17px,4.5vw,24px);font-weight:700;margin-top:8px;opacity:0.95;}
+.rt-clock{font-family:'Barlow Condensed',sans-serif;font-size:clamp(84px,27vw,190px);font-weight:800;line-height:1;margin-top:10px;font-variant-numeric:tabular-nums;}
+.rt-sub{font-size:clamp(15px,4vw,20px);margin-top:6px;opacity:0.9;}
+.rt-done{margin-top:14px;padding:14px 30px;border-radius:14px;border:none;background:#fff;color:#0b0d12;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.rt-next{font-size:15px;color:#cfd5df;text-align:center;min-height:20px;}
+.rt-next b{color:#fff;}
+.rt-ctrl{display:flex;gap:10px;margin-top:12px;}
+.rt-ctrl button{flex:1;height:58px;border-radius:14px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.rt-ctrl button.rt-play{flex:1.6;background:#38d9c0;color:#0b0d12;border-color:#38d9c0;}
 </style>
 </head>
 <body>
@@ -1336,6 +1395,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       </label>
     </div>
     <div class="form-row"><label>Series / Reps / Carga</label><input type="text" id="f-load" placeholder="Ej: 4x6 @80kg"/></div>
+    <div class="form-row" id="f-run-row" style="display:none;"><button type="button" class="rn-lib-btn" id="f-run-btn" onclick="openRunFromLib()">🏃 Armar por pasos</button><div id="f-run-sum"></div></div>
     <div class="form-row"><label>Nota técnica</label><textarea id="f-note" placeholder="Descripción, cues técnicos..."></textarea></div>
     <div class="form-row"><label>Video (YouTube)</label><input type="url" id="f-link" placeholder="https://youtu.be/..."/>
       <div id="yt-hint" style="font-size:11.5px;color:var(--muted2);margin-top:6px;line-height:1.45;">💡 Subí el video a YouTube como «No listado» y pegá el link acá.</div>
@@ -1345,6 +1405,52 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <button class="mbtn mbtn-cancel" onclick="closeLibModal()">Cancelar</button>
       <button class="mbtn mbtn-save" onclick="saveLibExercise()">Guardar</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL: CARRERA POR PASOS -->
+<div class="modal-overlay" id="modal-run">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 style="margin-bottom:4px;">Carrera por pasos</h3>
+    <div id="rn-exname" style="font-size:13px;color:var(--muted);margin-bottom:14px;"></div>
+    <div class="rn-lbl">Modelos rápidos</div>
+    <div class="rn-tpls" id="rn-tpls"></div>
+    <div class="rn-lbl">Pasos</div>
+    <div id="rn-list"></div>
+    <div class="rn-add">
+      <button onclick="runAddStep()">+ Paso</button>
+      <button onclick="runAddGroup()">+ Bloque que se repite</button>
+    </div>
+    <div class="rn-sum" id="rn-sum"></div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" id="rn-del" onclick="runRemove()" style="display:none;color:#ff6b6b;">Quitar</button>
+      <button class="mbtn mbtn-cancel" onclick="closeRunModal()">Cancelar</button>
+      <button class="mbtn mbtn-save" onclick="saveRun()">Guardar</button>
+    </div>
+  </div>
+</div>
+<!-- TIMER GUIADO DE CARRERA (alumno) -->
+<div id="run-timer">
+  <div class="rt-top">
+    <button class="rt-x" onclick="runTimerClose()" aria-label="Cerrar">✕</button>
+    <div class="rt-name" id="rt-name"></div>
+    <button class="rt-snd" id="rt-snd" onclick="runTimerSound()">🔊</button>
+  </div>
+  <div class="rt-prog" id="rt-prog"></div>
+  <div class="rt-meta"><span id="rt-pos"></span><span id="rt-left"></span></div>
+  <div class="rt-main" id="rt-main">
+    <div class="rt-kind" id="rt-kind"></div>
+    <div class="rt-int" id="rt-int"></div>
+    <div class="rt-clock" id="rt-clock"></div>
+    <div class="rt-sub" id="rt-sub"></div>
+    <button class="rt-done" id="rt-done" onclick="runTimerNext()" style="display:none;">Listo ✓</button>
+  </div>
+  <div class="rt-next" id="rt-next"></div>
+  <div class="rt-ctrl">
+    <button onclick="runTimerPrev()">⏮</button>
+    <button class="rt-play" id="rt-play" onclick="runTimerToggle()">Empezar</button>
+    <button onclick="runTimerNext()">⏭</button>
   </div>
 </div>
 
@@ -1490,6 +1596,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <button class="pr-type cv-btn" id="pr-type-reps" onclick="setPrescType('reps')">⚡ Reps</button>
       <button class="pr-type cv-btn" id="pr-type-time" onclick="setPrescType('time')">⏱ Tiempo</button>
       <button class="pr-type cv-btn" id="pr-type-dist" onclick="setPrescType('dist')">📏 Distancia</button>
+      <button class="pr-type cv-btn" id="pr-type-run" onclick="prescToRun()">🏃 Por pasos</button>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:14px;">
       <div style="flex:1;"><div class="pr-lbl">Series</div><input type="number" id="pr-sets" inputmode="numeric" oninput="updatePrescPreview();renderPrescSets()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
@@ -1871,7 +1978,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261028-3';
+var APP_VERSION='20261029-1';
 (function(){
   try{
     setTimeout(function(){
@@ -2688,7 +2795,9 @@ var TESTS=[
  {k:'sbj',n:'Salto horizontal',ic:'\u27a1\ufe0f',u:'cm',bi:false,hi:true,ref:'Registrá tu marca y buscá mejorarla',
   how:'Desde parado, con los pies detrás de una línea, saltá lo más lejos posible con las dos piernas. Medí desde la línea hasta el talón más atrasado.',need:'Cinta métrica y espacio libre'},
  {k:'slj',n:'Salto unipodal',ic:'\ud83e\uddb5',u:'cm',bi:true,hi:true,asym:{t:'pct',v:10},ref:'Diferencia entre piernas menor al 10%',
-  how:'Igual que el salto horizontal pero apoyando y cayendo con una sola pierna. Hacelo con cada pierna por separado.',need:'Cinta métrica y espacio libre'}
+  how:'Igual que el salto horizontal pero apoyando y cayendo con una sola pierna. Hacelo con cada pierna por separado.',need:'Cinta métrica y espacio libre'},
+ {k:'yoyo',n:'Yo-Yo IR1',ic:'\ud83c\udfc3',u:'m',bi:false,hi:true,ref:'Profesional ~2.000–2.500 m · amateur ~1.200–1.800 m',
+  how:'Idas y vueltas de 20 m al ritmo de los pitidos del audio oficial, con 10 segundos de recuperación (trote suave de 5 m ida y vuelta) entre cada una. La velocidad sube por niveles. Termina la segunda vez que no llegás a la línea a tiempo. Anotá los metros totales recorridos. Con este dato la app estima tu VAM y calcula tus metros en las pasadas.',need:'Audio oficial del Yo-Yo IR1, conos y 25 m de espacio'}
 ];
 var TESTIMG={'ankle':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M62 120 L88 120" stroke="#e8eaee" stroke-width="3"/><path d="M88 118 L50 76" stroke="#e8eaee" stroke-width="3"/><path d="M50 76 L96 98" stroke="#e8eaee" stroke-width="3"/><path d="M96 98 L114 120" stroke="#e8eaee" stroke-width="3"/><path d="M114 120 L142 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 98 L107 60" stroke="#e8eaee" stroke-width="3"/><path d="M107 60 L66 58" stroke="#e8eaee" stroke-width="3"/><circle cx="112" cy="50" r="9" stroke="#e8eaee"/><circle cx="46" cy="74" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. De rodilla, pie adelante. Llevá la rodilla hacia la pared.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M62 120 L88 120" stroke="#e8eaee" stroke-width="3"/><path d="M88 118 L50 76" stroke="#e8eaee" stroke-width="3"/><circle cx="88" cy="120" r="4" fill="#a8e063" stroke="none"/><circle cx="88" cy="120" r="12" stroke="#a8e063" stroke-width="2.5" stroke-dasharray="4 4"/><path d="M40 132 L62 132" stroke="#a8e063" stroke-width="2.5"/><path d="M40 132 l5 -4 M40 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M62 132 l-5 -4 M62 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/></g></svg>',c:'2. El talón NO se despega. Medí de la punta del pie a la pared.'}],'hip':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 118 L190 118" stroke="#5b616e" stroke-width="3"/><path d="M150 118 L96 118" stroke="#e8eaee" stroke-width="3"/><circle cx="160" cy="112" r="9" stroke="#e8eaee"/><path d="M96 118 L52 118" stroke="#e8eaee" stroke-width="3"/><path d="M52 118 L40 112" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 L70 60" stroke="#e8eaee" stroke-width="3"/><path d="M70 60 L62 50" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 A 40 40 0 0 0 70 60" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4" fill="none"/></g></svg>',c:'1. Boca arriba, una pierna apoyada y la otra estirada.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 118 L190 118" stroke="#5b616e" stroke-width="3"/><path d="M150 118 L96 118" stroke="#e8eaee" stroke-width="3"/><circle cx="160" cy="112" r="9" stroke="#e8eaee"/><path d="M96 118 L52 118" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 L70 60" stroke="#a8e063" stroke-width="3"/><circle cx="70" cy="60" r="4" fill="#a8e063" stroke="none"/><circle cx="96" cy="118" r="4" fill="#a8e063" stroke="none"/><path d="M124 118 A 30 30 0 0 0 82 84" stroke="#a8e063" stroke-width="2.5" fill="none"/></g></svg>',c:'2. Subí la pierna recta lo más alto posible y medí el ángulo.'}],'shoulder':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><circle cx="100" cy="32" r="10" stroke="#e8eaee"/><path d="M100 44 L100 100" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L88 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L112 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 52 L126 44 L122 70" stroke="#e8eaee" stroke-width="3"/><path d="M100 80 L74 90 L80 66" stroke="#e8eaee" stroke-width="3"/><circle cx="122" cy="70" r="4" fill="#a8e063" stroke="none"/><circle cx="80" cy="66" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. Una mano por arriba del hombro, la otra por abajo.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><circle cx="100" cy="32" r="10" stroke="#e8eaee"/><path d="M100 44 L100 100" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L88 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L112 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 52 L126 44 L118 66" stroke="#e8eaee" stroke-width="3"/><path d="M100 80 L74 90 L84 70" stroke="#e8eaee" stroke-width="3"/><path d="M101 66 L101 70" stroke="#a8e063" stroke-width="2.5"/><path d="M101 66 l-4 5 M101 66 l4 5" stroke="#a8e063" stroke-width="2.5"/><path d="M101 70 l-4 -5 M101 70 l4 -5" stroke="#a8e063" stroke-width="2.5"/><circle cx="118" cy="66" r="4" fill="#a8e063" stroke="none"/><circle cx="84" cy="70" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Medí la distancia entre las puntas de los dedos.'}],'cmj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="60" r="9" stroke="#e8eaee"/><path d="M96 70 L96 100" stroke="#e8eaee" stroke-width="3"/><path d="M96 100 L86 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 100 L106 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 74 L60 34" stroke="#a8e063" stroke-width="3"/><path d="M38 32 L72 32" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4"/><circle cx="60" cy="34" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. De lado a la pared, marcá tu alcance con el brazo estirado.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="74" r="9" stroke="#e8eaee"/><path d="M96 84 L98 104" stroke="#e8eaee" stroke-width="3"/><path d="M98 104 L84 112 L86 120" stroke="#e8eaee" stroke-width="3"/><path d="M98 104 L112 112 L110 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 88 L120 104" stroke="#a8e063" stroke-width="3"/><path d="M38 32 L72 32" stroke="#5b616e" stroke-width="2" stroke-dasharray="4 4"/></g></svg>',c:'2. Bajá rápido flexionando rodillas y cadera.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="44" r="9" stroke="#e8eaee"/><path d="M96 54 L96 84" stroke="#e8eaee" stroke-width="3"/><path d="M96 84 L86 104" stroke="#e8eaee" stroke-width="3"/><path d="M96 84 L106 104" stroke="#e8eaee" stroke-width="3"/><path d="M96 58 L58 20" stroke="#a8e063" stroke-width="3"/><path d="M38 18 L74 18" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4"/><path d="M38 32 L74 32" stroke="#5b616e" stroke-width="2" stroke-dasharray="4 4"/><path d="M46 18 L46 32" stroke="#a8e063" stroke-width="2.5"/><path d="M46 18 l-4 5 M46 18 l4 5" stroke="#a8e063" stroke-width="2.5"/><path d="M46 32 l-4 -5 M46 32 l4 -5" stroke="#a8e063" stroke-width="2.5"/><circle cx="58" cy="20" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'3. Saltá y marcá el punto más alto. El salto es la diferencia.'}],'sbj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="64" cy="64" r="9" stroke="#e8eaee"/><path d="M64 74 L66 96" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L58 110 L60 120" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L74 110 L72 120" stroke="#e8eaee" stroke-width="3"/><path d="M64 78 L88 92" stroke="#a8e063" stroke-width="3"/></g></svg>',c:'1. Pies detrás de la línea, brazos atrás.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="132" cy="62" r="9" stroke="#e8eaee"/><path d="M132 72 L130 96" stroke="#e8eaee" stroke-width="3"/><path d="M130 96 L140 112 L148 120" stroke="#e8eaee" stroke-width="3"/><path d="M130 96 L124 112 L132 120" stroke="#e8eaee" stroke-width="3"/><path d="M132 76 L108 60" stroke="#a8e063" stroke-width="3"/><path d="M52 132 L132 132" stroke="#a8e063" stroke-width="2.5"/><path d="M52 132 l5 -4 M52 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M132 132 l-5 -4 M132 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/><circle cx="132" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Saltá con las dos piernas. Medí hasta el talón más atrasado.'}],'slj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="64" cy="64" r="9" stroke="#e8eaee"/><path d="M64 74 L66 96" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L60 110 L62 120" stroke="#a8e063" stroke-width="3"/><path d="M66 96 L82 104 L78 116" stroke="#e8eaee" stroke-width="3"/><path d="M64 78 L88 92" stroke="#e8eaee" stroke-width="3"/><circle cx="62" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. Apoyado en una sola pierna, detrás de la línea.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="130" cy="62" r="9" stroke="#e8eaee"/><path d="M130 72 L128 96" stroke="#e8eaee" stroke-width="3"/><path d="M128 96 L138 112 L146 120" stroke="#a8e063" stroke-width="3"/><path d="M128 96 L118 106 L114 116" stroke="#e8eaee" stroke-width="3"/><path d="M130 76 L106 62" stroke="#e8eaee" stroke-width="3"/><path d="M52 132 L146 132" stroke="#a8e063" stroke-width="2.5"/><path d="M52 132 l5 -4 M52 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M146 132 l-5 -4 M146 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/><circle cx="146" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Saltá y caé con la MISMA pierna. Repetí con la otra.'}]};
 
@@ -2697,6 +2806,7 @@ var TEST_SVG={
  hip:'<line x1="2" y1="20.5" x2="22" y2="20.5"/><circle cx="3.6" cy="15.6" r="1.6"/><path d="M5.4 16.6H12"/><path d="M12 16.6l5.2-12"/><path d="M15.8 16.6a3.8 3.8 0 0 0-1.4-3"/>',
  shoulder:'<circle cx="12" cy="4.6" r="2"/><path d="M8 21v-9.5a4 4 0 0 1 8 0V21"/><path d="M16 11.2c2.2-.4 3-2.6 1.6-4.8"/><path d="M8 14.2c-2 .3-2.8 2.2-1.8 4"/><line x1="12" y1="10" x2="12" y2="15" stroke-dasharray="1.6 1.8"/>',
  cmj:'<line x1="4" y1="21" x2="20" y2="21"/><path d="M12 17V4"/><path d="M8 8l4-4 4 4"/><line x1="7" y1="17" x2="17" y2="17" stroke-dasharray="2 2"/>',
+ yoyo:'<line x1="3" y1="20" x2="3" y2="6"/><line x1="21" y1="20" x2="21" y2="6"/><path d="M6 10h12"/><path d="M15.5 7.5L18 10l-2.5 2.5"/><path d="M18 15H6"/><path d="M8.5 12.5L6 15l2.5 2.5"/>',
  sbj:'<line x1="2" y1="21" x2="22" y2="21"/><line x1="4" y1="21" x2="4" y2="17.5"/><path d="M5 16C8 7 15 7 18 16"/><path d="M15.6 14.6l2.5 1.6 1.2-2.7"/>',
  slj:'<line x1="2" y1="21" x2="22" y2="21"/><line x1="4" y1="21" x2="4" y2="17.5"/><path d="M5 16C8 7 15 7 18 16"/><path d="M15.6 14.6l2.5 1.6 1.2-2.7"/><text x="11.5" y="11.4" text-anchor="middle" font-size="8.5" font-family="Barlow Condensed,sans-serif" font-weight="800" fill="currentColor" stroke="none">1</text>'
 };
@@ -2898,7 +3008,7 @@ async function loadAllFromSupabase(){
   JB_CHECKS={};JB_LOADS={};JB_TIMES={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};JB_TIMES[r.player_id]=r.times||{};});
   var exr=await sb.from('exercises').select('*').order('type');
   if(exr.error)throw exr.error;
-  LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base,org_id:e.org_id||null,trainer_id:e.trainer_id||null};});
+  LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base,org_id:e.org_id||null,trainer_id:e.trainer_id||null,run:e.run||null};});
   if(MY_UID){var tr=await sb.from('trainers').select('*').eq('id',MY_UID).single();if(!tr.error&&tr.data){isAdmin=!!tr.data.is_template;MY_PROFILE=tr.data;try{await loadOrg();if(hasOrg())await loadMembers();}catch(e){console.error('loadOrg',e);}}}
   if(!isAdmin&&MY_PROFILE&&MY_PROFILE.is_active===false){throw new Error('__SUSPENDED__');}
 }
@@ -6196,14 +6306,14 @@ function renderBlock(b,bi,wIdx,dIdx){
   if(b.t==='cam'){
     var pasH='',intH='';
     if(b.campo){var pas=b.campo.pasadas||[];var inter=b.campo.intermitente||[];pasH=pas.length?'<div class="campo-lbl">Pasadas</div><div class="campo-chips">'+pas.map(function(p){return '<div class="campo-chip">'+p+'</div>';}).join('')+'</div>':'';intH=inter.length?'<div class="campo-lbl" style="margin-top:14px">Intermitente</div><div class="campo-chips">'+inter.map(function(x){return '<div class="campo-chip campo-chip-int">'+x+'</div>';}).join('')+'</div>':'';}
-    var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=loadCell('cam',wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join(''):'';
+    var extraH=b.exs&&b.exs.length?b.exs.map(function(e,ei){var lEl=loadCell('cam',wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";return '<div class="exrow"><div class="exdot d-cam"></div><div class="exbody">'+(e.run?'<div class="extext"><div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+runExHtml(e,wIdx,dIdx,bi,ei)+'</div>':'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>')+'</div><div class="exright">'+lEl+mv+del+'</div></div>';}).join(''):'';
     var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
     return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-cam"></div><div class="bicon bi-cam">'+BICONS.cam+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+pasH+intH+(extraH?'<div class="campo-lbl" style="margin-top:14px">Ejercicios</div>'+extraH:'')+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
   }
   /* El alumno ve los videos recién cuando arranca el entrenamiento: antes solo
    tiene el resumen (nombre, series, reps y kg) para no distraerse. */
   var _verVid=isC||draftMode||sessionStarted();
-  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+tr(String(b.title||'').replace(/<[^>]*>/g,''))+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+setsTableHtml(e,bi,ei)+_noteH+exVidRow(link,e,bi,ei)+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
+  var exsH=b.exs.map(function(e,ei){var link=(e.link&&_verVid)?'<button class="exlink" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var lEl=loadCell(b.t,wIdx,dIdx,bi,ei,e.l,e.n);var mv=isC?exMoveBtns(wIdx,dIdx,bi,ei,b.exs.length):"";var del=isC?'<button class="ex-del" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-e="'+ei+'" onclick="event.stopPropagation();delEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">x</button>':"";var _mt2=_verVid?mediaThumbHtml(e.link,e.img,'exthumb'):'';var thumbH=_mt2?'<span class="exthumb-a" style="cursor:pointer;" data-u="'+String(e.link||'').replace(/"/g,'&quot;')+'" data-n="'+String(e.n||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt2+'</span>':'';var _noteH=e.note?'<div class="exnote-coach">'+ICON('pencil')+'<span>'+e.note+'</span></div>':'';return '<div class="exrow"><div class="exdot d-'+b.t+'"></div><div class="exbody">'+thumbH+'<div class="extext">'+(!isC?'<div class="ex-pos">'+tr(String(b.title||'').replace(/<[^>]*>/g,''))+' · '+tr('Ejercicio')+' '+(ei+1)+' '+tr('de')+' '+b.exs.length+'</div>':'')+'<div class="exname">'+e.n+'</div><div class="exnote">'+e.d+'</div>'+runExHtml(e,wIdx,dIdx,bi,ei)+(e.run?'':setsTableHtml(e,bi,ei))+_noteH+exVidRow(link,e,bi,ei)+'</div></div><div class="exright">'+lEl+mv+del+'</div></div>';}).join('');
   var addBtn=isC?'<button class="add-ex-btn" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" onclick="openPickModal(+this.dataset.w,+this.dataset.d,+this.dataset.b)">+ Agregar ejercicio</button>':'';
   return '<div class="bcard open"><div class="bcard-hdr" onclick="toggleBlock(this)"><div class="bstripe bs-'+b.t+'"></div><div class="bicon bi-'+b.t+'">'+BICONS[b.t]+'</div><div class="binfo">'+(isC?'<div class="btitle" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="title" onclick="event.stopPropagation();editBlockField(this)">'+b.title+'</div><div class="bsub" style="cursor:pointer" data-w="'+wIdx+'" data-d="'+dIdx+'" data-b="'+bi+'" data-field="sub" onclick="event.stopPropagation();editBlockField(this)">'+b.sub+'</div>':'<div class="btitle">'+b.title+'</div><div class="bsub">'+b.sub+'</div>')+'</div><div class="btoggle">\u203a</div></div>'+delB+'<div class="bbody"><div class="bsep"></div><div class="exlist">'+exsH+addBtn+'</div>'+buildCheckArea(wIdx,dIdx,bi)+'</div></div>';
 }
@@ -6283,7 +6393,7 @@ function fillExPatSelect(type,current){
 }
 function onExTypeChange(){
   var t=(document.getElementById('f-type')||{}).value||'';
-  fillExPatSelect(t,'');
+  fillExPatSelect(t,'');try{libRunSum();}catch(e){}
 }
 function patOptionsFor(type){
   var ids=(type&&PAT_BY_TYPE[type])?PAT_BY_TYPE[type]:null;
@@ -6420,6 +6530,7 @@ function openPrescModal(w,d,b,e){
   if(!isCoach||!currentPlayerId)return;
   prescTarget={w:w,d:d,b:b,e:e};
   var ex=PLAN[w][d].blocks[b].exs[e];
+  if(ex&&ex.run){prescTarget=null;openRunModal({kind:'sess',w:w,d:d,b:b,e:e},ex.run,ex.n);return;}
   var p=ex.p||{};
   prescState={type:p.type||'reps',sets:p.sets||'',reps:p.reps||'',dur:p.dur||'',durUnit:p.durUnit||'s',dist:p.dist||'',perSide:!!p.perSide,load:p.load||'',loadUnit:p.loadUnit||'kg',effType:p.effType||'',eff:p.eff||'',rest:p.rest||'',repsMode:p.repsMode||'same',loadMode:p.loadMode||'same',repsList:(p.repsList||[]).slice(),loadList:(p.loadList||[]).slice()};
   document.getElementById('pr-sets').value=prescState.sets;
@@ -6608,7 +6719,7 @@ function addSelectedFromLib(){
   var ids=Object.keys(pickSelected);if(!ids.length)return;
   var exs=PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs;
   var sel=[];
-  LIB.forEach(function(ex){if(pickSelected[ex.id])sel.push({n:ex.name,d:ex.note,l:ex.load,link:ex.link||''});});
+  LIB.forEach(function(ex){if(pickSelected[ex.id]){var _o={n:ex.name,d:ex.note,l:ex.load,link:ex.link||''};if(ex.run)_o.run=JSON.parse(JSON.stringify(ex.run));sel.push(_o);}});
   if(!sel.length)return;
   if(swapTarget&&swapTarget.bIdx===pickTarget.bIdx&&exs[swapTarget.eIdx]){
     var prev=exs[swapTarget.eIdx];
@@ -6631,7 +6742,7 @@ function addFromLib(id){
   if(!pickTarget||!currentPlayerId)return;
   var ex=LIB.find(function(e){return e.id===id;});if(!ex)return;
   var exs=PLAN[pickTarget.wIdx][pickTarget.dIdx].blocks[pickTarget.bIdx].exs;
-  var nw={n:ex.name,d:ex.note,l:ex.load,link:ex.link||''};
+  var nw={n:ex.name,d:ex.note,l:ex.load,link:ex.link||''};if(ex.run)nw.run=JSON.parse(JSON.stringify(ex.run));
   if(swapTarget&&swapTarget.bIdx===pickTarget.bIdx&&exs[swapTarget.eIdx]){
     var prev=exs[swapTarget.eIdx];
     if(prev.l)nw.l=prev.l;
@@ -6747,6 +6858,7 @@ function openLibModal(id){editingLibId=id||null;var ex=id?LIB.find(function(e){r
       document.getElementById('f-pd-lbl').textContent=tr('Visible para todos los profes (PD)');
       document.getElementById('f-pd-sub').textContent=tr('Lo ven todos los profes en la biblioteca, filtro PD.');}
   }catch(e){}
+  libRunDraft=(ex&&ex.run)?JSON.parse(JSON.stringify(ex.run)):null;try{var _fl=document.getElementById('f-load');_fl.dataset.auto=(ex&&ex.run&&ex.load)||'';libRunSum();}catch(e){}
   var vst=document.getElementById('f-video-status');if(vst)vst.textContent='';document.getElementById('modal-lib').classList.add('open');}
 function closeLibModal(){document.getElementById('modal-lib').classList.remove('open');editingLibId=null;}
 async function saveLibExercise(){
@@ -6763,17 +6875,21 @@ async function saveLibExercise(){
     if(hasOrg())fields.org_id=(_sh&&_sh.checked)?orgId():null;
   }catch(e){console.error('share',e);}
   try{var _pd=document.getElementById('f-pd'),_pdr=document.getElementById('f-pd-row');if(isAdmin&&_pd&&_pdr&&_pdr.style.display!=='none')fields.is_base=!!_pd.checked;}catch(e){}
+  fields.run=(fields.type==='cam'||libRunDraft)?(libRunDraft||null):null;
+  var _runMiss=function(r){return r&&r.error&&/run/i.test(String(r.error.message||''))&&/column|schema/i.test(String(r.error.message||''));};
   showSyncStatus('saving');
   if(editingLibId){
     var r=await sb.from('exercises').update(fields).eq('id',editingLibId);
+    if(_runMiss(r)){delete fields.run;r=await sb.from('exercises').update(fields).eq('id',editingLibId);if(!r.error)setTimeout(function(){showInfo(tr('Se guardó el ejercicio, pero los pasos de carrera no: falta correr carrera.sql en Supabase (una sola vez).'));},300);}
     if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
     var idx=LIB.findIndex(function(e){return e.id===editingLibId;});
     if(idx>=0){for(var k in fields)LIB[idx][k]=fields[k];}
   }else{
     var payload={trainer_id:MY_UID,is_base:false};for(var k in fields)payload[k]=fields[k];
     var ins=await sb.from('exercises').insert(payload).select('*').single();
+    if(_runMiss(ins)){delete payload.run;delete fields.run;ins=await sb.from('exercises').insert(payload).select('*').single();if(!ins.error)setTimeout(function(){showInfo(tr('Se guardó el ejercicio, pero los pasos de carrera no: falta correr carrera.sql en Supabase (una sola vez).'));},300);}
     if(ins.error){showSyncStatus('error');showInfo('Error: '+ins.error.message);return;}
-    LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',pattern:ins.data.pattern||null,is_base:!!ins.data.is_base,org_id:ins.data.org_id||null,trainer_id:ins.data.trainer_id||MY_UID});
+    LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',pattern:ins.data.pattern||null,run:ins.data.run||fields.run||null,is_base:!!ins.data.is_base,org_id:ins.data.org_id||null,trainer_id:ins.data.trainer_id||MY_UID});
   }
   showSyncStatus('ok');closeLibModal();renderLib();
 }
@@ -6908,7 +7024,7 @@ async function doImportLib(arr){
   var ins=await sb.from('exercises').insert(payload).select('id');
   if(ins.error){showSyncStatus('error');showInfo('Error al importar: '+ins.error.message);return;}
   var exr=await sb.from('exercises').select('*').order('type');
-  if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base,org_id:e.org_id||null,trainer_id:e.trainer_id||null};});
+  if(!exr.error)LIB=(exr.data||[]).map(function(e){return {id:e.id,name:e.name,type:e.type,load:e.load||'',note:e.note||'',link:e.link||'',img:e.img||'',pattern:e.pattern||'',is_base:e.is_base,org_id:e.org_id||null,trainer_id:e.trainer_id||null,run:e.run||null};});
   showSyncStatus('ok');renderLib();
   showInfo(tr('¡Listo! Biblioteca actualizada:')+' '+payload.length+' '+tr('ejercicios')+'.');
 }
@@ -7602,7 +7718,8 @@ function openTestModal(k){
   if(x.bi){
     f.innerHTML='<div style="display:flex;gap:10px;"><div style="flex:1;"><label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Izquierda')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-l" style="'+st+'"/></div><div style="flex:1;"><label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Derecha')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-r" style="'+st+'"/></div></div>';
   } else {
-    f.innerHTML='<label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Resultado')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-v" style="'+st+'"/>';
+    f.innerHTML='<label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Resultado')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-v" style="'+st+'"/>'+(k==='yoyo'?'<div id="test-yoyo" style="font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.45;"></div>':'');
+    if(k==='yoyo'){var _yv=document.getElementById('test-v'),_yo=function(){var v=+_yv.value,el=document.getElementById('test-yoyo');if(!el)return;if(!(v>0)){el.textContent=last?tr('Último')+': '+last.v+' m · VAM '+runFmtKmh(yoyoInfo(last.v).vam)+' km/h':'';return;}var i=yoyoInfo(v);el.innerHTML=tr('Nivel')+' <b>'+(i.lvl||'—')+'</b> · VO₂máx ≈ <b>'+Math.round(i.vo2)+'</b> · VAM '+tr('estimada')+' <b>'+runFmtKmh(i.vam)+' km/h</b>';};_yv.oninput=_yo;_yo();}
   }
   var hist=document.getElementById('test-hist');
   hist.innerHTML=h.length?('<div class="sum-lbl">'+tr('Historial')+'</div>'+h.slice(-6).reverse().map(function(e){
@@ -7691,6 +7808,371 @@ async function saveTest(){
   closeTestModal();testTargetPid=null;try{renderTestsAthlete();}catch(e){}try{renderTestsScreen();}catch(e){}
 }
 
+
+/* ===== PLANIFICADOR DE CARRERA =====
+   Un ejercicio de carrera puede tener "run": una lista de pasos (caminar, trote, pasada, sprint, pausa...)
+   y bloques que se repiten (10× [15″ pasada / 15″ trote], en 2 series con pausa).
+   Cada paso va por tiempo o por metros, con intensidad en % VAM, % FC máx o texto libre.
+   Si el alumno tiene el Yo-Yo IR1 cargado, la VAM se estima y los % VAM se pasan a SUS metros.
+   El alumno lo hace con un timer guiado (pitidos y voz). */
+var RUN_K={
+  walk:{n:'Caminar',c:'#9aa3b2',s:5,dv:60},
+  jog:{n:'Trote',c:'#4dabf7',s:8,dv:120},
+  run:{n:'Carrera continua',c:'#38d9c0',s:10,dv:600},
+  prog:{n:'Progresivo',c:'#f9c846',s:13,dv:30},
+  pas:{n:'Pasada',c:'#ff9f43',s:15,dv:15},
+  sprint:{n:'Velocidad 100%',c:'#ff5c5c',s:25,dv:10},
+  rest:{n:'Pausa',c:'#6f7787',s:0,dv:60}
+};
+var RUN_KO=['walk','jog','run','prog','pas','sprint','rest'];
+/* Yo-Yo IR1: niveles (velocidad km/h, cantidad de idas y vueltas de 2×20 m) */
+var YOYO1=[['5',10,1],['9',12,1],['11',13,2],['12',13.5,3],['13',14,4],['14',14.5,8],['15',15,8],['16',15.5,8],['17',16,8],['18',16.5,8],['19',17,8],['20',17.5,8],['21',18,8],['22',18.5,8],['23',19,8]];
+function yoyoInfo(d){
+  d=+d||0;var acc=0,lvl='',sp=0;
+  YOYO1.forEach(function(s){for(var b=1;b<=s[2];b++){acc+=40;if(acc<=d){lvl=s[0]+'.'+b;sp=s[1];}}});
+  var vo2=d*0.0084+36.4; /* Bangsbo et al. 2008 */
+  return {lvl:lvl,sp:sp,vo2:vo2,vam:vo2/3.5}; /* VAM ≈ VO2máx / 3,5 (costo de carrera) */
+}
+function runFmtKmh(v){return (Math.round(v*10)/10).toFixed(1).replace('.',LANG==='en'?'.':',');}
+function runRef(p){
+  if(!p)return null;var h=testHistory(p,'yoyo');var l=h[h.length-1];
+  if(!l||!(+l.v>0))return null;var i=yoyoInfo(l.v);
+  return {vam:i.vam,d:+l.v,date:l.d,lvl:i.lvl};
+}
+function runPlayer(){try{if(!currentPlayerId)return null;return PLAYERS.find(function(p){return p.id===currentPlayerId;})||null;}catch(e){return null;}}
+function runFmtT(sec){
+  sec=Math.max(0,Math.round(+sec||0));
+  if(sec<60)return sec+'″';
+  var m=Math.floor(sec/60),s=sec%60;
+  return s?m+'′'+('0'+s).slice(-2)+'″':m+'′';
+}
+function runClock(sec){sec=Math.max(0,Math.ceil(sec));var m=Math.floor(sec/60),s=sec%60;return m+':'+('0'+s).slice(-2);}
+function runDose(s){return s.m==='d'?(Math.round(+s.v||0)+' m'):runFmtT(s.v);}
+function runInt(s){
+  if(!s||s.k==='rest'||!s.iu)return '';
+  if(s.iu==='txt')return String(s.iv||'').trim();
+  if(!(+s.iv>0))return '';
+  return (+s.iv)+'% '+(s.iu==='vam'?'VAM':tr('FC máx'));
+}
+function runKName(k){return tr((RUN_K[k]||RUN_K.run).n);}
+function runRoundM(x){return x<60?Math.round(x):Math.round(x/5)*5;}
+/* metros (o tiempo objetivo) individuales para un paso a % VAM */
+function runIndiv(s,ref){
+  if(!ref||s.iu!=='vam'||!(+s.iv>0)||s.k==='rest')return null;
+  var ms=ref.vam/3.6*(+s.iv)/100;if(!(ms>0))return null;
+  return s.m==='d'?{t:(+s.v||0)/ms}:{m:runRoundM(ms*(+s.v||0))};
+}
+function runSec(s,ref){
+  if(s.m!=='d')return +s.v||0;
+  var ind=runIndiv(s,ref);if(ind&&ind.t)return ind.t;
+  var sp=(RUN_K[s.k]||RUN_K.run).s||8;return (+s.v||0)/(sp/3.6);
+}
+/* secuencia "plana" para el timer y para los totales */
+function runSeq(run){
+  var out=[];(run&&run.items||[]).forEach(function(it){
+    if(it.g){var S=Math.max(1,+it.sets||1),X=Math.max(1,+it.x||1),st=(it.steps||[]).filter(function(s){return +s.v>0;});if(!st.length)return;
+      for(var si=1;si<=S;si++){for(var r=1;r<=X;r++)st.forEach(function(s){out.push({s:s,rep:r,reps:X,set:si,sets:S});});
+        if(si<S&&+it.sr>0)out.push({s:{k:'rest',m:'t',v:+it.sr},between:true});}
+    }else if(+it.v>0)out.push({s:it});
+  });
+  return out;
+}
+function runStepTxt(s){var i=runInt(s);return runDose(s)+' '+runKName(s.k)+(i?' '+i:'');}
+function runSummary(run){
+  return (run&&run.items||[]).map(function(it){
+    if(!it.g)return runStepTxt(it);
+    var S=+it.sets||1;
+    return (S>1?S+' '+tr('series')+' · ':'')+(+it.x||1)+'× ('+(it.steps||[]).map(runStepTxt).join(' / ')+')'+(S>1&&+it.sr>0?' · '+tr('pausa')+' '+runFmtT(it.sr):'');
+  }).join(' + ');
+}
+function runShort(run){
+  var items=(run&&run.items)||[];
+  var s=items.map(function(it){
+    if(!it.g)return runDose(it)+' '+runKName(it.k);
+    var S=+it.sets||1;
+    return (S>1?S+' '+tr('series')+' · ':'')+(+it.x||1)+'×('+(it.steps||[]).map(runDose).join('/')+')';
+  }).join(' + ');
+  if(s.length>38){var tot=runTotals(run,null);s=items.length+' '+tr('bloques')+' · ≈'+runFmtT(Math.round(tot.sec/60)*60);}
+  return s;
+}
+function runTotals(run,ref){
+  var seq=runSeq(run),sec=0,m=0,mOk=true,est=false;
+  seq.forEach(function(q){var s=q.s;sec+=runSec(s,ref);if(s.m==='d'&&!(runIndiv(s,ref)||{}).t)est=true;
+    if(s.k==='rest')return;if(s.m==='d')m+=+s.v||0;else{var ind=runIndiv(s,ref);if(ind)m+=ind.m;else mOk=false;}});
+  return {sec:sec,m:mOk?m:null,est:est,n:seq.length};
+}
+function runBarHtml(run,ref){
+  var seq=runSeq(run);if(!seq.length)return '';
+  return '<div class="rn-bar">'+seq.map(function(q){var c=(RUN_K[q.s.k]||RUN_K.run).c;return '<i style="flex:'+Math.max(1,runSec(q.s,ref)).toFixed(1)+';background:'+c+';"></i>';}).join('')+'</div>';
+}
+function runLegendHtml(run){
+  var seen={},h='';runSeq(run).forEach(function(q){var k=q.s.k;if(seen[k])return;seen[k]=1;h+='<span style="--rk:'+RUN_K[k].c+'">'+runKName(k)+'</span>';});
+  return h?'<div class="rn-leg">'+h+'</div>':'';
+}
+/* líneas "tus metros" (sin repetir pasos iguales) */
+function runIndivLines(run,ref){
+  var seen={},out=[];
+  (run&&run.items||[]).forEach(function(it){(it.g?(it.steps||[]):[it]).forEach(function(s){
+    var ind=runIndiv(s,ref);if(!ind)return;var key=s.k+s.m+s.v+s.iv;if(seen[key])return;seen[key]=1;
+    out.push(runDose(s)+' '+runKName(s.k)+' '+s.iv+'% → <b>'+(ind.m!=null?ind.m+' m':runFmtT(ind.t))+'</b>');
+  });});
+  return out;
+}
+function runHasVam(run){var r=false;(run&&run.items||[]).forEach(function(it){(it.g?(it.steps||[]):[it]).forEach(function(s){if(s.iu==='vam'&&+s.iv>0&&s.k!=='rest')r=true;});});return r;}
+function runEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* --- en la sesión: barra de colores, resumen, metros individuales y botón del timer --- */
+function runExHtml(e,w,d,b,ei){
+  if(!e||!e.run||!runSeq(e.run).length)return '';
+  var p=runPlayer(),ref=runRef(p),tot=runTotals(e.run,ref);
+  var h='<div class="rn-ex">'+runBarHtml(e.run,ref)+'<div class="rn-ex-txt">'+runEsc(runSummary(e.run))+' · <b>'+(tot.est?'≈':'')+runFmtT(Math.round(tot.sec))+'</b>'+(tot.m?' · <b>'+(ref?'':'')+tot.m+' m</b>':'')+'</div>';
+  if(runHasVam(e.run)){
+    if(ref){var ls=runIndivLines(e.run,ref);
+      h+='<div class="rn-ex-txt" style="margin-top:4px;">'+(isCoach?tr('Metros de')+' '+runEsc(String((p&&p.name)||'').split(' ')[0]):tr('Tus metros'))+' (VAM '+runFmtKmh(ref.vam)+' km/h · Yo-Yo IR1 '+ref.d+' m): '+ls.join(' · ')+'</div>';}
+    else h+='<div class="rn-ex-txt" style="margin-top:4px;color:var(--muted2);">'+tr(isCoach?'Sin Yo-Yo IR1 cargado: los % VAM no se pasan a metros.':'Cargá tu Yo-Yo IR1 en Tests y vas a ver tus metros.')+'</div>';
+  }
+  h+='<button class="rn-go" onclick="event.stopPropagation();runTimerOpen('+w+','+d+','+b+','+ei+')">▶ '+tr('Timer')+'</button></div>';
+  return h;
+}
+
+/* --- editor (profe) --- */
+var runEd=null,libRunDraft=null;
+function runNewStep(k){var K=RUN_K[k]||RUN_K.jog;var s={k:k,m:'t',u:K.dv>=60&&K.dv%60===0?'min':'s',v:K.dv,iu:'',iv:''};
+  if(k==='sprint'){s.iu='txt';s.iv=tr('máx');}if(k==='pas'){s.iu='vam';s.iv=110;}if(k==='run'){s.iu='vam';s.iv=70;}return s;}
+function runStep(k,v,u,iu,iv){var s={k:k,m:u==='m'?'d':'t',u:u||'s',v:v,iu:iu||'',iv:iv==null?'':iv};return s;}
+var RUN_TPL=[
+  {n:'10-10',f:function(){return [{g:1,x:10,sets:2,sr:180,steps:[runStep('pas',10,'s','vam',120),runStep('jog',10,'s')]}];}},
+  {n:'15-15',f:function(){return [{g:1,x:10,sets:2,sr:180,steps:[runStep('pas',15,'s','vam',110),runStep('jog',15,'s')]}];}},
+  {n:'30-30',f:function(){return [{g:1,x:8,sets:2,sr:180,steps:[runStep('pas',30,'s','vam',100),runStep('jog',30,'s')]}];}},
+  {n:'Fartlek',f:function(){return [{g:1,x:4,sets:1,sr:0,steps:[runStep('walk',60,'min'),runStep('run',120,'min','vam',70),runStep('prog',30,'s'),runStep('sprint',10,'s','txt',tr('máx'))]}];}},
+  {n:'Pasadas',f:function(){return [runStep('jog',600,'min','vam',60),{g:1,x:6,sets:1,sr:0,steps:[runStep('pas',200,'m','vam',95),runStep('rest',60,'s')]}];}},
+  {n:'RSA',f:function(){return [{g:1,x:6,sets:2,sr:240,steps:[runStep('sprint',30,'m','txt',tr('máx')),runStep('rest',20,'s')]}];}},
+  {n:'Continua',f:function(){return [runStep('run',1200,'min','vam',70)];}}
+];
+function openRunModal(tgt,run,name){
+  runEd={tgt:tgt,run:JSON.parse(JSON.stringify(run||{v:1,items:[]})),had:!!run};
+  if(!runEd.run.items)runEd.run.items=[];
+  document.getElementById('rn-exname').textContent=name||'';
+  document.getElementById('rn-tpls').innerHTML=RUN_TPL.map(function(t,i){return '<button class="rn-tpl" onclick="runTpl('+i+')">'+runEsc(tr(t.n))+'</button>';}).join('');
+  document.getElementById('rn-del').style.display=runEd.had?'':'none';
+  runRender();
+  document.getElementById('modal-run').classList.add('open');
+}
+function closeRunModal(){document.getElementById('modal-run').classList.remove('open');runEd=null;}
+function runTpl(i){
+  if(!runEd)return;var go=function(){runEd.run.items=RUN_TPL[i].f();runRender();};
+  if(runEd.run.items.length)askConfirm(tr('¿Reemplazar los pasos por el modelo')+' '+tr(RUN_TPL[i].n)+'?',go,{okLabel:tr('Reemplazar')});else go();
+}
+function runGet(path){var p=String(path).split('.'),it=runEd.run.items[+p[0]];return p.length>1?it.steps[+p[1]]:it;}
+function runList(path){var p=String(path).split('.');return p.length>1?runEd.run.items[+p[0]].steps:runEd.run.items;}
+function runStepRow(s,path,inGrp){
+  var K=RUN_K[s.k]||RUN_K.run,u=s.m==='d'?'m':(s.u==='min'?'min':'s');
+  var val=u==='min'?Math.round((+s.v||0)/60*100)/100:(+s.v||'');
+  var kopt=RUN_KO.map(function(k){return '<option value="'+k+'"'+(k===s.k?' selected':'')+'>'+runEsc(runKName(k))+'</option>';}).join('');
+  var iopt=[['',tr('Sin intensidad')],['vam','% VAM'],['fc','% '+tr('FC máx')],['txt',tr('Texto')]].map(function(o){return '<option value="'+o[0]+'"'+(o[0]===(s.iu||'')?' selected':'')+'>'+o[1]+'</option>';}).join('');
+  var ivIn=s.iu==='txt'?'<input class="rn-iv" type="text" value="'+runEsc(s.iv)+'" placeholder="'+runEsc(tr('Ej: suave, máximo'))+'" onchange="runSet(\''+path+'\',\'iv\',this.value)">'
+    :(s.iu?'<input class="rn-iv" type="number" inputmode="decimal" value="'+runEsc(s.iv)+'" placeholder="%" onchange="runSet(\''+path+'\',\'iv\',this.value)">':'<span class="rn-iv"></span>');
+  return '<div class="rn-step" style="--rk:'+K.c+'">'
+    +'<div class="rn-row"><select class="rn-kind" onchange="runSet(\''+path+'\',\'k\',this.value)">'+kopt+'</select>'
+    +'<button class="rn-ib" onclick="runMove(\''+path+'\',-1)" aria-label="↑">↑</button><button class="rn-ib" onclick="runMove(\''+path+'\',1)" aria-label="↓">↓</button><button class="rn-ib rn-del" onclick="runDel(\''+path+'\')" aria-label="✕">✕</button></div>'
+    +'<div class="rn-row"><input class="rn-num" type="number" inputmode="decimal" value="'+val+'" onchange="runSet(\''+path+'\',\'v\',this.value)"><button class="rn-unit" onclick="runUnit(\''+path+'\')">'+u+'</button>'
+    +(s.k==='rest'?'':'<select class="rn-iu"'+(s.iu?'':' style="flex:1;width:auto;"')+' onchange="runSet(\''+path+'\',\'iu\',this.value)">'+iopt+'</select>'+(s.iu?ivIn:''))+'</div></div>';
+}
+function runRender(){
+  if(!runEd)return;var items=runEd.run.items,h='';
+  if(!items.length)h='<div style="font-size:13px;color:var(--muted2);padding:4px 0 12px;">'+tr('Elegí un modelo de arriba o agregá pasos.')+'</div>';
+  items.forEach(function(it,i){
+    if(!it.g){h+=runStepRow(it,String(i));return;}
+    h+='<div class="rn-grp"><div class="rn-grp-h">'
+      +'<span>'+tr('Repetir')+'</span><input type="number" inputmode="numeric" value="'+(+it.x||1)+'" onchange="runGSet('+i+',\'x\',this.value)"><span>'+tr('veces')+'</span>'
+      +'<span class="rn-sp"></span><button class="rn-ib" onclick="runMove(\''+i+'\',-1)">↑</button><button class="rn-ib" onclick="runMove(\''+i+'\',1)">↓</button><button class="rn-ib rn-del" onclick="runDel(\''+i+'\')">✕</button>'
+      +'<div style="flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;"><span>'+tr('Series')+'</span><input type="number" inputmode="numeric" value="'+(+it.sets||1)+'" onchange="runGSet('+i+',\'sets\',this.value)">'
+      +((+it.sets||1)>1?'<span>'+tr('Pausa entre series')+'</span><input type="text" style="width:70px;" value="'+runClock(+it.sr||0)+'" placeholder="3:00" onchange="runGSet('+i+',\'sr\',this.value)">':'')+'</div></div>';
+    (it.steps||[]).forEach(function(s,j){h+=runStepRow(s,i+'.'+j,true);});
+    h+='<div class="rn-add" style="margin:0 0 6px;"><button onclick="runAddStep('+i+')">+ '+tr('Paso en el bloque')+'</button></div></div>';
+  });
+  document.getElementById('rn-list').innerHTML=h;
+  runRenderSum();
+}
+function runRenderSum(){
+  var run=runEd.run,el=document.getElementById('rn-sum');
+  if(!runSeq(run).length){el.style.display='none';return;}el.style.display='';
+  var p=runEd.tgt.kind==='sess'?runPlayer():null,ref=runRef(p),tot=runTotals(run,ref);
+  var h='<b>'+runEsc(runSummary(run))+'</b>'+runBarHtml(run,ref)+runLegendHtml(run)
+    +'<div style="margin-top:6px;color:var(--muted);">'+tr('Total')+': <b style="color:var(--text);font-size:14px;">'+(tot.est?'≈ ':'')+runFmtT(Math.round(tot.sec))+'</b>'+(tot.m?' · <b style="color:var(--text);font-size:14px;">'+tot.m+' m</b>':'')+'</div>';
+  if(runHasVam(run)){
+    if(ref)h+='<div style="margin-top:6px;color:var(--muted);">'+tr('Metros de')+' '+runEsc(String(p.name||'').split(' ')[0])+' (VAM '+runFmtKmh(ref.vam)+' km/h): '+runIndivLines(run,ref).join(' · ')+'</div>';
+    else h+='<div style="margin-top:6px;color:var(--muted2);font-size:12px;">'+tr(runEd.tgt.kind==='sess'?'Este alumno no tiene Yo-Yo IR1 cargado: los % VAM no se pasan a metros.':'Los metros individuales aparecen en la sesión de cada alumno que tenga el Yo-Yo IR1 cargado.')+'</div>';
+  }
+  el.innerHTML=h;
+}
+function runParseDur(v){v=String(v||'').trim().replace(',','.');if(!v)return 0;
+  var m=v.match(/^(\d+):(\d{1,2})$/);if(m)return (+m[1])*60+(+m[2]);
+  m=v.match(/^([\d.]+)\s*(['′]|min|m)$/i);if(m)return Math.round(parseFloat(m[1])*60);
+  var n=parseFloat(v);return isFinite(n)?Math.round(n):0;}
+function runSet(path,f,v){
+  var s=runGet(path);if(!s)return;
+  if(f==='v'){var n=parseFloat(String(v).replace(',','.'));if(!(n>0))n=0;s.v=s.m==='d'?Math.round(n):Math.round(s.u==='min'?n*60:n);}
+  else if(f==='k'){s.k=v;if(v==='rest'){s.iu='';s.iv='';}else if(v==='sprint'&&!s.iu){s.iu='txt';s.iv=tr('máx');}}
+  else if(f==='iu'){s.iu=v;s.iv=v==='vam'?(s.k==='pas'?110:s.k==='run'?70:90):v==='fc'?80:'';}
+  else if(f==='iv'){s.iv=s.iu==='txt'?String(v||'').slice(0,40):(parseFloat(String(v).replace(',','.'))||'');}
+  runRender();
+}
+function runUnit(path){var s=runGet(path);if(!s)return;
+  if(s.m==='d'){s.m='t';s.u='s';s.v=(RUN_K[s.k]||RUN_K.jog).dv;}
+  else if(s.u==='min'){s.m='d';s.u='m';s.v=s.k==='sprint'?30:200;}
+  else s.u='min';
+  runRender();}
+function runGSet(i,f,v){var it=runEd.run.items[i];if(!it)return;
+  if(f==='sr')it.sr=runParseDur(v);else{var n=parseInt(v,10);it[f]=n>0?Math.min(n,f==='x'?60:20):1;}
+  runRender();}
+function runMove(path,dir){var arr=runList(path),p=String(path).split('.'),i=+p[p.length-1],j=i+dir;if(j<0||j>=arr.length)return;var t=arr[i];arr[i]=arr[j];arr[j]=t;runRender();}
+function runDel(path){var arr=runList(path),p=String(path).split('.');arr.splice(+p[p.length-1],1);runRender();}
+function runAddStep(gi){
+  if(gi!=null&&runEd.run.items[gi]){var st=runEd.run.items[gi].steps;st.push(runNewStep(st.length&&st[st.length-1].k==='pas'?'jog':'pas'));}
+  else runEd.run.items.push(runNewStep(runEd.run.items.length?'jog':'walk'));
+  runRender();
+}
+function runAddGroup(){runEd.run.items.push({g:1,x:6,sets:1,sr:0,steps:[runNewStep('pas'),runStep('jog',15,'s')]});runRender();}
+function runClean(run){
+  var items=(run.items||[]).map(function(it){if(!it.g)return it;it.steps=(it.steps||[]).filter(function(s){return +s.v>0;});return it.steps.length?it:null;}).filter(function(it){return it&&(it.g||+it.v>0);});
+  return {v:1,items:items};
+}
+function saveRun(){
+  if(!runEd)return;var run=runClean(runEd.run);
+  if(!run.items.length){showInfo(tr('Agregá al menos un paso.'));return;}
+  var t=runEd.tgt;
+  if(t.kind==='sess'){var ex=PLAN[t.w][t.d].blocks[t.b].exs[t.e];if(!ex)return;ex.run=run;ex.l=runShort(run);closeRunModal();commitSession();refreshPlanUI();toast(tr('Carrera guardada'));}
+  else{libRunDraft=run;var lo=document.getElementById('f-load');if(lo&&(!lo.value.trim()||lo.dataset.auto===lo.value)){lo.value=runShort(run);lo.dataset.auto=lo.value;}closeRunModal();libRunSum();}
+}
+function runRemove(){
+  if(!runEd)return;var t=runEd.tgt;
+  askConfirm(tr('¿Quitar el plan por pasos de este ejercicio?'),function(){
+    if(t.kind==='sess'){var ex=PLAN[t.w][t.d].blocks[t.b].exs[t.e];if(ex){var _r=ex.run;delete ex.run;if(_r&&ex.l===runShort(_r))ex.l='';}closeRunModal();commitSession();refreshPlanUI();}
+    else{libRunDraft=null;closeRunModal();libRunSum();}
+  },{danger:true,okLabel:tr('Quitar')});
+}
+/* desde la prescripción de la sesión */
+function prescToRun(){
+  if(!prescTarget)return;var t=prescTarget,ex=PLAN[t.w][t.d].blocks[t.b].exs[t.e];
+  closePrescModal();
+  openRunModal({kind:'sess',w:t.w,d:t.d,b:t.b,e:t.e},ex.run||null,ex.n);
+}
+/* desde la biblioteca */
+function openRunFromLib(){openRunModal({kind:'lib'},libRunDraft,(document.getElementById('f-name')||{}).value||'');}
+function libRunSum(){
+  var row=document.getElementById('f-run-row'),sm=document.getElementById('f-run-sum'),bt=document.getElementById('f-run-btn');if(!row)return;
+  var t=(document.getElementById('f-type')||{}).value;row.style.display=(t==='cam'||libRunDraft)?'':'none';
+  bt.textContent='🏃 '+tr(libRunDraft?'Editar pasos':'Armar por pasos');
+  sm.innerHTML=libRunDraft?'<div class="rn-ex" style="margin-top:8px;">'+runBarHtml(libRunDraft,null)+'<div class="rn-ex-txt">'+runEsc(runSummary(libRunDraft))+'</div></div>':'';
+}
+
+/* --- timer guiado (alumno) --- */
+var RT=null;
+function runTimerOpen(w,d,b,ei){
+  var ex=((((PLAN[w]||[])[d]||{}).blocks||[])[b]||{}).exs;ex=ex&&ex[ei];if(!ex||!ex.run)return;
+  var ref=runRef(runPlayer()),seq=runSeq(ex.run);if(!seq.length)return;
+  var snd=true;try{snd=localStorage.getItem('pd_run_snd')!=='0';}catch(e){}
+  RT={seq:seq,ref:ref,i:-1,run:false,acc:0,t0:0,done:false,snd:snd,name:ex.n||tr('Carrera'),beeped:{},tick:null,wl:null};
+  document.getElementById('rt-name').textContent=RT.name;
+  document.getElementById('rt-snd').textContent=snd?'🔊':'🔇';
+  document.getElementById('rt-prog').innerHTML=seq.map(function(q,i){return '<i data-i="'+i+'" style="flex:'+Math.max(1,runSec(q.s,ref)).toFixed(1)+';background:'+RUN_K[q.s.k].c+';"></i>';}).join('');
+  document.getElementById('run-timer').classList.add('open');
+  try{document.body.style.overflow='hidden';}catch(e){}
+  runTimerDraw();
+}
+function runTimerClose(){
+  var go=function(){if(!RT)return;clearInterval(RT.tick);try{if(RT.wl)RT.wl.release();}catch(e){}try{speechSynthesis.cancel();}catch(e){}RT=null;document.getElementById('run-timer').classList.remove('open');try{document.body.style.overflow='';}catch(e){}};
+  if(RT&&RT.i>=0&&!RT.done)askConfirm(tr('¿Salir del timer? Se pierde por dónde ibas.'),go,{okLabel:tr('Salir')});else go();
+}
+function runTimerSound(){if(!RT)return;RT.snd=!RT.snd;try{localStorage.setItem('pd_run_snd',RT.snd?'1':'0');}catch(e){}document.getElementById('rt-snd').textContent=RT.snd?'🔊':'🔇';}
+function runBeep(f,dur,vol){
+  if(!RT||!RT.snd)return;
+  try{var ac=RT.ac||(RT.ac=new (window.AudioContext||window.webkitAudioContext)());if(ac.state==='suspended')ac.resume();
+    var o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(vol||0.5,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+dur+0.02);}catch(e){}
+}
+function runSay(t){
+  if(!RT||!RT.snd||!window.speechSynthesis)return;
+  try{var u=new SpeechSynthesisUtterance(t);var lg=LANG==='en'?'en':(LANG==='it'?'it':'es');var vs=speechSynthesis.getVoices()||[],v=null;
+    var pref=lg==='es'?['es-AR','es-MX','es-US','es-419','es-ES','es']:[lg];
+    pref.some(function(p){v=vs.filter(function(x){return x.lang&&String(x.lang).replace('_','-').indexOf(p)===0;})[0]||null;return !!v;});
+    if(v){u.voice=v;u.lang=v.lang;}else u.lang=lg==='es'?'es-ES':(lg==='it'?'it-IT':'en-US');
+    u.rate=1.05;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+function runCur(){return RT&&RT.i>=0?RT.seq[RT.i]:null;}
+function runDur(q){if(!q)return 5;return q.s.m==='d'?null:(+q.s.v||0);} /* null = por metros: termina cuando toca "Listo" */
+function runEl(){if(!RT)return 0;return RT.acc+(RT.run?(Date.now()-RT.t0)/1000:0);}
+function runTimerToggle(){
+  if(!RT)return;
+  if(RT.done){runTimerClose();return;}
+  if(RT.run){RT.acc=runEl();RT.run=false;}
+  else{
+    runBeep(880,0.05,0.01);try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}}catch(e){}
+    try{if(navigator.wakeLock&&!RT.wl)navigator.wakeLock.request('screen').then(function(l){if(RT)RT.wl=l;}).catch(function(){});}catch(e){}
+    RT.t0=Date.now();RT.run=true;
+    if(RT.i<0&&RT.acc===0)runSay(tr('Preparate'));
+    if(!RT.tick)RT.tick=setInterval(runTimerTick,100);
+  }
+  runTimerDraw();
+}
+function runGo(i){
+  if(!RT)return;
+  if(i>=RT.seq.length){RT.done=true;RT.run=false;RT.i=RT.seq.length;runBeep(660,0.25,0.5);setTimeout(function(){runBeep(990,0.5,0.5);},260);runSay(tr('¡Terminado! Buen trabajo'));runTimerDraw();return;}
+  RT.i=Math.max(0,i);RT.acc=0;RT.t0=Date.now();RT.beeped={};
+  var q=RT.seq[RT.i],s=q.s;
+  runBeep(s.k==='rest'||s.k==='walk'||s.k==='jog'?520:1040,0.35,0.6);
+  var ind=runIndiv(s,RT.ref),say=q.between?tr('Pausa entre series'):runKName(s.k);
+  if(s.m==='d')say+=', '+Math.round(s.v)+' '+tr('metros');else if(ind&&ind.m!=null)say+=', '+ind.m+' '+tr('metros');
+  runSay(say);
+  runTimerDraw();
+}
+function runTimerNext(){if(!RT||RT.done)return;if(!RT.run&&RT.i<0){RT.run=true;RT.t0=Date.now();if(!RT.tick)RT.tick=setInterval(runTimerTick,100);}runGo(RT.i+1);}
+function runTimerPrev(){if(!RT)return;if(RT.done){RT.done=false;RT.run=true;if(!RT.tick)RT.tick=setInterval(runTimerTick,100);runGo(RT.seq.length-1);return;}if(runEl()>2||RT.i<=0){RT.acc=0;RT.t0=Date.now();RT.beeped={};runTimerDraw();return;}runGo(RT.i-1);}
+function runTimerTick(){
+  if(!RT||!RT.run||RT.done)return;
+  var q=runCur(),dur=RT.i<0?5:runDur(q),el=runEl();
+  if(dur!=null){
+    var rem=dur-el;
+    [3,2,1].forEach(function(n){if(rem<=n&&rem>n-1&&!RT.beeped[n]&&dur>n+0.5){RT.beeped[n]=1;runBeep(760,0.12,0.45);}});
+    if(rem<=0){runGo(RT.i+1);return;}
+  }
+  runTimerDraw();
+}
+function runTimerDraw(){
+  if(!RT)return;
+  var $=function(id){return document.getElementById(id);};
+  var main=$('rt-main'),q=runCur(),el=runEl();
+  [].forEach.call($('rt-prog').children,function(c){c.classList.toggle('on',+c.dataset.i<=RT.i);});
+  var leftSec=0;for(var k=Math.max(0,RT.i);k<RT.seq.length;k++)leftSec+=runSec(RT.seq[k].s,RT.ref);
+  if(q&&!RT.done)leftSec-=Math.min(el,runSec(q.s,RT.ref));
+  $('rt-left').textContent=RT.done?'':tr('Faltan')+' '+runClock(leftSec);
+  $('rt-done').style.display='none';
+  if(RT.done){
+    main.style.background='rgba(56,217,192,0.16)';main.style.border='2px solid #38d9c0';
+    $('rt-kind').textContent=tr('¡Terminado!');$('rt-kind').style.color='#38d9c0';
+    $('rt-int').textContent='';$('rt-clock').textContent='✓';$('rt-sub').textContent=tr('Buen trabajo');
+    $('rt-pos').textContent='';$('rt-next').innerHTML='';$('rt-play').textContent=tr('Cerrar');return;
+  }
+  if(!q){
+    main.style.background='rgba(255,255,255,0.05)';main.style.border='2px solid rgba(255,255,255,0.12)';
+    $('rt-kind').textContent=tr(RT.run?'Preparate':'Listo para empezar');$('rt-kind').style.color='#fff';
+    $('rt-int').textContent='';$('rt-clock').textContent=RT.run?Math.max(1,Math.ceil(5-el)):runClock(leftSec);
+    $('rt-sub').textContent=RT.run?'':tr('Duración total aprox.');
+    $('rt-pos').textContent=RT.seq.length+' '+tr('pasos');
+  }else{
+    var s=q.s,c=(RUN_K[s.k]||RUN_K.run).c,ind=runIndiv(s,RT.ref),dur=runDur(q);
+    main.style.background=c+'29';main.style.border='2px solid '+c;
+    $('rt-kind').textContent=q.between?tr('Pausa entre series'):runKName(s.k);$('rt-kind').style.color=c;
+    $('rt-int').textContent=runInt(s);
+    if(dur!=null){$('rt-clock').textContent=runClock(dur-el);$('rt-sub').innerHTML=ind&&ind.m!=null?tr('Tus metros')+': <b>'+ind.m+' m</b>':'';}
+    else{$('rt-clock').textContent=Math.round(s.v)+' m';$('rt-sub').innerHTML=runClock(el)+(ind&&ind.t?' · '+tr('Objetivo')+' <b>'+runFmtT(Math.round(ind.t))+'</b>':'');$('rt-done').style.display=RT.run?'':'none';}
+    $('rt-pos').textContent=q.reps?(tr('Rep.')+' '+q.rep+'/'+q.reps+(q.sets>1?' · '+tr('Serie')+' '+q.set+'/'+q.sets:'')):(tr('Paso')+' '+(RT.i+1)+'/'+RT.seq.length);
+  }
+  var nx=RT.seq[RT.i+1];
+  $('rt-next').innerHTML=nx?tr('Después')+': <b>'+runEsc(nx.between?tr('Pausa entre series')+' '+runDose(nx.s):runStepTxt(nx.s))+'</b>':(q?tr('Último paso'):'');
+  $('rt-play').textContent=RT.run?tr('Pausa'):(RT.i<0&&RT.acc===0?tr('Empezar'):tr('Seguir'));
+}
 
 /* ===== INFORME PDF DEL ALUMNO ===== */
 function _rpEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -8256,6 +8738,75 @@ STATIC_I18N["Terminó"]=["Finished","Finito"];
 STATIC_I18N["En curso desde las"]=["In progress since","In corso dalle"];
 STATIC_I18N["Todavía no empezó"]=["Not started yet","Non ha ancora iniziato"];
 STATIC_I18N["Completado"]=STATIC_I18N["Completado"]||["Completed","Completato"];
+STATIC_I18N["+ Bloque que se repite"]=["+ Repeating block","+ Blocco che si ripete"];
+STATIC_I18N["+ Paso"]=["+ Step","+ Step"];
+STATIC_I18N["Agregá al menos un paso."]=["Add at least one step.","Aggiungi almeno uno step."];
+STATIC_I18N["Armar por pasos"]=["Build by steps","Crea a step"];
+STATIC_I18N["Editar pasos"]=["Edit steps","Modifica step"];
+STATIC_I18N["Audio oficial del Yo-Yo IR1, conos y 25 m de espacio"]=["Official Yo-Yo IR1 audio, cones and 25 m of space","Audio ufficiale Yo-Yo IR1, coni e 25 m di spazio"];
+STATIC_I18N["Buen trabajo"]=["Good job","Ottimo lavoro"];
+STATIC_I18N["Caminar"]=["Walk","Camminata"];
+STATIC_I18N["Carrera continua"]=["Continuous run","Corsa continua"];
+STATIC_I18N["Carrera guardada"]=["Run saved","Corsa salvata"];
+STATIC_I18N["Carrera por pasos"]=["Run by steps","Corsa a step"];
+STATIC_I18N["Continua"]=["Continuous","Continua"];
+STATIC_I18N["Duración total aprox."]=["Approx. total time","Durata totale circa"];
+STATIC_I18N["Ej: suave, máximo"]=["E.g. easy, max","Es: piano, massimo"];
+STATIC_I18N["Elegí un modelo de arriba o agregá pasos."]=["Pick a template above or add steps.","Scegli un modello sopra o aggiungi step."];
+STATIC_I18N["FC máx"]=["HR max","FC max"];
+STATIC_I18N["Faltan"]=["Left","Mancano"];
+STATIC_I18N["Idas y vueltas de 20 m al ritmo de los pitidos del audio oficial, con 10 segundos de recuperación (trote suave de 5 m ida y vuelta) entre cada una. La velocidad sube por niveles. Termina la segunda vez que no llegás a la línea a tiempo. Anotá los metros totales recorridos. Con este dato la app estima tu VAM y calcula tus metros en las pasadas."]=["20 m shuttles to the beeps of the official audio, with 10 seconds of recovery (easy 5 m jog out and back) between each. Speed increases by levels. It ends the second time you fail to reach the line in time. Write down the total meters covered. With this the app estimates your MAS and calculates your meters for each run.","Navette di 20 m al ritmo dei bip dell’audio ufficiale, con 10 secondi di recupero (corsetta di 5 m andata e ritorno) tra una e l’altra. La velocità aumenta per livelli. Finisce la seconda volta che non arrivi alla linea in tempo. Annota i metri totali percorsi. Con questo dato l’app stima la tua VAM e calcola i tuoi metri nelle ripetute."];
+STATIC_I18N["Listo ✓"]=["Done ✓","Fatto ✓"];
+STATIC_I18N["Metros de"]=["Meters for","Metri di"];
+STATIC_I18N["Modelos rápidos"]=["Quick templates","Modelli rapidi"];
+STATIC_I18N["Nivel"]=["Level","Livello"];
+STATIC_I18N["Objetivo"]=["Target","Obiettivo"];
+STATIC_I18N["Pasada"]=["Rep run","Ripetuta"];
+STATIC_I18N["Pasadas"]=["Reps","Ripetute"];
+STATIC_I18N["Paso"]=["Step","Step"];
+STATIC_I18N["Paso en el bloque"]=["Step in block","Step nel blocco"];
+STATIC_I18N["Pasos"]=["Steps","Step"];
+STATIC_I18N["Pausa entre series"]=["Rest between sets","Pausa tra le serie"];
+STATIC_I18N["Profesional ~2.000–2.500 m · amateur ~1.200–1.800 m"]=["Professional ~2,000–2,500 m · amateur ~1,200–1,800 m","Professionisti ~2.000–2.500 m · amatori ~1.200–1.800 m"];
+STATIC_I18N["Progresivo"]=["Progressive","Progressivo"];
+STATIC_I18N["Quitar"]=["Remove","Rimuovi"];
+STATIC_I18N["Listo para empezar"]=["Ready to start","Pronto per iniziare"];
+STATIC_I18N["Rep."]=["Rep","Rip."];
+STATIC_I18N["Repetir"]=["Repeat","Ripeti"];
+STATIC_I18N["Se guardó el ejercicio, pero los pasos de carrera no: falta correr carrera.sql en Supabase (una sola vez)."]=["The exercise was saved, but not the run steps: carrera.sql must be run in Supabase (once).","L’esercizio è stato salvato, ma non gli step di corsa: bisogna eseguire carrera.sql su Supabase (una volta)."];
+STATIC_I18N["Serie"]=["Set","Serie"];
+STATIC_I18N["Sin intensidad"]=["No intensity","Senza intensità"];
+STATIC_I18N["Texto"]=["Text","Testo"];
+STATIC_I18N["Timer"]=["Timer","Timer"];
+STATIC_I18N["Total"]=["Total","Totale"];
+STATIC_I18N["Trote"]=["Jog","Corsetta"];
+STATIC_I18N["Tus metros"]=["Your meters","I tuoi metri"];
+STATIC_I18N["Velocidad 100%"]=["Sprint 100%","Velocità 100%"];
+STATIC_I18N["aumentar"]=["build up","aumentare"];
+STATIC_I18N["bloques"]=["blocks","blocchi"];
+STATIC_I18N["estimada"]=["estimated","stimata"];
+STATIC_I18N["Sin Yo-Yo IR1 cargado: los % VAM no se pasan a metros."]=["No Yo-Yo IR1 recorded: % MAS is not converted to meters.","Nessuno Yo-Yo IR1: le % VAM non vengono convertite in metri."];
+STATIC_I18N["Cargá tu Yo-Yo IR1 en Tests y vas a ver tus metros."]=["Log your Yo-Yo IR1 in Tests to see your meters.","Registra il tuo Yo-Yo IR1 nei Test per vedere i tuoi metri."];
+STATIC_I18N["Este alumno no tiene Yo-Yo IR1 cargado: los % VAM no se pasan a metros."]=["This athlete has no Yo-Yo IR1 recorded: % MAS is not converted to meters.","Questo atleta non ha lo Yo-Yo IR1: le % VAM non vengono convertite in metri."];
+STATIC_I18N["Los metros individuales aparecen en la sesión de cada alumno que tenga el Yo-Yo IR1 cargado."]=["Individual meters appear in the session of each athlete with a Yo-Yo IR1 recorded.","I metri individuali compaiono nella sessione di ogni atleta con lo Yo-Yo IR1."];
+STATIC_I18N["metros"]=["meters","metri"];
+STATIC_I18N["máx"]=["max","max"];
+STATIC_I18N["pasos"]=["steps","step"];
+STATIC_I18N["pausa"]=["rest","pausa"];
+STATIC_I18N["veces"]=["times","volte"];
+STATIC_I18N["¡Terminado!"]=["Finished!","Finito!"];
+STATIC_I18N["¡Terminado! Buen trabajo"]=["Finished! Good job","Finito! Ottimo lavoro"];
+STATIC_I18N["¿Quitar el plan por pasos de este ejercicio?"]=["Remove the step plan from this exercise?","Rimuovere il piano a step da questo esercizio?"];
+STATIC_I18N["¿Reemplazar los pasos por el modelo"]=["Replace the steps with the template","Sostituire gli step con il modello"];
+STATIC_I18N["¿Salir del timer? Se pierde por dónde ibas."]=["Leave the timer? Your progress will be lost.","Uscire dal timer? Perderai il punto in cui eri."];
+STATIC_I18N["Último paso"]=["Last step","Ultimo step"];
+STATIC_I18N["Empezar"]=["Start","Inizia"];
+STATIC_I18N["Salir"]=["Leave","Esci"];
+STATIC_I18N["🏃 Por pasos"]=["🏃 By steps","🏃 A step"];
+STATIC_I18N["🏃 Armar por pasos"]=["🏃 Build by steps","🏃 Crea a step"];
+STATIC_I18N["Por pasos"]=["By steps","A step"];
+STATIC_I18N["Series"]=["Sets","Serie"];
+STATIC_I18N["series"]=["sets","serie"];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
@@ -12407,7 +12958,7 @@ function prRmRender(box,exk,vid){
       if(!b){b=document.createElement('button');b.id='test-mov-btn';b.style.cssText="width:100%;padding:12px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.10);color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;";
         var ref=document.getElementById('test-fields');ref.parentNode.insertBefore(b,ref);}
       b.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'+tr(k==='cmj'?'Medir con video':'Filmar con análisis');
-      b.onclick=function(){openMov({pid:testTargetPid||currentPlayerId,testKey:k});};
+      b.onclick=function(){openMov({pid:testTargetPid||currentPlayerId,testKey:k});};b.style.display=k==='yoyo'?'none':'';
     }catch(e){console.warn(e);}
   };
 })();
