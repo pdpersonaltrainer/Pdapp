@@ -783,7 +783,8 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 .rn-ex-txt{font-size:12px;color:var(--muted);line-height:1.45;}
 .rn-ex-txt b{color:var(--text);font-weight:700;}
 .rn-go{margin-top:7px;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;border:none;background:var(--cam);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
-.rn-lib-btn{width:100%;padding:11px;border-radius:var(--rsm);border:1.5px solid var(--cam);background:rgba(56,217,192,0.08);color:var(--cam);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.pr-type .pr-ic,.rn-lib-btn .pr-ic{width:15px;height:15px;flex:none;margin-right:5px;}
+.rn-lib-btn{display:flex;align-items:center;justify-content:center;width:100%;padding:11px;border-radius:var(--rsm);border:1.5px solid var(--cam);background:rgba(56,217,192,0.08);color:var(--cam);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
 /* timer del alumno */
 #run-timer{position:fixed;inset:0;z-index:900;background:#0b0d12;color:#fff;display:none;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));box-sizing:border-box;font-family:'Barlow',sans-serif;}
 #run-timer.open{display:flex;}
@@ -1395,7 +1396,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       </label>
     </div>
     <div class="form-row"><label>Series / Reps / Carga</label><input type="text" id="f-load" placeholder="Ej: 4x6 @80kg"/></div>
-    <div class="form-row" id="f-run-row" style="display:none;"><button type="button" class="rn-lib-btn" id="f-run-btn" onclick="openRunFromLib()">🏃 Armar por pasos</button><div id="f-run-sum"></div></div>
+    <div class="form-row" id="f-run-row" style="display:none;"><button type="button" class="rn-lib-btn" id="f-run-btn" onclick="openRunFromLib()"><svg class="pr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg><span id="f-run-btn-t">Planificar carrera</span></button><div id="f-run-sum"></div></div>
     <div class="form-row"><label>Nota técnica</label><textarea id="f-note" placeholder="Descripción, cues técnicos..."></textarea></div>
     <div class="form-row"><label>Video (YouTube)</label><input type="url" id="f-link" placeholder="https://youtu.be/..."/>
       <div id="yt-hint" style="font-size:11.5px;color:var(--muted2);margin-top:6px;line-height:1.45;">💡 Subí el video a YouTube como «No listado» y pegá el link acá.</div>
@@ -1412,14 +1413,14 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 <div class="modal-overlay" id="modal-run">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h3 style="margin-bottom:4px;">Carrera por pasos</h3>
+    <h3 style="margin-bottom:4px;">Planificar carrera</h3>
     <div id="rn-exname" style="font-size:13px;color:var(--muted);margin-bottom:14px;"></div>
     <div class="rn-lbl">Modelos rápidos</div>
     <div class="rn-tpls" id="rn-tpls"></div>
-    <div class="rn-lbl">Pasos</div>
+    <div class="rn-lbl">Tramos</div>
     <div id="rn-list"></div>
     <div class="rn-add">
-      <button onclick="runAddStep()">+ Paso</button>
+      <button onclick="runAddStep()">+ Tramo</button>
       <button onclick="runAddGroup()">+ Bloque que se repite</button>
     </div>
     <div class="rn-sum" id="rn-sum"></div>
@@ -1593,10 +1594,10 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
     <h3 style="margin-top:0;">Prescripción</h3>
     <div style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Tipo</div>
     <div style="display:flex;gap:6px;margin-bottom:16px;">
-      <button class="pr-type cv-btn" id="pr-type-reps" onclick="setPrescType('reps')">⚡ Reps</button>
-      <button class="pr-type cv-btn" id="pr-type-time" onclick="setPrescType('time')">⏱ Tiempo</button>
-      <button class="pr-type cv-btn" id="pr-type-dist" onclick="setPrescType('dist')">📏 Distancia</button>
-      <button class="pr-type cv-btn" id="pr-type-run" onclick="prescToRun()">🏃 Por pasos</button>
+      <button class="pr-type cv-btn" id="pr-type-reps" onclick="setPrescType('reps')"><svg class="pr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg><span>Reps</span></button>
+      <button class="pr-type cv-btn" id="pr-type-time" onclick="setPrescType('time')"><svg class="pr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M10 2h4"/></svg><span>Tiempo</span></button>
+      <button class="pr-type cv-btn" id="pr-type-dist" onclick="setPrescType('dist')"><svg class="pr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15.5L15.5 3 21 8.5 8.5 21z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></svg><span>Distancia</span></button>
+      <button class="pr-type cv-btn" id="pr-type-run" onclick="prescToRun()"><svg class="pr-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg><span>Carrera</span></button>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:14px;">
       <div style="flex:1;"><div class="pr-lbl">Series</div><input type="number" id="pr-sets" inputmode="numeric" oninput="updatePrescPreview();renderPrescSets()" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px;font-size:15px;color:var(--text);outline:none;text-align:center;"/></div>
@@ -1978,7 +1979,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261029-1';
+var APP_VERSION='20261029-2';
 (function(){
   try{
     setTimeout(function(){
@@ -6880,14 +6881,14 @@ async function saveLibExercise(){
   showSyncStatus('saving');
   if(editingLibId){
     var r=await sb.from('exercises').update(fields).eq('id',editingLibId);
-    if(_runMiss(r)){delete fields.run;r=await sb.from('exercises').update(fields).eq('id',editingLibId);if(!r.error)setTimeout(function(){showInfo(tr('Se guardó el ejercicio, pero los pasos de carrera no: falta correr carrera.sql en Supabase (una sola vez).'));},300);}
+    if(_runMiss(r)){delete fields.run;r=await sb.from('exercises').update(fields).eq('id',editingLibId);if(!r.error)setTimeout(function(){showInfo(tr('Se guardó el ejercicio, pero la planificación de carrera no: falta correr carrera.sql en Supabase (una sola vez).'));},300);}
     if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
     var idx=LIB.findIndex(function(e){return e.id===editingLibId;});
     if(idx>=0){for(var k in fields)LIB[idx][k]=fields[k];}
   }else{
     var payload={trainer_id:MY_UID,is_base:false};for(var k in fields)payload[k]=fields[k];
     var ins=await sb.from('exercises').insert(payload).select('*').single();
-    if(_runMiss(ins)){delete payload.run;delete fields.run;ins=await sb.from('exercises').insert(payload).select('*').single();if(!ins.error)setTimeout(function(){showInfo(tr('Se guardó el ejercicio, pero los pasos de carrera no: falta correr carrera.sql en Supabase (una sola vez).'));},300);}
+    if(_runMiss(ins)){delete payload.run;delete fields.run;ins=await sb.from('exercises').insert(payload).select('*').single();if(!ins.error)setTimeout(function(){showInfo(tr('Se guardó el ejercicio, pero la planificación de carrera no: falta correr carrera.sql en Supabase (una sola vez).'));},300);}
     if(ins.error){showSyncStatus('error');showInfo('Error: '+ins.error.message);return;}
     LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',pattern:ins.data.pattern||null,run:ins.data.run||fields.run||null,is_base:!!ins.data.is_base,org_id:ins.data.org_id||null,trainer_id:ins.data.trainer_id||MY_UID});
   }
@@ -7961,7 +7962,7 @@ function openRunModal(tgt,run,name){
 function closeRunModal(){document.getElementById('modal-run').classList.remove('open');runEd=null;}
 function runTpl(i){
   if(!runEd)return;var go=function(){runEd.run.items=RUN_TPL[i].f();runRender();};
-  if(runEd.run.items.length)askConfirm(tr('¿Reemplazar los pasos por el modelo')+' '+tr(RUN_TPL[i].n)+'?',go,{okLabel:tr('Reemplazar')});else go();
+  if(runEd.run.items.length)askConfirm(tr('¿Reemplazar los tramos por el modelo')+' '+tr(RUN_TPL[i].n)+'?',go,{okLabel:tr('Reemplazar')});else go();
 }
 function runGet(path){var p=String(path).split('.'),it=runEd.run.items[+p[0]];return p.length>1?it.steps[+p[1]]:it;}
 function runList(path){var p=String(path).split('.');return p.length>1?runEd.run.items[+p[0]].steps:runEd.run.items;}
@@ -7980,7 +7981,7 @@ function runStepRow(s,path,inGrp){
 }
 function runRender(){
   if(!runEd)return;var items=runEd.run.items,h='';
-  if(!items.length)h='<div style="font-size:13px;color:var(--muted2);padding:4px 0 12px;">'+tr('Elegí un modelo de arriba o agregá pasos.')+'</div>';
+  if(!items.length)h='<div style="font-size:13px;color:var(--muted2);padding:4px 0 12px;">'+tr('Elegí un modelo de arriba o agregá tramos.')+'</div>';
   items.forEach(function(it,i){
     if(!it.g){h+=runStepRow(it,String(i));return;}
     h+='<div class="rn-grp"><div class="rn-grp-h">'
@@ -7989,7 +7990,7 @@ function runRender(){
       +'<div style="flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;"><span>'+tr('Series')+'</span><input type="number" inputmode="numeric" value="'+(+it.sets||1)+'" onchange="runGSet('+i+',\'sets\',this.value)">'
       +((+it.sets||1)>1?'<span>'+tr('Pausa entre series')+'</span><input type="text" style="width:70px;" value="'+runClock(+it.sr||0)+'" placeholder="3:00" onchange="runGSet('+i+',\'sr\',this.value)">':'')+'</div></div>';
     (it.steps||[]).forEach(function(s,j){h+=runStepRow(s,i+'.'+j,true);});
-    h+='<div class="rn-add" style="margin:0 0 6px;"><button onclick="runAddStep('+i+')">+ '+tr('Paso en el bloque')+'</button></div></div>';
+    h+='<div class="rn-add" style="margin:0 0 6px;"><button onclick="runAddStep('+i+')">+ '+tr('Tramo en el bloque')+'</button></div></div>';
   });
   document.getElementById('rn-list').innerHTML=h;
   runRenderSum();
@@ -8040,14 +8041,14 @@ function runClean(run){
 }
 function saveRun(){
   if(!runEd)return;var run=runClean(runEd.run);
-  if(!run.items.length){showInfo(tr('Agregá al menos un paso.'));return;}
+  if(!run.items.length){showInfo(tr('Agregá al menos un tramo.'));return;}
   var t=runEd.tgt;
   if(t.kind==='sess'){var ex=PLAN[t.w][t.d].blocks[t.b].exs[t.e];if(!ex)return;ex.run=run;ex.l=runShort(run);closeRunModal();commitSession();refreshPlanUI();toast(tr('Carrera guardada'));}
   else{libRunDraft=run;var lo=document.getElementById('f-load');if(lo&&(!lo.value.trim()||lo.dataset.auto===lo.value)){lo.value=runShort(run);lo.dataset.auto=lo.value;}closeRunModal();libRunSum();}
 }
 function runRemove(){
   if(!runEd)return;var t=runEd.tgt;
-  askConfirm(tr('¿Quitar el plan por pasos de este ejercicio?'),function(){
+  askConfirm(tr('¿Quitar la planificación de carrera de este ejercicio?'),function(){
     if(t.kind==='sess'){var ex=PLAN[t.w][t.d].blocks[t.b].exs[t.e];if(ex){var _r=ex.run;delete ex.run;if(_r&&ex.l===runShort(_r))ex.l='';}closeRunModal();commitSession();refreshPlanUI();}
     else{libRunDraft=null;closeRunModal();libRunSum();}
   },{danger:true,okLabel:tr('Quitar')});
@@ -8063,7 +8064,7 @@ function openRunFromLib(){openRunModal({kind:'lib'},libRunDraft,(document.getEle
 function libRunSum(){
   var row=document.getElementById('f-run-row'),sm=document.getElementById('f-run-sum'),bt=document.getElementById('f-run-btn');if(!row)return;
   var t=(document.getElementById('f-type')||{}).value;row.style.display=(t==='cam'||libRunDraft)?'':'none';
-  bt.textContent='🏃 '+tr(libRunDraft?'Editar pasos':'Armar por pasos');
+  document.getElementById('f-run-btn-t').textContent=tr(libRunDraft?'Editar carrera':'Planificar carrera');
   sm.innerHTML=libRunDraft?'<div class="rn-ex" style="margin-top:8px;">'+runBarHtml(libRunDraft,null)+'<div class="rn-ex-txt">'+runEsc(runSummary(libRunDraft))+'</div></div>':'';
 }
 
@@ -8159,7 +8160,7 @@ function runTimerDraw(){
     $('rt-kind').textContent=tr(RT.run?'Preparate':'Listo para empezar');$('rt-kind').style.color='#fff';
     $('rt-int').textContent='';$('rt-clock').textContent=RT.run?Math.max(1,Math.ceil(5-el)):runClock(leftSec);
     $('rt-sub').textContent=RT.run?'':tr('Duración total aprox.');
-    $('rt-pos').textContent=RT.seq.length+' '+tr('pasos');
+    $('rt-pos').textContent=RT.seq.length+' '+tr('tramos');
   }else{
     var s=q.s,c=(RUN_K[s.k]||RUN_K.run).c,ind=runIndiv(s,RT.ref),dur=runDur(q);
     main.style.background=c+'29';main.style.border='2px solid '+c;
@@ -8167,10 +8168,10 @@ function runTimerDraw(){
     $('rt-int').textContent=runInt(s);
     if(dur!=null){$('rt-clock').textContent=runClock(dur-el);$('rt-sub').innerHTML=ind&&ind.m!=null?tr('Tus metros')+': <b>'+ind.m+' m</b>':'';}
     else{$('rt-clock').textContent=Math.round(s.v)+' m';$('rt-sub').innerHTML=runClock(el)+(ind&&ind.t?' · '+tr('Objetivo')+' <b>'+runFmtT(Math.round(ind.t))+'</b>':'');$('rt-done').style.display=RT.run?'':'none';}
-    $('rt-pos').textContent=q.reps?(tr('Rep.')+' '+q.rep+'/'+q.reps+(q.sets>1?' · '+tr('Serie')+' '+q.set+'/'+q.sets:'')):(tr('Paso')+' '+(RT.i+1)+'/'+RT.seq.length);
+    $('rt-pos').textContent=q.reps?(tr('Rep.')+' '+q.rep+'/'+q.reps+(q.sets>1?' · '+tr('Serie')+' '+q.set+'/'+q.sets:'')):(tr('Tramo')+' '+(RT.i+1)+'/'+RT.seq.length);
   }
   var nx=RT.seq[RT.i+1];
-  $('rt-next').innerHTML=nx?tr('Después')+': <b>'+runEsc(nx.between?tr('Pausa entre series')+' '+runDose(nx.s):runStepTxt(nx.s))+'</b>':(q?tr('Último paso'):'');
+  $('rt-next').innerHTML=nx?tr('Después')+': <b>'+runEsc(nx.between?tr('Pausa entre series')+' '+runDose(nx.s):runStepTxt(nx.s))+'</b>':(q?tr('Último tramo'):'');
   $('rt-play').textContent=RT.run?tr('Pausa'):(RT.i<0&&RT.acc===0?tr('Empezar'):tr('Seguir'));
 }
 
@@ -8739,20 +8740,14 @@ STATIC_I18N["En curso desde las"]=["In progress since","In corso dalle"];
 STATIC_I18N["Todavía no empezó"]=["Not started yet","Non ha ancora iniziato"];
 STATIC_I18N["Completado"]=STATIC_I18N["Completado"]||["Completed","Completato"];
 STATIC_I18N["+ Bloque que se repite"]=["+ Repeating block","+ Blocco che si ripete"];
-STATIC_I18N["+ Paso"]=["+ Step","+ Step"];
-STATIC_I18N["Agregá al menos un paso."]=["Add at least one step.","Aggiungi almeno uno step."];
-STATIC_I18N["Armar por pasos"]=["Build by steps","Crea a step"];
-STATIC_I18N["Editar pasos"]=["Edit steps","Modifica step"];
 STATIC_I18N["Audio oficial del Yo-Yo IR1, conos y 25 m de espacio"]=["Official Yo-Yo IR1 audio, cones and 25 m of space","Audio ufficiale Yo-Yo IR1, coni e 25 m di spazio"];
 STATIC_I18N["Buen trabajo"]=["Good job","Ottimo lavoro"];
 STATIC_I18N["Caminar"]=["Walk","Camminata"];
 STATIC_I18N["Carrera continua"]=["Continuous run","Corsa continua"];
 STATIC_I18N["Carrera guardada"]=["Run saved","Corsa salvata"];
-STATIC_I18N["Carrera por pasos"]=["Run by steps","Corsa a step"];
 STATIC_I18N["Continua"]=["Continuous","Continua"];
 STATIC_I18N["Duración total aprox."]=["Approx. total time","Durata totale circa"];
 STATIC_I18N["Ej: suave, máximo"]=["E.g. easy, max","Es: piano, massimo"];
-STATIC_I18N["Elegí un modelo de arriba o agregá pasos."]=["Pick a template above or add steps.","Scegli un modello sopra o aggiungi step."];
 STATIC_I18N["FC máx"]=["HR max","FC max"];
 STATIC_I18N["Faltan"]=["Left","Mancano"];
 STATIC_I18N["Idas y vueltas de 20 m al ritmo de los pitidos del audio oficial, con 10 segundos de recuperación (trote suave de 5 m ida y vuelta) entre cada una. La velocidad sube por niveles. Termina la segunda vez que no llegás a la línea a tiempo. Anotá los metros totales recorridos. Con este dato la app estima tu VAM y calcula tus metros en las pasadas."]=["20 m shuttles to the beeps of the official audio, with 10 seconds of recovery (easy 5 m jog out and back) between each. Speed increases by levels. It ends the second time you fail to reach the line in time. Write down the total meters covered. With this the app estimates your MAS and calculates your meters for each run.","Navette di 20 m al ritmo dei bip dell’audio ufficiale, con 10 secondi di recupero (corsetta di 5 m andata e ritorno) tra una e l’altra. La velocità aumenta per livelli. Finisce la seconda volta che non arrivi alla linea in tempo. Annota i metri totali percorsi. Con questo dato l’app stima la tua VAM e calcola i tuoi metri nelle ripetute."];
@@ -8763,8 +8758,6 @@ STATIC_I18N["Nivel"]=["Level","Livello"];
 STATIC_I18N["Objetivo"]=["Target","Obiettivo"];
 STATIC_I18N["Pasada"]=["Rep run","Ripetuta"];
 STATIC_I18N["Pasadas"]=["Reps","Ripetute"];
-STATIC_I18N["Paso"]=["Step","Step"];
-STATIC_I18N["Paso en el bloque"]=["Step in block","Step nel blocco"];
 STATIC_I18N["Pasos"]=["Steps","Step"];
 STATIC_I18N["Pausa entre series"]=["Rest between sets","Pausa tra le serie"];
 STATIC_I18N["Profesional ~2.000–2.500 m · amateur ~1.200–1.800 m"]=["Professional ~2,000–2,500 m · amateur ~1,200–1,800 m","Professionisti ~2.000–2.500 m · amatori ~1.200–1.800 m"];
@@ -8773,7 +8766,6 @@ STATIC_I18N["Quitar"]=["Remove","Rimuovi"];
 STATIC_I18N["Listo para empezar"]=["Ready to start","Pronto per iniziare"];
 STATIC_I18N["Rep."]=["Rep","Rip."];
 STATIC_I18N["Repetir"]=["Repeat","Ripeti"];
-STATIC_I18N["Se guardó el ejercicio, pero los pasos de carrera no: falta correr carrera.sql en Supabase (una sola vez)."]=["The exercise was saved, but not the run steps: carrera.sql must be run in Supabase (once).","L’esercizio è stato salvato, ma non gli step di corsa: bisogna eseguire carrera.sql su Supabase (una volta)."];
 STATIC_I18N["Serie"]=["Set","Serie"];
 STATIC_I18N["Sin intensidad"]=["No intensity","Senza intensità"];
 STATIC_I18N["Texto"]=["Text","Testo"];
@@ -8791,22 +8783,29 @@ STATIC_I18N["Este alumno no tiene Yo-Yo IR1 cargado: los % VAM no se pasan a met
 STATIC_I18N["Los metros individuales aparecen en la sesión de cada alumno que tenga el Yo-Yo IR1 cargado."]=["Individual meters appear in the session of each athlete with a Yo-Yo IR1 recorded.","I metri individuali compaiono nella sessione di ogni atleta con lo Yo-Yo IR1."];
 STATIC_I18N["metros"]=["meters","metri"];
 STATIC_I18N["máx"]=["max","max"];
-STATIC_I18N["pasos"]=["steps","step"];
 STATIC_I18N["pausa"]=["rest","pausa"];
 STATIC_I18N["veces"]=["times","volte"];
 STATIC_I18N["¡Terminado!"]=["Finished!","Finito!"];
 STATIC_I18N["¡Terminado! Buen trabajo"]=["Finished! Good job","Finito! Ottimo lavoro"];
-STATIC_I18N["¿Quitar el plan por pasos de este ejercicio?"]=["Remove the step plan from this exercise?","Rimuovere il piano a step da questo esercizio?"];
-STATIC_I18N["¿Reemplazar los pasos por el modelo"]=["Replace the steps with the template","Sostituire gli step con il modello"];
 STATIC_I18N["¿Salir del timer? Se pierde por dónde ibas."]=["Leave the timer? Your progress will be lost.","Uscire dal timer? Perderai il punto in cui eri."];
-STATIC_I18N["Último paso"]=["Last step","Ultimo step"];
 STATIC_I18N["Empezar"]=["Start","Inizia"];
 STATIC_I18N["Salir"]=["Leave","Esci"];
-STATIC_I18N["🏃 Por pasos"]=["🏃 By steps","🏃 A step"];
-STATIC_I18N["🏃 Armar por pasos"]=["🏃 Build by steps","🏃 Crea a step"];
-STATIC_I18N["Por pasos"]=["By steps","A step"];
 STATIC_I18N["Series"]=["Sets","Serie"];
 STATIC_I18N["series"]=["sets","serie"];
+STATIC_I18N["+ Tramo"]=["+ Segment","+ Tratto"];
+STATIC_I18N["Tramos"]=["Segments","Tratti"];
+STATIC_I18N["Tramo"]=["Segment","Tratto"];
+STATIC_I18N["tramos"]=["segments","tratti"];
+STATIC_I18N["Agregá al menos un tramo."]=["Add at least one segment.","Aggiungi almeno un tratto."];
+STATIC_I18N["Planificar carrera"]=["Plan run","Pianifica corsa"];
+STATIC_I18N["Editar carrera"]=["Edit run","Modifica corsa"];
+STATIC_I18N["Elegí un modelo de arriba o agregá tramos."]=["Pick a template above or add segments.","Scegli un modello sopra o aggiungi tratti."];
+STATIC_I18N["Tramo en el bloque"]=["Segment in block","Tratto nel blocco"];
+STATIC_I18N["Se guardó el ejercicio, pero la planificación de carrera no: falta correr carrera.sql en Supabase (una sola vez)."]=["The exercise was saved, but not the run plan: carrera.sql must be run in Supabase (once).","L’esercizio è stato salvato, ma non la pianificazione della corsa: bisogna eseguire carrera.sql su Supabase (una volta)."];
+STATIC_I18N["¿Quitar la planificación de carrera de este ejercicio?"]=["Remove the run plan from this exercise?","Rimuovere la pianificazione della corsa da questo esercizio?"];
+STATIC_I18N["¿Reemplazar los tramos por el modelo"]=["Replace the segments with the template","Sostituire i tratti con il modello"];
+STATIC_I18N["Último tramo"]=["Last segment","Ultimo tratto"];
+STATIC_I18N["Carrera"]=["Run","Corsa"];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
