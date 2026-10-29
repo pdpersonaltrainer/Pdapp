@@ -1983,7 +1983,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261029-3';
+var APP_VERSION='20261029-4';
 (function(){
   try{
     setTimeout(function(){
@@ -7724,7 +7724,7 @@ function openTestModal(k){
     f.innerHTML='<div style="display:flex;gap:10px;"><div style="flex:1;"><label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Izquierda')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-l" style="'+st+'"/></div><div style="flex:1;"><label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Derecha')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-r" style="'+st+'"/></div></div>';
   } else {
     f.innerHTML='<label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Resultado')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-v" style="'+st+'"/>'+(k==='yoyo'?'<div id="test-yoyo" style="font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.45;"></div>':'');
-    if(k==='yoyo'){var _yv=document.getElementById('test-v'),_yo=function(){var v=+_yv.value,el=document.getElementById('test-yoyo');if(!el)return;if(!(v>0)){el.textContent=last?tr('Último')+': '+last.v+' m · VAM '+runFmtKmh(yoyoInfo(last.v).vam)+' km/h':'';return;}var i=yoyoInfo(v);el.innerHTML=tr('Nivel')+' <b>'+(i.lvl||'—')+'</b> · VO₂máx ≈ <b>'+Math.round(i.vo2)+'</b> · VAM '+tr('estimada')+' <b>'+runFmtKmh(i.vam)+' km/h</b>';};_yv.oninput=_yo;_yo();}
+    if(k==='yoyo'){var _yv=document.getElementById('test-v'),_yo=function(){var v=+_yv.value,el=document.getElementById('test-yoyo');if(!el)return;if(!(v>0)){el.textContent=last?tr('Último')+': '+last.v+' m · VAM '+runFmtKmh(yoyoInfo(last.v).vam)+' km/h':'';return;}var i=yoyoInfo(v);el.innerHTML=tr('Nivel')+' <b>'+(i.lvl||'—')+'</b> · VO₂max ≈ <b>'+Math.round(i.vo2)+'</b> · VAM '+tr('estimada')+' <b>'+runFmtKmh(i.vam)+' km/h</b>';};_yv.oninput=_yo;_yo();}
   }
   var hist=document.getElementById('test-hist');
   hist.innerHTML=h.length?('<div class="sum-lbl">'+tr('Historial')+'</div>'+h.slice(-6).reverse().map(function(e){
@@ -8837,6 +8837,10 @@ STATIC_I18N["Opcional: los tramos se repiten hasta completarlo."]=["Optional: se
 STATIC_I18N["Vuelta"]=["Round","Giro"];
 STATIC_I18N["durante"]=["for","per"];
 STATIC_I18N["min"]=["min","min"];
+STATIC_I18N["Rodilla tapada: mido cadera y tronco"]=STATIC_I18N["Rodilla tapada: mido cadera y tronco"]||["Knee hidden: measuring hip and trunk","Ginocchio coperto: misuro anca e tronco"];
+STATIC_I18N["bloque"]=STATIC_I18N["bloque"]||["block","blocco"];
+STATIC_I18N["Tiempo"]=STATIC_I18N["Tiempo"]||["Time","Tempo"];
+STATIC_I18N["Distancia"]=STATIC_I18N["Distancia"]||["Distance","Distanza"];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
