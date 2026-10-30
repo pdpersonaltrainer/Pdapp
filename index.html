@@ -1983,7 +1983,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261029-4';
+var APP_VERSION='20261030-1';
 (function(){
   try{
     setTimeout(function(){
@@ -7578,7 +7578,7 @@ function renderChatThread(){
     var when=fmtDateShort(m.created_at.slice(0,10))+' '+hh;
     return '<div style="display:flex;justify-content:'+(isMine?'flex-end':'flex-start')+';margin-bottom:8px;"><div style="max-width:78%;background:'+(isMine?'rgba(168,224,99,0.14)':'var(--s1)')+';border:1px solid '+(isMine?'var(--mob)':'var(--border)')+';border-radius:14px;border-'+(isMine?'bottom-right':'bottom-left')+'-radius:4px;padding:9px 13px;"><div style="font-size:14px;color:var(--text);line-height:1.45;white-space:pre-wrap;word-break:break-word;">'+escapeChat(m.body)+'</div><div style="font-size:9px;color:var(--muted2);margin-top:4px;text-align:right;">'+when+'</div></div></div>';
   }).join(''):'<div style="text-align:center;color:var(--muted2);padding:26px 0;font-size:13px;">Todav\u00eda no hay mensajes. \u00a1Escrib\u00ed el primero!</div>';
-  var input='<div style="display:flex;gap:8px;margin-top:14px;"><textarea id="chat-input" placeholder="'+TT('chatPh')+'" rows="1" style="flex:1;min-width:0;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:11px 14px;font-family:Barlow,sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea><button onclick="sendChat()" style="flex:none;width:46px;height:46px;border-radius:50%;border:none;background:var(--mobfill);color:#0a0b0e;font-size:18px;font-weight:800;cursor:pointer;">\u27a4</button></div>';
+  var input='<div style="display:flex;gap:8px;margin-top:14px;"><textarea id="chat-input" name="pd-chat-msg" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" data-lpignore="true" data-1p-ignore="true" placeholder="'+TT('chatPh')+'" rows="1" style="flex:1;min-width:0;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:11px 14px;font-family:Barlow,sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea><button onclick="sendChat()" style="flex:none;width:46px;height:46px;border-radius:50%;border:none;background:var(--mobfill);color:#0a0b0e;font-size:18px;font-weight:800;cursor:pointer;">\u27a4</button></div>';
   mc.innerHTML=top+'<div id="chat-scroll" style="max-height:56vh;overflow-y:auto;padding:2px;">'+bubbles+'</div>'+input;
   var sc=document.getElementById('chat-scroll');if(sc)sc.scrollTop=sc.scrollHeight;
 }
@@ -8201,6 +8201,26 @@ function runTimerDraw(){
   $('rt-play').textContent=RT.run?tr('Pausa'):(RT.i<0&&RT.acc===0?tr('Empezar'):tr('Seguir'));
 }
 
+
+/* iPad/iPhone: si hay campos de contraseña escondidos (login, cambio de clave), Safari ofrece
+   "contraseña de este sitio" en cualquier casillero y saca el diccionario/predicción.
+   Mientras no se ven, se convierten en texto común; cuando se vuelven a mostrar, vuelven a ser contraseña. */
+(function(){
+  function vis(el){return !!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);}
+  function guard(){
+    try{
+      var pw=document.querySelectorAll('input[type="password"]');
+      for(var i=0;i<pw.length;i++){var el=pw[i];if(!vis(el)){el.setAttribute('data-pw',el.getAttribute('autocomplete')||'1');el.type='text';el.setAttribute('autocomplete','off');el.value='';}}
+      var back=document.querySelectorAll('input[data-pw]');
+      for(var j=0;j<back.length;j++){var b=back[j];if(vis(b)){var ac=b.getAttribute('data-pw');b.type='password';if(ac&&ac!=='1')b.setAttribute('autocomplete',ac);else b.removeAttribute('autocomplete');b.removeAttribute('data-pw');}}
+      var tf=document.querySelectorAll('textarea:not([autocomplete])');
+      for(var k=0;k<tf.length;k++){tf[k].setAttribute('autocomplete','off');tf[k].setAttribute('autocorrect','on');tf[k].setAttribute('spellcheck','true');}
+    }catch(e){}
+  }
+  ['touchstart','mousedown','focusin'].forEach(function(ev){document.addEventListener(ev,guard,true);});
+  document.addEventListener('visibilitychange',guard);
+  setTimeout(guard,1500);setInterval(guard,5000);
+})();
 /* ===== INFORME PDF DEL ALUMNO ===== */
 function _rpEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 var _RP_MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
