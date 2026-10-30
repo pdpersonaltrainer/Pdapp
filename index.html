@@ -1983,7 +1983,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261030-1';
+var APP_VERSION='20261030-2';
 (function(){
   try{
     setTimeout(function(){
@@ -12132,7 +12132,9 @@ function mvView(L){
 function mvOneSide(L){
   if(!L)return null;
   if(MV_VIEW_EX[MV.ex]){var vw=mvView(L);
-    if(vw==='front'||MV.ex==='valgus'||MV.ex==='lunge'){var mb={};MV_LEG_BOTH.forEach(function(i){mb[i]=1;});return mb;}}
+    if(vw==='front'||MV.ex==='valgus'||MV.ex==='lunge'){var mb={};MV_LEG_BOTH.forEach(function(i){mb[i]=1;});
+      /* peso muerto de frente: al agacharse los hombros quedan encima de la cadera y se mezclan; solo se mide la pierna */
+      if(vw==='front'&&MV.ex==='deadlift'){delete mb[11];delete mb[12];}return mb;}}
   if(!MV_ONE_EX[MV.ex])return null;
   var sd;
   if(MV.ex==='ankle')sd=MV.side==='r'?'R':'L';
