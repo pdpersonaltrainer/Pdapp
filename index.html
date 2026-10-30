@@ -2156,7 +2156,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261030-6';
+var APP_VERSION='20261030-7';
 (function(){
   try{
     setTimeout(function(){
@@ -9939,6 +9939,7 @@ STATIC_I18N["Conos, cinta métrica y fotocélulas o cronómetro"]=STATIC_I18N["C
 STATIC_I18N["Mis tests"]=STATIC_I18N["Mis tests"]||["My tests","I miei test"];
 STATIC_I18N["Fuerza"]=STATIC_I18N["Fuerza"]||["Strength","Forza"];
 STATIC_I18N["Aeróbicos"]=STATIC_I18N["Aeróbicos"]||["Aerobic","Aerobici"];
+STATIC_I18N["30-15 IFT, Yo-Yo, Bronco, Navette, submáximo y escalón, con pitidos y voz desde la app."]=STATIC_I18N["30-15 IFT, Yo-Yo, Bronco, Navette, submáximo y escalón, con pitidos y voz desde la app."]||["30-15 IFT, Yo-Yo, Bronco, Navette, submaximal and step test, with beeps and voice from the app.","30-15 IFT, Yo-Yo, Bronco, Navette, submassimale e step test, con bip e voce dall’app."];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
@@ -14081,7 +14082,9 @@ function prRmRender(box,exk,vid){
     try{
       var box=document.getElementById('tests-screen');if(!box||!testsOpenPid)return;
       var idx=PLAYERS.findIndex(function(p){return p.id===testsOpenPid;});var card=box.children[idx];if(!card)return;
-      var d=document.createElement('div');d.style.cssText='border-top:1px solid var(--border2);padding:2px 13px 12px;';d.innerHTML=mvSectionHtml(testsOpenPid)+rmSectionHtml(testsOpenPid);card.appendChild(d);mvLoadInto(testsOpenPid);
+      var d=document.createElement('div');d.style.cssText='border-top:1px solid var(--border2);padding:2px 13px 12px;';var _tc=TST_CAT[testsOpenPid]||(function(){try{return localStorage.getItem('pd_tstcat')||'mob';}catch(e){return 'mob';}})();
+      if(_tc==='aer'){d.innerHTML='<button class="gr-btn go" style="width:100%;padding:13px;margin-top:10px;" onclick="trOpen(null,\'\')">▶ '+tr('Tomar un test con el grupo')+'</button><div style="font-size:12px;color:var(--muted2);margin-top:7px;line-height:1.45;">'+tr('30-15 IFT, Yo-Yo, Bronco, Navette, submáximo y escalón, con pitidos y voz desde la app.')+'</div>';card.appendChild(d);}
+      else{d.innerHTML=mvSectionHtml(testsOpenPid)+(_tc==='fp'?rmSectionHtml(testsOpenPid):'');card.appendChild(d);mvLoadInto(testsOpenPid);}
     }catch(e){console.warn(e);}
   };
   var _otm=openTestModal;
