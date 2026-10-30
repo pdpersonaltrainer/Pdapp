@@ -934,6 +934,14 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 .trt-tile.warn{border-color:#ffb020;background:rgba(255,176,32,0.10);}.trt-tile.warn span{color:#ffb020;}
 .trt-tile.out{opacity:0.55;border-style:dashed;}.trt-tile.out span{color:var(--text);}
 .trt-cnt{grid-column:1/-1;text-align:center;font-size:12px;color:var(--muted2);}
+
+.tst-tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 13px 10px;border-top:1px solid var(--border2);}
+.tst-tabs::-webkit-scrollbar{display:none;}
+.tst-tab{flex:none;display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:18px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.02em;cursor:pointer;white-space:nowrap;}
+.tst-tab i{font-style:normal;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--s3);color:var(--muted);font-size:11.5px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;}
+.tst-tab.on{background:var(--mobfill);border-color:var(--mobfill);color:#0a0b0e;}
+.tst-tab.on i{background:rgba(0,0,0,0.18);color:#0a0b0e;}
+.tst-hd{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--mob);margin:14px 2px 8px;}
 </style>
 </head>
 <body>
@@ -2148,7 +2156,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261030-4';
+var APP_VERSION='20261030-6';
 (function(){
   try{
     setTimeout(function(){
@@ -2984,7 +2992,13 @@ var TESTS=[
   manual:'submax'},
  {k:'lab',n:'Laboratorio (VO₂máx)',ic:'\ud83e\uddea',u:'ml/kg/min',bi:false,hi:true,ref:'Resultados de una prueba de esfuerzo con análisis de gases',
   how:'Cargá los resultados que te dio el laboratorio. Con la VAM medida, la app calcula las pasadas de la carrera con ese dato.',need:'Informe del laboratorio',
-  manual:'lab'}
+  manual:'lab'},
+ {k:'sprint10',n:'Sprint 10 m',ic:'\u26a1',u:'s',bi:false,hi:false,ref:'Fútbol profesional ~1,70–1,85 s (salida de parado)',
+  how:'Salida de parado, con el pie adelantado detrás de la línea. Correr 10 m a máxima velocidad. Lo ideal es con fotocélulas; con cronómetro manual, que tome el tiempo siempre la misma persona. Anotá el mejor de 2 o 3 intentos, con 2-3 minutos de pausa.',need:'Cinta métrica, conos y fotocélulas o cronómetro'},
+ {k:'sprint30',n:'Sprint 30 m',ic:'\u26a1',u:'s',bi:false,hi:false,ref:'Fútbol profesional ~4,0–4,3 s (salida de parado)',
+  how:'Salida de parado. Correr 30 m a máxima velocidad. Anotá el mejor de 2 o 3 intentos, con 3 minutos de pausa.',need:'Cinta métrica, conos y fotocélulas o cronómetro'},
+ {k:'t505',n:'505 (cambio de dirección)',ic:'\u21a9\ufe0f',u:'s',bi:true,hi:false,asym:{t:'pct',v:5},ref:'Fútbol ~2,2–2,5 s · diferencia entre lados menor al 5%',
+  how:'Arrancar 10 m antes de la línea de inicio, pasar acelerando, llegar a la línea de giro a 5 m, girar 180° y volver a la de inicio. Se mide solo el tramo de 5 m + 5 m. Hacelo girando con cada pierna y anotá el mejor tiempo de cada lado.',need:'Conos, cinta métrica y fotocélulas o cronómetro'}
 ];
 var TESTIMG={'ankle':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M62 120 L88 120" stroke="#e8eaee" stroke-width="3"/><path d="M88 118 L50 76" stroke="#e8eaee" stroke-width="3"/><path d="M50 76 L96 98" stroke="#e8eaee" stroke-width="3"/><path d="M96 98 L114 120" stroke="#e8eaee" stroke-width="3"/><path d="M114 120 L142 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 98 L107 60" stroke="#e8eaee" stroke-width="3"/><path d="M107 60 L66 58" stroke="#e8eaee" stroke-width="3"/><circle cx="112" cy="50" r="9" stroke="#e8eaee"/><circle cx="46" cy="74" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. De rodilla, pie adelante. Llevá la rodilla hacia la pared.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M62 120 L88 120" stroke="#e8eaee" stroke-width="3"/><path d="M88 118 L50 76" stroke="#e8eaee" stroke-width="3"/><circle cx="88" cy="120" r="4" fill="#a8e063" stroke="none"/><circle cx="88" cy="120" r="12" stroke="#a8e063" stroke-width="2.5" stroke-dasharray="4 4"/><path d="M40 132 L62 132" stroke="#a8e063" stroke-width="2.5"/><path d="M40 132 l5 -4 M40 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M62 132 l-5 -4 M62 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/></g></svg>',c:'2. El talón NO se despega. Medí de la punta del pie a la pared.'}],'hip':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 118 L190 118" stroke="#5b616e" stroke-width="3"/><path d="M150 118 L96 118" stroke="#e8eaee" stroke-width="3"/><circle cx="160" cy="112" r="9" stroke="#e8eaee"/><path d="M96 118 L52 118" stroke="#e8eaee" stroke-width="3"/><path d="M52 118 L40 112" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 L70 60" stroke="#e8eaee" stroke-width="3"/><path d="M70 60 L62 50" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 A 40 40 0 0 0 70 60" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4" fill="none"/></g></svg>',c:'1. Boca arriba, una pierna apoyada y la otra estirada.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 118 L190 118" stroke="#5b616e" stroke-width="3"/><path d="M150 118 L96 118" stroke="#e8eaee" stroke-width="3"/><circle cx="160" cy="112" r="9" stroke="#e8eaee"/><path d="M96 118 L52 118" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 L70 60" stroke="#a8e063" stroke-width="3"/><circle cx="70" cy="60" r="4" fill="#a8e063" stroke="none"/><circle cx="96" cy="118" r="4" fill="#a8e063" stroke="none"/><path d="M124 118 A 30 30 0 0 0 82 84" stroke="#a8e063" stroke-width="2.5" fill="none"/></g></svg>',c:'2. Subí la pierna recta lo más alto posible y medí el ángulo.'}],'shoulder':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><circle cx="100" cy="32" r="10" stroke="#e8eaee"/><path d="M100 44 L100 100" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L88 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L112 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 52 L126 44 L122 70" stroke="#e8eaee" stroke-width="3"/><path d="M100 80 L74 90 L80 66" stroke="#e8eaee" stroke-width="3"/><circle cx="122" cy="70" r="4" fill="#a8e063" stroke="none"/><circle cx="80" cy="66" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. Una mano por arriba del hombro, la otra por abajo.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><circle cx="100" cy="32" r="10" stroke="#e8eaee"/><path d="M100 44 L100 100" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L88 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L112 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 52 L126 44 L118 66" stroke="#e8eaee" stroke-width="3"/><path d="M100 80 L74 90 L84 70" stroke="#e8eaee" stroke-width="3"/><path d="M101 66 L101 70" stroke="#a8e063" stroke-width="2.5"/><path d="M101 66 l-4 5 M101 66 l4 5" stroke="#a8e063" stroke-width="2.5"/><path d="M101 70 l-4 -5 M101 70 l4 -5" stroke="#a8e063" stroke-width="2.5"/><circle cx="118" cy="66" r="4" fill="#a8e063" stroke="none"/><circle cx="84" cy="70" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Medí la distancia entre las puntas de los dedos.'}],'cmj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="60" r="9" stroke="#e8eaee"/><path d="M96 70 L96 100" stroke="#e8eaee" stroke-width="3"/><path d="M96 100 L86 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 100 L106 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 74 L60 34" stroke="#a8e063" stroke-width="3"/><path d="M38 32 L72 32" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4"/><circle cx="60" cy="34" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. De lado a la pared, marcá tu alcance con el brazo estirado.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="74" r="9" stroke="#e8eaee"/><path d="M96 84 L98 104" stroke="#e8eaee" stroke-width="3"/><path d="M98 104 L84 112 L86 120" stroke="#e8eaee" stroke-width="3"/><path d="M98 104 L112 112 L110 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 88 L120 104" stroke="#a8e063" stroke-width="3"/><path d="M38 32 L72 32" stroke="#5b616e" stroke-width="2" stroke-dasharray="4 4"/></g></svg>',c:'2. Bajá rápido flexionando rodillas y cadera.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="44" r="9" stroke="#e8eaee"/><path d="M96 54 L96 84" stroke="#e8eaee" stroke-width="3"/><path d="M96 84 L86 104" stroke="#e8eaee" stroke-width="3"/><path d="M96 84 L106 104" stroke="#e8eaee" stroke-width="3"/><path d="M96 58 L58 20" stroke="#a8e063" stroke-width="3"/><path d="M38 18 L74 18" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4"/><path d="M38 32 L74 32" stroke="#5b616e" stroke-width="2" stroke-dasharray="4 4"/><path d="M46 18 L46 32" stroke="#a8e063" stroke-width="2.5"/><path d="M46 18 l-4 5 M46 18 l4 5" stroke="#a8e063" stroke-width="2.5"/><path d="M46 32 l-4 -5 M46 32 l4 -5" stroke="#a8e063" stroke-width="2.5"/><circle cx="58" cy="20" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'3. Saltá y marcá el punto más alto. El salto es la diferencia.'}],'sbj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="64" cy="64" r="9" stroke="#e8eaee"/><path d="M64 74 L66 96" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L58 110 L60 120" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L74 110 L72 120" stroke="#e8eaee" stroke-width="3"/><path d="M64 78 L88 92" stroke="#a8e063" stroke-width="3"/></g></svg>',c:'1. Pies detrás de la línea, brazos atrás.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="132" cy="62" r="9" stroke="#e8eaee"/><path d="M132 72 L130 96" stroke="#e8eaee" stroke-width="3"/><path d="M130 96 L140 112 L148 120" stroke="#e8eaee" stroke-width="3"/><path d="M130 96 L124 112 L132 120" stroke="#e8eaee" stroke-width="3"/><path d="M132 76 L108 60" stroke="#a8e063" stroke-width="3"/><path d="M52 132 L132 132" stroke="#a8e063" stroke-width="2.5"/><path d="M52 132 l5 -4 M52 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M132 132 l-5 -4 M132 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/><circle cx="132" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Saltá con las dos piernas. Medí hasta el talón más atrasado.'}],'slj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="64" cy="64" r="9" stroke="#e8eaee"/><path d="M64 74 L66 96" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L60 110 L62 120" stroke="#a8e063" stroke-width="3"/><path d="M66 96 L82 104 L78 116" stroke="#e8eaee" stroke-width="3"/><path d="M64 78 L88 92" stroke="#e8eaee" stroke-width="3"/><circle cx="62" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. Apoyado en una sola pierna, detrás de la línea.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="130" cy="62" r="9" stroke="#e8eaee"/><path d="M130 72 L128 96" stroke="#e8eaee" stroke-width="3"/><path d="M128 96 L138 112 L146 120" stroke="#a8e063" stroke-width="3"/><path d="M128 96 L118 106 L114 116" stroke="#e8eaee" stroke-width="3"/><path d="M130 76 L106 62" stroke="#e8eaee" stroke-width="3"/><path d="M52 132 L146 132" stroke="#a8e063" stroke-width="2.5"/><path d="M52 132 l5 -4 M52 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M146 132 l-5 -4 M146 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/><circle cx="146" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Saltá y caé con la MISMA pierna. Repetí con la otra.'}]};
 
@@ -2993,6 +3007,9 @@ var TEST_SVG={
  hip:'<line x1="2" y1="20.5" x2="22" y2="20.5"/><circle cx="3.6" cy="15.6" r="1.6"/><path d="M5.4 16.6H12"/><path d="M12 16.6l5.2-12"/><path d="M15.8 16.6a3.8 3.8 0 0 0-1.4-3"/>',
  shoulder:'<circle cx="12" cy="4.6" r="2"/><path d="M8 21v-9.5a4 4 0 0 1 8 0V21"/><path d="M16 11.2c2.2-.4 3-2.6 1.6-4.8"/><path d="M8 14.2c-2 .3-2.8 2.2-1.8 4"/><line x1="12" y1="10" x2="12" y2="15" stroke-dasharray="1.6 1.8"/>',
  cmj:'<line x1="4" y1="21" x2="20" y2="21"/><path d="M12 17V4"/><path d="M8 8l4-4 4 4"/><line x1="7" y1="17" x2="17" y2="17" stroke-dasharray="2 2"/>',
+ sprint10:'<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>',
+ sprint30:'<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/><path d="M19 20h3"/>',
+ t505:'<path d="M4 19h11a5 5 0 0 0 0-10H6"/><path d="M9 6L6 9l3 3"/>',
  t3015:'<line x1="3" y1="20" x2="21" y2="20"/><line x1="4" y1="16" x2="4" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="20" y1="16" x2="20" y2="20"/><path d="M5 11h13"/><path d="M15.5 8.5L18 11l-2.5 2.5"/><path d="M8 4h8"/>',
  yoyo2:'<line x1="3" y1="20" x2="3" y2="6"/><line x1="21" y1="20" x2="21" y2="6"/><path d="M6 10h12"/><path d="M15.5 7.5L18 10l-2.5 2.5"/><path d="M18 15H6"/><path d="M8.5 12.5L6 15l2.5 2.5"/><circle cx="12" cy="3" r="1"/>',
  navette:'<line x1="4" y1="4" x2="4" y2="20"/><line x1="20" y1="4" x2="20" y2="20"/><path d="M7 9h10"/><path d="M14.5 6.5L17 9l-2.5 2.5"/><path d="M17 15H7"/><path d="M9.5 12.5L7 15l2.5 2.5"/>',
@@ -3042,6 +3059,16 @@ function testExtraSum(x,e){
 }
 function tvf(x,v){if(x&&x.time&&isFinite(+v)&&v!==''&&v!=null){v=Math.round(+v);return Math.floor(v/60)+':'+('0'+(v%60)).slice(-2);}return v;}
 function tParseTime(v){v=String(v||'').trim().replace(',','.');var m=v.match(/^(\d+)[:'′.](\d{1,2})$/);if(m)return (+m[1])*60+(+m[2]);var n=parseFloat(v);return isFinite(n)?(n<20?Math.round(n*60):Math.round(n)):NaN;}
+var TEST_CATS_S={mob:'Movilidad',fp:'Fuerza',vel:'Velocidad',aer:'Aeróbicos'};
+var TEST_CATS=[['mob','Movilidad',['ankle','hip','shoulder']],['fp','Fuerza y potencia',['cmj','sbj','slj']],['vel','Velocidad',['sprint10','sprint30','t505']],['aer','Aeróbicos e intermitentes',['t3015','yoyo','yoyo2','bronco','navette','submax','step','lab']]];
+function testCat(k){for(var i=0;i<TEST_CATS.length;i++){if(TEST_CATS[i][2].indexOf(k)>=0)return TEST_CATS[i][0];}return 'aer';}
+var TST_CAT={};
+function testsSorted(list){var o={};TEST_CATS.forEach(function(c,ci){c[2].forEach(function(k,ki){o[k]=ci*100+ki;});});return list.slice().sort(function(a,b){return (o[a.k]==null?999:o[a.k])-(o[b.k]==null?999:o[b.k]);});}
+function tstTabsHtml(p,cur){
+  var en=p.tests_enabled||[];
+  return '<div class="tst-tabs">'+TEST_CATS.map(function(c){var n=c[2].filter(function(k){return en.indexOf(k)>=0;}).length;
+    return '<button class="tst-tab'+(c[0]===cur?' on':'')+'" onclick="event.stopPropagation();TST_CAT[\''+p.id+'\']=\''+c[0]+'\';try{localStorage.setItem(\'pd_tstcat\',\''+c[0]+'\');}catch(e){}renderTestsScreen()">'+tr(TEST_CATS_S[c[0]])+'<i>'+n+'</i></button>';}).join('')+'</div>';
+}
 function testDef(k){for(var i=0;i<TESTS.length;i++){if(TESTS[i].k===k)return TESTS[i];}return null;}
 function testsEnabled(p){var e=(p&&p.tests_enabled)||[];return TESTS.filter(function(x){return e.indexOf(x.k)>=0;});}
 function testHistory(p,k){var all=(p&&p.tests)||{};return (all[k]||[]).slice().sort(function(a,b){return (a.d||'')<(b.d||'')?-1:1;});}
@@ -4298,7 +4325,7 @@ function toggleTestsPlayer(pid){testsOpenPid=(testsOpenPid===pid)?null:pid;rende
 function renderTestsScreen(){
   var box=document.getElementById('tests-screen');if(!box)return;
   try{var _tb=document.getElementById('tests-take');if(!_tb){_tb=document.createElement('div');_tb.id='tests-take';box.parentNode.insertBefore(_tb,box);}
-    _tb.innerHTML=isCoach&&PLAYERS.length?'<button class="gr-btn go" style="width:100%;margin-bottom:12px;padding:12px;" onclick="trOpen(null,\'\')">▶ '+tr('Tomar un test con el grupo')+' · 30-15 · Yo-Yo · Bronco · Navette · '+tr('Submáximo')+' · '+tr('Escalón')+'</button>':'';}catch(e){}
+    _tb.innerHTML=isCoach&&PLAYERS.length?'<button class="gr-btn go" style="width:100%;margin-bottom:12px;padding:12px;" onclick="trOpen(null,\'\')">▶ '+tr('Tomar un test con el grupo')+'</button>':'';}catch(e){}
   if(!PLAYERS.length){box.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:13px;padding:20px 0;">'+tr('Todavía no tenés alumnos.')+'</div>';return;}
   box.innerHTML=PLAYERS.map(function(p){
     var en=(p.tests_enabled||[]).length;
@@ -4309,7 +4336,8 @@ function renderTestsScreen(){
       +'<div style="font-size:11.5px;color:var(--muted2);">'+en+' '+tr('tests activos')+'</div></div>'
       +'<span style="color:var(--muted2);font-size:15px;">'+(open?'\u2303':'\u2304')+'</span></div>';
     if(!open)return '<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;">'+head+'</div>';
-    var rows=TESTS.map(function(x){
+    var _cat=TST_CAT[p.id]||(function(){try{return localStorage.getItem('pd_tstcat')||'mob';}catch(e){return 'mob';}})();
+    var rows=tstTabsHtml(p,_cat)+TESTS.filter(function(x){return testCat(x.k)===_cat;}).map(function(x){
       var on=(p.tests_enabled||[]).indexOf(x.k)>=0;
       var h=testHistory(p,x.k);var last=h[h.length-1];
       var val='<span style="color:var(--muted2);font-size:12px;">'+tr('Sin registros')+'</span>';
@@ -4319,7 +4347,7 @@ function renderTestsScreen(){
         if(ai&&ai.warn)val+=' <span style="color:#ffb020;font-size:11.5px;">\u26a0 '+ai.txt+'</span>';
         val+='<span style="color:var(--muted2);font-size:11px;"> · '+fmtDateShort(last.d)+'</span>';
         if(h.length>1){
-          val+='<div style="font-size:11px;color:var(--muted2);margin-top:3px;">'+h.slice(-5,-1).map(function(e){return fmtDateShort(e.d)+': '+(x.bi?(e.l+'/'+e.r):e.v);}).join('  ·  ')+'</div>';
+          val+='<div style="font-size:11px;color:var(--muted2);margin-top:3px;">'+h.slice(-5,-1).map(function(e){return fmtDateShort(e.d)+': '+(x.bi?(e.l+'/'+e.r):tvf(x,e.v));}).join('  ·  ')+'</div>';
         }
       }
       return '<div style="border-top:1px solid var(--border2);padding:11px 13px;display:flex;align-items:flex-start;gap:11px;">'
@@ -7886,7 +7914,9 @@ function renderTestsAthlete(){
   if(!p&&PLAYERS.length===1)p=PLAYERS[0];
   var list=testsEnabled(p);
   if(!list.length){box.innerHTML=_bm;return;}
+  var _lc='';list=testsSorted(list);
   box.innerHTML=_bm+'<div class="sum-lbl" style="margin-top:16px;">'+tr('Mis tests')+'</div>'+list.map(function(x){
+    var _c=testCat(x.k),_hd='';if(_c!==_lc){_lc=_c;var _cd=TEST_CATS.filter(function(c){return c[0]===_c;})[0];_hd='<div class="tst-hd">'+tr(_cd?_cd[1]:'')+'</div>';}
     var h=testHistory(p,x.k);var last=h[h.length-1];var prev=h[h.length-2];
     var val='';
     if(last){
@@ -7900,7 +7930,7 @@ function renderTestsAthlete(){
       }
       val+='<span style="color:var(--muted2);font-size:11px;"> · '+fmtDateShort(last.d)+'</span>';
     } else val='<span style="color:var(--muted2);">'+tr('Sin registros')+'</span>';
-    return '<div style="background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">'
+    return _hd+'<div style="background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;">'
       +testTile(x.k)
       +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">'+tr(x.n)+'</div><div style="font-size:12px;margin-top:2px;">'+val+'</div></div>'
       +'<button onclick="openTestModal(\''+x.k+'\')" style="flex:none;background:var(--mobfill);color:#0a0b0e;border:none;border-radius:8px;padding:8px 13px;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">'+tr('Medir')+'</button>'
@@ -8895,7 +8925,7 @@ function trSchedule(){
 }
 function trSay(t){try{if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(t);var lg=LANG==='en'?'en':(LANG==='it'?'it':'es');var vs=speechSynthesis.getVoices()||[],v=null;
   (lg==='es'?['es-AR','es-MX','es-US','es-419','es-ES','es']:[lg]).some(function(p){v=vs.filter(function(x){return x.lang&&String(x.lang).replace('_','-').indexOf(p)===0;})[0]||null;return !!v;});
-  if(v){u.voice=v;u.lang=v.lang;}else u.lang=lg==='es'?'es-ES':(lg==='it'?'it-IT':'en-US');u.rate=1.08;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+  if(v){u.voice=v;u.lang=v.lang;}else u.lang=lg==='es'?'es-ES':(lg==='it'?'it-IT':'en-US');u.rate=0.9;u.pitch=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
 function trNow(){if(!TRT||!TRT.ac)return 0;return (TRT.ac.currentTime-TRT.t0)*(window.__trFast||1);}
 /* --- ejecución --- */
 function trStart(){
@@ -8910,7 +8940,7 @@ function trStart(){
   var lead=TRT.k==='bronco'?3:5;
   TRT.t0=ac.currentTime+lead/(window.__trFast||1);
   if(TRT.snd){for(var c=1;c<=3;c++)trTone(TRT.t0-c/(window.__trFast||1),600,0.12,0.3);trSay(tr(TRT.k==='bronco'?'Preparados':'Atentos al primer pitido'));}
-  TRT.tick=setInterval(trTick,100);trRender();
+  TRT.tick=setInterval(trTick,200);trRender();
 }
 function trStop(){if(!TRT)return;clearInterval(TRT.tick);TRT.tick=null;try{if(TRT.ac)TRT.ac.close();}catch(e){}TRT.ac=null;try{if(TRT.wl)TRT.wl.release();}catch(e){}try{speechSynthesis.cancel();}catch(e){}}
 function trPause(){if(!TRT||!TRT.ac)return;if(TRT.paused){TRT.ac.resume();TRT.paused=false;}else{TRT.ac.suspend();TRT.paused=true;try{speechSynthesis.cancel();}catch(e){}}trRender();}
@@ -8975,17 +9005,19 @@ function trRender(){
   trEl('trt-foot').innerHTML='<button class="trt-sm" onclick="trSnd()">'+(TRT.snd?'🔊':'🔇')+'</button><button class="trt-sm" style="flex:1" onclick="trPause()">'+tr(TRT.paused?'Seguir':'Pausa')+'</button><button class="trt-sm" style="flex:1" onclick="askConfirm(tr(\'¿Terminar el test ahora?\'),function(){if(TRT.k!==\'bronco\'&&TRT.k!==\'submax\'&&TRT.k!==\'step\')TRT.pl.forEach(function(x){if(x.st<2)trOut(x,false);});trFinish();},{okLabel:tr(\'Terminar\')})">'+tr('Terminar')+'</button>';
   trRenderLive();
 }
+function trSetT(id,v){var e=trEl(id);if(e&&e.textContent!==String(v))e.textContent=v;}
 function trRenderLive(){
   if(!TRT||TRT.phase!=='run')return;var now=trNow(),c=trCur(now);
   var ph={pre:[tr('Preparados'),'#9aa3b2'],run:[tr('Corré'),'#a8e063'],rec:[tr('Recuperá'),'#4dabf7'],walk:[tr('Caminá'),'#4dabf7'],count:[tr('Contá'),'#ffd166']}[c.ph]||['',''];
   if(TRT.k==='step'&&c.ph==='run')ph=[tr('Escalón'),'#a8e063'];
   var m=trEl('trt-main');if(!m)return;m.style.borderColor=ph[1];m.style.background=ph[1]+'1f';
   trEl('trt-ph').textContent=TRT.paused?tr('En pausa'):ph[0];trEl('trt-ph').style.color=ph[1];
-  trEl('trt-lab').textContent=TRT.k==='bronco'?trFmt(Math.max(0,now)):c.lab;
-  trEl('trt-clock').textContent=TRT.k==='bronco'?(now<0?Math.ceil(-now):''):(c.next!=null&&c.next>=0?(c.next<10?c.next.toFixed(1).replace('.',LANG==='en'?'.':','):trFmt(c.next)):'');
-  trEl('trt-sub').textContent=TRT.k==='bronco'?tr('1.200 m · 5 vueltas'):(c.sub||'')+' · '+tr('Total')+' '+trFmt(Math.max(0,now));
+  trSetT('trt-lab',TRT.k==='bronco'?trFmt(Math.max(0,now)):c.lab);
+  trSetT('trt-clock',TRT.k==='bronco'?(now<0?Math.ceil(-now):''):(c.next!=null&&c.next>=0?(c.next<10?c.next.toFixed(1).replace('.',LANG==='en'?'.':','):trFmt(c.next)):''));
+  trSetT('trt-sub',TRT.k==='bronco'?tr('1.200 m · 5 vueltas'):(c.sub||'')+' · '+tr('Total')+' '+trFmt(Math.max(0,now)));
   var alive=TRT.pl.filter(function(x){return x.st<2;}).length;
-  trEl('trt-grid').innerHTML=TRT.pl.map(function(x,i){
+  var _sig=TRT.pl.map(function(x){return x.st+'|'+x.laps+'|'+(x.res?x.res.v:'');}).join(',');var _g=trEl('trt-grid');if(!_g||_g.dataset.sig===_sig)return;_g.dataset.sig=_sig;
+  _g.innerHTML=TRT.pl.map(function(x,i){
     var cls=x.st===2?'out':x.st===1?'warn':'',info='';
     if(TRT.k==='bronco')info=x.st===2?trFmt(x.res.v):tr('Vuelta')+' '+x.laps+'/5';
     else if(x.st===2&&x.res)info=TRT.k==='t3015'?runFmtKmh(x.res.v)+' km/h':TRT.k==='navette'?tr('Palier')+' '+x.res.v:x.res.v+' m';
@@ -9889,6 +9921,24 @@ STATIC_I18N["Nivel"]=STATIC_I18N["Nivel"]||["Level","Livello"];
 STATIC_I18N["Listo"]=STATIC_I18N["Listo"]||["Done","Fatto"];
 STATIC_I18N["¿Terminar el test ahora?"]=STATIC_I18N["¿Terminar el test ahora?"]||["Finish the test now?","Terminare il test ora?"];
 STATIC_I18N["Vuelta"]=STATIC_I18N["Vuelta"]||["Round","Giro"];
+STATIC_I18N["Movilidad"]=STATIC_I18N["Movilidad"]||["Mobility","Mobilità"];
+STATIC_I18N["Fuerza y potencia"]=STATIC_I18N["Fuerza y potencia"]||["Strength & power","Forza e potenza"];
+STATIC_I18N["Velocidad"]=STATIC_I18N["Velocidad"]||["Speed","Velocità"];
+STATIC_I18N["Aeróbicos e intermitentes"]=STATIC_I18N["Aeróbicos e intermitentes"]||["Aerobic & intermittent","Aerobici e intermittenti"];
+STATIC_I18N["Sprint 10 m"]=STATIC_I18N["Sprint 10 m"]||["10 m sprint","Sprint 10 m"];
+STATIC_I18N["Sprint 30 m"]=STATIC_I18N["Sprint 30 m"]||["30 m sprint","Sprint 30 m"];
+STATIC_I18N["505 (cambio de dirección)"]=STATIC_I18N["505 (cambio de dirección)"]||["505 (change of direction)","505 (cambio di direzione)"];
+STATIC_I18N["Fútbol profesional ~1,70–1,85 s (salida de parado)"]=STATIC_I18N["Fútbol profesional ~1,70–1,85 s (salida de parado)"]||["Pro football ~1.70–1.85 s (standing start)","Calcio professionistico ~1,70–1,85 s (partenza da fermo)"];
+STATIC_I18N["Fútbol profesional ~4,0–4,3 s (salida de parado)"]=STATIC_I18N["Fútbol profesional ~4,0–4,3 s (salida de parado)"]||["Pro football ~4.0–4.3 s (standing start)","Calcio professionistico ~4,0–4,3 s (partenza da fermo)"];
+STATIC_I18N["Fútbol ~2,2–2,5 s · diferencia entre lados menor al 5%"]=STATIC_I18N["Fútbol ~2,2–2,5 s · diferencia entre lados menor al 5%"]||["Football ~2.2–2.5 s · side difference under 5%","Calcio ~2,2–2,5 s · differenza tra i lati inferiore al 5%"];
+STATIC_I18N["Salida de parado, con el pie adelantado detrás de la línea. Correr 10 m a máxima velocidad. Lo ideal es con fotocélulas; con cronómetro manual, que tome el tiempo siempre la misma persona. Anotá el mejor de 2 o 3 intentos, con 2-3 minutos de pausa."]=STATIC_I18N["Salida de parado, con el pie adelantado detrás de la línea. Correr 10 m a máxima velocidad. Lo ideal es con fotocélulas; con cronómetro manual, que tome el tiempo siempre la misma persona. Anotá el mejor de 2 o 3 intentos, con 2-3 minutos de pausa."]||["Standing start, front foot behind the line. Sprint 10 m at max speed. Ideally with timing gates; with a hand stopwatch, always the same person timing. Record the best of 2 or 3 attempts with 2-3 minutes of rest.","Partenza da fermo, piede avanti dietro la linea. Correre 10 m alla massima velocità. Ideale con fotocellule; con cronometro manuale, che misuri sempre la stessa persona. Annota il migliore di 2 o 3 tentativi, con 2-3 minuti di pausa."];
+STATIC_I18N["Salida de parado. Correr 30 m a máxima velocidad. Anotá el mejor de 2 o 3 intentos, con 3 minutos de pausa."]=STATIC_I18N["Salida de parado. Correr 30 m a máxima velocidad. Anotá el mejor de 2 o 3 intentos, con 3 minutos de pausa."]||["Standing start. Sprint 30 m at max speed. Record the best of 2 or 3 attempts with 3 minutes of rest.","Partenza da fermo. Correre 30 m alla massima velocità. Annota il migliore di 2 o 3 tentativi, con 3 minuti di pausa."];
+STATIC_I18N["Arrancar 10 m antes de la línea de inicio, pasar acelerando, llegar a la línea de giro a 5 m, girar 180° y volver a la de inicio. Se mide solo el tramo de 5 m + 5 m. Hacelo girando con cada pierna y anotá el mejor tiempo de cada lado."]=STATIC_I18N["Arrancar 10 m antes de la línea de inicio, pasar acelerando, llegar a la línea de giro a 5 m, girar 180° y volver a la de inicio. Se mide solo el tramo de 5 m + 5 m. Hacelo girando con cada pierna y anotá el mejor tiempo de cada lado."]||["Start 10 m before the timing line, pass it accelerating, reach the turning line 5 m further, turn 180° and come back through the timing line. Only the 5 m + 5 m section is timed. Do it turning on each leg and record the best time for each side.","Partire 10 m prima della linea di cronometraggio, passarla accelerando, arrivare alla linea di virata a 5 m, girare di 180° e tornare alla linea. Si misura solo il tratto 5 m + 5 m. Fallo girando con ogni gamba e annota il tempo migliore di ogni lato."];
+STATIC_I18N["Cinta métrica, conos y fotocélulas o cronómetro"]=STATIC_I18N["Cinta métrica, conos y fotocélulas o cronómetro"]||["Tape measure, cones and timing gates or a stopwatch","Metro, coni e fotocellule o cronometro"];
+STATIC_I18N["Conos, cinta métrica y fotocélulas o cronómetro"]=STATIC_I18N["Conos, cinta métrica y fotocélulas o cronómetro"]||["Cones, tape measure and timing gates or a stopwatch","Coni, metro e fotocellule o cronometro"];
+STATIC_I18N["Mis tests"]=STATIC_I18N["Mis tests"]||["My tests","I miei test"];
+STATIC_I18N["Fuerza"]=STATIC_I18N["Fuerza"]||["Strength","Forza"];
+STATIC_I18N["Aeróbicos"]=STATIC_I18N["Aeróbicos"]||["Aerobic","Aerobici"];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
