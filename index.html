@@ -891,6 +891,49 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 .wl-avail.lim b{color:#ffb020;}.wl-avail.out b{color:#ff6b6b;}
 .wl-avail span{font-size:13px;color:var(--text);line-height:1.4;}
 @media print{.gr-tabs,.gr-chips{display:none;}}
+
+/* ===== TOMAR TESTS ===== */
+#trt{position:fixed;inset:0;z-index:900;background:var(--bg);color:var(--text);display:none;flex-direction:column;}
+#trt.open{display:flex;}
+.trt-top{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--border2);}
+.trt-top .rt-x{color:var(--text);border-color:var(--border2);}
+.trt-t{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;}
+.trt-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#trt-body{max-width:900px;margin:0 auto;padding:14px 14px 20px;box-sizing:border-box;}
+.trt-foot{display:flex;gap:8px;padding:10px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--border2);max-width:900px;width:100%;margin:0 auto;box-sizing:border-box;}
+.trt-big{flex:1;height:54px;border-radius:14px;border:none;background:var(--mobfill);color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;box-shadow:var(--dp-btn,none);}
+.trt-big:disabled{opacity:0.45;}
+.trt-sm{height:54px;min-width:54px;border-radius:14px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.trt-lbl{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;}
+.trt-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;}
+.trt-card{text-align:left;padding:11px 12px;border-radius:12px;border:1.5px solid var(--border2);background:var(--s1);color:var(--text);cursor:pointer;}
+.trt-card b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:0.02em;}
+.trt-card span{display:block;font-size:12px;color:var(--muted);line-height:1.35;margin-top:3px;}
+.trt-card.on{border-color:var(--mob);background:rgba(168,224,99,0.08);}
+.trt-note{font-size:13px;color:var(--muted);line-height:1.5;background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:10px 12px;margin:12px 0 4px;}
+.trt-note b{color:var(--text);}
+.trt-pls{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;}
+.trt-pl{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--border2);background:var(--s1);color:var(--muted);cursor:pointer;text-align:left;font-size:14px;}
+.trt-pl .gr-av,.trt-tile .gr-av{flex:none;}
+#trt input,#trt select{background:var(--s2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 9px;font-size:16px;outline:none;box-sizing:border-box;height:40px;}
+.trt-pl span:not(.gr-av){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.trt-pl i{font-style:normal;color:var(--mob);font-weight:800;}
+.trt-pl.on{color:var(--text);border-color:rgba(168,224,99,0.5);}
+.trt-main{border:2px solid var(--border2);border-radius:18px;padding:14px;text-align:center;margin-bottom:10px;transition:background .2s,border-color .2s;}
+.trt-ph{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;}
+.trt-lab{font-family:'Barlow Condensed',sans-serif;font-size:clamp(34px,8vw,56px);font-weight:800;line-height:1.05;}
+.trt-clock{font-family:'Barlow Condensed',sans-serif;font-size:clamp(48px,14vw,96px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;min-height:0.9em;}
+.trt-sub{font-size:14px;color:var(--muted);margin-top:4px;}
+.trt-hint{font-size:12.5px;color:var(--muted2);text-align:center;margin:0 0 10px;line-height:1.4;}
+.trt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+.trt-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:14px;border:1.5px solid var(--border2);background:var(--s1);color:var(--text);cursor:pointer;min-height:96px;-webkit-user-select:none;user-select:none;}
+.trt-tile .gr-av{width:34px;height:34px;font-size:15px;}
+.trt-tile b{font-size:14px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.trt-tile span:not(.gr-av){font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--muted);}
+.trt-tile em{position:absolute;top:6px;right:8px;font-style:normal;font-size:16px;color:var(--muted);padding:2px 6px;}
+.trt-tile.warn{border-color:#ffb020;background:rgba(255,176,32,0.10);}.trt-tile.warn span{color:#ffb020;}
+.trt-tile.out{opacity:0.55;border-style:dashed;}.trt-tile.out span{color:var(--text);}
+.trt-cnt{grid-column:1/-1;text-align:center;font-size:12px;color:var(--muted2);}
 </style>
 </head>
 <body>
@@ -1575,6 +1618,12 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
   </div>
 </div>
 
+<!-- TOMAR TESTS -->
+<div id="trt">
+  <div class="trt-top"><button class="rt-x" onclick="trClose()" aria-label="Cerrar">✕</button><div class="trt-t" id="trt-title"></div></div>
+  <div class="trt-scroll"><div id="trt-body"></div></div>
+  <div class="trt-foot" id="trt-foot"></div>
+</div>
 <!-- MODAL: PICK EXERCISE -->
 <div class="modal-overlay" id="modal-pick">
   <div class="modal">
@@ -2099,7 +2148,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261030-3';
+var APP_VERSION='20261030-4';
 (function(){
   try{
     setTimeout(function(){
@@ -2920,7 +2969,22 @@ var TESTS=[
  {k:'yoyo',n:'Yo-Yo IR1',ic:'\ud83c\udfc3',u:'m',bi:false,hi:true,ref:'Profesional ~2.000–2.500 m · amateur ~1.200–1.800 m',
   how:'Idas y vueltas de 20 m al ritmo de los pitidos del audio oficial, con 10 segundos de recuperación (trote suave de 5 m ida y vuelta) entre cada una. La velocidad sube por niveles. Termina la segunda vez que no llegás a la línea a tiempo. Anotá los metros totales recorridos. Con este dato la app estima tu VAM y calcula tus metros en las pasadas.',need:'Audio oficial del Yo-Yo IR1, conos y 25 m de espacio'},
  {k:'bronco',n:'Bronco',ic:'\u23f1',u:'min',time:true,bi:false,hi:false,ref:'Hombres: elite 4:15–4:35 · bueno 4:45–4:55 · promedio 4:55–5:15. Mujeres: ~10 s más',
-  how:'Conos a 0, 20, 40 y 60 m. Desde la línea de salida: ida y vuelta a 20 m, ida y vuelta a 40 m e ida y vuelta a 60 m (240 m). Son 5 vueltas seguidas, sin pausa: 1.200 m. Pisá cada línea antes de girar. Anotá el tiempo total (ej.: 4:35).',need:'4 conos, cronómetro y 60 m de espacio'}
+  how:'Conos a 0, 20, 40 y 60 m. Desde la línea de salida: ida y vuelta a 20 m, ida y vuelta a 40 m e ida y vuelta a 60 m (240 m). Son 5 vueltas seguidas, sin pausa: 1.200 m. Pisá cada línea antes de girar. Anotá el tiempo total (ej.: 4:35).',need:'4 conos, cronómetro y 60 m de espacio'},
+ {k:'t3015',n:'30-15 IFT',ic:'\u23f1',u:'km/h',bi:false,hi:true,run:1,ref:'Fútbol profesional ~19–21 km/h · amateur ~17–19 km/h',
+  how:'Líneas a 0, 20 y 40 m con una zona de 3 m en cada una. 30 segundos de carrera ida y vuelta al ritmo de los pitidos y 15 segundos caminando hasta la línea siguiente. Empieza a 8 km/h y sube 0,5 km/h en cada etapa. Termina cuando no llega a la zona 3 veces seguidas. El resultado es la velocidad de la última etapa completa (VIFT). Lo podés tomar desde la app con todo el grupo.',need:'Conos, 45 m de espacio y la app (o el audio oficial)'},
+ {k:'yoyo2',n:'Yo-Yo IR2',ic:'\ud83c\udfc3',u:'m',bi:false,hi:true,run:1,ref:'Fútbol élite ~1.000–1.300 m · sub-élite ~700–900 m',
+  how:'Igual que el Yo-Yo IR1 pero arranca a 13 km/h y sube más rápido: más intenso, para jugadores entrenados. Idas y vueltas de 20 m con 10 segundos de recuperación. Termina la segunda vez que no llega a tiempo. Anotá los metros totales. Lo podés tomar desde la app con todo el grupo.',need:'Conos, 25 m de espacio y la app (o el audio oficial)'},
+ {k:'navette',n:'Course Navette (20 m)',ic:'\ud83c\udfc3',u:'palier',bi:false,hi:true,run:1,ref:'La app calcula el VO₂máx estimado (adultos)',
+  how:'Idas y vueltas de 20 m al ritmo de los pitidos. Empieza a 8,5 km/h y sube 0,5 km/h cada minuto (cada minuto es un palier). Termina cuando no llega a la línea a tiempo. Anotá el último palier completo. Lo podés tomar desde la app con todo el grupo.',need:'Conos, 25 m de espacio y la app'},
+ {k:'step',n:'Test de escalón (Queens College)',ic:'\ud83e\uddb5',u:'ml/kg/min',bi:false,hi:true,run:1,ref:'VO₂máx estimado: más alto es mejor',
+  how:'Escalón de 41,3 cm. Subir y bajar 3 minutos al ritmo del metrónomo (hombres 24 subidas por minuto, mujeres 22). Al terminar, quedarse parado: a los 5 segundos contar el pulso durante 15 segundos. La app calcula el VO₂máx.',need:'Escalón o cajón de 41,3 cm y la app',
+  manual:'step'},
+ {k:'submax',n:'Test submáximo (FC)',ic:'\u2764\ufe0f',u:'lpm',bi:false,hi:false,run:1,ref:'Menos pulsaciones al mismo ritmo = mejor estado. Compará siempre con el mismo protocolo.',
+  how:'Correr unos minutos a un ritmo fijo y medir la frecuencia cardíaca al terminar y un minuto después. No cansa: sirve para controlar cada semana cómo responde el jugador. Lo podés tomar desde la app con todo el grupo.',need:'Reloj o banda de frecuencia cardíaca',
+  manual:'submax'},
+ {k:'lab',n:'Laboratorio (VO₂máx)',ic:'\ud83e\uddea',u:'ml/kg/min',bi:false,hi:true,ref:'Resultados de una prueba de esfuerzo con análisis de gases',
+  how:'Cargá los resultados que te dio el laboratorio. Con la VAM medida, la app calcula las pasadas de la carrera con ese dato.',need:'Informe del laboratorio',
+  manual:'lab'}
 ];
 var TESTIMG={'ankle':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M62 120 L88 120" stroke="#e8eaee" stroke-width="3"/><path d="M88 118 L50 76" stroke="#e8eaee" stroke-width="3"/><path d="M50 76 L96 98" stroke="#e8eaee" stroke-width="3"/><path d="M96 98 L114 120" stroke="#e8eaee" stroke-width="3"/><path d="M114 120 L142 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 98 L107 60" stroke="#e8eaee" stroke-width="3"/><path d="M107 60 L66 58" stroke="#e8eaee" stroke-width="3"/><circle cx="112" cy="50" r="9" stroke="#e8eaee"/><circle cx="46" cy="74" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. De rodilla, pie adelante. Llevá la rodilla hacia la pared.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M62 120 L88 120" stroke="#e8eaee" stroke-width="3"/><path d="M88 118 L50 76" stroke="#e8eaee" stroke-width="3"/><circle cx="88" cy="120" r="4" fill="#a8e063" stroke="none"/><circle cx="88" cy="120" r="12" stroke="#a8e063" stroke-width="2.5" stroke-dasharray="4 4"/><path d="M40 132 L62 132" stroke="#a8e063" stroke-width="2.5"/><path d="M40 132 l5 -4 M40 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M62 132 l-5 -4 M62 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/></g></svg>',c:'2. El talón NO se despega. Medí de la punta del pie a la pared.'}],'hip':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 118 L190 118" stroke="#5b616e" stroke-width="3"/><path d="M150 118 L96 118" stroke="#e8eaee" stroke-width="3"/><circle cx="160" cy="112" r="9" stroke="#e8eaee"/><path d="M96 118 L52 118" stroke="#e8eaee" stroke-width="3"/><path d="M52 118 L40 112" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 L70 60" stroke="#e8eaee" stroke-width="3"/><path d="M70 60 L62 50" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 A 40 40 0 0 0 70 60" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4" fill="none"/></g></svg>',c:'1. Boca arriba, una pierna apoyada y la otra estirada.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 118 L190 118" stroke="#5b616e" stroke-width="3"/><path d="M150 118 L96 118" stroke="#e8eaee" stroke-width="3"/><circle cx="160" cy="112" r="9" stroke="#e8eaee"/><path d="M96 118 L52 118" stroke="#e8eaee" stroke-width="3"/><path d="M96 118 L70 60" stroke="#a8e063" stroke-width="3"/><circle cx="70" cy="60" r="4" fill="#a8e063" stroke="none"/><circle cx="96" cy="118" r="4" fill="#a8e063" stroke="none"/><path d="M124 118 A 30 30 0 0 0 82 84" stroke="#a8e063" stroke-width="2.5" fill="none"/></g></svg>',c:'2. Subí la pierna recta lo más alto posible y medí el ángulo.'}],'shoulder':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><circle cx="100" cy="32" r="10" stroke="#e8eaee"/><path d="M100 44 L100 100" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L88 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L112 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 52 L126 44 L122 70" stroke="#e8eaee" stroke-width="3"/><path d="M100 80 L74 90 L80 66" stroke="#e8eaee" stroke-width="3"/><circle cx="122" cy="70" r="4" fill="#a8e063" stroke="none"/><circle cx="80" cy="66" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. Una mano por arriba del hombro, la otra por abajo.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><circle cx="100" cy="32" r="10" stroke="#e8eaee"/><path d="M100 44 L100 100" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L88 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 100 L112 126" stroke="#e8eaee" stroke-width="3"/><path d="M100 52 L126 44 L118 66" stroke="#e8eaee" stroke-width="3"/><path d="M100 80 L74 90 L84 70" stroke="#e8eaee" stroke-width="3"/><path d="M101 66 L101 70" stroke="#a8e063" stroke-width="2.5"/><path d="M101 66 l-4 5 M101 66 l4 5" stroke="#a8e063" stroke-width="2.5"/><path d="M101 70 l-4 -5 M101 70 l4 -5" stroke="#a8e063" stroke-width="2.5"/><circle cx="118" cy="66" r="4" fill="#a8e063" stroke="none"/><circle cx="84" cy="70" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Medí la distancia entre las puntas de los dedos.'}],'cmj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="60" r="9" stroke="#e8eaee"/><path d="M96 70 L96 100" stroke="#e8eaee" stroke-width="3"/><path d="M96 100 L86 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 100 L106 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 74 L60 34" stroke="#a8e063" stroke-width="3"/><path d="M38 32 L72 32" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4"/><circle cx="60" cy="34" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. De lado a la pared, marcá tu alcance con el brazo estirado.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="74" r="9" stroke="#e8eaee"/><path d="M96 84 L98 104" stroke="#e8eaee" stroke-width="3"/><path d="M98 104 L84 112 L86 120" stroke="#e8eaee" stroke-width="3"/><path d="M98 104 L112 112 L110 120" stroke="#e8eaee" stroke-width="3"/><path d="M96 88 L120 104" stroke="#a8e063" stroke-width="3"/><path d="M38 32 L72 32" stroke="#5b616e" stroke-width="2" stroke-dasharray="4 4"/></g></svg>',c:'2. Bajá rápido flexionando rodillas y cadera.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M38 14 L38 120" stroke="#5b616e" stroke-width="3"/><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><circle cx="96" cy="44" r="9" stroke="#e8eaee"/><path d="M96 54 L96 84" stroke="#e8eaee" stroke-width="3"/><path d="M96 84 L86 104" stroke="#e8eaee" stroke-width="3"/><path d="M96 84 L106 104" stroke="#e8eaee" stroke-width="3"/><path d="M96 58 L58 20" stroke="#a8e063" stroke-width="3"/><path d="M38 18 L74 18" stroke="#a8e063" stroke-width="2" stroke-dasharray="4 4"/><path d="M38 32 L74 32" stroke="#5b616e" stroke-width="2" stroke-dasharray="4 4"/><path d="M46 18 L46 32" stroke="#a8e063" stroke-width="2.5"/><path d="M46 18 l-4 5 M46 18 l4 5" stroke="#a8e063" stroke-width="2.5"/><path d="M46 32 l-4 -5 M46 32 l4 -5" stroke="#a8e063" stroke-width="2.5"/><circle cx="58" cy="20" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'3. Saltá y marcá el punto más alto. El salto es la diferencia.'}],'sbj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="64" cy="64" r="9" stroke="#e8eaee"/><path d="M64 74 L66 96" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L58 110 L60 120" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L74 110 L72 120" stroke="#e8eaee" stroke-width="3"/><path d="M64 78 L88 92" stroke="#a8e063" stroke-width="3"/></g></svg>',c:'1. Pies detrás de la línea, brazos atrás.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="132" cy="62" r="9" stroke="#e8eaee"/><path d="M132 72 L130 96" stroke="#e8eaee" stroke-width="3"/><path d="M130 96 L140 112 L148 120" stroke="#e8eaee" stroke-width="3"/><path d="M130 96 L124 112 L132 120" stroke="#e8eaee" stroke-width="3"/><path d="M132 76 L108 60" stroke="#a8e063" stroke-width="3"/><path d="M52 132 L132 132" stroke="#a8e063" stroke-width="2.5"/><path d="M52 132 l5 -4 M52 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M132 132 l-5 -4 M132 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/><circle cx="132" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Saltá con las dos piernas. Medí hasta el talón más atrasado.'}],'slj':[{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="64" cy="64" r="9" stroke="#e8eaee"/><path d="M64 74 L66 96" stroke="#e8eaee" stroke-width="3"/><path d="M66 96 L60 110 L62 120" stroke="#a8e063" stroke-width="3"/><path d="M66 96 L82 104 L78 116" stroke="#e8eaee" stroke-width="3"/><path d="M64 78 L88 92" stroke="#e8eaee" stroke-width="3"/><circle cx="62" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'1. Apoyado en una sola pierna, detrás de la línea.'},{s:'<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;"><g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M10 120 L190 120" stroke="#5b616e" stroke-width="3"/><path d="M52 110 L52 128" stroke="#a8e063" stroke-width="3"/><circle cx="130" cy="62" r="9" stroke="#e8eaee"/><path d="M130 72 L128 96" stroke="#e8eaee" stroke-width="3"/><path d="M128 96 L138 112 L146 120" stroke="#a8e063" stroke-width="3"/><path d="M128 96 L118 106 L114 116" stroke="#e8eaee" stroke-width="3"/><path d="M130 76 L106 62" stroke="#e8eaee" stroke-width="3"/><path d="M52 132 L146 132" stroke="#a8e063" stroke-width="2.5"/><path d="M52 132 l5 -4 M52 132 l5 4" stroke="#a8e063" stroke-width="2.5"/><path d="M146 132 l-5 -4 M146 132 l-5 4" stroke="#a8e063" stroke-width="2.5"/><circle cx="146" cy="120" r="4" fill="#a8e063" stroke="none"/></g></svg>',c:'2. Saltá y caé con la MISMA pierna. Repetí con la otra.'}]};
 
@@ -2929,6 +2993,12 @@ var TEST_SVG={
  hip:'<line x1="2" y1="20.5" x2="22" y2="20.5"/><circle cx="3.6" cy="15.6" r="1.6"/><path d="M5.4 16.6H12"/><path d="M12 16.6l5.2-12"/><path d="M15.8 16.6a3.8 3.8 0 0 0-1.4-3"/>',
  shoulder:'<circle cx="12" cy="4.6" r="2"/><path d="M8 21v-9.5a4 4 0 0 1 8 0V21"/><path d="M16 11.2c2.2-.4 3-2.6 1.6-4.8"/><path d="M8 14.2c-2 .3-2.8 2.2-1.8 4"/><line x1="12" y1="10" x2="12" y2="15" stroke-dasharray="1.6 1.8"/>',
  cmj:'<line x1="4" y1="21" x2="20" y2="21"/><path d="M12 17V4"/><path d="M8 8l4-4 4 4"/><line x1="7" y1="17" x2="17" y2="17" stroke-dasharray="2 2"/>',
+ t3015:'<line x1="3" y1="20" x2="21" y2="20"/><line x1="4" y1="16" x2="4" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="20" y1="16" x2="20" y2="20"/><path d="M5 11h13"/><path d="M15.5 8.5L18 11l-2.5 2.5"/><path d="M8 4h8"/>',
+ yoyo2:'<line x1="3" y1="20" x2="3" y2="6"/><line x1="21" y1="20" x2="21" y2="6"/><path d="M6 10h12"/><path d="M15.5 7.5L18 10l-2.5 2.5"/><path d="M18 15H6"/><path d="M8.5 12.5L6 15l2.5 2.5"/><circle cx="12" cy="3" r="1"/>',
+ navette:'<line x1="4" y1="4" x2="4" y2="20"/><line x1="20" y1="4" x2="20" y2="20"/><path d="M7 9h10"/><path d="M14.5 6.5L17 9l-2.5 2.5"/><path d="M17 15H7"/><path d="M9.5 12.5L7 15l2.5 2.5"/>',
+ step:'<path d="M3 20h6v-5h6v-5h6"/><circle cx="9" cy="5" r="1.6"/><path d="M9 7v4l-2 3"/>',
+ submax:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/><path d="M3.5 12h4l2-3 3 6 2-3h6"/>',
+ lab:'<path d="M9 3h6"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/>',
  bronco:'<circle cx="12" cy="14" r="7"/><path d="M12 10.5V14l2.2 1.6"/><path d="M10 3h4"/><path d="M12 3v4"/><path d="M18.5 7.5l1.3-1.3"/>',
  yoyo:'<line x1="3" y1="20" x2="3" y2="6"/><line x1="21" y1="20" x2="21" y2="6"/><path d="M6 10h12"/><path d="M15.5 7.5L18 10l-2.5 2.5"/><path d="M18 15H6"/><path d="M8.5 12.5L6 15l2.5 2.5"/>',
  sbj:'<line x1="2" y1="21" x2="22" y2="21"/><line x1="4" y1="21" x2="4" y2="17.5"/><path d="M5 16C8 7 15 7 18 16"/><path d="M15.6 14.6l2.5 1.6 1.2-2.7"/>',
@@ -2937,6 +3007,39 @@ var TEST_SVG={
 function testIcon(k,size){var p=TEST_SVG[k];if(!p){var x=testDef(k);return x?x.ic:'';}size=size||16;
   return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.18em;display:inline-block;color:var(--mob);flex:none;">'+p+'</svg>';}
 function testTile(k){return '<div style="flex:none;width:38px;height:38px;border-radius:10px;background:rgba(168,224,99,0.10);border:1px solid rgba(168,224,99,0.28);display:flex;align-items:center;justify-content:center;">'+testIcon(k,21)+'</div>';}
+
+/* --- tests con datos extra (carga a mano) --- */
+function testExtraHtml(x,last){
+  var st='width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px;font-size:16px;color:var(--text);outline:none;box-sizing:border-box;font-family:\'Barlow\',sans-serif;';
+  var lb=function(t){return '<label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-top:10px;">'+t+'</label>';};
+  var num=function(id,ph){return '<input type="number" inputmode="decimal" step="0.1" id="tx-'+id+'" placeholder="'+(ph||'')+'" style="'+st+'"/>';};
+  if(x.manual==='submax')return lb(tr('FC 1 minuto después (lpm)'))+num('hr1')+lb(tr('RPE (1 a 10, opcional)'))+num('rpe')+lb(tr('Protocolo'))+'<input type="text" id="tx-p" value="'+String((last&&last.p)||'Yo-Yo IR1 6 min').replace(/"/g,'&quot;')+'" style="'+st+'"/>';
+  if(x.manual==='lab')return lb(tr('VAM medida (km/h)'))+num('vam')+lb(tr('FC máxima (lpm)'))+num('fcmax')+lb(tr('Umbral aeróbico VT1 (km/h, opcional)'))+num('vt1')+lb(tr('Umbral anaeróbico VT2 (km/h, opcional)'))+num('vt2');
+  if(x.manual==='step')return lb(tr('Pulsaciones contadas en 15 segundos'))+num('c15','30')+lb(tr('Sexo'))+'<select id="tx-sx" style="'+st+'"><option value="h">'+tr('Hombre')+'</option><option value="m">'+tr('Mujer')+'</option></select>';
+  return '';
+}
+function stepVo2(hr,sx){return sx==='m'?65.81-0.1847*hr:111.33-0.42*hr;}
+function testExtraPre(x){
+  if(x.manual!=='step')return true;
+  var c=parseFloat((document.getElementById('tx-c15')||{}).value);if(!(c>5))return false;
+  var hr=Math.round(c*4),sx=(document.getElementById('tx-sx')||{}).value||'h';
+  document.getElementById('test-v').value=Math.round(stepVo2(hr,sx)*10)/10;return true;
+}
+function testExtraCollect(x,entry){
+  var g=function(id){var e=document.getElementById('tx-'+id);return e?e.value:'';};
+  if(x.manual==='submax'){var h1=parseFloat(g('hr1'));if(h1>0){entry.hr1=h1;entry.hrr=Math.round(entry.v-h1);}var r=parseFloat(g('rpe'));if(r>0)entry.rpe=r;var pp=String(g('p')).trim();if(pp)entry.p=pp.slice(0,40);}
+  if(x.manual==='lab'){['vam','fcmax','vt1','vt2'].forEach(function(k){var v=parseFloat(String(g(k)).replace(',','.'));if(v>0)entry[k]=v;});}
+  if(x.manual==='step'){var c=parseFloat(g('c15'));entry.hr=Math.round(c*4);entry.sx=g('sx')||'h';}
+}
+function testExtraSum(x,e){
+  if(!x||!e)return '';var f=function(v){return String(Math.round(v*10)/10).replace('.',LANG==='en'?'.':',');};
+  if(x.k==='submax'){var a=[];if(e.hr1)a.push(tr('1 min')+' '+e.hr1+' ('+'-'+(e.hrr!=null?e.hrr:Math.round(e.v-e.hr1))+')');if(e.rpe)a.push('RPE '+e.rpe);if(e.p)a.push(e.p);return a.join(' · ');}
+  if(x.k==='lab'){var b=[];if(e.vam)b.push('VAM '+f(e.vam)+' km/h');if(e.fcmax)b.push(tr('FC máx')+' '+e.fcmax);if(e.vt2)b.push('VT2 '+f(e.vt2)+' km/h');return b.join(' · ');}
+  if(x.k==='step')return e.hr?tr('FC')+' '+e.hr:'';
+  if(x.k==='navette'){var sp=8+0.5*(+e.v);return f(sp)+' km/h · VO₂máx ≈ '+Math.round(-24.4+6*sp);}
+  if(x.k==='yoyo2'){var vo=(+e.v)*0.0136+45.3;return 'VAM ≈ '+f(vo/3.5)+' km/h';}
+  return '';
+}
 function tvf(x,v){if(x&&x.time&&isFinite(+v)&&v!==''&&v!=null){v=Math.round(+v);return Math.floor(v/60)+':'+('0'+(v%60)).slice(-2);}return v;}
 function tParseTime(v){v=String(v||'').trim().replace(',','.');var m=v.match(/^(\d+)[:'′.](\d{1,2})$/);if(m)return (+m[1])*60+(+m[2]);var n=parseFloat(v);return isFinite(n)?(n<20?Math.round(n*60):Math.round(n)):NaN;}
 function testDef(k){for(var i=0;i<TESTS.length;i++){if(TESTS[i].k===k)return TESTS[i];}return null;}
@@ -4194,6 +4297,8 @@ var testsOpenPid=null;
 function toggleTestsPlayer(pid){testsOpenPid=(testsOpenPid===pid)?null:pid;renderTestsScreen();}
 function renderTestsScreen(){
   var box=document.getElementById('tests-screen');if(!box)return;
+  try{var _tb=document.getElementById('tests-take');if(!_tb){_tb=document.createElement('div');_tb.id='tests-take';box.parentNode.insertBefore(_tb,box);}
+    _tb.innerHTML=isCoach&&PLAYERS.length?'<button class="gr-btn go" style="width:100%;margin-bottom:12px;padding:12px;" onclick="trOpen(null,\'\')">▶ '+tr('Tomar un test con el grupo')+' · 30-15 · Yo-Yo · Bronco · Navette · '+tr('Submáximo')+' · '+tr('Escalón')+'</button>':'';}catch(e){}
   if(!PLAYERS.length){box.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:13px;padding:20px 0;">'+tr('Todavía no tenés alumnos.')+'</div>';return;}
   box.innerHTML=PLAYERS.map(function(p){
     var en=(p.tests_enabled||[]).length;
@@ -7845,14 +7950,15 @@ function openTestModal(k){
   if(x.bi){
     f.innerHTML='<div style="display:flex;gap:10px;"><div style="flex:1;"><label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Izquierda')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-l" style="'+st+'"/></div><div style="flex:1;"><label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Derecha')+' ('+x.u+')</label><input type="number" step="0.1" inputmode="decimal" id="test-r" style="'+st+'"/></div></div>';
   } else {
-    f.innerHTML='<label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr('Resultado')+' ('+x.u+')</label><input '+(x.time?'type="text" inputmode="text" placeholder="4:35"':'type="number" step="0.1" inputmode="decimal"')+' id="test-v" style="'+st+'"/>'+(x.time?'<div style="font-size:12px;color:var(--muted2);margin-top:6px;">'+tr('Escribí el tiempo en minutos y segundos, por ejemplo 4:35')+'</div>':'')+(k==='yoyo'||k==='bronco'?'<div id="test-yoyo" style="font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.45;"></div>':'');
+    f.innerHTML='<label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">'+tr(x.manual==='submax'?'FC al terminar':x.manual==='lab'?'VO₂máx':'Resultado')+' ('+x.u+')</label><input '+(x.time?'type="text" inputmode="text" placeholder="4:35"':'type="number" step="0.1" inputmode="decimal"')+' id="test-v" style="'+st+'"/>'+(x.time?'<div style="font-size:12px;color:var(--muted2);margin-top:6px;">'+tr('Escribí el tiempo en minutos y segundos, por ejemplo 4:35')+'</div>':'')+(k==='yoyo'||k==='bronco'?'<div id="test-yoyo" style="font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.45;"></div>':'');
+    if(x.manual){f.insertAdjacentHTML('beforeend',testExtraHtml(x,last));if(x.manual==='step'){var _tv=document.getElementById('test-v');_tv.parentNode.querySelector('label').style.display='none';_tv.style.display='none';}}
     if(k==='bronco'){var _bv=document.getElementById('test-v'),_bo=function(){var el=document.getElementById('test-yoyo');if(!el)return;var t=tParseTime(_bv.value);if(!(t>60)){el.textContent=last?tr('Último')+': '+tvf(x,last.v)+' · VAM '+runFmtKmh(broncoVam(last.v))+' km/h':'';return;}el.innerHTML=tr('Velocidad media')+' <b>'+runFmtKmh(1200/t*3.6)+' km/h</b> · VAM '+tr('estimada')+' <b>'+runFmtKmh(broncoVam(t))+' km/h</b>';};_bv.oninput=_bo;_bo();}
     if(k==='yoyo'){var _yv=document.getElementById('test-v'),_yo=function(){var v=+_yv.value,el=document.getElementById('test-yoyo');if(!el)return;if(!(v>0)){el.textContent=last?tr('Último')+': '+last.v+' m · VAM '+runFmtKmh(yoyoInfo(last.v).vam)+' km/h':'';return;}var i=yoyoInfo(v);el.innerHTML=tr('Nivel')+' <b>'+(i.lvl||'—')+'</b> · VO₂max ≈ <b>'+Math.round(i.vo2)+'</b> · VAM '+tr('estimada')+' <b>'+runFmtKmh(i.vam)+' km/h</b>';};_yv.oninput=_yo;_yo();}
   }
   var hist=document.getElementById('test-hist');
   hist.innerHTML=h.length?('<div class="sum-lbl">'+tr('Historial')+'</div>'+h.slice(-6).reverse().map(function(e){
     var delBtn=isCoach?('<button onclick="deleteTestEntry(\''+e.d+'\')" title="'+tr('Eliminar registro')+'" style="flex:none;background:rgba(255,107,107,0.10);border:none;color:#ff6b6b;border-radius:5px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-left:8px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'):'';
-    return '<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border2);"><span style="color:var(--muted2);">'+fmtDateShort(e.d)+'</span><span style="display:flex;align-items:center;"><b>'+(x.bi?('I '+e.l+' · D '+e.r):tvf(x,e.v))+' '+x.u+'</b>'+delBtn+'</span></div>';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border2);"><span style="color:var(--muted2);">'+fmtDateShort(e.d)+'</span><span style="display:flex;align-items:center;"><b>'+(x.bi?('I '+e.l+' · D '+e.r):tvf(x,e.v))+' '+x.u+'</b>'+(testExtraSum(x,e)?'<span style="color:var(--muted2);margin-left:6px;font-size:11px;">'+testExtraSum(x,e)+'</span>':'')+delBtn+'</span></div>';
   }).join('')):'';
   document.getElementById('test-msg').textContent='';
   document.getElementById('modal-test').classList.add('open');
@@ -7916,10 +8022,12 @@ async function saveTest(){
     if(l===''||r===''){msg.style.color='#ff6b6b';msg.textContent=tr('Completá los dos lados.');return;}
     entry.l=+l;entry.r=+r;
   } else {
+    if(x.manual&&!testExtraPre(x)){msg.style.color='#ff6b6b';msg.textContent=tr('Ingresá el resultado.');return;}
     var v=document.getElementById('test-v').value;
     if(v===''){msg.style.color='#ff6b6b';msg.textContent=tr('Ingresá el resultado.');return;}
     if(x.time){v=tParseTime(v);if(!(v>0)){msg.style.color='#ff6b6b';msg.textContent=tr('Escribí el tiempo en minutos y segundos, por ejemplo 4:35');return;}}
     entry.v=+v;
+    if(x.manual)testExtraCollect(x,entry);
   }
   var _pid=testTargetPid||currentPlayerId;
   var p=PLAYERS.find(function(y){return y.id===_pid;});
@@ -7965,11 +8073,24 @@ function yoyoInfo(d){
 function runFmtKmh(v){return (Math.round(v*10)/10).toFixed(1).replace('.',LANG==='en'?'.':',');}
 /* Bronco (1.200 m): VAM (m/s) ≈ 1200 / (tiempo − 20,3)  (corrige el tiempo de los giros) */
 function broncoVam(t){t=+t;return t>40?1200/(t-20.3)*3.6:NaN;}
+/* Velocidad de referencia para individualizar la carrera.
+   El profe puede fijar qué test usa cada grupo (tests.__ref); si no, se toma el mejor dato disponible. */
+var RUN_REF_ORDER=['lab','t3015','yoyo','yoyo2','bronco','navette'];
+var RUN_REF_N={lab:'Laboratorio',t3015:'30-15 IFT',yoyo:'Yo-Yo IR1',yoyo2:'Yo-Yo IR2',bronco:'Bronco',navette:'Course Navette'};
+function runRefFrom(p,k){
+  var h=testHistory(p,k),l=h[h.length-1];if(!l)return null;var v=+l.v,f=runFmtKmh;
+  if(k==='lab'){if(!(+l.vam>0))return null;return {vam:+l.vam,date:l.d,src:k,txt:tr('Laboratorio')};}
+  if(k==='t3015'){if(!(v>0))return null;return {vam:v,date:l.d,src:k,txt:'30-15 IFT '+f(v)+' km/h'};}
+  if(k==='yoyo'){if(!(v>0))return null;var i=yoyoInfo(v);return {vam:i.vam,d:v,date:l.d,lvl:i.lvl,src:k,txt:'Yo-Yo IR1 '+v+' m'};}
+  if(k==='yoyo2'){if(!(v>0))return null;return {vam:(v*0.0136+45.3)/3.5,date:l.d,src:k,txt:'Yo-Yo IR2 '+v+' m'};}
+  if(k==='bronco'){if(!(v>60))return null;var b=broncoVam(v);return isFinite(b)?{vam:b,date:l.d,src:k,txt:'Bronco '+tvf({time:1},v)}:null;}
+  if(k==='navette'){if(!(v>=0))return null;return {vam:8+0.5*v,date:l.d,src:k,txt:'Navette '+tr('palier')+' '+v};}
+  return null;
+}
 function runRef(p){
-  if(!p)return null;var h=testHistory(p,'yoyo');var l=h[h.length-1];
-  if(l&&+l.v>0){var i=yoyoInfo(l.v);return {vam:i.vam,d:+l.v,date:l.d,lvl:i.lvl,src:'yoyo',txt:'Yo-Yo IR1 '+l.v+' m'};}
-  var hb=testHistory(p,'bronco'),b=hb[hb.length-1];
-  if(b&&+b.v>60){var v=broncoVam(b.v);if(isFinite(v))return {vam:v,date:b.d,src:'bronco',txt:'Bronco '+tvf({time:1},b.v)};}
+  if(!p)return null;var pref=p.tests&&p.tests.__ref;
+  if(pref){var r=runRefFrom(p,pref);if(r)return r;}
+  for(var i=0;i<RUN_REF_ORDER.length;i++){var x=runRefFrom(p,RUN_REF_ORDER[i]);if(x)return x;}
   return null;
 }
 function runPlayer(){try{if(!currentPlayerId)return null;return PLAYERS.find(function(p){return p.id===currentPlayerId;})||null;}catch(e){return null;}}
@@ -8471,7 +8592,7 @@ function grRender(){
     +(GROUPS||[]).map(function(g){return '<button class="gr-chip'+(GR.gid===g.id?' on':'')+'" onclick="grSet(\'gid\',\''+g.id+'\')">'+grEsc(g.name)+'<small>'+cnt(function(p){return p.group_id===g.id;})+'</small></button>';}).join('')
     +(cnt(function(p){return !p.group_id;})&&(GROUPS||[]).length?'<button class="gr-chip'+(GR.gid==='__none'?' on':'')+'" onclick="grSet(\'gid\',\'__none\')">'+tr('Sin grupo')+'<small>'+cnt(function(p){return !p.group_id;})+'</small></button>':'')+'</div>';
   var tabs=[['panel','Panel'],['att','Asistencia'],['rk','Rankings'],['m','Metros'],['rep','Informe']];
-  var th='<div class="gr-tabs">'+tabs.map(function(t){return '<button class="gr-tab'+(GR.tab===t[0]?' on':'')+'" onclick="grSet(\'tab\',\''+t[0]+'\')">'+tr(t[1])+'</button>';}).join('')+'</div>';
+  var th='<div class="gr-tabs">'+tabs.map(function(t){return '<button class="gr-tab'+(GR.tab===t[0]?' on':'')+'" onclick="grSet(\'tab\',\''+t[0]+'\')">'+tr(t[1])+'</button>';}).join('')+'<span style="flex:1"></span><button class="gr-btn go" style="flex:none;align-self:center;padding:7px 12px;margin-bottom:6px;" onclick="trOpen(null,GR.gid)">▶ '+tr('Tomar un test')+'</button></div>';
   var M=grMembers(),body='';
   if(!M.length)body='<div class="gr-note">'+tr('Este grupo no tiene alumnos.')+'</div>';
   else try{body=GR.tab==='att'?grAttHtml(M):GR.tab==='rk'?grRkHtml(M):GR.tab==='m'?grMHtml(M):GR.tab==='rep'?grRepTab(M):grPanelHtml(M);}catch(e){console.error('grupos',e);body='<div class="gr-note">'+tr('No se pudo mostrar esta sección.')+'</div>';}
@@ -8570,23 +8691,33 @@ function grMColTxt(c){var o=grMCol(c);return o?(o.u==='s'?runFmtT(o.v):o.v+' m')
 function grMToggle(c){var a=GR.mCols.slice(),i=a.indexOf(c);if(i>=0)a.splice(i,1);else a.push(c);a.sort(function(x,y){var X=grMCol(x),Y=grMCol(y);return (X.u===Y.u?X.v-Y.v:(X.u==='s'?-1:1));});grSet('mCols',a);}
 function grMAdd(v){v=String(v||'').trim().toLowerCase().replace(/\s+/g,'');var m=/^(\d+)(s|seg|″|"|m)$/.exec(v);if(!m)return;var c=m[1]+(m[2]==='m'?'m':'s');if(GR.mCols.indexOf(c)<0)grMToggle(c);}
 function grMVal(ref,c){var o=grMCol(c);if(!ref||!o)return '';var ms=ref.vam/3.6*(+GR.mPct||100)/100;if(!(ms>0))return '';return o.u==='s'?runRoundM(ms*o.v)+' m':runFmtT(Math.round(o.v/ms));}
+async function grRefSet(k){
+  if(k==='__mix')return;var M=grMembers(),err='';
+  for(var i=0;i<M.length;i++){var p=M[i],all=JSON.parse(JSON.stringify(p.tests||{}));if(k)all.__ref=k;else delete all.__ref;
+    if(JSON.stringify(all)===JSON.stringify(p.tests||{}))continue;
+    var r;try{r=await sb.from('players').update({tests:all}).eq('id',p.id);}catch(e){r={error:e};}
+    if(r&&r.error){err=String(r.error.message||r.error);continue;}p.tests=all;}
+  if(err)showInfo('Error: '+err);else toast(tr('Referencia guardada'));grRender();
+}
 function grMHtml(M){
   var h='<div class="gr-ctl"><span style="font-size:13px;color:var(--muted);">'+tr('Intensidad')+'</span><input type="number" inputmode="numeric" value="'+(+GR.mPct||100)+'" style="width:76px;" onchange="grSet(\'mPct\',Math.max(40,Math.min(150,+this.value||100)))"><span style="font-size:13px;color:var(--muted);">% VAM</span>'
     +'<span style="flex:1"></span><button class="gr-btn" onclick="grMPdf()">'+tr('Descargar PDF')+'</button></div>'
+    +(function(){var refs={};M.forEach(function(p){refs[(p.tests&&p.tests.__ref)||'']=1;});var ks=Object.keys(refs),cur=ks.length===1?ks[0]:'__mix';
+      return '<div class="gr-ctl"><span style="font-size:13px;color:var(--muted);">'+tr('Velocidad de referencia del grupo')+'</span><select onchange="grRefSet(this.value)">'+(cur==='__mix'?'<option value="__mix" selected>'+tr('Distinta según el jugador')+'</option>':'')+'<option value=""'+(cur===''?' selected':'')+'>'+tr('Automática (el mejor dato de cada uno)')+'</option>'+RUN_REF_ORDER.map(function(k){return '<option value="'+k+'"'+(cur===k?' selected':'')+'>'+tr(RUN_REF_N[k])+'</option>';}).join('')+'</select></div>';})()
     +'<div class="gr-ctl">'+GR_MPRE.concat(GR.mCols.filter(function(c){return GR_MPRE.indexOf(c)<0;})).map(function(c){return '<button class="gr-chip'+(GR.mCols.indexOf(c)>=0?' on':'')+'" onclick="grMToggle(\''+c+'\')">'+grMColTxt(c)+'</button>';}).join('')
     +'<input type="text" placeholder="'+tr('Otra: 25s o 250m')+'" style="width:130px;" onchange="grMAdd(this.value)"></div>';
   var cols=GR.mCols.filter(grMCol);
   var withR=M.map(function(p){return {p:p,r:runRef(p)};});
   var ok=withR.filter(function(x){return x.r;}),no=withR.filter(function(x){return !x.r;});
-  if(!ok.length)return h+'<div class="gr-note">'+tr('Nadie del grupo tiene Yo-Yo IR1 ni Bronco cargado. Activá el test en Evaluaciones y cargá los resultados.')+'</div>';
+  if(!ok.length)return h+'<div class="gr-note">'+tr('Nadie del grupo tiene un test aeróbico cargado (30-15 IFT, Yo-Yo, Bronco, Navette o laboratorio). Tomalo con "Tomar un test" o cargá los resultados en Evaluaciones.')+'</div>';
   ok.sort(function(a,b){return b.r.vam-a.r.vam;});
   h+='<div class="gr-wrap"><table class="gr-tbl" style="min-width:'+(260+cols.length*80)+'px"><thead><tr><th class="gr-name">'+tr('Jugador')+'</th><th>VAM</th>'+cols.map(function(c){var o=grMCol(c);return '<th>'+grMColTxt(c)+'<span class="gr-sub" style="font-weight:500;letter-spacing:0;text-transform:none;">'+tr(o.u==='s'?'metros':'tiempo')+'</span></th>';}).join('')+'</tr></thead><tbody>';
   ok.forEach(function(x){h+='<tr><td class="gr-name">'+grPl(x.p)+'</td><td><b>'+runFmtKmh(x.r.vam)+'</b> <span class="gr-muted" style="font-size:11px;">km/h</span><span class="gr-sub">'+grEsc(x.r.txt)+'</span></td>'+cols.map(function(c){return '<td><b>'+grMVal(x.r,c)+'</b></td>';}).join('')+'</tr>';});
   var av={vam:ok.reduce(function(s,x){return s+x.r.vam;},0)/ok.length};
   h+='<tr><td class="gr-name"><b style="color:var(--muted);font-size:11px;letter-spacing:0.05em;text-transform:uppercase;">'+tr('Promedio')+'</b></td><td class="gr-muted">'+runFmtKmh(av.vam)+'</td>'+cols.map(function(c){return '<td class="gr-muted">'+grMVal(av,c)+'</td>';}).join('')+'</tr>';
   h+='</tbody></table></div>';
-  if(no.length)h+='<div class="gr-note">'+tr('Sin Yo-Yo IR1 ni Bronco')+': '+no.map(function(x){return grEsc(String(x.p.name).split(' ')[0]);}).join(', ')+'</div>';
-  h+='<div class="gr-note">'+tr('Por tiempo: los metros que tiene que recorrer cada uno. Por metros: el tiempo objetivo. Se calcula con la VAM estimada de su último Yo-Yo IR1 (o Bronco).')+'</div>';
+  if(no.length)h+='<div class="gr-note">'+tr('Sin test aeróbico')+': '+no.map(function(x){return grEsc(String(x.p.name).split(' ')[0]);}).join(', ')+'</div>';
+  h+='<div class="gr-note">'+tr('Por tiempo: los metros que tiene que recorrer cada uno. Por metros: el tiempo objetivo. Se calcula con la velocidad de referencia de cada jugador (debajo de su VAM figura de qué test sale). Con el 30-15 IFT se usa la velocidad final del test (VIFT).')+'</div>';
   return h;
 }
 /* --- informe --- */
@@ -8668,6 +8799,241 @@ async function athAvailFetch(){
     if(r&&!r.error&&r.data){PLAYERS[0].availability=r.data;try{availHomeCard();}catch(e){}}}catch(e){}
 }
 (function(){var _ad=applyAthleteData;applyAthleteData=function(d){_ad.apply(this,arguments);try{if(d&&d.player&&d.player.availability)PLAYERS[0].availability=d.player.availability;}catch(e){}setTimeout(athAvailFetch,600);};})();
+
+/* ===== TOMAR TESTS DESDE LA APP =====
+   La app genera los pitidos (no hace falta el audio oficial), anuncia niveles con voz y el profe
+   marca a cada jugador cuando queda afuera. Al final se guardan los resultados en los tests de cada uno.
+   Reloj: AudioContext (preciso y se pausa con suspend). */
+var TRT_TESTS=[
+  {k:'t3015',n:'30-15 IFT',d:'30″ corriendo ida y vuelta + 15″ caminando. Sube 0,5 km/h por etapa.',setup:'Líneas a 0, 20 y 40 m con una zona de 3 m en cada una.'},
+  {k:'yoyo',n:'Yo-Yo IR1',d:'Idas y vueltas de 20 m con 10″ de recuperación. Arranca a 10 km/h.',setup:'Dos líneas a 20 m y otra a 5 m detrás de la salida para la recuperación.'},
+  {k:'yoyo2',n:'Yo-Yo IR2',d:'Como el IR1 pero arranca a 13 km/h. Para jugadores entrenados.',setup:'Dos líneas a 20 m y otra a 5 m detrás de la salida para la recuperación.'},
+  {k:'navette',n:'Course Navette (20 m)',d:'Idas y vueltas de 20 m sin pausa. Sube 0,5 km/h cada minuto.',setup:'Dos líneas a 20 m.'},
+  {k:'bronco',n:'Bronco',d:'1.200 m: 5 vueltas de 20-40-60 m. Cronómetro grupal.',setup:'Conos a 0, 20, 40 y 60 m.'},
+  {k:'submax',n:'Test submáximo (FC)',d:'Unos minutos a ritmo fijo y medir el pulso al terminar y un minuto después.',setup:'Cada jugador con reloj o banda de frecuencia cardíaca.'},
+  {k:'step',n:'Test de escalón (Queens College)',d:'3 minutos subiendo y bajando al ritmo del metrónomo y pulso en 15″.',setup:'Escalón o cajón de 41,3 cm para cada uno.'}
+];
+var YOYO2=[['11',13,1],['15',15,1],['17',16,2],['18',16.5,3],['19',17,4],['20',17.5,8],['21',18,8],['22',18.5,8],['23',19,8],['24',19.5,8],['25',20,8],['26',20.5,8]];
+var TRT=null,TRS={k:'t3015',gid:null,sel:null,sm:'yoyo',smV:12,smMin:4,smDist:40,sx:'h'};
+try{var _trs=JSON.parse(localStorage.getItem('pd_trs')||'{}');for(var _q in _trs)TRS[_q]=_trs[_q];}catch(e){}
+function trSave(){try{localStorage.setItem('pd_trs',JSON.stringify({k:TRS.k,sm:TRS.sm,smV:TRS.smV,smMin:TRS.smMin,smDist:TRS.smDist,sx:TRS.sx}));}catch(e){}}
+function trEl(id){return document.getElementById(id);}
+function trOpen(k,gid){
+  if(!isCoach)return;
+  if(k)TRS.k=k;TRS.gid=gid!=null?gid:(typeof GR!=='undefined'?GR.gid:'');TRS.sel=null;
+  TRT=null;trEl('trt').classList.add('open');try{document.body.style.overflow='hidden';}catch(e){}
+  trSetup();
+}
+function trClose(force){
+  var go=function(){trStop();TRT=null;trEl('trt').classList.remove('open');try{document.body.style.overflow='';}catch(e){}};
+  if(!force&&TRT&&TRT.phase!=='res'&&TRT.phase!=='setup')askConfirm(tr('¿Salir del test? Se pierden los resultados que no guardaste.'),go,{danger:true,okLabel:tr('Salir')});
+  else if(!force&&TRT&&TRT.phase==='res'&&!TRT.saved)askConfirm(tr('¿Salir sin guardar los resultados?'),go,{danger:true,okLabel:tr('Salir')});
+  else go();
+}
+function trMembers(){var g=TRS.gid;return PLAYERS.filter(function(p){return !g||(g==='__none'?!p.group_id:p.group_id===g);}).slice().sort(function(a,b){return String(a.name).localeCompare(String(b.name));});}
+/* --- pantalla inicial --- */
+function trSetup(){
+  var M=trMembers();if(!TRS.sel){TRS.sel={};M.forEach(function(p){TRS.sel[p.id]=1;});}
+  var T=TRT_TESTS.filter(function(t){return t.k===TRS.k;})[0]||TRT_TESTS[0];
+  var cards=TRT_TESTS.map(function(t){return '<button class="trt-card'+(t.k===T.k?' on':'')+'" onclick="TRS.k=\''+t.k+'\';trSave();trSetup()"><b>'+grEsc(tr(t.n))+'</b><span>'+tr(t.d)+'</span></button>';}).join('');
+  var gch='<div class="gr-chips" style="margin:0 0 8px;"><button class="gr-chip'+(!TRS.gid?' on':'')+'" onclick="TRS.gid=\'\';TRS.sel=null;trSetup()">'+tr('Todos')+'</button>'+(GROUPS||[]).map(function(g){return '<button class="gr-chip'+(TRS.gid===g.id?' on':'')+'" onclick="TRS.gid=\''+g.id+'\';TRS.sel=null;trSetup()">'+grEsc(g.name)+'</button>';}).join('')+'</div>';
+  var pls='<div class="trt-pls">'+M.map(function(p){var on=!!TRS.sel[p.id];return '<button class="trt-pl'+(on?' on':'')+'" onclick="TRS.sel[\''+p.id+'\']=TRS.sel[\''+p.id+'\']?0:1;trSetup()">'+grAv(p)+'<span>'+grEsc(p.name)+'</span><i>'+(on?'✓':'')+'</i></button>';}).join('')+'</div>';
+  var opt='';
+  if(T.k==='submax'){
+    opt='<div class="trt-lbl">'+tr('Protocolo')+'</div><div class="gr-ctl"><button class="gr-chip'+(TRS.sm==='yoyo'?' on':'')+'" onclick="TRS.sm=\'yoyo\';trSave();trSetup()">'+tr('Yo-Yo IR1 · 6 minutos')+'</button><button class="gr-chip'+(TRS.sm==='fix'?' on':'')+'" onclick="TRS.sm=\'fix\';trSave();trSetup()">'+tr('Ritmo fijo')+'</button></div>'
+      +(TRS.sm==='fix'?'<div class="gr-ctl"><input type="number" inputmode="decimal" value="'+TRS.smV+'" style="width:80px" onchange="TRS.smV=Math.max(6,Math.min(20,+this.value||12));trSave()"> km/h <input type="number" inputmode="numeric" value="'+TRS.smMin+'" style="width:70px" onchange="TRS.smMin=Math.max(2,Math.min(12,+this.value||4));trSave()"> min <select onchange="TRS.smDist=+this.value;trSave()"><option value="20"'+(TRS.smDist==20?' selected':'')+'>'+tr('ida y vuelta')+' 20 m</option><option value="40"'+(TRS.smDist==40?' selected':'')+'>'+tr('ida y vuelta')+' 40 m</option></select></div>':'');
+  }
+  if(T.k==='step')opt='<div class="trt-lbl">'+tr('Ritmo del metrónomo')+'</div><div class="gr-ctl"><button class="gr-chip'+(TRS.sx==='h'?' on':'')+'" onclick="TRS.sx=\'h\';trSave();trSetup()">'+tr('Hombres · 24 por minuto')+'</button><button class="gr-chip'+(TRS.sx==='m'?' on':'')+'" onclick="TRS.sx=\'m\';trSave();trSetup()">'+tr('Mujeres · 22 por minuto')+'</button></div>';
+  var n=M.filter(function(p){return TRS.sel[p.id];}).length;
+  trEl('trt-body').innerHTML='<div class="trt-setup"><div class="trt-lbl">'+tr('Test')+'</div><div class="trt-cards">'+cards+'</div>'
+    +'<div class="trt-note"><b>'+tr('Armado')+':</b> '+tr(T.setup)+(T.k!=='bronco'&&T.k!=='step'?' '+tr('Conectá el teléfono a un parlante para que todos escuchen los pitidos.'):'')+'</div>'+opt
+    +'<div class="trt-lbl">'+tr('Jugadores')+' · '+n+'</div>'+gch+pls+'</div>';
+  trEl('trt-title').textContent=tr('Tomar test');
+  trEl('trt-foot').innerHTML='<button class="trt-big" '+(n?'':'disabled')+' onclick="trStart()">▶ '+tr('Empezar')+' · '+grEsc(tr(T.n))+'</button>';
+}
+/* --- eventos de cada test (t en segundos desde el inicio) --- */
+function trYoyoPlan(tab){
+  var ev=[],bouts=[],T=0,prevL=null,idx=0;
+  tab.forEach(function(s){for(var b=1;b<=s[2];b++){var ms=s[1]/3.6,lvl=s[0]+'.'+b,r=40/ms;
+    if(s[0]!==prevL){ev.push({t:Math.max(0,T-4.5),say:tr('Nivel')+' '+s[0]+', '+String(s[1]).replace('.',LANG==='en'?'.':',')+' '+tr('kilómetros por hora')});prevL=s[0];}
+    ev.push({t:T,b:'go'});ev.push({t:T+r/2,b:'beep'});ev.push({t:T+r,b:'beep'});
+    bouts.push({i:idx++,t:T,te:T+r,lvl:lvl,v:s[1]});T=T+r+10;}});
+  return {ev:ev,bouts:bouts,end:T};
+}
+function trPlan(k){
+  if(k==='yoyo')return trYoyoPlan(YOYO1);
+  if(k==='yoyo2')return trYoyoPlan(YOYO2);
+  if(k==='t3015'){var ev=[],st=[],T=0;for(var i=0;i<=44;i++){var v=8+0.5*i,ms=v/3.6,iv=20/ms;
+      ev.push({t:Math.max(0,T-4),say:String(v).replace('.',LANG==='en'?'.':',')+' '+tr('kilómetros por hora')});
+      for(var j=0;j*iv<=30.05;j++)ev.push({t:T+j*iv,b:j===0?'go':'beep'});
+      ev.push({t:T+30,b:'stop',say2:tr('Caminá')});st.push({t:T,te:T+30,v:v});T+=45;}
+    return {ev:ev,stages:st,end:T};}
+  if(k==='navette'){var ev2=[],st2=[],T2=0;for(var p=1;p<=21;p++){var v2=8+0.5*p,ms2=v2/3.6,iv2=20/ms2,n=Math.max(1,Math.round(60/iv2));
+      ev2.push({t:T2,say:tr('Palier')+' '+p});for(var q=0;q<n;q++)ev2.push({t:T2+q*iv2,b:q===0&&p>1?'go':'beep'});st2.push({t:T2,te:T2+n*iv2,p:p,v:v2});T2+=n*iv2;}
+    ev2.push({t:T2,b:'stop'});return {ev:ev2,stages:st2,end:T2};}
+  if(k==='submax'){
+    if(TRS.sm==='yoyo'){var y=trYoyoPlan(YOYO1),lim=360,e3=y.ev.filter(function(e){return e.t<lim;});e3.push({t:lim,b:'stop',say:tr('Terminó. Quedate parado: en un minuto medimos el pulso de nuevo')});e3.push({t:lim+60,b:'stop',say:tr('Medí el pulso')});[1,2,3,4,5].forEach(function(m){e3.push({t:m*60,say:(6-m)+' '+tr(6-m===1?'minuto':'minutos')});});return {ev:e3,end:lim+60,runEnd:lim,proto:'Yo-Yo IR1 6 min'};}
+    var ms3=(+TRS.smV||12)/3.6,iv3=(+TRS.smDist||40)/2/ms3,dur=(+TRS.smMin||4)*60,e4=[];for(var z=0;z*iv3<dur+0.05;z++)e4.push({t:z*iv3,b:z===0?'go':'beep'});
+    for(var mm=1;mm<TRS.smMin;mm++)e4.push({t:mm*60,say:(TRS.smMin-mm)+' '+tr(TRS.smMin-mm===1?'minuto':'minutos')});
+    e4.push({t:dur,b:'stop',say:tr('Terminó. Quedate parado: en un minuto medimos el pulso de nuevo')});e4.push({t:dur+60,b:'stop',say:tr('Medí el pulso')});
+    return {ev:e4,end:dur+60,runEnd:dur,proto:runFmtKmh(TRS.smV)+' km/h · '+TRS.smMin+' min · '+TRS.smDist+' m'};}
+  if(k==='step'){var bpm=TRS.sx==='m'?88:96,iv5=60/bpm,e5=[];for(var w=0;w*iv5<180;w++)e5.push({t:w*iv5,b:w%4===0?'tick2':'tick'});
+    e5.push({t:180,b:'stop',say:tr('Pará y quedate parado')});e5.push({t:185,b:'go',say:tr('Contá el pulso')});e5.push({t:200,b:'stop',say:tr('Listo')});
+    return {ev:e5,end:200,runEnd:180};}
+  if(k==='bronco')return {ev:[],end:3600};
+}
+/* --- audio --- */
+function trAC(){if(!TRT.ac)TRT.ac=new (window.AudioContext||window.webkitAudioContext)();return TRT.ac;}
+function trTone(at,f,d,vol){try{var ac=TRT.ac,o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0.0001,at);g.gain.exponentialRampToValueAtTime(vol||0.35,at+0.01);g.gain.exponentialRampToValueAtTime(0.0001,at+d);o.connect(g);g.connect(ac.destination);o.start(at);o.stop(at+d+0.02);}catch(e){}}
+function trSchedule(){
+  if(!TRT||!TRT.ac||TRT.paused)return;var now=trNow(),ac=TRT.ac;
+  while(TRT.ei<TRT.plan.ev.length&&TRT.plan.ev[TRT.ei].t<=now+0.6){
+    var e=TRT.plan.ev[TRT.ei++],at=TRT.t0+e.t;if(at<ac.currentTime-0.05)continue;
+    if(TRT.snd){if(e.b==='go'){trTone(at,1046,0.18);}else if(e.b==='beep'){trTone(at,880,0.14);}else if(e.b==='stop'){trTone(at,660,0.16);trTone(at+0.22,660,0.3);}else if(e.b==='tick'){trTone(at,700,0.05,0.25);}else if(e.b==='tick2'){trTone(at,1000,0.06,0.3);}}
+  }
+  while(TRT.si<TRT.says.length&&TRT.says[TRT.si].t<=now){var s=TRT.says[TRT.si++];if(now-s.t<1.5&&TRT.snd)trSay(s.say);}
+}
+function trSay(t){try{if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(t);var lg=LANG==='en'?'en':(LANG==='it'?'it':'es');var vs=speechSynthesis.getVoices()||[],v=null;
+  (lg==='es'?['es-AR','es-MX','es-US','es-419','es-ES','es']:[lg]).some(function(p){v=vs.filter(function(x){return x.lang&&String(x.lang).replace('_','-').indexOf(p)===0;})[0]||null;return !!v;});
+  if(v){u.voice=v;u.lang=v.lang;}else u.lang=lg==='es'?'es-ES':(lg==='it'?'it-IT':'en-US');u.rate=1.08;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+function trNow(){if(!TRT||!TRT.ac)return 0;return (TRT.ac.currentTime-TRT.t0)*(window.__trFast||1);}
+/* --- ejecución --- */
+function trStart(){
+  var M=trMembers().filter(function(p){return TRS.sel[p.id];});if(!M.length)return;
+  TRT={k:TRS.k,phase:'run',pl:M.map(function(p){return {id:p.id,name:p.name,photo:p.photo,st:0,res:null,laps:0,undo:[]};}),snd:true,ei:0,si:0,paused:false,saved:false};
+  try{TRT.snd=localStorage.getItem('pd_trt_snd')!=='0';}catch(e){}
+  TRT.plan=trPlan(TRT.k);
+  TRT.says=[];TRT.plan.ev.forEach(function(e){if(e.say)TRT.says.push({t:e.t,say:e.say});if(e.say2)TRT.says.push({t:e.t+0.4,say:e.say2});});TRT.says.sort(function(a,b){return a.t-b.t;});
+  var ac=trAC();if(ac.state==='suspended')ac.resume();
+  try{var u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}
+  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(l){if(TRT)TRT.wl=l;}).catch(function(){});}catch(e){}
+  var lead=TRT.k==='bronco'?3:5;
+  TRT.t0=ac.currentTime+lead/(window.__trFast||1);
+  if(TRT.snd){for(var c=1;c<=3;c++)trTone(TRT.t0-c/(window.__trFast||1),600,0.12,0.3);trSay(tr(TRT.k==='bronco'?'Preparados':'Atentos al primer pitido'));}
+  TRT.tick=setInterval(trTick,100);trRender();
+}
+function trStop(){if(!TRT)return;clearInterval(TRT.tick);TRT.tick=null;try{if(TRT.ac)TRT.ac.close();}catch(e){}TRT.ac=null;try{if(TRT.wl)TRT.wl.release();}catch(e){}try{speechSynthesis.cancel();}catch(e){}}
+function trPause(){if(!TRT||!TRT.ac)return;if(TRT.paused){TRT.ac.resume();TRT.paused=false;}else{TRT.ac.suspend();TRT.paused=true;try{speechSynthesis.cancel();}catch(e){}}trRender();}
+function trSnd(){if(!TRT)return;TRT.snd=!TRT.snd;try{localStorage.setItem('pd_trt_snd',TRT.snd?'1':'0');}catch(e){}trRender();}
+function trTick(){
+  if(!TRT||TRT.phase!=='run')return;trSchedule();var now=trNow();
+  var alive=TRT.pl.some(function(x){return x.st<2;});
+  if(TRT.k==='bronco'){if(!alive){trFinish();return;}}
+  else if(TRT.k==='submax'||TRT.k==='step'){if(now>=TRT.plan.end){trFinish();return;}}
+  else{if(!alive||now>=TRT.plan.end){if(now>=TRT.plan.end)TRT.pl.forEach(function(x){if(x.st<2)trOut(x,true);});trFinish();return;}}
+  trRenderLive();
+}
+/* estado actual del test en "now" */
+function trCur(now){
+  var P=TRT.plan;
+  if(TRT.k==='submax'||TRT.k==='step'){var re=P.runEnd;if(now<0)return {lab:tr('Preparados'),ph:'pre',next:-now};
+    if(now<re)return {lab:TRT.k==='step'?tr('Subí y bajá'):tr('Corré al ritmo'),sub:TRT.k==='step'?(TRS.sx==='m'?'88':'96')+' '+tr('golpes por minuto'):P.proto,ph:'run',next:re-now};
+    if(TRT.k==='step'){if(now<185)return {lab:tr('Quedate parado'),ph:'rec',next:185-now};return {lab:tr('Contá el pulso'),sub:tr('15 segundos'),ph:'count',next:200-now};}
+    return {lab:tr('Quedate parado'),sub:tr('Medí el pulso al terminar el minuto'),ph:'rec',next:P.end-now};}
+  if(TRT.k==='yoyo'||TRT.k==='yoyo2'){var b=null;var bs=P.bouts||trYoyoPlan(YOYO1).bouts;for(var i=0;i<bs.length;i++){if(bs[i].t<=now)b=bs[i];else break;}
+    if(!b)return {lab:tr('Preparados'),ph:'pre',next:bs[0].t-now};var run=now<b.te;
+    return {b:b,lab:tr('Nivel')+' '+b.lvl,sub:runFmtKmh(b.v)+' km/h · '+(b.i*40)+' m',ph:run?'run':'rec',next:run?(now<b.t+(b.te-b.t)/2?b.t+(b.te-b.t)/2:b.te)-now:b.te+10-now};}
+  if(TRT.k==='t3015'){var s=null;for(var j=0;j<P.stages.length;j++){if(P.stages[j].t<=now)s=P.stages[j];else break;}
+    if(!s)return {lab:tr('Preparados'),ph:'pre',next:P.stages[0].t-now};var r=now<s.te;
+    return {s:s,lab:runFmtKmh(s.v)+' km/h',sub:tr('Etapa')+' '+(Math.round((s.v-8)/0.5)+1),ph:r?'run':'walk',next:r?s.te-now:s.t+45-now};}
+  if(TRT.k==='navette'){var n=null;for(var q=0;q<P.stages.length;q++){if(P.stages[q].t<=now)n=P.stages[q];else break;}
+    if(!n)return {lab:tr('Preparados'),ph:'pre',next:P.stages[0].t-now};
+    return {s:n,lab:tr('Palier')+' '+n.p,sub:runFmtKmh(n.v)+' km/h',ph:'run',next:n.te-now};}
+  return {lab:'',ph:'run',next:0};
+}
+/* tocar un jugador */
+function trTap(i){
+  if(!TRT||TRT.phase!=='run')return;var x=TRT.pl[i];if(!x)return;var now=trNow();
+  if(TRT.k==='bronco'){if(now<0)return;if(x.st===2){x.laps=4;x.st=0;x.res=null;trRenderLive();return;}x.laps++;x.undo.push(now);if(x.laps>=5){x.st=2;x.res={v:Math.round(now)};}trRenderLive();return;}
+  if(TRT.k==='submax'||TRT.k==='step')return;
+  if(x.st===2){x.st=x.warn?1:0;x.res=null;trRenderLive();return;}
+  if((TRT.k==='yoyo'||TRT.k==='yoyo2')&&x.st===0){x.st=1;x.warn=1;trRenderLive();return;}
+  trOut(x,false);trRenderLive();
+}
+function trOut(x,timeUp){
+  var now=trNow(),c=trCur(now);x.st=2;
+  if(TRT.k==='yoyo'||TRT.k==='yoyo2'){var b=c.b;var bs=TRT.plan.bouts;var failed=timeUp?bs.length:(b?b.i:0);var lv=failed>0?bs[failed-1].lvl:'—';x.res={v:failed*40,lvl:lv};}
+  else if(TRT.k==='t3015'){var s=c.s,v=0;if(s){var k=Math.round((s.v-8)/0.5);v=timeUp?s.v:(c.ph==='run'?(k>0?s.v-0.5:0):s.v);}x.res={v:v};}
+  else if(TRT.k==='navette'){var n=c.s;var p=n?(timeUp?n.p:n.p-1):0;x.res={v:Math.max(0,p)};}
+}
+function trUndoLap(i){var x=TRT.pl[i];if(!x||!x.laps)return;x.laps--;x.undo.pop();x.st=0;x.res=null;trRenderLive();}
+function trFinish(){
+  if(!TRT)return;var now=trNow();clearInterval(TRT.tick);TRT.tick=null;
+  if(TRT.k==='bronco')TRT.pl.forEach(function(x){if(x.st<2){x.res=null;}});
+  try{TRT.ac.close();}catch(e){}TRT.ac=null;try{if(TRT.wl)TRT.wl.release();}catch(e){}
+  TRT.phase='res';trRender();
+}
+/* --- dibujo --- */
+function trFmt(sec){sec=Math.max(0,sec);var m=Math.floor(sec/60),s=Math.floor(sec%60);return m+':'+('0'+s).slice(-2);}
+function trRender(){
+  if(!TRT){trSetup();return;}
+  var T=TRT_TESTS.filter(function(t){return t.k===TRT.k;})[0];trEl('trt-title').textContent=tr(T.n);
+  if(TRT.phase==='res'){trResults();return;}
+  var hint=TRT.k==='bronco'?tr('Tocá a cada jugador cada vez que completa una vuelta (5 en total). Al quinto toque queda su tiempo.'):(TRT.k==='yoyo'||TRT.k==='yoyo2')?tr('Si no llega a la línea, tocalo: primer toque = aviso, segundo = afuera. Si te equivocás, tocalo de nuevo.'):(TRT.k==='submax'||TRT.k==='step')?tr('Al terminar vas a cargar el pulso de cada uno.'):tr('Tocá al jugador cuando queda afuera. Si te equivocás, tocalo de nuevo.');
+  trEl('trt-body').innerHTML='<div class="trt-live"><div class="trt-main" id="trt-main"><div class="trt-ph" id="trt-ph"></div><div class="trt-lab" id="trt-lab"></div><div class="trt-clock" id="trt-clock"></div><div class="trt-sub" id="trt-sub"></div></div>'
+    +'<div class="trt-hint">'+hint+'</div><div class="trt-grid" id="trt-grid"></div></div>';
+  trEl('trt-foot').innerHTML='<button class="trt-sm" onclick="trSnd()">'+(TRT.snd?'🔊':'🔇')+'</button><button class="trt-sm" style="flex:1" onclick="trPause()">'+tr(TRT.paused?'Seguir':'Pausa')+'</button><button class="trt-sm" style="flex:1" onclick="askConfirm(tr(\'¿Terminar el test ahora?\'),function(){if(TRT.k!==\'bronco\'&&TRT.k!==\'submax\'&&TRT.k!==\'step\')TRT.pl.forEach(function(x){if(x.st<2)trOut(x,false);});trFinish();},{okLabel:tr(\'Terminar\')})">'+tr('Terminar')+'</button>';
+  trRenderLive();
+}
+function trRenderLive(){
+  if(!TRT||TRT.phase!=='run')return;var now=trNow(),c=trCur(now);
+  var ph={pre:[tr('Preparados'),'#9aa3b2'],run:[tr('Corré'),'#a8e063'],rec:[tr('Recuperá'),'#4dabf7'],walk:[tr('Caminá'),'#4dabf7'],count:[tr('Contá'),'#ffd166']}[c.ph]||['',''];
+  if(TRT.k==='step'&&c.ph==='run')ph=[tr('Escalón'),'#a8e063'];
+  var m=trEl('trt-main');if(!m)return;m.style.borderColor=ph[1];m.style.background=ph[1]+'1f';
+  trEl('trt-ph').textContent=TRT.paused?tr('En pausa'):ph[0];trEl('trt-ph').style.color=ph[1];
+  trEl('trt-lab').textContent=TRT.k==='bronco'?trFmt(Math.max(0,now)):c.lab;
+  trEl('trt-clock').textContent=TRT.k==='bronco'?(now<0?Math.ceil(-now):''):(c.next!=null&&c.next>=0?(c.next<10?c.next.toFixed(1).replace('.',LANG==='en'?'.':','):trFmt(c.next)):'');
+  trEl('trt-sub').textContent=TRT.k==='bronco'?tr('1.200 m · 5 vueltas'):(c.sub||'')+' · '+tr('Total')+' '+trFmt(Math.max(0,now));
+  var alive=TRT.pl.filter(function(x){return x.st<2;}).length;
+  trEl('trt-grid').innerHTML=TRT.pl.map(function(x,i){
+    var cls=x.st===2?'out':x.st===1?'warn':'',info='';
+    if(TRT.k==='bronco')info=x.st===2?trFmt(x.res.v):tr('Vuelta')+' '+x.laps+'/5';
+    else if(x.st===2&&x.res)info=TRT.k==='t3015'?runFmtKmh(x.res.v)+' km/h':TRT.k==='navette'?tr('Palier')+' '+x.res.v:x.res.v+' m';
+    else if(x.st===1)info=tr('1 aviso');
+    return '<button class="trt-tile '+cls+'" onclick="trTap('+i+')">'+grAv(x)+'<b>'+grEsc(x.name)+'</b><span>'+info+'</span>'+(TRT.k==='bronco'&&x.laps&&x.st<2?'<em onclick="event.stopPropagation();trUndoLap('+i+')">↶</em>':'')+'</button>';}).join('')
+    +(TRT.k!=='submax'&&TRT.k!=='step'?'<div class="trt-cnt">'+alive+' '+tr('en carrera')+'</div>':'');
+}
+function trResults(){
+  var k=TRT.k,x0=testDef(k);
+  var rows=TRT.pl.map(function(x,i){
+    var p=PLAYERS.find(function(y){return y.id===x.id;})||x,inp='';
+    var st='style="width:'+(k==='submax'?'96':'84')+'px"';
+    if(k==='bronco')inp='<input type="text" '+st+' id="trr-'+i+'" value="'+(x.res?trFmt(x.res.v):'')+'" placeholder="4:35">';
+    else if(k==='submax')inp='<input type="number" inputmode="numeric" '+st+' id="trr-'+i+'" placeholder="'+tr('FC fin')+'"><input type="number" inputmode="numeric" '+st+' id="trr1-'+i+'" placeholder="'+tr('FC 1 min')+'"><input type="number" inputmode="numeric" style="width:64px" id="trr2-'+i+'" placeholder="RPE">';
+    else if(k==='step')inp='<input type="number" inputmode="numeric" '+st+' id="trr-'+i+'" placeholder="'+tr('Pulso 15″')+'">';
+    else inp='<input type="number" inputmode="decimal" step="'+(k==='t3015'?'0.5':'1')+'" '+st+' id="trr-'+i+'" value="'+(x.res?x.res.v:'')+'">'+'<span class="gr-muted" style="font-size:12px;">'+x0.u+'</span>';
+    var extra=(k==='yoyo'||k==='yoyo2')&&x.res&&x.res.lvl?'<span class="gr-sub">'+tr('Nivel')+' '+x.res.lvl+'</span>':'';
+    return '<tr><td class="gr-name">'+grPl(p)+'</td><td><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+inp+'</div>'+extra+'</td></tr>';}).join('');
+  var note=k==='submax'?tr('Cargá el pulso al terminar y un minuto después. Si alguien no tiene dato, dejalo vacío.'):k==='step'?tr('Cargá las pulsaciones que contó cada uno en 15 segundos. La app calcula el VO₂máx.')+' ('+tr(TRS.sx==='m'?'Mujeres':'Hombres')+')':tr('Revisá los resultados y corregí lo que haga falta. Los vacíos no se guardan.');
+  trEl('trt-body').innerHTML='<div class="trt-setup"><div class="trt-note">'+note+'</div><div class="gr-wrap"><table class="gr-tbl" style="min-width:0"><thead><tr><th class="gr-name">'+tr('Jugador')+'</th><th>'+tr('Resultado')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  trEl('trt-foot').innerHTML='<button class="trt-sm" style="flex:1" onclick="trClose()">'+tr('Salir')+'</button><button class="trt-big" style="flex:2" id="trt-save" onclick="trSaveRes()">'+tr('Guardar en los tests')+'</button>';
+}
+async function trSaveRes(){
+  if(!TRT||TRT.saving)return;var k=TRT.k,today=isoToday(),out=[];
+  TRT.pl.forEach(function(x,i){
+    var g=function(id){var e=document.getElementById(id);return e?String(e.value).trim():'';};var v=g('trr-'+i);if(v==='')return;var e={d:today,src:'app'};
+    if(k==='bronco'){var t=tParseTime(v);if(!(t>60))return;e.v=t;}
+    else if(k==='submax'){var h=+v;if(!(h>40))return;e.v=h;var h1=+g('trr1-'+i);if(h1>40){e.hr1=h1;e.hrr=h-h1;}var r=+g('trr2-'+i);if(r>0)e.rpe=r;e.p=TRT.plan.proto;}
+    else if(k==='step'){var c=+v;if(!(c>5))return;e.hr=Math.round(c*4);e.sx=TRS.sx;e.v=Math.round(stepVo2(e.hr,TRS.sx)*10)/10;}
+    else{var n=parseFloat(v.replace(',','.'));if(!(n>=0))return;e.v=n;if(x.res&&x.res.lvl)e.lvl=x.res.lvl;}
+    out.push({id:x.id,e:e});});
+  if(!out.length){showInfo(tr('No hay resultados para guardar.'));return;}
+  TRT.saving=true;var b=trEl('trt-save');if(b){b.disabled=true;b.textContent=tr('Guardando...');}
+  var ok=0,err='';
+  for(var i=0;i<out.length;i++){
+    var p=PLAYERS.find(function(y){return y.id===out[i].id;});if(!p)continue;
+    var all=JSON.parse(JSON.stringify(p.tests||{}));all[k]=(all[k]||[]).filter(function(z){return z.d!==today;});all[k].push(out[i].e);
+    var en=(p.tests_enabled||[]).slice();if(en.indexOf(k)<0)en.push(k);
+    var r;try{r=await sb.from('players').update({tests:all,tests_enabled:en}).eq('id',p.id);}catch(x){r={error:x};}
+    if(r&&r.error){err=String(r.error.message||r.error);continue;}
+    p.tests=all;p.tests_enabled=en;ok++;
+  }
+  TRT.saving=false;TRT.saved=!err;
+  if(err){if(b){b.disabled=false;b.textContent=tr('Guardar en los tests');}showInfo(tr('Se guardaron')+' '+ok+' '+tr('de')+' '+out.length+'. Error: '+err);return;}
+  toast(tr('Resultados guardados')+' · '+ok);
+  try{renderTestsScreen();}catch(e){}try{if(document.getElementById('screen-groups').style.display==='block')grRender();}catch(e){}
+  trClose(true);
+}
 
 /* ===== INFORME PDF DEL ALUMNO ===== */
 function _rpEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -9398,6 +9764,131 @@ STATIC_I18N["Grupos"]=STATIC_I18N["Grupos"]||["Groups","Gruppi"];
 STATIC_I18N["Esta semana"]=STATIC_I18N["Esta semana"]||["This week","Questa settimana"];
 STATIC_I18N["Todos"]=STATIC_I18N["Todos"]||["All","Tutti"];
 STATIC_I18N["Últimos 7 días"]=STATIC_I18N["Últimos 7 días"]||["Last 7 days","Ultimi 7 giorni"];
+STATIC_I18N["1 aviso"]=STATIC_I18N["1 aviso"]||["1 warning","1 avviso"];
+STATIC_I18N["1 min"]=STATIC_I18N["1 min"]||["1 min","1 min"];
+STATIC_I18N["1.200 m · 5 vueltas"]=STATIC_I18N["1.200 m · 5 vueltas"]||["1,200 m · 5 rounds","1.200 m · 5 giri"];
+STATIC_I18N["1.200 m: 5 vueltas de 20-40-60 m. Cronómetro grupal."]=STATIC_I18N["1.200 m: 5 vueltas de 20-40-60 m. Cronómetro grupal."]||["1,200 m: 5 rounds of 20-40-60 m. Group stopwatch.","1.200 m: 5 giri di 20-40-60 m. Cronometro di gruppo."];
+STATIC_I18N["15 segundos"]=STATIC_I18N["15 segundos"]||["15 seconds","15 secondi"];
+STATIC_I18N["3 minutos subiendo y bajando al ritmo del metrónomo y pulso en 15″."]=STATIC_I18N["3 minutos subiendo y bajando al ritmo del metrónomo y pulso en 15″."]||["3 minutes stepping up and down to the metronome, then pulse over 15″.","3 minuti salendo e scendendo al ritmo del metronomo e polso in 15″."];
+STATIC_I18N["30-15 IFT"]=STATIC_I18N["30-15 IFT"]||["30-15 IFT","30-15 IFT"];
+STATIC_I18N["30″ corriendo ida y vuelta + 15″ caminando. Sube 0,5 km/h por etapa."]=STATIC_I18N["30″ corriendo ida y vuelta + 15″ caminando. Sube 0,5 km/h por etapa."]||["30″ shuttle running + 15″ walking. +0.5 km/h per stage.","30″ di corsa andata e ritorno + 15″ camminando. +0,5 km/h per tappa."];
+STATIC_I18N["Al terminar vas a cargar el pulso de cada uno."]=STATIC_I18N["Al terminar vas a cargar el pulso de cada uno."]||["At the end you will enter each one’s heart rate.","Alla fine inserirai la frequenza di ognuno."];
+STATIC_I18N["Armado"]=STATIC_I18N["Armado"]||["Setup","Allestimento"];
+STATIC_I18N["Atentos al primer pitido"]=STATIC_I18N["Atentos al primer pitido"]||["Ready for the first beep","Pronti al primo bip"];
+STATIC_I18N["Automática (el mejor dato de cada uno)"]=STATIC_I18N["Automática (el mejor dato de cada uno)"]||["Automatic (best data for each one)","Automatica (il dato migliore di ognuno)"];
+STATIC_I18N["Cada jugador con reloj o banda de frecuencia cardíaca."]=STATIC_I18N["Cada jugador con reloj o banda de frecuencia cardíaca."]||["Each player with a heart rate watch or strap.","Ogni giocatore con orologio o fascia cardio."];
+STATIC_I18N["Caminá"]=STATIC_I18N["Caminá"]||["Walk","Cammina"];
+STATIC_I18N["Cargá el pulso al terminar y un minuto después. Si alguien no tiene dato, dejalo vacío."]=STATIC_I18N["Cargá el pulso al terminar y un minuto después. Si alguien no tiene dato, dejalo vacío."]||["Enter the heart rate at the end and one minute later. Leave it empty if there is no data.","Inserisci la frequenza alla fine e un minuto dopo. Se manca il dato, lascialo vuoto."];
+STATIC_I18N["Cargá las pulsaciones que contó cada uno en 15 segundos. La app calcula el VO₂máx."]=STATIC_I18N["Cargá las pulsaciones que contó cada uno en 15 segundos. La app calcula el VO₂máx."]||["Enter the beats each one counted in 15 seconds. The app calculates VO₂max.","Inserisci i battiti contati da ognuno in 15 secondi. L’app calcola il VO₂max."];
+STATIC_I18N["Cargá los resultados que te dio el laboratorio. Con la VAM medida, la app calcula las pasadas de la carrera con ese dato."]=STATIC_I18N["Cargá los resultados que te dio el laboratorio. Con la VAM medida, la app calcula las pasadas de la carrera con ese dato."]||["Enter the results from the lab. With the measured MAS, the app calculates the running reps with that data.","Inserisci i risultati del laboratorio. Con la VAM misurata, l’app calcola le ripetute di corsa con quel dato."];
+STATIC_I18N["Como el IR1 pero arranca a 13 km/h. Para jugadores entrenados."]=STATIC_I18N["Como el IR1 pero arranca a 13 km/h. Para jugadores entrenados."]||["Like IR1 but starts at 13 km/h. For trained players.","Come l’IR1 ma parte a 13 km/h. Per giocatori allenati."];
+STATIC_I18N["Conectá el teléfono a un parlante para que todos escuchen los pitidos."]=STATIC_I18N["Conectá el teléfono a un parlante para que todos escuchen los pitidos."]||["Connect the phone to a speaker so everyone hears the beeps.","Collega il telefono a una cassa così tutti sentono i bip."];
+STATIC_I18N["Conos a 0, 20, 40 y 60 m."]=STATIC_I18N["Conos a 0, 20, 40 y 60 m."]||["Cones at 0, 20, 40 and 60 m.","Coni a 0, 20, 40 e 60 m."];
+STATIC_I18N["Conos, 25 m de espacio y la app"]=STATIC_I18N["Conos, 25 m de espacio y la app"]||["Cones, 25 m of space and the app","Coni, 25 m di spazio e l’app"];
+STATIC_I18N["Conos, 25 m de espacio y la app (o el audio oficial)"]=STATIC_I18N["Conos, 25 m de espacio y la app (o el audio oficial)"]||["Cones, 25 m of space and the app (or the official audio)","Coni, 25 m di spazio e l’app (o l’audio ufficiale)"];
+STATIC_I18N["Conos, 45 m de espacio y la app (o el audio oficial)"]=STATIC_I18N["Conos, 45 m de espacio y la app (o el audio oficial)"]||["Cones, 45 m of space and the app (or the official audio)","Coni, 45 m di spazio e l’app (o l’audio ufficiale)"];
+STATIC_I18N["Contá"]=STATIC_I18N["Contá"]||["Count","Conta"];
+STATIC_I18N["Contá el pulso"]=STATIC_I18N["Contá el pulso"]||["Count your pulse","Conta il polso"];
+STATIC_I18N["Correr unos minutos a un ritmo fijo y medir la frecuencia cardíaca al terminar y un minuto después. No cansa: sirve para controlar cada semana cómo responde el jugador. Lo podés tomar desde la app con todo el grupo."]=STATIC_I18N["Correr unos minutos a un ritmo fijo y medir la frecuencia cardíaca al terminar y un minuto después. No cansa: sirve para controlar cada semana cómo responde el jugador. Lo podés tomar desde la app con todo el grupo."]||["Run a few minutes at a fixed pace and measure heart rate at the end and one minute later. It is not exhausting: use it weekly to monitor how the player responds. You can run it from the app with the whole group.","Correre qualche minuto a ritmo fisso e misurare la frequenza cardiaca alla fine e un minuto dopo. Non affatica: serve per controllare ogni settimana come risponde il giocatore. Puoi farlo dall’app con tutto il gruppo."];
+STATIC_I18N["Corré"]=STATIC_I18N["Corré"]||["Run","Corri"];
+STATIC_I18N["Corré al ritmo"]=STATIC_I18N["Corré al ritmo"]||["Run to the pace","Corri al ritmo"];
+STATIC_I18N["Course Navette"]=STATIC_I18N["Course Navette"]||["Course Navette","Course Navette"];
+STATIC_I18N["Course Navette (20 m)"]=STATIC_I18N["Course Navette (20 m)"]||["Course Navette (20 m)","Course Navette (20 m)"];
+STATIC_I18N["Distinta según el jugador"]=STATIC_I18N["Distinta según el jugador"]||["Differs by player","Diversa per giocatore"];
+STATIC_I18N["Dos líneas a 20 m y otra a 5 m detrás de la salida para la recuperación."]=STATIC_I18N["Dos líneas a 20 m y otra a 5 m detrás de la salida para la recuperación."]||["Two lines 20 m apart and another 5 m behind the start for recovery.","Due linee a 20 m e un’altra a 5 m dietro la partenza per il recupero."];
+STATIC_I18N["Dos líneas a 20 m."]=STATIC_I18N["Dos líneas a 20 m."]||["Two lines 20 m apart.","Due linee a 20 m."];
+STATIC_I18N["En pausa"]=STATIC_I18N["En pausa"]||["Paused","In pausa"];
+STATIC_I18N["Escalón"]=STATIC_I18N["Escalón"]||["Step","Gradino"];
+STATIC_I18N["Escalón de 41,3 cm. Subir y bajar 3 minutos al ritmo del metrónomo (hombres 24 subidas por minuto, mujeres 22). Al terminar, quedarse parado: a los 5 segundos contar el pulso durante 15 segundos. La app calcula el VO₂máx."]=STATIC_I18N["Escalón de 41,3 cm. Subir y bajar 3 minutos al ritmo del metrónomo (hombres 24 subidas por minuto, mujeres 22). Al terminar, quedarse parado: a los 5 segundos contar el pulso durante 15 segundos. La app calcula el VO₂máx."]||["41.3 cm step. Step up and down for 3 minutes to the metronome (men 24 steps per minute, women 22). When done, stand still: after 5 seconds count the pulse for 15 seconds. The app calculates VO₂max.","Gradino di 41,3 cm. Salire e scendere 3 minuti al ritmo del metronomo (uomini 24 salite al minuto, donne 22). Alla fine restare fermi: dopo 5 secondi contare il polso per 15 secondi. L’app calcola il VO₂max."];
+STATIC_I18N["Escalón o cajón de 41,3 cm para cada uno."]=STATIC_I18N["Escalón o cajón de 41,3 cm para cada uno."]||["A 41.3 cm step or box for each one.","Un gradino o box di 41,3 cm per ognuno."];
+STATIC_I18N["Escalón o cajón de 41,3 cm y la app"]=STATIC_I18N["Escalón o cajón de 41,3 cm y la app"]||["A 41.3 cm step or box and the app","Gradino o box di 41,3 cm e l’app"];
+STATIC_I18N["Etapa"]=STATIC_I18N["Etapa"]||["Stage","Tappa"];
+STATIC_I18N["FC"]=STATIC_I18N["FC"]||["HR","FC"];
+STATIC_I18N["FC 1 min"]=STATIC_I18N["FC 1 min"]||["HR 1 min","FC 1 min"];
+STATIC_I18N["FC 1 minuto después (lpm)"]=STATIC_I18N["FC 1 minuto después (lpm)"]||["HR one minute later (bpm)","FC un minuto dopo (bpm)"];
+STATIC_I18N["FC fin"]=STATIC_I18N["FC fin"]||["End HR","FC fine"];
+STATIC_I18N["FC máxima (lpm)"]=STATIC_I18N["FC máxima (lpm)"]||["Max HR (bpm)","FC massima (bpm)"];
+STATIC_I18N["FC al terminar"]=STATIC_I18N["FC al terminar"]||["HR at the end","FC alla fine"];
+STATIC_I18N["Fútbol profesional ~19–21 km/h · amateur ~17–19 km/h"]=STATIC_I18N["Fútbol profesional ~19–21 km/h · amateur ~17–19 km/h"]||["Pro football ~19–21 km/h · amateur ~17–19 km/h","Calcio professionistico ~19–21 km/h · amatori ~17–19 km/h"];
+STATIC_I18N["Fútbol élite ~1.000–1.300 m · sub-élite ~700–900 m"]=STATIC_I18N["Fútbol élite ~1.000–1.300 m · sub-élite ~700–900 m"]||["Elite football ~1,000–1,300 m · sub-elite ~700–900 m","Calcio d’élite ~1.000–1.300 m · sub-élite ~700–900 m"];
+STATIC_I18N["Guardar en los tests"]=STATIC_I18N["Guardar en los tests"]||["Save to tests","Salva nei test"];
+STATIC_I18N["Hombre"]=STATIC_I18N["Hombre"]||["Male","Uomo"];
+STATIC_I18N["Hombres"]=STATIC_I18N["Hombres"]||["Men","Uomini"];
+STATIC_I18N["Hombres · 24 por minuto"]=STATIC_I18N["Hombres · 24 por minuto"]||["Men · 24 per minute","Uomini · 24 al minuto"];
+STATIC_I18N["Idas y vueltas de 20 m al ritmo de los pitidos. Empieza a 8,5 km/h y sube 0,5 km/h cada minuto (cada minuto es un palier). Termina cuando no llega a la línea a tiempo. Anotá el último palier completo. Lo podés tomar desde la app con todo el grupo."]=STATIC_I18N["Idas y vueltas de 20 m al ritmo de los pitidos. Empieza a 8,5 km/h y sube 0,5 km/h cada minuto (cada minuto es un palier). Termina cuando no llega a la línea a tiempo. Anotá el último palier completo. Lo podés tomar desde la app con todo el grupo."]||["20 m shuttles to the beeps. Starts at 8.5 km/h and increases 0.5 km/h every minute (each minute is a stage). It ends when the athlete fails to reach the line in time. Write down the last completed stage. You can run it from the app with the whole group.","Navette di 20 m al ritmo dei bip. Parte a 8,5 km/h e aumenta di 0,5 km/h ogni minuto (ogni minuto è un palier). Finisce quando non arriva alla linea in tempo. Annota l’ultimo palier completato. Puoi farlo dall’app con tutto il gruppo."];
+STATIC_I18N["Idas y vueltas de 20 m con 10″ de recuperación. Arranca a 10 km/h."]=STATIC_I18N["Idas y vueltas de 20 m con 10″ de recuperación. Arranca a 10 km/h."]||["20 m shuttles with 10″ recovery. Starts at 10 km/h.","Navette di 20 m con 10″ di recupero. Parte a 10 km/h."];
+STATIC_I18N["Idas y vueltas de 20 m sin pausa. Sube 0,5 km/h cada minuto."]=STATIC_I18N["Idas y vueltas de 20 m sin pausa. Sube 0,5 km/h cada minuto."]||["20 m shuttles without rest. +0.5 km/h every minute.","Navette di 20 m senza pausa. +0,5 km/h ogni minuto."];
+STATIC_I18N["Igual que el Yo-Yo IR1 pero arranca a 13 km/h y sube más rápido: más intenso, para jugadores entrenados. Idas y vueltas de 20 m con 10 segundos de recuperación. Termina la segunda vez que no llega a tiempo. Anotá los metros totales. Lo podés tomar desde la app con todo el grupo."]=STATIC_I18N["Igual que el Yo-Yo IR1 pero arranca a 13 km/h y sube más rápido: más intenso, para jugadores entrenados. Idas y vueltas de 20 m con 10 segundos de recuperación. Termina la segunda vez que no llega a tiempo. Anotá los metros totales. Lo podés tomar desde la app con todo el grupo."]||["Like the Yo-Yo IR1 but starts at 13 km/h and increases faster: more intense, for trained players. 20 m shuttles with 10 seconds of recovery. It ends the second time the athlete fails to arrive in time. Write down the total meters. You can run it from the app with the whole group.","Come lo Yo-Yo IR1 ma parte a 13 km/h e sale più in fretta: più intenso, per giocatori allenati. Navette di 20 m con 10 secondi di recupero. Finisce la seconda volta che non arriva in tempo. Annota i metri totali. Puoi farlo dall’app con tutto il gruppo."];
+STATIC_I18N["Informe del laboratorio"]=STATIC_I18N["Informe del laboratorio"]||["Lab report","Referto del laboratorio"];
+STATIC_I18N["La app calcula el VO₂máx estimado (adultos)"]=STATIC_I18N["La app calcula el VO₂máx estimado (adultos)"]||["The app calculates estimated VO₂max (adults)","L’app calcola il VO₂max stimato (adulti)"];
+STATIC_I18N["Laboratorio"]=STATIC_I18N["Laboratorio"]||["Lab","Laboratorio"];
+STATIC_I18N["Laboratorio (VO₂máx)"]=STATIC_I18N["Laboratorio (VO₂máx)"]||["Lab (VO₂max)","Laboratorio (VO₂max)"];
+STATIC_I18N["Líneas a 0, 20 y 40 m con una zona de 3 m en cada una."]=STATIC_I18N["Líneas a 0, 20 y 40 m con una zona de 3 m en cada una."]||["Lines at 0, 20 and 40 m with a 3 m zone at each one.","Linee a 0, 20 e 40 m con una zona di 3 m su ognuna."];
+STATIC_I18N["Líneas a 0, 20 y 40 m con una zona de 3 m en cada una. 30 segundos de carrera ida y vuelta al ritmo de los pitidos y 15 segundos caminando hasta la línea siguiente. Empieza a 8 km/h y sube 0,5 km/h en cada etapa. Termina cuando no llega a la zona 3 veces seguidas. El resultado es la velocidad de la última etapa completa (VIFT). Lo podés tomar desde la app con todo el grupo."]=STATIC_I18N["Líneas a 0, 20 y 40 m con una zona de 3 m en cada una. 30 segundos de carrera ida y vuelta al ritmo de los pitidos y 15 segundos caminando hasta la línea siguiente. Empieza a 8 km/h y sube 0,5 km/h en cada etapa. Termina cuando no llega a la zona 3 veces seguidas. El resultado es la velocidad de la última etapa completa (VIFT). Lo podés tomar desde la app con todo el grupo."]||["Lines at 0, 20 and 40 m with a 3 m zone at each. 30 seconds of shuttle running to the beeps and 15 seconds walking to the next line. Starts at 8 km/h and increases 0.5 km/h each stage. It ends when the athlete misses the zone 3 times in a row. The result is the speed of the last completed stage (VIFT). You can run it from the app with the whole group.","Linee a 0, 20 e 40 m con una zona di 3 m su ognuna. 30 secondi di corsa andata e ritorno al ritmo dei bip e 15 secondi camminando fino alla linea successiva. Parte a 8 km/h e aumenta di 0,5 km/h a ogni tappa. Finisce quando non arriva nella zona 3 volte di fila. Il risultato è la velocità dell’ultima tappa completa (VIFT). Puoi farlo dall’app con tutto il gruppo."];
+STATIC_I18N["Medí el pulso"]=STATIC_I18N["Medí el pulso"]||["Measure your pulse","Misura il polso"];
+STATIC_I18N["Medí el pulso al terminar el minuto"]=STATIC_I18N["Medí el pulso al terminar el minuto"]||["Measure the pulse when the minute ends","Misura il polso alla fine del minuto"];
+STATIC_I18N["Menos pulsaciones al mismo ritmo = mejor estado. Compará siempre con el mismo protocolo."]=STATIC_I18N["Menos pulsaciones al mismo ritmo = mejor estado. Compará siempre con el mismo protocolo."]||["Lower heart rate at the same pace = better fitness. Always compare with the same protocol.","Meno battiti allo stesso ritmo = forma migliore. Confronta sempre con lo stesso protocollo."];
+STATIC_I18N["Mujer"]=STATIC_I18N["Mujer"]||["Female","Donna"];
+STATIC_I18N["Mujeres"]=STATIC_I18N["Mujeres"]||["Women","Donne"];
+STATIC_I18N["Mujeres · 22 por minuto"]=STATIC_I18N["Mujeres · 22 por minuto"]||["Women · 22 per minute","Donne · 22 al minuto"];
+STATIC_I18N["Nadie del grupo tiene un test aeróbico cargado (30-15 IFT, Yo-Yo, Bronco, Navette o laboratorio). Tomalo con \"Tomar un test\" o cargá los resultados en Evaluaciones."]=STATIC_I18N["Nadie del grupo tiene un test aeróbico cargado (30-15 IFT, Yo-Yo, Bronco, Navette o laboratorio). Tomalo con \"Tomar un test\" o cargá los resultados en Evaluaciones."]||["Nobody in the group has an aerobic test recorded (30-15 IFT, Yo-Yo, Bronco, Navette or lab). Run one with \"Run a test\" or enter results in Assessments.","Nessuno nel gruppo ha un test aerobico (30-15 IFT, Yo-Yo, Bronco, Navette o laboratorio). Fallo con \"Fai un test\" o inserisci i risultati in Valutazioni."];
+STATIC_I18N["No hay resultados para guardar."]=STATIC_I18N["No hay resultados para guardar."]||["There are no results to save.","Non ci sono risultati da salvare."];
+STATIC_I18N["Palier"]=STATIC_I18N["Palier"]||["Stage","Palier"];
+STATIC_I18N["palier"]=STATIC_I18N["palier"]||["stage","palier"];
+STATIC_I18N["Pará y quedate parado"]=STATIC_I18N["Pará y quedate parado"]||["Stop and stand still","Fermati e resta fermo"];
+STATIC_I18N["Por tiempo: los metros que tiene que recorrer cada uno. Por metros: el tiempo objetivo. Se calcula con la velocidad de referencia de cada jugador (debajo de su VAM figura de qué test sale). Con el 30-15 IFT se usa la velocidad final del test (VIFT)."]=STATIC_I18N["Por tiempo: los metros que tiene que recorrer cada uno. Por metros: el tiempo objetivo. Se calcula con la velocidad de referencia de cada jugador (debajo de su VAM figura de qué test sale). Con el 30-15 IFT se usa la velocidad final del test (VIFT)."]||["By time: the meters each one must cover. By meters: the target time. Calculated with each player’s reference speed (the source test is shown under the MAS). With the 30-15 IFT the final test speed (VIFT) is used.","A tempo: i metri che deve percorrere ognuno. A metri: il tempo obiettivo. Calcolato con la velocità di riferimento di ogni giocatore (sotto la VAM si vede da quale test viene). Con il 30-15 IFT si usa la velocità finale del test (VIFT)."];
+STATIC_I18N["Preparados"]=STATIC_I18N["Preparados"]||["Get ready","Pronti"];
+STATIC_I18N["Protocolo"]=STATIC_I18N["Protocolo"]||["Protocol","Protocollo"];
+STATIC_I18N["Pulsaciones contadas en 15 segundos"]=STATIC_I18N["Pulsaciones contadas en 15 segundos"]||["Beats counted in 15 seconds","Battiti contati in 15 secondi"];
+STATIC_I18N["Pulso 15″"]=STATIC_I18N["Pulso 15″"]||["Pulse 15″","Polso 15″"];
+STATIC_I18N["Quedate parado"]=STATIC_I18N["Quedate parado"]||["Stand still","Resta fermo"];
+STATIC_I18N["RPE (1 a 10, opcional)"]=STATIC_I18N["RPE (1 a 10, opcional)"]||["RPE (1 to 10, optional)","RPE (da 1 a 10, opzionale)"];
+STATIC_I18N["Recuperá"]=STATIC_I18N["Recuperá"]||["Recover","Recupera"];
+STATIC_I18N["Referencia guardada"]=STATIC_I18N["Referencia guardada"]||["Reference saved","Riferimento salvato"];
+STATIC_I18N["Reloj o banda de frecuencia cardíaca"]=STATIC_I18N["Reloj o banda de frecuencia cardíaca"]||["Heart rate watch or strap","Orologio o fascia cardio"];
+STATIC_I18N["Resultados de una prueba de esfuerzo con análisis de gases"]=STATIC_I18N["Resultados de una prueba de esfuerzo con análisis de gases"]||["Results of a stress test with gas analysis","Risultati di un test da sforzo con analisi dei gas"];
+STATIC_I18N["Resultados guardados"]=STATIC_I18N["Resultados guardados"]||["Results saved","Risultati salvati"];
+STATIC_I18N["Revisá los resultados y corregí lo que haga falta. Los vacíos no se guardan."]=STATIC_I18N["Revisá los resultados y corregí lo que haga falta. Los vacíos no se guardan."]||["Check the results and fix what is needed. Empty ones are not saved.","Controlla i risultati e correggi se serve. Quelli vuoti non si salvano."];
+STATIC_I18N["Ritmo del metrónomo"]=STATIC_I18N["Ritmo del metrónomo"]||["Metronome pace","Ritmo del metronomo"];
+STATIC_I18N["Ritmo fijo"]=STATIC_I18N["Ritmo fijo"]||["Fixed pace","Ritmo fisso"];
+STATIC_I18N["Se guardaron"]=STATIC_I18N["Se guardaron"]||["Saved","Salvati"];
+STATIC_I18N["Sexo"]=STATIC_I18N["Sexo"]||["Sex","Sesso"];
+STATIC_I18N["Si no llega a la línea, tocalo: primer toque = aviso, segundo = afuera. Si te equivocás, tocalo de nuevo."]=STATIC_I18N["Si no llega a la línea, tocalo: primer toque = aviso, segundo = afuera. Si te equivocás, tocalo de nuevo."]||["If they don’t reach the line, tap them: first tap = warning, second = out. If you make a mistake, tap again.","Se non arriva alla linea, toccalo: primo tocco = avviso, secondo = fuori. Se sbagli, toccalo di nuovo."];
+STATIC_I18N["Sin test aeróbico"]=STATIC_I18N["Sin test aeróbico"]||["No aerobic test","Senza test aerobico"];
+STATIC_I18N["Submáximo"]=STATIC_I18N["Submáximo"]||["Submaximal","Submassimale"];
+STATIC_I18N["Subí y bajá"]=STATIC_I18N["Subí y bajá"]||["Step up and down","Sali e scendi"];
+STATIC_I18N["Terminar"]=STATIC_I18N["Terminar"]||["Finish","Termina"];
+STATIC_I18N["Terminó. Quedate parado: en un minuto medimos el pulso de nuevo"]=STATIC_I18N["Terminó. Quedate parado: en un minuto medimos el pulso de nuevo"]||["Done. Stand still: we measure the pulse again in one minute","Finito. Resta fermo: tra un minuto misuriamo di nuovo il polso"];
+STATIC_I18N["Test de escalón (Queens College)"]=STATIC_I18N["Test de escalón (Queens College)"]||["Step test (Queens College)","Step test (Queens College)"];
+STATIC_I18N["Test submáximo (FC)"]=STATIC_I18N["Test submáximo (FC)"]||["Submaximal test (HR)","Test submassimale (FC)"];
+STATIC_I18N["Tocá a cada jugador cada vez que completa una vuelta (5 en total). Al quinto toque queda su tiempo."]=STATIC_I18N["Tocá a cada jugador cada vez que completa una vuelta (5 en total). Al quinto toque queda su tiempo."]||["Tap each player every time they complete a round (5 in total). The fifth tap records their time.","Tocca ogni giocatore ogni volta che completa un giro (5 in totale). Al quinto tocco resta il suo tempo."];
+STATIC_I18N["Tocá al jugador cuando queda afuera. Si te equivocás, tocalo de nuevo."]=STATIC_I18N["Tocá al jugador cuando queda afuera. Si te equivocás, tocalo de nuevo."]||["Tap the player when they are out. If you make a mistake, tap again.","Tocca il giocatore quando è fuori. Se sbagli, toccalo di nuovo."];
+STATIC_I18N["Tomar este test con el grupo"]=STATIC_I18N["Tomar este test con el grupo"]||["Run this test with the group","Fai questo test con il gruppo"];
+STATIC_I18N["Tomar test"]=STATIC_I18N["Tomar test"]||["Run a test","Fai un test"];
+STATIC_I18N["Tomar un test"]=STATIC_I18N["Tomar un test"]||["Run a test","Fai un test"];
+STATIC_I18N["Tomar un test con el grupo"]=STATIC_I18N["Tomar un test con el grupo"]||["Run a test with the group","Fai un test con il gruppo"];
+STATIC_I18N["Umbral aeróbico VT1 (km/h, opcional)"]=STATIC_I18N["Umbral aeróbico VT1 (km/h, opcional)"]||["Aerobic threshold VT1 (km/h, optional)","Soglia aerobica VT1 (km/h, opzionale)"];
+STATIC_I18N["Umbral anaeróbico VT2 (km/h, opcional)"]=STATIC_I18N["Umbral anaeróbico VT2 (km/h, opcional)"]||["Anaerobic threshold VT2 (km/h, optional)","Soglia anaerobica VT2 (km/h, opzionale)"];
+STATIC_I18N["Unos minutos a ritmo fijo y medir el pulso al terminar y un minuto después."]=STATIC_I18N["Unos minutos a ritmo fijo y medir el pulso al terminar y un minuto después."]||["A few minutes at a fixed pace, measuring HR at the end and one minute later.","Qualche minuto a ritmo fisso e misurare il polso alla fine e un minuto dopo."];
+STATIC_I18N["VAM medida (km/h)"]=STATIC_I18N["VAM medida (km/h)"]||["Measured MAS (km/h)","VAM misurata (km/h)"];
+STATIC_I18N["VO₂máx"]=STATIC_I18N["VO₂máx"]||["VO₂max","VO₂max"];
+STATIC_I18N["VO₂máx estimado: más alto es mejor"]=STATIC_I18N["VO₂máx estimado: más alto es mejor"]||["Estimated VO₂max: higher is better","VO₂max stimato: più alto è meglio"];
+STATIC_I18N["Velocidad de referencia del grupo"]=STATIC_I18N["Velocidad de referencia del grupo"]||["Group reference speed","Velocità di riferimento del gruppo"];
+STATIC_I18N["Yo-Yo IR1"]=STATIC_I18N["Yo-Yo IR1"]||["Yo-Yo IR1","Yo-Yo IR1"];
+STATIC_I18N["Yo-Yo IR1 · 6 minutos"]=STATIC_I18N["Yo-Yo IR1 · 6 minutos"]||["Yo-Yo IR1 · 6 minutes","Yo-Yo IR1 · 6 minuti"];
+STATIC_I18N["Yo-Yo IR2"]=STATIC_I18N["Yo-Yo IR2"]||["Yo-Yo IR2","Yo-Yo IR2"];
+STATIC_I18N["en carrera"]=STATIC_I18N["en carrera"]||["still running","in corsa"];
+STATIC_I18N["golpes por minuto"]=STATIC_I18N["golpes por minuto"]||["beats per minute","battiti al minuto"];
+STATIC_I18N["ida y vuelta"]=STATIC_I18N["ida y vuelta"]||["shuttle","andata e ritorno"];
+STATIC_I18N["kilómetros por hora"]=STATIC_I18N["kilómetros por hora"]||["kilometers per hour","chilometri orari"];
+STATIC_I18N["minuto"]=STATIC_I18N["minuto"]||["minute","minuto"];
+STATIC_I18N["minutos"]=STATIC_I18N["minutos"]||["minutes","minuti"];
+STATIC_I18N["¿Salir del test? Se pierden los resultados que no guardaste."]=STATIC_I18N["¿Salir del test? Se pierden los resultados que no guardaste."]||["Leave the test? Unsaved results will be lost.","Uscire dal test? Si perdono i risultati non salvati."];
+STATIC_I18N["¿Salir sin guardar los resultados?"]=STATIC_I18N["¿Salir sin guardar los resultados?"]||["Leave without saving the results?","Uscire senza salvare i risultati?"];
+STATIC_I18N["Nivel"]=STATIC_I18N["Nivel"]||["Level","Livello"];
+STATIC_I18N["Listo"]=STATIC_I18N["Listo"]||["Done","Fatto"];
+STATIC_I18N["¿Terminar el test ahora?"]=STATIC_I18N["¿Terminar el test ahora?"]||["Finish the test now?","Terminare il test ora?"];
+STATIC_I18N["Vuelta"]=STATIC_I18N["Vuelta"]||["Round","Giro"];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
@@ -13551,7 +14042,9 @@ function prRmRender(box,exk,vid){
       if(!b){b=document.createElement('button');b.id='test-mov-btn';b.style.cssText="width:100%;padding:12px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.10);color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;";
         var ref=document.getElementById('test-fields');ref.parentNode.insertBefore(b,ref);}
       b.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'+tr(k==='cmj'?'Medir con video':'Filmar con análisis');
-      b.onclick=function(){openMov({pid:testTargetPid||currentPlayerId,testKey:k});};b.style.display=(k==='yoyo'||k==='bronco')?'none':'';
+      b.onclick=function(){openMov({pid:testTargetPid||currentPlayerId,testKey:k});};var _xd=testDef(k)||{};b.style.display=(k==='yoyo'||k==='bronco'||_xd.run||_xd.manual)?'none':'';
+      var b2=document.getElementById('test-run-btn');if(!b2){b2=document.createElement('button');b2.id='test-run-btn';b2.className='gr-btn go';b2.style.cssText='width:100%;padding:12px;margin:4px 0 10px;';b.parentNode.insertBefore(b2,b.nextSibling);}
+      var _can=isCoach&&TRT_TESTS.some(function(t){return t.k===k;});b2.style.display=_can?'':'none';b2.textContent='▶ '+tr('Tomar este test con el grupo');b2.onclick=function(){closeTestModal();trOpen(k,'');};
     }catch(e){console.warn(e);}
   };
 })();
