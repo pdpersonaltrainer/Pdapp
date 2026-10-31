@@ -942,6 +942,19 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 .tst-tab.on{background:var(--mobfill);border-color:var(--mobfill);color:#0a0b0e;}
 .tst-tab.on i{background:rgba(0,0,0,0.18);color:#0a0b0e;}
 .tst-hd{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--mob);margin:14px 2px 8px;}
+
+.org-blk{background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:8px 10px;margin-bottom:10px;}
+.org-bt{display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;padding:4px 2px 8px;}
+.org-bt i{width:4px;height:16px;border-radius:2px;background:var(--mob);flex:none;}
+.org-bt span{margin-left:auto;font-size:12px;color:var(--muted);font-family:'Barlow',sans-serif;font-weight:600;}
+.org-row{display:flex;align-items:center;gap:6px;padding:7px 4px;border-top:1px solid var(--border2);border-radius:8px;}
+.org-row.org-hl{background:rgba(168,224,99,0.12);outline:1.5px solid rgba(168,224,99,0.6);}
+.org-n{flex:1;min-width:0;font-size:13.5px;line-height:1.3;}
+.org-n small{display:block;color:var(--muted2);font-size:11.5px;}
+.org-ar{flex:none;width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--s1);color:var(--text);cursor:pointer;padding:0;}
+.org-ar:disabled{opacity:0.3;}
+.org-sel{flex:none;width:140px;max-width:40%;height:34px;background:var(--s1);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;padding:0 6px;}
+.org-empty{font-size:12px;color:var(--muted2);padding:4px 4px 6px;}
 </style>
 </head>
 <body>
@@ -1632,6 +1645,16 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
   <div class="trt-scroll"><div id="trt-body"></div></div>
   <div class="trt-foot" id="trt-foot"></div>
 </div>
+<!-- MODAL: MOVER EJERCICIOS ENTRE BLOQUES -->
+<div class="modal-overlay" id="modal-org">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 style="margin-bottom:4px;">Mover ejercicios</h3>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Elegí en qué bloque va cada ejercicio y su orden con las flechas.</div>
+    <div id="org-list"></div>
+    <div class="modal-btns"><button class="mbtn mbtn-save" onclick="closeOrg()">Listo</button></div>
+  </div>
+</div>
 <!-- MODAL: PICK EXERCISE -->
 <div class="modal-overlay" id="modal-pick">
   <div class="modal">
@@ -2156,7 +2179,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261030-7';
+var APP_VERSION='20261031-1';
 (function(){
   try{
     setTimeout(function(){
@@ -6689,7 +6712,40 @@ function exMoveBtns(w,d,b,e,total){
     +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg></button>';
   var swap='<button class="ex-swap" title="Cambiar ejercicio" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();swapEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">'
     +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg></button>';
-  return grip+swap;
+  var mv='<button class="ex-swap ex-mvb" title="'+tr('Mover a otro bloque')+'" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();openOrg({kind:\'plan\',w:+this.dataset.w,d:+this.dataset.d,hb:+this.dataset.b,he:+this.dataset.e})">'
+    +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v7a4 4 0 0 0 4 4h12"/><path d="M15 10l5 5-5 5"/></svg></button>';
+  return grip+mv+swap;
+}
+/* ===== MOVER EJERCICIOS ENTRE BLOQUES ===== */
+var ORG=null;
+function orgBlocks(){if(!ORG)return null;if(ORG.kind==='plan'){var x=((PLAN[ORG.w]||[])[ORG.d]||{});return x.blocks||null;}var ss=sessionsOf(currentPlayerId);var d=ss[ORG.iso];return d&&d.blocks;}
+function openOrg(src){
+  if(!isCoach||!currentPlayerId)return;ORG=src;ORG.dirty=false;
+  if(!orgBlocks()){ORG=null;return;}
+  try{closeDayMenu();}catch(e){}
+  orgRender();document.getElementById('modal-org').classList.add('open');
+  setTimeout(function(){var h=document.querySelector('#org-list .org-hl');if(h)h.scrollIntoView({block:'center'});},60);
+}
+function orgEsc(s){return String(s==null?'':s).replace(/<[^>]*>/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function orgRender(){
+  var B=orgBlocks()||[],h='';
+  var opts=function(cur){return B.map(function(b,i){return '<option value="'+i+'"'+(i===cur?' selected':'')+'>'+orgEsc(tr(b.title||(tr('Bloque')+' '+(i+1))))+'</option>';}).join('');};
+  B.forEach(function(b,bi){
+    h+='<div class="org-blk"><div class="org-bt"><i class="bs-'+(b.t||'gen')+'"></i>'+orgEsc(tr(b.title||(tr('Bloque')+' '+(bi+1))))+'<span>'+((b.exs||[]).length)+'</span></div>';
+    if(!(b.exs||[]).length)h+='<div class="org-empty">'+tr('Sin ejercicios')+'</div>';
+    (b.exs||[]).forEach(function(e,ei){var hl=ORG.hb===bi&&ORG.he===ei;
+      h+='<div class="org-row'+(hl?' org-hl':'')+'"><div class="org-n">'+orgEsc(e.n)+(e.l?'<small>'+orgEsc(e.l)+'</small>':'')+'</div>'
+        +'<button class="org-ar" onclick="orgMove('+bi+','+ei+',-1)"'+(ei===0?' disabled':'')+'>↑</button><button class="org-ar" onclick="orgMove('+bi+','+ei+',1)"'+(ei===b.exs.length-1?' disabled':'')+'>↓</button>'
+        +'<select class="org-sel" onchange="orgTo('+bi+','+ei+',+this.value)">'+opts(bi)+'</select></div>';});
+    h+='</div>';
+  });
+  document.getElementById('org-list').innerHTML=h;
+}
+function orgTo(bi,ei,to){var B=orgBlocks();if(!B||to===bi||!B[to])return;var it=B[bi].exs.splice(ei,1)[0];(B[to].exs=B[to].exs||[]).push(it);ORG.hb=to;ORG.he=B[to].exs.length-1;ORG.dirty=true;orgRender();setTimeout(function(){var h=document.querySelector('#org-list .org-hl');if(h)h.scrollIntoView({block:'center',behavior:'smooth'});},30);}
+function orgMove(bi,ei,dir){var B=orgBlocks();var a=B&&B[bi]&&B[bi].exs;var j=ei+dir;if(!a||j<0||j>=a.length)return;var t=a[ei];a[ei]=a[j];a[j]=t;ORG.hb=bi;ORG.he=j;ORG.dirty=true;orgRender();}
+function closeOrg(){
+  if(ORG&&ORG.dirty){if(ORG.kind==='plan')commitSession();else saveSessions(currentPlayerId);try{refreshPlanUI();}catch(e){}toast(tr('Ejercicios reordenados'));}
+  ORG=null;document.getElementById('modal-org').classList.remove('open');
 }
 /* ===== CAMBIAR EJERCICIO EN EL LUGAR ===== */
 var swapTarget=null;
@@ -7527,6 +7583,7 @@ function openDayMenu(iso,ev,anchor){
     +dmItem('dayMenuOpen()',tr('Abrir sesión'),ICO_OPEN,false)
     +(_free?dmItem('dayMenuAddTurn()',tr('Agregar turno')+' '+tkTurn(_free),ICO_ADD,false):'')
     +dmItem('dayMenuComplete()',tr('Marcar como completado'),ICO_CHK,false)
+    +(hasBlk(d)?dmItem('openOrg({kind:\'cal\',iso:calMenuIso})',tr('Mover ejercicios entre bloques'),'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v7a4 4 0 0 0 4 4h12"/><path d="M15 10l5 5-5 5"/></svg>',false):'')
     +dmItem('dayMenuMove()',tr('Mover a otra fecha'),ICO_MOVE,false)
     +dmItem('dayMenuDuplicate()',tr(_nt?'Duplicar turno':'Duplicar día'),ICO_DUP,false)
     +dmItem('dayMenuTemplate()',tr('Guardar como modelo'),ICO_TPL,false)
@@ -9940,6 +9997,12 @@ STATIC_I18N["Mis tests"]=STATIC_I18N["Mis tests"]||["My tests","I miei test"];
 STATIC_I18N["Fuerza"]=STATIC_I18N["Fuerza"]||["Strength","Forza"];
 STATIC_I18N["Aeróbicos"]=STATIC_I18N["Aeróbicos"]||["Aerobic","Aerobici"];
 STATIC_I18N["30-15 IFT, Yo-Yo, Bronco, Navette, submáximo y escalón, con pitidos y voz desde la app."]=STATIC_I18N["30-15 IFT, Yo-Yo, Bronco, Navette, submáximo y escalón, con pitidos y voz desde la app."]||["30-15 IFT, Yo-Yo, Bronco, Navette, submaximal and step test, with beeps and voice from the app.","30-15 IFT, Yo-Yo, Bronco, Navette, submassimale e step test, con bip e voce dall’app."];
+STATIC_I18N["Mover a otro bloque"]=STATIC_I18N["Mover a otro bloque"]||["Move to another block","Sposta in un altro blocco"];
+STATIC_I18N["Mover ejercicios entre bloques"]=STATIC_I18N["Mover ejercicios entre bloques"]||["Move exercises between blocks","Sposta esercizi tra blocchi"];
+STATIC_I18N["Mover ejercicios"]=STATIC_I18N["Mover ejercicios"]||["Move exercises","Sposta esercizi"];
+STATIC_I18N["Elegí en qué bloque va cada ejercicio y su orden con las flechas."]=STATIC_I18N["Elegí en qué bloque va cada ejercicio y su orden con las flechas."]||["Choose the block for each exercise and its order with the arrows.","Scegli il blocco di ogni esercizio e l’ordine con le frecce."];
+STATIC_I18N["Ejercicios reordenados"]=STATIC_I18N["Ejercicios reordenados"]||["Exercises reordered","Esercizi riordinati"];
+STATIC_I18N["Sin ejercicios"]=STATIC_I18N["Sin ejercicios"]||["No exercises","Nessun esercizio"];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
