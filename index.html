@@ -955,6 +955,16 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 .org-ar:disabled{opacity:0.3;}
 .org-sel{flex:none;width:140px;max-width:40%;height:34px;background:var(--s1);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;padding:0 6px;}
 .org-empty{font-size:12px;color:var(--muted2);padding:4px 4px 6px;}
+
+#exmv-pop{position:fixed;z-index:9999;display:none;min-width:220px;max-width:300px;background:var(--s2);border:1px solid var(--border2);border-radius:12px;box-shadow:0 12px 34px rgba(0,0,0,0.55);padding:4px 0 6px;overflow:hidden;}
+.exmv-h{padding:9px 13px 8px;border-bottom:1px solid var(--border2);font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);}
+.exmv-h b{display:block;font-size:13px;letter-spacing:0;text-transform:none;color:var(--text);font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exmv-it{display:flex;align-items:center;gap:10px;width:100%;padding:11px 13px;border:none;background:none;color:var(--text);font-size:14px;text-align:left;cursor:pointer;}
+.exmv-it:active,.exmv-it:hover{background:rgba(168,224,99,0.10);}
+.exmv-it i{width:4px;height:18px;border-radius:2px;background:var(--mob);flex:none;}
+.exmv-it span{flex:1;min-width:0;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.exmv-it em{font-style:normal;font-size:12px;color:var(--muted2);}
+.exmv-e{padding:12px 13px;font-size:13px;color:var(--muted);}
 </style>
 </head>
 <body>
@@ -2179,7 +2189,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261031-1';
+var APP_VERSION='20261031-2';
 (function(){
   try{
     setTimeout(function(){
@@ -6712,11 +6722,36 @@ function exMoveBtns(w,d,b,e,total){
     +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg></button>';
   var swap='<button class="ex-swap" title="Cambiar ejercicio" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();swapEx(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">'
     +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg></button>';
-  var mv='<button class="ex-swap ex-mvb" title="'+tr('Mover a otro bloque')+'" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();openOrg({kind:\'plan\',w:+this.dataset.w,d:+this.dataset.d,hb:+this.dataset.b,he:+this.dataset.e})">'
+  var mv='<button class="ex-swap ex-mvb" title="'+tr('Mover a otro bloque')+'" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();exMovePop(this,+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">'
     +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v7a4 4 0 0 0 4 4h12"/><path d="M15 10l5 5-5 5"/></svg></button>';
   return grip+mv+swap;
 }
 /* ===== MOVER EJERCICIOS ENTRE BLOQUES ===== */
+function exMovePop(btn,w,d,b,e){
+  if(!isCoach||!currentPlayerId)return;
+  var B=((PLAN[w]||[])[d]||{}).blocks||[];var ex=B[b]&&B[b].exs&&B[b].exs[e];if(!ex)return;
+  var el=document.getElementById('exmv-pop');
+  if(el&&el.style.display==='block'&&el.dataset.k===w+'-'+d+'-'+b+'-'+e){exMoveClose();return;}
+  if(!el){el=document.createElement('div');el.id='exmv-pop';document.body.appendChild(el);
+    document.addEventListener('pointerdown',function(ev){var p=document.getElementById('exmv-pop');if(p&&p.style.display==='block'&&!p.contains(ev.target)&&!(ev.target.closest&&ev.target.closest('.ex-mvb')))exMoveClose();},true);
+    window.addEventListener('scroll',function(){exMoveClose();},true);}
+  el.dataset.k=w+'-'+d+'-'+b+'-'+e;
+  var others=B.map(function(x,i){return i;}).filter(function(i){return i!==b;});
+  el.innerHTML='<div class="exmv-h">'+tr('Pasar a')+'<b>'+orgEsc(ex.n)+'</b></div>'+(others.length?others.map(function(i){var x=B[i];
+    return '<button class="exmv-it" onclick="exMoveTo('+w+','+d+','+b+','+e+','+i+')"><i class="bs-'+(x.t||'gen')+'"></i><span>'+orgEsc(tr(x.title||(tr('Bloque')+' '+(i+1))))+'</span><em>'+((x.exs||[]).length)+'</em></button>';}).join(''):'<div class="exmv-e">'+tr('No hay otros bloques en esta sesión.')+'</div>');
+  el.style.display='block';
+  var r=btn.getBoundingClientRect(),mw=el.offsetWidth,mh=el.offsetHeight;
+  var left=Math.max(8,Math.min(r.right-mw,window.innerWidth-mw-8)),top=r.bottom+6;
+  if(top+mh>window.innerHeight-8)top=Math.max(8,r.top-mh-6);
+  el.style.left=left+'px';el.style.top=top+'px';
+}
+function exMoveClose(){var el=document.getElementById('exmv-pop');if(el)el.style.display='none';}
+function exMoveTo(w,d,b,e,to){
+  var B=((PLAN[w]||[])[d]||{}).blocks||[];if(!B[b]||!B[to])return;
+  var it=B[b].exs.splice(e,1)[0];(B[to].exs=B[to].exs||[]).push(it);
+  exMoveClose();commitSession();refreshPlanUI();
+  toast(tr('Movido a')+' '+String(tr(B[to].title||'')).replace(/<[^>]*>/g,''));
+}
 var ORG=null;
 function orgBlocks(){if(!ORG)return null;if(ORG.kind==='plan'){var x=((PLAN[ORG.w]||[])[ORG.d]||{});return x.blocks||null;}var ss=sessionsOf(currentPlayerId);var d=ss[ORG.iso];return d&&d.blocks;}
 function openOrg(src){
@@ -10003,6 +10038,9 @@ STATIC_I18N["Mover ejercicios"]=STATIC_I18N["Mover ejercicios"]||["Move exercise
 STATIC_I18N["Elegí en qué bloque va cada ejercicio y su orden con las flechas."]=STATIC_I18N["Elegí en qué bloque va cada ejercicio y su orden con las flechas."]||["Choose the block for each exercise and its order with the arrows.","Scegli il blocco di ogni esercizio e l’ordine con le frecce."];
 STATIC_I18N["Ejercicios reordenados"]=STATIC_I18N["Ejercicios reordenados"]||["Exercises reordered","Esercizi riordinati"];
 STATIC_I18N["Sin ejercicios"]=STATIC_I18N["Sin ejercicios"]||["No exercises","Nessun esercizio"];
+STATIC_I18N["Pasar a"]=STATIC_I18N["Pasar a"]||["Move to","Sposta in"];
+STATIC_I18N["Movido a"]=STATIC_I18N["Movido a"]||["Moved to","Spostato in"];
+STATIC_I18N["No hay otros bloques en esta sesión."]=STATIC_I18N["No hay otros bloques en esta sesión."]||["There are no other blocks in this session.","Non ci sono altri blocchi in questa sessione."];
 STATIC_I18N["Visible para todos los profes (PD)"]=["Visible to all coaches (PD)","Visibile a tutti i coach (PD)"];
 STATIC_I18N["Lo ven todos los profes en la biblioteca, filtro PD."]=["All coaches see it in the library, PD filter.","Tutti i coach lo vedono nella libreria, filtro PD."];
 STATIC_I18N["Más opciones"]=["More options","Altre opzioni"];
