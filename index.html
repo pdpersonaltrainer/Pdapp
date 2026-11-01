@@ -2189,7 +2189,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261031-2';
+var APP_VERSION='20261101-1';
 (function(){
   try{
     setTimeout(function(){
@@ -14195,7 +14195,7 @@ function prRmRender(box,exk,vid){
       var b=document.getElementById('test-mov-btn');
       if(!b){b=document.createElement('button');b.id='test-mov-btn';b.style.cssText="width:100%;padding:12px;border-radius:var(--rsm);border:1px solid var(--mob);background:rgba(168,224,99,0.10);color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;";
         var ref=document.getElementById('test-fields');ref.parentNode.insertBefore(b,ref);}
-      b.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'+tr(k==='cmj'?'Medir con video':'Filmar con análisis');
+      b.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-right:8px;vertical-align:-3px;"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'+tr(k==='cmj'?'Medir con video':'Filmar con análisis');
       b.onclick=function(){openMov({pid:testTargetPid||currentPlayerId,testKey:k});};var _xd=testDef(k)||{};b.style.display=(k==='yoyo'||k==='bronco'||_xd.run||_xd.manual)?'none':'';
       var b2=document.getElementById('test-run-btn');if(!b2){b2=document.createElement('button');b2.id='test-run-btn';b2.className='gr-btn go';b2.style.cssText='width:100%;padding:12px;margin:4px 0 10px;';b.parentNode.insertBefore(b2,b.nextSibling);}
       var _can=isCoach&&TRT_TESTS.some(function(t){return t.k===k;});b2.style.display=_can?'':'none';b2.textContent='▶ '+tr('Tomar este test con el grupo');b2.onclick=function(){closeTestModal();trOpen(k,'');};
