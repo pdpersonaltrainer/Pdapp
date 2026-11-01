@@ -2189,7 +2189,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261101-1';
+var APP_VERSION='20261101-2';
 (function(){
   try{
     setTimeout(function(){
@@ -12536,8 +12536,9 @@ function mvReset(){
 }
 function mvSide(L){
   var P=MV_P,S=MV.S;
-  var l=mvVis(L[P.LH])+mvVis(L[P.LK])+mvVis(L[P.LA])+mvVis(L[P.LS]);
-  var r=mvVis(L[P.RH])+mvVis(L[P.RK])+mvVis(L[P.RA])+mvVis(L[P.RS]);
+  var arm=MV.ex==='bench';
+  var l=arm?mvVis(L[P.LS])+mvVis(L[P.LE])+mvVis(L[P.LW]):mvVis(L[P.LH])+mvVis(L[P.LK])+mvVis(L[P.LA])+mvVis(L[P.LS]);
+  var r=arm?mvVis(L[P.RS])+mvVis(L[P.RE])+mvVis(L[P.RW]):mvVis(L[P.RH])+mvVis(L[P.RK])+mvVis(L[P.RA])+mvVis(L[P.RS]);
   S.side=S.side==null?(l>=r?'L':'R'):(l>r+0.25?'L':r>l+0.25?'R':S.side);
   return S.side==='L'?{S:L[P.LS],E:L[P.LE],W:L[P.LW],H:L[P.LH],K:L[P.LK],A:L[P.LA]}:{S:L[P.RS],E:L[P.RE],W:L[P.RW],H:L[P.RH],K:L[P.RK],A:L[P.RA]};
 }
@@ -13174,6 +13175,10 @@ function mvBodyOk(L,w,h){
   else if(ex==='jump'||ex==='hjump'||ex==='valgus')need=legs.concat([P.LHE,P.RHE,P.LF,P.RF]);
   else need=legs.concat([P.LS,P.RS]);
   var mx=w*0.01,my=h*0.01,bad=0;
+  if(ex==='bench'&&!MV.rm){ /* de costado alcanza con el hombro y el codo de un lado (la muñeca puede quedar tapada por el disco) */
+    var okB=function(a){return a.every(function(i){var q=L[i];return q&&mvVis(q)>=0.5&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});};
+    return okB([P.LS,P.LE])||okB([P.RS,P.RE]);
+  }
   if(ex==='deadlift'&&!MV.rm){
     var okS=function(a){return a.every(function(i){var q=L[i];return q&&!q.occ&&mvVis(q)>=0.55&&q.y>my&&q.y<h-my&&q.x>mx&&q.x<w-mx;});};
     return okS([P.LS,P.LH])||okS([P.RS,P.RH]);
@@ -13319,7 +13324,10 @@ function mvOneSide(L){
   var sd;
   if(MV.ex==='ankle')sd=MV.side==='r'?'R':'L';
   else{try{mvSide(L);}catch(e){}sd=(MV.S&&MV.S.side)||'L';}
-  var m={};(MV_ARM_EX[MV.ex]?MV_SIDE_PTS:MV_SIDE_LEG)[sd].forEach(function(i){m[i]=1;});if(MV_ARM_EX[MV.ex]){delete m[29];delete m[31];delete m[sd==='L'?27:28];}return m;
+  var m={};(MV_ARM_EX[MV.ex]?MV_SIDE_PTS:MV_SIDE_LEG)[sd].forEach(function(i){m[i]=1;});if(MV_ARM_EX[MV.ex]){delete m[29];delete m[31];delete m[sd==='L'?27:28];}
+  /* press de banca: solo el brazo (hombro, codo, muñeca); el tronco acostado se mezcla y no aporta */
+  if(MV.ex==='bench'){var keep=sd==='L'?[11,13,15]:[12,14,16];m={};keep.forEach(function(i){m[i]=1;});}
+  return m;
 }
 function mvDraw(L,labels){
   var cv=mvEl('mv-cv'),ctx=cv.getContext('2d'),vid=mvEl('mv-vid'),w=cv.width,h=cv.height,s=Math.max(w,h)/720,G='#a8e063';if(!w)return;
