@@ -2189,7 +2189,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261102-1';
+var APP_VERSION='20261103-1';
 (function(){
   try{
     setTimeout(function(){
@@ -10248,6 +10248,9 @@ STATIC_I18N["rodilla al piso"]=STATIC_I18N["rodilla al piso"]||["knee to floor",
 STATIC_I18N["válidos"]=STATIC_I18N["válidos"]||["valid","validi"];
 STATIC_I18N["válidas"]=STATIC_I18N["válidas"]||["valid","valide"];
 STATIC_I18N["pérdida máx."]=STATIC_I18N["pérdida máx."]||["max loss","perdita max"];
+STATIC_I18N["piernas tapadas"]=["legs hidden","gambe coperte"];
+STATIC_I18N["piernas tapadas por el disco"]=["legs hidden by the plate","gambe coperte dal disco"];
+STATIC_I18N["Piernas tapadas: mido el tronco"]=["Legs hidden: measuring the trunk","Gambe coperte: misuro il busto"];
 STATIC_I18N["Sin límite de profundidad"]=STATIC_I18N["Sin límite de profundidad"]||["No depth limit","Nessun limite di profondità"];
 STATIC_I18N["Límite"]=STATIC_I18N["Límite"]||["Limit","Limite"];
 STATIC_I18N["Sin aviso de fatiga"]=STATIC_I18N["Sin aviso de fatiga"]||["No fatigue alert","Nessun avviso di fatica"];
@@ -12715,6 +12718,32 @@ function mvLegLock(L,t,w,h){
   });
   return L;
 }
+/* Peso muerto de costado: ¿la pierna que dio el detector es creíble?
+   Con el disco delante (sobre todo con el teléfono en el piso) el detector "inventa" rodilla, tobillo y pie
+   con confianza alta. Se controla con reglas del cuerpo, sin depender de que toquen el disco:
+   cadera arriba de la rodilla y rodilla arriba del tobillo; muslo y pierna de largos parecidos;
+   tibia como mucho ~45° inclinada (el tobillo no da para más); rodilla no cerrada a menos de 45°;
+   parado (tronco vertical) la pierna tiene que estar casi estirada; la punta del pie va hacia adelante
+   y al nivel del piso (no debajo del tobillo); y los pies no se mueven durante la serie. */
+function mvDlLegOk(L,sd,trunk){
+  var I=sd==='L'?{H:23,K:25,A:27,E:29,F:31}:{H:24,K:26,A:28,E:30,F:32};
+  var H=L[I.H],K=L[I.K],A=L[I.A],E=L[I.E],F=L[I.F],S=MV.S,g=S.lg||(S.lg={ah:[],ok:0,bad:0,show:false});
+  var d=function(a,b){return Math.hypot(a.x-b.x,a.y-b.y);};
+  var ok=!!(H&&K&&A)&&!K.occ&&!A.occ&&mvVis(H)>=0.5&&mvVis(K)>=0.5&&mvVis(A)>=0.5;
+  if(ok){
+    var T=d(H,K),Sh=d(K,A),kn=mvAng(H,K,A),rt=Sh/(T||1);
+    ok=K.y>H.y&&A.y>K.y+0.55*Sh&&rt>0.65&&rt<1.5&&kn>=45&&mvVert(A,K)<=45;
+    if(ok&&isFinite(trunk)&&trunk<20&&kn<145)ok=false;
+    if(ok&&F&&!F.occ&&mvVis(F)>=0.5){var fx=Math.abs(F.x-A.x),fy=F.y-A.y;if(Math.abs(fy)>1.2*fx||fx>Sh*1.1||fy<-0.2*Sh)ok=false;}
+    if(ok&&E&&F&&!E.occ&&!F.occ&&mvVis(E)>=0.5&&mvVis(F)>=0.5){var ex_=Math.abs(F.x-E.x),ey_=Math.abs(F.y-E.y);if(ey_>0.8*ex_||Math.hypot(ex_,ey_)<Sh*0.15)ok=false;}
+    if(ok){var ah=g.ah;if(ah.length>=6){var xs=ah.map(function(o){return o.x;}).sort(function(a,b){return a-b;}),ys=ah.map(function(o){return o.y;}).sort(function(a,b){return a-b;});
+        var m={x:xs[xs.length>>1],y:ys[ys.length>>1]};if(d(A,m)>0.3*Sh)ok=false;}
+      if(ok){ah.push({x:A.x,y:A.y});if(ah.length>60)ah.shift();}}
+  }
+  /* para no parpadear: se muestran las piernas tras 4 cuadros buenos seguidos y se ocultan tras 3 malos */
+  if(ok){g.ok++;g.bad=0;if(g.ok>=4)g.show=true;}else{g.bad++;g.ok=0;if(g.bad>=3)g.show=false;}
+  return ok&&g.show;
+}
 /* --- límites de la repetición, voz y fatiga --- */
 var MV_LIMS={
   squat:[['off','Sin límite'],['par','Paralelo'],['ang','Ángulo de rodilla',90,'°'],['cm','Centímetros',40,'cm']],
@@ -12808,7 +12837,7 @@ function mvLeg(s){return Math.hypot(s.H.x-s.K.x,s.H.y-s.K.y)+Math.hypot(s.K.x-s.
 function mvCmPerPx(){var H=mvHeight(),S=MV.S;if(!H||!S||!S.legPx)return null;return 0.49*H/S.legPx;}
 /* se llama en cada fotograma, antes de contar la repetición */
 function mvLimTrack(o){
-  var S=MV.S,ex=MV.ex;if(o.vy!=null)S.vyNow=o.vy;
+  var S=MV.S,ex=MV.ex;if('vy' in o)S.vyNow=o.vy;
   if(S.phase==='up'||!S.cur){
     if(o.hy!=null)S.y0=S.y0==null?o.hy:Math.min(S.y0,o.hy);
     if(o.leg&&isFinite(o.leg))S.legPx=S.legPx==null?o.leg:Math.max(S.legPx*0.995,S.legPx*0.9+o.leg*0.1);
@@ -12839,10 +12868,13 @@ function mvRepDone(c){
   var S=MV.S,ex=MV.ex,lim=mvLimOf(ex);
   if(ex==='pullup'){if(c.py!=null&&c.ty!=null){var dtp=(c.tt-c.pt)/1000,dyp=c.py-c.ty;if(dtp>0.1&&dyp>0)c.v=dyp/dtp;}delete c.py;delete c.pt;delete c.ty;delete c.tt;}
   else if(c.tb!=null&&c.by!=null&&S.vyNow!=null){var dt=(MV.lastTs-c.tb)/1000,dy=c.by-S.vyNow;if(dt>0.08&&dy>0)c.v=dy/dt;}
+  if(ex==='deadlift'&&!MV.rm&&c.lgN){if((c.lgOk||0)/c.lgN<0.6){c.legHid=true;delete c.mnKnee;delete c.mnHipV;}}
+  delete c.lgN;delete c.lgOk;
   if(c.fr){var vm=Math.max(c.vL==null?-99:c.vL,c.vR==null?-99:c.vR);c.ok=!(vm>=MV_VALG_TH);
     if(!c.ok){mvFeedback(false);MV.banner={t:tr('Valgo'),until:Date.now()+1100};}else if(lim)mvFeedback(true);}
   else if(lim&&!(lim.m==='cm'&&!mvCmPerPx())){
     if(ex==='valgus'){c.ok=isFinite(c.mnRatio)&&c.mnRatio>=lim.v;mvFeedback(c.ok);}
+    else if(c.legHid){/* piernas tapadas: no se puede juzgar el límite */}
     else{c.ok=!!c.hit;if(!c.ok)mvFeedback(false);}
   }
   delete c.hit;delete c.by;delete c.tb;delete c.y0;
@@ -12989,13 +13021,18 @@ function mvAnalyze(L,t){
     S.last={ratio:ratio,knee:knee};out.push([L[P.LK],null],[L[P.RK],null]);
   }else if(ex==='deadlift'){
     s=mvSide(L);trunk=mvEma('trunk').push(mvVert(s.H,s.S));
-    var kOk=mvVis(s.K)>=0.35,aOk=kOk&&mvVis(s.A)>=0.35&&!s.K.occ&&!s.A.occ;
-    hip=kOk?mvEma('hip').push(mvAng(s.S,s.H,s.K)):NaN;knee=aOk?mvEma('knee').push(mvAng(s.H,s.K,s.A)):NaN;
-    S.kneeHidden=!kOk||!!s.K.occ;
-    mvLimTrack({hip:hip,wy:s.W.y,ky:s.K.y,vy:mvMid(L[P.LW],L[P.RW]).y,leg:mvLeg(s)});
-    /* sin rodilla visible, la repetición se sigue con la inclinación del tronco */
-    mvRep(isFinite(hip)?hip:180-1.3*trunk,120,160,{maxTrunk:trunk,mnKnee:knee});
-    S.last={hip:hip,knee:knee,trunk:trunk};out.push([s.H,hip]);if(aOk)out.push([s.K,knee,null,null,!!s.K.est]);
+    /* rodilla y cadera solo si la pierna es creíble; si no, se mide el tronco y no se dibuja la pierna */
+    var lgOk=MV.rm?(mvVis(s.K)>=0.35&&!s.K.occ):mvDlLegOk(L,S.side,trunk);
+    hip=lgOk?mvEma('hip').push(mvAng(s.S,s.H,s.K)):NaN;knee=lgOk?mvEma('knee').push(mvAng(s.H,s.K,s.A)):NaN;
+    S.kneeHidden=!lgOk;
+    /* velocidad (pérdida %) solo con la barra marcada: la muñeca queda tapada por el disco y da valores falsos */
+    var vyB=(MV.bar&&MV.bar.ok)?MV.bar.p.y:(MV.rm?mvMid(L[P.LW],L[P.RW]).y:null);
+    mvLimTrack({hip:hip,wy:s.W.y,ky:lgOk?s.K.y:NaN,vy:vyB,leg:lgOk?mvLeg(s):NaN});
+    /* sin pierna creíble, la repetición se sigue con la inclinación del tronco */
+    var xr={maxTrunk:trunk};if(lgOk){xr.mnKnee=knee;xr.mnHipV=hip;}
+    mvRep(lgOk?hip:180-1.3*trunk,120,160,xr);
+    if(S.phase==='down'&&S.cur){S.cur.lgN=(S.cur.lgN||0)+1;if(lgOk)S.cur.lgOk=(S.cur.lgOk||0)+1;}
+    S.last={hip:hip,knee:knee,trunk:trunk};if(lgOk){out.push([s.H,hip]);out.push([s.K,knee,null,null,!!s.K.est]);}
     mvTrailPush(s.W,t);
   }else if(ex==='lunge'){
     var kL=mvAng(L[P.LH],L[P.LK],L[P.LA]),kR=mvAng(L[P.RH],L[P.RK],L[P.RA]);
@@ -13017,7 +13054,7 @@ function mvAnalyze(L,t){
     if(S.shBase==null&&isFinite(shl))S.shBase=shl;
     if(S.phase==='down')S.shBase=Math.min(S.shBase,shl);
     var prot=shl-(S.shBase==null?shl:S.shBase);
-    mvLimTrack({elbow:elbow,vy:mvMid(L[P.LW],L[P.RW]).y});if(MV.rm)rmArmTrack(s);
+    mvLimTrack({elbow:elbow,vy:(MV.bar&&MV.bar.ok)?MV.bar.p.y:(MV.rm?mvMid(L[P.LW],L[P.RW]).y:null)});if(MV.rm)rmArmTrack(s);
     mvRep(elbow,100,155,{maxProt:prot});
     S.last={elbow:elbow,prot:prot};out.push([s.E,elbow]);
     mvTrailPush(s.W,t);
@@ -13241,7 +13278,7 @@ function mvBarTrack(vid){
     B.p={x:bx/F.sc,y:by/F.sc,visibility:1};
   }else{B.lost++;B.vx*=0.5;B.vy*=0.5;if(B.lost>12)B.ok=false;}
 }
-function mvBarHint(){return mvTrailOn()&&!MV.rm&&!(MV.bar&&MV.bar.ok)&&!(MV.S&&MV.S.view==='front');}
+function mvBarHint(){return mvTrailOn()&&!MV.rm&&!(MV.bar&&MV.bar.ok)&&!(MV.S&&MV.S.view==='front')&&!(MV.noTap&&!MV.bar)&&!(MV.mode==='cam'&&MV.counting&&!MV.bar);}
 function mvTrailPush(p,t){var S=MV.S;
   if(MV.bar){if(!MV.bar.ok)return;p=MV.bar.p;}
   else if((MV_EX[MV.ex]||{}).trail==='shoulder'||(MV_EX[MV.ex]||{}).trail==='wrist')return;
@@ -13276,7 +13313,8 @@ function mvRepLine(ex,r){
   if(r.fr)return tr('de frente')+' · '+[r.vL!=null?tr('valgo izq.')+' '+mvF0(r.vL)+'°':null,r.vR!=null?tr('valgo der.')+' '+mvF0(r.vR)+'°':null].filter(Boolean).join(' · ');
   if(ex==='squat')return tr('rodilla')+' '+mvF0(r.min)+'° · '+tr('cadera')+' '+mvF0(r.mnHip)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°'+(r.maxDepth>0?' · '+tr('bajo paralelo'):'');
   if(ex==='valgus')return tr('rodillas/tobillos')+' '+(isFinite(r.mnRatio)?r.mnRatio.toFixed(2):'–')+(r.mnRatio<0.8?' · '+tr('VALGO'):r.mnRatio<0.95?' · '+tr('leve valgo'):' · ok');
-  if(ex==='deadlift')return tr('cadera')+' '+mvF0(r.min)+'° · '+tr('rodilla')+' '+mvF0(r.mnKnee)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°';
+  if(ex==='deadlift'){if(r.legHid)return tr('tronco')+' '+mvF0(r.maxTrunk)+'° · '+tr('piernas tapadas');
+    return tr('cadera')+' '+mvF0(r.mnHipV!=null?r.mnHipV:r.min)+'° · '+tr('rodilla')+' '+mvF0(r.mnKnee)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°';}
   if(ex==='lunge')return tr('rodilla adelante')+' '+mvF0(r.min)+'° · '+tr('atrás')+' '+mvF0(r.mnBack)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°';
   if(ex==='bench')return tr('codo')+' '+mvF0(r.min)+'° · '+tr('hombro adelanta')+' '+mvF0(r.maxProt)+'%'+(r.maxProt>12?' · '+tr('ESCÁPULA SE DESPEGA'):'');
   return '';
@@ -13328,6 +13366,8 @@ function mvOneSide(L){
   /* press de banca: solo el brazo (hombro, codo, muñeca); el tronco acostado se mezcla y no aporta */
   /* sentadilla de costado: sin pie (punta), llega hasta el tobillo; de frente sí se marcan los pies */
   if(MV.ex==='squat'){delete m[31];delete m[32];}
+  /* peso muerto de costado: la pierna solo se dibuja cuando pasa los controles (si no, solo hombro-cadera) */
+  if(MV.ex==='deadlift'&&!MV.rm&&!(MV.S&&MV.S.lg&&MV.S.lg.show)){[25,26,27,28,29,30,31,32].forEach(function(i){delete m[i];});}
   if(MV.ex==='bench'){var keep=sd==='L'?[11,13,15]:[12,14,16];m={};keep.forEach(function(i){m[i]=1;});}
   return m;
 }
@@ -13432,7 +13472,7 @@ function mvStep(now,meta){
         if(S0.okSince==null)S0.okSince=t;
         if(t-S0.okSince<900){MV.msg=tr('Detectando…');}
         else if(MV.mode==='cam'&&!MV.counting){MV.msg=(MV.cdEnd||(MV.rm&&MV.rm.phase))?null:tr('Tocá ● para grabar y medir');}
-        else{labels=mvAnalyze(L,t);if(MV.ex==='deadlift'&&S0.kneeHidden&&S0.view!=='front'&&!MV.rm)MV.msg=tr('Rodilla tapada: mido cadera y tronco');}
+        else{labels=mvAnalyze(L,t);if(MV.ex==='deadlift'&&S0.kneeHidden&&S0.view!=='front'&&!MV.rm)MV.msg=tr('Piernas tapadas: mido el tronco');}
       }
     }catch(e){console.warn(e);}
     if(MV.waitTap&&!MV.waitTapDone&&MV.mode==='file'){MV.waitTapDone=true;try{vid.pause();}catch(e){}MV.msg=tr('Tocá el centro del disco para empezar');var _pb=mvEl('mv-c-play');if(_pb)_pb.textContent=tr('Seguir sin marcar');mvStatus(tr('Tocá el centro del disco en el video: así la línea amarilla sigue la barra. O tocá Seguir sin marcar.'));}
@@ -13494,7 +13534,7 @@ async function mvStartFile(file){
   var vid=mvEl('mv-vid');MV.mode='file';MV.mirror=false;vid.muted=true;vid.setAttribute('playsinline','');vid.preload='auto';vid.src=URL.createObjectURL(file);vid.loop=false;try{vid.load();}catch(e){}
   await new Promise(function(r){var done=false;var f=function(){if(!done){done=true;r();}};vid.onloadedmetadata=f;vid.onloadeddata=f;vid.oncanplay=f;setTimeout(f,2500);});
   vid.playbackRate=mvSpeed();
-  MV.waitTap=!MV.barReq&&!MV.rm&&(MV.ex==='deadlift'||MV.ex==='bench')&&mvLoadOf(MV.ex)==='bar';MV.waitTapDone=false;
+  MV.waitTap=!MV.barReq&&!MV.rm&&(MV.ex==='deadlift'||MV.ex==='bench')&&mvLoadOf(MV.ex)==='bar';MV.waitTapDone=false;MV.noTap=false;
   mvStartLoop();mvPlay(vid);
   vid.onended=function(){if(MV.rm){MV.running=false;rmSetEnd(true);mvStatus(tr('Carga medida. Subí el video de la próxima carga o tocá Detener para ver el resultado.'));return;}MV.running=false;mvRenderMetrics();mvRenderLog();mvUpdSave();mvStatus(tr('Análisis terminado. Guardalo o volvé a reproducirlo.'));};
   mvEl('mv-ctrl').innerHTML='<button class="mv-btn" id="mv-c-play" onclick="mvPlayPause()">'+tr('Pausa')+'</button><button class="mv-btn" onclick="mvAgain()">'+tr('Desde el inicio')+'</button><button class="mv-btn" id="mv-c-spd" onclick="mvToggleSpeed()">'+mvSpeedTxt()+'</button><button class="mv-btn" onclick="mvPickFile()">'+tr('Cambiar video')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
@@ -13504,7 +13544,7 @@ function mvSpeedTxt(){return mvSpeed()===1?tr('Velocidad 1x'):tr('Velocidad ½x'
 function mvToggleSpeed(){MV.speedPref=mvSpeed()===1?0.5:1;var v=mvEl('mv-vid');try{v.playbackRate=MV.speedPref;}catch(e){}var b=mvEl('mv-c-spd');if(b)b.textContent=mvSpeedTxt();}
 function mvPickFile(){mvSayUnlock();document.getElementById('mv-file').click();}
 function mvReplay(){if(MV.lastFile)mvStartFile(MV.lastFile);}
-function mvPlayPause(){var vid=mvEl('mv-vid'),b=mvEl('mv-c-play');if(vid.paused){if(MV.waitTap){MV.waitTap=false;MV.msg=null;mvStatus('');}vid.play();MV.running=true;b.textContent=tr('Pausa');mvSchedule();}else{vid.pause();b.textContent=tr('Seguir');}}
+function mvPlayPause(){var vid=mvEl('mv-vid'),b=mvEl('mv-c-play');if(vid.paused){if(MV.waitTap){MV.waitTap=false;MV.noTap=true;MV.msg=null;mvStatus('');}vid.play();MV.running=true;b.textContent=tr('Pausa');mvSchedule();}else{vid.pause();b.textContent=tr('Seguir');}}
 function mvAgain(){var vid=mvEl('mv-vid');mvReset();MV.bar=null;MV.barReq=MV.barInitPt||null;vid.currentTime=0;vid.play();MV.running=true;var b=mvEl('mv-c-play');if(b)b.textContent=tr('Pausa');mvSchedule();}
 async function mvStopStage(){
   if(MV.rm){rmSoloStop();if(MV.counting)rmSetEnd(false,true);await mvStopAll();mvEl('modal-mov').classList.remove('mv-fs');mvEl('mv-stage').style.display='none';mvEl('mv-ctrl').innerHTML='';rmRenderResult();return;}
@@ -13575,7 +13615,8 @@ function mvSummary(ex,m){
   if(reps.some(function(r){return r.fr;})){var vv=Math.max(mx('vL')==null?-99:mx('vL'),mx('vR')==null?-99:mx('vR')),nb=reps.filter(function(r){return r.ok===false;}).length;return n+' · '+tr('de frente')+' · '+tr('valgo máx.')+' '+mvF0(vv)+'°';}
   if(ex==='squat')return n+' · '+tr('rodilla')+' '+mvF0(mn('min'))+'° · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°';
   if(ex==='valgus'){var r=mn('mnRatio');return n+' · '+tr('rodillas/tobillos')+' '+(r==null?'–':r.toFixed(2))+(r!=null&&r<0.8?' · '+tr('VALGO'):r!=null&&r<0.95?' · '+tr('leve valgo'):'');}
-  if(ex==='deadlift')return n+' · '+tr('cadera')+' '+mvF0(mn('min'))+'° · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°';
+  if(ex==='deadlift'){var hv=reps.filter(function(r){return !r.legHid;}).map(function(r){return r.mnHipV!=null?r.mnHipV:r.min;}).filter(isFinite);
+    return n+(hv.length?' · '+tr('cadera')+' '+mvF0(Math.min.apply(null,hv))+'°':'')+' · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°'+(hv.length<reps.length?' · '+tr('piernas tapadas por el disco'):'');}
   if(ex==='lunge')return n+' · '+tr('rodilla adelante')+' '+mvF0(mn('min'))+'°';
   if(ex==='bench'){var p=mx('maxProt');return n+' · '+tr('codo')+' '+mvF0(mn('min'))+'° · '+tr('hombro adelanta')+' '+mvF0(p)+'%';}
   return n;
