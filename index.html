@@ -2189,7 +2189,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261103-1';
+var APP_VERSION='20261103-2';
 (function(){
   try{
     setTimeout(function(){
@@ -6688,9 +6688,14 @@ function onExTypeChange(){
   var t=(document.getElementById('f-type')||{}).value||'';
   fillExPatSelect(t,'');try{libRunSum();}catch(e){}
 }
+/* Sin tipo elegido se listan solo las ACCIONES (fuerza, saltos y core). Las zonas de movilidad y
+   estiramiento aparecen al elegir ese tipo, y th/tv viejos (sin Bi/Uni) ya no se ofrecen: se encuentran
+   igual al filtrar por Tracción horizontal/vertical · Bi o · Uni. */
+var PAT_ACTIONS=_PAT_FUERZA.filter(function(x){return x!=='fc';}).concat(['saltos','s2','s1','cm_aext','cm_afle','cm_alat','cm_arot']);
+function patMatch(e,p){if(!p)return true;var q=e&&e.pattern;if(q===p)return true;
+  if(q==='th'&&(p==='th_bi'||p==='th_uni'))return true;if(q==='tv'&&(p==='tv_bi'||p==='tv_uni'))return true;return false;}
 function patOptionsFor(type){
-  var ids=(type&&PAT_BY_TYPE[type])?PAT_BY_TYPE[type]:null;
-  if(!ids)return PATTERNS.slice();
+  var ids=(type&&PAT_BY_TYPE[type])?PAT_BY_TYPE[type]:PAT_ACTIONS;
   return ids.map(function(id){return [id,PATLABEL[id]||id];});
 }
 function fillPatSelect(sel,type,current){
@@ -7061,7 +7066,7 @@ function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var ke
 function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';pickSearch='';fillPatSelect(document.getElementById('pick-pat-filter'),'','');var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';var ssel=document.getElementById('pick-search');if(ssel)ssel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
 function setPickPattern(v){pickPattern=v;renderPickList();}
 var pickSelected={};
-function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return e.pattern===pickPattern;});if(pickSearch){var _q=pickSearch.trim().toLowerCase();if(_q)items=items.filter(function(e){return (e.name||'').toLowerCase().indexOf(_q)!==-1;});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mobfill);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';var _th=e.link?mediaThumbHtml(e.link,e.img,'pick-thumb'):(e.img?'<img class="pick-thumb" src="'+e.img+'" loading="lazy" />':'');var tw=_th?'<button class="pick-tw" data-lid="'+e.id+'" onclick="event.stopPropagation();pickPreview(this.dataset.lid)" title="'+tr('Ver video')+'">'+_th+(e.link?'<span class="pick-play"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</button>':'<div class="pick-tw pick-tw-empty"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-dot" style="background:var(--'+e.type+')"></div>'+tw+'<div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
+function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return patMatch(e,pickPattern);});if(pickSearch){var _q=pickSearch.trim().toLowerCase();if(_q)items=items.filter(function(e){return (e.name||'').toLowerCase().indexOf(_q)!==-1;});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mobfill);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';var _th=e.link?mediaThumbHtml(e.link,e.img,'pick-thumb'):(e.img?'<img class="pick-thumb" src="'+e.img+'" loading="lazy" />':'');var tw=_th?'<button class="pick-tw" data-lid="'+e.id+'" onclick="event.stopPropagation();pickPreview(this.dataset.lid)" title="'+tr('Ver video')+'">'+_th+(e.link?'<span class="pick-play"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</button>':'<div class="pick-tw pick-tw-empty"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-dot" style="background:var(--'+e.type+')"></div>'+tw+'<div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
 function pickPreview(id){var ex=LIB.find(function(x){return x.id===id;});if(!ex)return;if(ex.link)openVideoModal(ex.link,ex.name);}
 function togglePickSel(id){if(pickSelected[id])delete pickSelected[id];else pickSelected[id]=true;renderPickList();}
 function updatePickBtn(){var n=Object.keys(pickSelected).length;var b=document.getElementById('pick-add-btn');if(!b)return;b.textContent='Agregar ('+n+')';if(n){b.style.background='var(--mobfill)';b.style.color='#0a0b0e';}else{b.style.background='var(--border2)';b.style.color='var(--muted2)';}}
@@ -7113,7 +7118,8 @@ function renderLib(){
   var items=LIB.slice();
   if(libSource!=='all')items=items.filter(function(e){return srcOf(e)===libSource;});
   if(activeLibFilter!=='all')items=items.filter(function(e){return e.type===activeLibFilter;});
-  if(activePattern)items=items.filter(function(e){return e.pattern===activePattern;});
+  var _ps=document.getElementById('lib-pat-filter');if(_ps&&_ps.getAttribute('data-t')!==activeLibFilter){_ps.setAttribute('data-t',activeLibFilter);fillPatSelect(_ps,activeLibFilter==='all'?'':activeLibFilter,activePattern);activePattern=_ps.value||'';}
+  if(activePattern)items=items.filter(function(e){return patMatch(e,activePattern);});
   if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.note||'').toLowerCase().indexOf(q)>=0;});
   if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi">\ud83d\udd0d</div><p>Sin resultados.</p></div>';return;}
   document.getElementById('lib-grid').innerHTML=items.map(function(e){var _mt=mediaThumbHtml(e.link,e.img,'lib-card-thumb');var thumbH=_mt?(e.link?'<span class="lib-card-thumb-a" style="cursor:pointer;display:block;" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.name||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt+'</span>':_mt):'<div class="lib-card-thumb-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<button class="lib-card-link" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.name||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">&#9658; '+TT('verVideo')+'</button>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
@@ -10249,6 +10255,10 @@ STATIC_I18N["válidos"]=STATIC_I18N["válidos"]||["valid","validi"];
 STATIC_I18N["válidas"]=STATIC_I18N["válidas"]||["valid","valide"];
 STATIC_I18N["pérdida máx."]=STATIC_I18N["pérdida máx."]||["max loss","perdita max"];
 STATIC_I18N["piernas tapadas"]=["legs hidden","gambe coperte"];
+STATIC_I18N["Subí el celu a la cadera, a 3–4 m"]=["Raise the phone to hip height, 3–4 m away","Alza il telefono all'altezza dell'anca, a 3–4 m"];
+STATIC_I18N["Celu a la altura de la cadera, a 3–4 m"]=["Phone at hip height, 3–4 m away","Telefono all'altezza dell'anca, a 3–4 m"];
+STATIC_I18N["No en el piso al lado del disco: tapa las piernas"]=["Not on the floor next to the plate: it hides the legs","Non a terra vicino al disco: copre le gambe"];
+STATIC_I18N["Ubicación del teléfono"]=["Phone placement","Posizione del telefono"];
 STATIC_I18N["piernas tapadas por el disco"]=["legs hidden by the plate","gambe coperte dal disco"];
 STATIC_I18N["Piernas tapadas: mido el tronco"]=["Legs hidden: measuring the trunk","Gambe coperte: misuro il busto"];
 STATIC_I18N["Sin límite de profundidad"]=STATIC_I18N["Sin límite de profundidad"]||["No depth limit","Nessun limite di profondità"];
@@ -12515,7 +12525,20 @@ function mvRenderChips(){
   var sr=mvEl('mv-side-row');sr.style.display=mvIsBi()?'block':'none';
   if(mvIsBi())mvEl('mv-side').innerHTML=['l','r'].map(function(v){return '<button class="mv-chip'+(MV.side===v?' on':'')+'" onclick="mvSetSide(\''+v+'\')">'+mvSideTxt(v)+'</button>';}).join('');
   mvRenderCal();try{mvRenderLim();}catch(e){}
-  mvEl('mv-hint').innerHTML=tr(e.hint)+(mvTrailOn()?'<br><span style="color:#ffd166">━</span> '+tr((MV_EX[MV.ex]||{}).trail==='shoulder'?'Para ver el recorrido de la barra, tocá el centro del disco en el video.':'La línea amarilla es el recorrido de la barra.'):'')+'<br><span style="color:var(--muted2);font-size:11.5px;">'+tr('Con la cámara en vivo se mide solo mientras grabás (botón rojo). Con la cuenta regresiva ⏱ tenés tiempo de ubicarte antes de que empiece.')+'</span>';
+  mvEl('mv-hint').innerHTML=(MV.ex==='deadlift'&&!MV.rm?mvSetupSvg():'')+tr(e.hint)+(mvTrailOn()?'<br><span style="color:#ffd166">━</span> '+tr((MV_EX[MV.ex]||{}).trail==='shoulder'?'Para ver el recorrido de la barra, tocá el centro del disco en el video.':'La línea amarilla es el recorrido de la barra.'):'')+'<br><span style="color:var(--muted2);font-size:11.5px;">'+tr('Con la cámara en vivo se mide solo mientras grabás (botón rojo). Con la cuenta regresiva ⏱ tenés tiempo de ubicarte antes de que empiece.')+'</span>';
+}
+/* Dibujo simple: celu en trípode a la altura de la cadera, a 3–4 m y de costado (bien) / celu en el piso al lado del disco (mal) */
+function mvSetupSvg(){
+  var G='#a8e063',R='#ff6b6b',M='currentColor';
+  var fig='<g stroke="'+M+'" stroke-width="3" stroke-linecap="round" fill="none"><circle cx="265" cy="55" r="6.5"/><path d="M218 50 L256 62 M255 63 L251 86 M218 50 L236 74 L229 100"/></g>'
+    +'<circle cx="250" cy="88" r="13" fill="var(--s2)" stroke="'+M+'" stroke-width="3"/><circle cx="250" cy="88" r="2.5" fill="'+M+'"/>';
+  var tri='<g stroke="'+G+'" stroke-width="2.5" stroke-linecap="round" fill="none"><path d="M40 64 L28 101 M40 64 L52 101 M40 64 L40 101"/></g><rect x="33" y="48" width="14" height="22" rx="3" fill="'+G+'"/>'
+    +'<path d="M54 62 H196" stroke="'+G+'" stroke-width="2" stroke-dasharray="5 5"/><path d="M190 57 L197 62 L190 67" stroke="'+G+'" stroke-width="2" fill="none"/>'
+    +'<text x="125" y="54" text-anchor="middle" font-size="15" font-weight="800" fill="'+G+'" font-family="Barlow Condensed,sans-serif">3–4 m</text>';
+  var bad='<rect x="175" y="91" width="20" height="10" rx="2" fill="'+R+'"/><path d="M178 76 L192 90 M192 76 L178 90" stroke="'+R+'" stroke-width="3" stroke-linecap="round"/>';
+  return '<div style="color:var(--muted);margin:2px 0 8px;"><svg viewBox="0 36 320 70" width="100%" style="max-width:360px;display:block;" role="img" aria-label="'+tr('Ubicación del teléfono')+'">'+tri+fig+bad
+    +'<line x1="10" y1="102" x2="310" y2="102" stroke="'+M+'" stroke-width="1.5" opacity="0.5"/></svg>'
+    +'<div style="font-size:12.5px;line-height:1.4;"><b style="color:'+G+'">✓ '+tr('Celu a la altura de la cadera, a 3–4 m')+'</b> · <b style="color:'+R+'">✕ '+tr('No en el piso al lado del disco: tapa las piernas')+'</b></div></div>';
 }
 function mvSetKg(inp){var v=parseFloat(String(inp.value||'').replace(',','.'));MV.kg=(v>0&&v<1000)?Math.round(v*10)/10:null;}
 function mvLoadTxt(a){if(!a||!a.load)return '';if(a.load!=='bar')return tr('sin carga');var k=a.metrics&&a.metrics.kg;return k?k+' kg':tr('con carga');}
@@ -12725,6 +12748,7 @@ function mvLegLock(L,t,w,h){
    tibia como mucho ~45° inclinada (el tobillo no da para más); rodilla no cerrada a menos de 45°;
    parado (tronco vertical) la pierna tiene que estar casi estirada; la punta del pie va hacia adelante
    y al nivel del piso (no debajo del tobillo); y los pies no se mueven durante la serie. */
+function mvDlLegsBad(){var g=MV.S&&MV.S.lg;return !!(g&&g.n>45&&g.r<0.3);}
 function mvDlLegOk(L,sd,trunk){
   var I=sd==='L'?{H:23,K:25,A:27,E:29,F:31}:{H:24,K:26,A:28,E:30,F:32};
   var H=L[I.H],K=L[I.K],A=L[I.A],E=L[I.E],F=L[I.F],S=MV.S,g=S.lg||(S.lg={ah:[],ok:0,bad:0,show:false});
@@ -12741,6 +12765,7 @@ function mvDlLegOk(L,sd,trunk){
       if(ok){ah.push({x:A.x,y:A.y});if(ah.length>60)ah.shift();}}
   }
   /* para no parpadear: se muestran las piernas tras 4 cuadros buenos seguidos y se ocultan tras 3 malos */
+  g.n=(g.n||0)+1;g.r=g.r==null?(ok?1:0):g.r*0.95+(ok?0.05:0); /* proporción reciente de cuadros con pierna creíble */
   if(ok){g.ok++;g.bad=0;if(g.ok>=4)g.show=true;}else{g.bad++;g.ok=0;if(g.bad>=3)g.show=false;}
   return ok&&g.show;
 }
@@ -13471,8 +13496,10 @@ function mvStep(now,meta){
       }else{
         if(S0.okSince==null)S0.okSince=t;
         if(t-S0.okSince<900){MV.msg=tr('Detectando…');}
-        else if(MV.mode==='cam'&&!MV.counting){MV.msg=(MV.cdEnd||(MV.rm&&MV.rm.phase))?null:tr('Tocá ● para grabar y medir');}
-        else{labels=mvAnalyze(L,t);if(MV.ex==='deadlift'&&S0.kneeHidden&&S0.view!=='front'&&!MV.rm)MV.msg=tr('Piernas tapadas: mido el tronco');}
+        else if(MV.mode==='cam'&&!MV.counting){MV.msg=(MV.cdEnd||(MV.rm&&MV.rm.phase))?null:tr('Tocá ● para grabar y medir');
+          /* vista previa del peso muerto: si las piernas no se ven, se avisa ANTES de grabar */
+          if(MV.ex==='deadlift'&&!MV.rm&&!MV.cdEnd){try{if(mvView(L)!=='front'){var _sd=mvSide(L);mvDlLegOk(L,S0.side,mvVert(_sd.H,_sd.S));if(mvDlLegsBad())MV.msg=tr('Subí el celu a la cadera, a 3–4 m');}}catch(e){}}}
+        else{labels=mvAnalyze(L,t);if(MV.ex==='deadlift'&&S0.kneeHidden&&S0.view!=='front'&&!MV.rm)MV.msg=tr(mvDlLegsBad()?'Subí el celu a la cadera, a 3–4 m':'Piernas tapadas: mido el tronco');}
       }
     }catch(e){console.warn(e);}
     if(MV.waitTap&&!MV.waitTapDone&&MV.mode==='file'){MV.waitTapDone=true;try{vid.pause();}catch(e){}MV.msg=tr('Tocá el centro del disco para empezar');var _pb=mvEl('mv-c-play');if(_pb)_pb.textContent=tr('Seguir sin marcar');mvStatus(tr('Tocá el centro del disco en el video: así la línea amarilla sigue la barra. O tocá Seguir sin marcar.'));}
