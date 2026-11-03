@@ -535,6 +535,24 @@ input[type="date"]::-webkit-date-and-time-value{text-align:center;}
 .pick-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
 .pick-item:last-child{border-bottom:none;}
 .pick-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.rdy-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+.rdy-ring svg{position:absolute;inset:0;}.rdy-ring svg circle:last-child{transition:stroke-dasharray .6s ease;}
+.rdy-ring b{position:relative;font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:1;}
+.rdy-btn{display:flex;align-items:center;gap:8px;border:none;background:none;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:left;}
+.rdy-btn .gr-sub{margin-top:0;font-weight:700;}
+.rdy-card{background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin:0 0 12px;box-shadow:var(--dp-card,none);}
+.rdy-top{display:flex;align-items:center;gap:14px;}
+.rdy-tt span{display:block;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);}
+.rdy-tt b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:0.03em;text-transform:uppercase;line-height:1.1;}
+.rdy-tt em{display:block;font-style:normal;font-size:11.5px;color:var(--muted2);margin-top:2px;}
+.rdy-fs{margin-top:10px;border-top:1px solid var(--border2);padding-top:8px;}
+.rdy-f{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.4;padding:3px 0;color:var(--text);}
+.rdy-f i{width:7px;height:7px;border-radius:50%;flex:none;margin-top:6px;}
+.rdy-f.neg i{background:#ffb020;}.rdy-f.pos i{background:#7cc242;}
+.rdy-f0{font-size:12.5px;color:var(--muted);}
+.rdy-tip{font-size:12px;color:var(--muted2);margin-top:8px;line-height:1.45;}
+.rdy-pop{padding:8px 8px 6px;}.rdy-ph{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.rdy-ph>div>b{display:block;font-size:14px;}.rdy-ph>div>span{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:0.04em;text-transform:uppercase;}
 .demo-cta{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;margin-top:6px;border-radius:10px;border:1px dashed rgba(168,224,99,0.45);background:transparent;color:#a8e063;font-family:'Barlow Condensed',sans-serif;font-size:14.5px;white-space:nowrap;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
 #demo-badge{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:450;display:flex;align-items:center;gap:10px;padding:7px 8px 7px 14px;border-radius:30px;background:rgba(14,16,21,0.92);border:1px solid rgba(255,209,102,0.45);box-shadow:0 8px 26px rgba(0,0,0,0.5);color:#ffd166;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
 #demo-badge small{display:block;font-family:'Barlow',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);}
@@ -2342,6 +2360,7 @@ function pdDemoData(UID){
       if(hurt&&k===0){e.dolor=8;e.fatiga=7;e.note='Molestia en el isquio derecho al acelerar';}
       if(i===1&&k===0){e.fatiga=7;e.estres=7;e.motiv=6;e.note='Semana con muchos exámenes';}
       weekly[m]=e;}
+    var wellness={};if(!lazy){var tw=[[4,4,false],[2,3,false],[2,2,true],[4,5,false],[0],[3,3,false],[5,4,false],[4,3,false]][i];if(tw[0])wellness[i%3===2?addDaysISO(today,-1):today]={sleep:tw[0],energy:tw[1],pain:tw[2],note:null,ts:ts};}
     var pains={};if(hurt)pains[addDaysISO(today,-3)]=[{z:'isquio_d',lvl:3,note:'Pinchazo en sprint'}];if(i===3)pains[addDaysISO(today,-6)]=[{z:'isquio_i',lvl:1,note:null}];
     /* tests: 3 mediciones (inicio, mitad, ahora) con mejora */
     var d0=start,d1=addDaysISO(start,14),d2=addDaysISO(today,-2),jit=function(x,s){return Math.round((x+(rnd()-0.5)*s)*100)/100;};
@@ -2356,7 +2375,7 @@ function pdDemoData(UID){
     };
     var maxes={'Sentadilla con barra':100+i*6,'Press de banca con barra':70+i*4,'Peso muerto':120+i*7,'Hip thrust':130+i*8};
     var av=hurt?{s:'out',note:'Sobrecarga de isquio derecho: solo trabajo de gimnasio de tren superior',until:addDaysISO(today,6),ts:ts,by:'coach',hist:[]}:(i===1?{s:'lim',note:'Carga reducida esta semana',ts:ts,by:'coach',hist:[]}:{s:'ok'});
-    players.push({id:id,name:nm[0],club:inGroup?'Club Atlético Ejemplo':'',pos:nm[1],photo_url:'',pin:'1234',active_week:0,start_date:start,questionnaire:{done:true,sport:i===7?'tenis':(i===6?'atletismo':'futbol')},wellness:{},access_token:'demo-token-'+(i+1),
+    players.push({id:id,name:nm[0],club:inGroup?'Club Atlético Ejemplo':'',pos:nm[1],photo_url:'',pin:'1234',active_week:0,start_date:start,questionnaire:{done:true,sport:i===7?'tenis':(i===6?'atletismo':'futbol')},wellness:wellness,access_token:'demo-token-'+(i+1),
       tests:tests,tests_enabled:['cmj','sprint10','sprint30','yoyo','ankle','t505'],weekly:weekly,pains:pains,matches:{},group_id:inGroup?'demo-g1':null,maxes:maxes,availability:av,attendance:{},trainer_id:UID,created_at:addDaysISO(start,-i)+'T10:00:00Z'});
     plans.push({player_id:id,trainer_id:UID,weeks:W,sessions:sess,no_track:[]});
     progress.push({player_id:id,trainer_id:UID,checks:checks,loads:loads,times:times});
@@ -2424,7 +2443,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261104-4';
+var APP_VERSION='20261104-5';
 (function(){
   try{
     setTimeout(function(){
@@ -3390,7 +3409,7 @@ function pdSelOpen(s,b,opt){
   var p=document.getElementById('pds-pop');
   if(p&&p.style.display==='block'&&p.__s===s){pdSelClose();return;}
   if(!p){p=document.createElement('div');p.id='pds-pop';p.setAttribute('role','listbox');document.body.appendChild(p);
-    document.addEventListener('pointerdown',function(ev){var q=document.getElementById('pds-pop');if(q&&q.style.display==='block'&&!q.contains(ev.target)&&!(ev.target.closest&&ev.target.closest('.pds-btn')))pdSelClose();},true);
+    document.addEventListener('pointerdown',function(ev){var q=document.getElementById('pds-pop');if(q&&q.style.display==='block'&&!q.contains(ev.target)&&!(ev.target.closest&&ev.target.closest('.pds-btn,.rdy-btn')))pdSelClose();},true);
     window.addEventListener('scroll',function(ev){var q=document.getElementById('pds-pop');if(q&&ev.target!==q&&!(q.contains&&q.contains(ev.target)))pdSelClose();},true);
     window.addEventListener('resize',pdSelClose);
     document.addEventListener('keydown',function(ev){if(ev.key==='Escape')pdSelClose();});}
@@ -4241,6 +4260,7 @@ function subTabsInit(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',subTabsInit);else setTimeout(subTabsInit,0);
 function openSideScreen(id){
+  try{pdSelClose();}catch(e){}
   hideAllScreens(id);
   try{window.scrollTo(0,0);}catch(e){}
   showSidebar();
@@ -9104,24 +9124,25 @@ function grRender(){
   if(GR.tab==='att')setTimeout(function(){var w=box.querySelector('.gr-wrap');if(w)w.scrollLeft=w.scrollWidth;},30);
 }
 function grPanelHtml(M){
-  var n=M.length,c={ok:0,lim:0,out:0},red=0,noW=0,hi=0,wp=0,wd=0;
-  M.forEach(function(p){c[avOf(p).s]++;var w=grWell(p);if(w&&w.cur&&w.lg&&w.lg.c==='#ff6b6b')red++;if(needsWeekly(p))noW++;var ls=null;try{ls=loadStatus(p.id);}catch(e){}if(ls&&ls.zone==='hi')hi++;var wk=grWeek(p.id);wp+=wk.plan;wd+=wk.done;});
+  var n=M.length,c={ok:0,lim:0,out:0},red=0,noW=0,hi=0,wp=0,wd=0,rOk=0,rN=0;
+  M.forEach(function(p){c[avOf(p).s]++;var _r=rdyOf(p);if(_r&&_r.v!=null){rN++;if(_r.lv==='ok')rOk++;}var w=grWell(p);if(w&&w.cur&&w.lg&&w.lg.c==='#ff6b6b')red++;if(needsWeekly(p))noW++;var ls=null;try{ls=loadStatus(p.id);}catch(e){}if(ls&&ls.zone==='hi')hi++;var wk=grWeek(p.id);wp+=wk.plan;wd+=wk.done;});
   var tile=function(v,l,col,sub){return '<div class="gr-tile"><b style="color:'+(col||'var(--text)')+'">'+v+'</b><span>'+l+'</span>'+(sub?'<em>'+sub+'</em>':'')+'</div>';};
-  var h='<div class="gr-tiles">'+tile(c.ok+'<small style="font-size:16px;color:var(--muted2);">/'+n+'</small>',tr('Disponibles'),'#7cc242')
+  var h='<div class="gr-tiles">'+tile(rOk+'<small style="font-size:16px;color:var(--muted2);">/'+n+'</small>',tr('Listos para entrenar'),'#7cc242',rN<n?(n-rN)+' '+tr('sin datos o no disponibles'):'')+tile(c.ok+'<small style="font-size:16px;color:var(--muted2);">/'+n+'</small>',tr('Disponibles'),'#7cc242')
     +tile(c.lim,tr('Limitados'),c.lim?'#ffb020':'')+tile(c.out,tr('No disponibles'),c.out?'#ff6b6b':'')
     +tile(red,tr('Encuesta en rojo'),red?'#ff6b6b':'',noW?noW+' '+tr('sin encuesta esta semana'):'')
     +tile(hi,tr('Pico de carga'),hi?'#ff6b6b':'')
     +tile(wp?Math.round(wd/wp*100)+'%':'—',tr('Sesiones de la semana'),grPctCol(wp?Math.round(wd/wp*100):null),wd+' '+tr('de')+' '+wp+' '+tr('hechas'))+'</div>';
   var ord={out:0,lim:1,ok:2};
   var rows=M.slice().sort(function(a,b){var d=ord[avOf(a).s]-ord[avOf(b).s];if(d)return d;var ra=panelRank(panelAlerts(a)),rb=panelRank(panelAlerts(b));if(ra!==rb)return ra-rb;return String(a.name).localeCompare(String(b.name));});
-  h+='<div class="gr-wrap"><table class="gr-tbl"><thead><tr><th class="gr-name">'+tr('Jugador')+'</th><th>'+tr('Estado')+'</th><th>'+tr('Encuesta')+'</th><th>'+tr('Molestias')+'</th><th>'+tr('Carga')+'</th><th>'+tr('Semana')+'</th><th>'+tr('Asist. 30 d')+'</th></tr></thead><tbody>';
+  h+='<div class="gr-wrap"><table class="gr-tbl"><thead><tr><th class="gr-name">'+tr('Jugador')+'</th><th>'+tr('Listo hoy')+'</th><th>'+tr('Estado')+'</th><th>'+tr('Encuesta')+'</th><th>'+tr('Molestias')+'</th><th>'+tr('Carga')+'</th><th>'+tr('Semana')+'</th><th>'+tr('Asist. 30 d')+'</th></tr></thead><tbody>';
   rows.forEach(function(p){
     var w=grWell(p),pn=grPain(p),ls=null;try{ls=loadStatus(p.id);}catch(e){}
     var wTxt=!w?'<span class="gr-muted">—</span>':(w.cur?'<span class="gr-dot" style="background:'+w.lg.c+'"></span><b>'+w.sc+'</b>':'<span class="gr-muted">'+tr('Sin encuesta esta semana')+'</span>');
     var z=ls&&ls.zone?LOAD_ZONE[ls.zone]:null;
     var lTxt=ls&&ls.ratio!=null?'<b style="color:'+(z?z.c:'var(--text)')+'">'+ls.ratio.toFixed(2)+'</b>'+(z?'<span class="gr-sub">'+tr(z.t)+'</span>':''):'<span class="gr-muted">—</span>';
     var wk=grWeek(p.id),at=grAttPct(p,30);
-    h+='<tr><td class="gr-name">'+grPl(p)+'</td><td>'+avChip(p)+'</td><td>'+wTxt+'</td><td>'+(pn?'<b style="color:'+pn.c+'">'+grEsc(pn.t)+'</b><span class="gr-sub">'+pn.sub+'</span>':'<span class="gr-muted">—</span>')+'</td><td>'+lTxt+'</td><td>'+(pnlWeekHtml(p.id)||'<span class="gr-muted">'+tr('Sin sesiones')+'</span>')+(wk.plan?'<span class="gr-sub">'+wk.done+'/'+wk.plan+'</span>':'')+'</td><td><b style="color:'+grPctCol(at.pct)+'">'+(at.pct==null?'—':at.pct+'%')+'</b></td></tr>';
+    var _rd=rdyOf(p);
+    h+='<tr><td class="gr-name">'+grPl(p)+'</td><td><button type="button" class="rdy-btn" onclick="event.stopPropagation();rdyPop(this,\''+p.id+'\')">'+rdyRing(_rd,false)+'<span class="gr-sub" style="color:'+RDY_LV[_rd.lv].c+'">'+tr(RDY_LV[_rd.lv].t)+'</span></button></td><td>'+avChip(p)+'</td><td>'+wTxt+'</td><td>'+(pn?'<b style="color:'+pn.c+'">'+grEsc(pn.t)+'</b><span class="gr-sub">'+pn.sub+'</span>':'<span class="gr-muted">—</span>')+'</td><td>'+lTxt+'</td><td>'+(pnlWeekHtml(p.id)||'<span class="gr-muted">'+tr('Sin sesiones')+'</span>')+(wk.plan?'<span class="gr-sub">'+wk.done+'/'+wk.plan+'</span>':'')+'</td><td><b style="color:'+grPctCol(at.pct)+'">'+(at.pct==null?'—':at.pct+'%')+'</b></td></tr>';
   });
   h+='</tbody></table></div><div class="gr-note">'+tr('Tocá el estado de un jugador para cambiar su disponibilidad (el alumno la ve en su inicio). Tocá el nombre para ver su resumen completo.')+'</div>';
   return h;
@@ -9288,6 +9309,84 @@ function grMPdf(){
     var d=document.createElement('div');d.className='sum-avail';d.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;';
     d.innerHTML='<span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);">'+tr('Disponibilidad')+'</span>'+avChip(p);
     box.insertBefore(d,box.firstChild);}catch(e){}};})();
+
+/* ===== LISTO PARA ENTRENAR (puntaje 0-100 por alumno, para el profe) =====
+   Junta en un solo número lo que la app ya registra, con pesos:
+   - Check-in de hoy (sueño y energía 1-5, molestia sí/no) ............ 35%
+   - Autoevaluación semanal (fatiga, dolor, estrés, ganas) ............ 25%  (la de la semana pasada pesa menos)
+   - Molestias marcadas en el cuerpo (últimos 7 días, nivel y cercanía) 20%
+   - Carga: últimos 7 días contra el promedio de 4 semanas ............ 20%
+   Si falta un dato, se reparte el peso entre los otros. Sin check-in ni autoevaluación no hay puntaje.
+   Disponibilidad del profe: "No disponible" no lleva puntaje; "Limitado" queda en 60 como máximo.
+   >= 75 Listo · 55-74 Precaución · < 55 Cuidar. */
+var RDY_LV={ok:{c:'#7cc242',t:'Listo'},warn:{c:'#ffb020',t:'Precaución'},bad:{c:'#ff6b6b',t:'Cuidar'},out:{c:'#ff6b6b',t:'No disponible'},none:{c:'var(--muted2)',t:'Sin datos'}};
+function rdyOf(p){
+  if(!p)return null;var today=isoToday(),parts=[],f=[],av=avOf(p);
+  var R=function(v){return Math.max(0,Math.min(100,v));};
+  /* 1) check-in de hoy (o de ayer, con menos peso) */
+  var wl=p.wellness||{},we=wl[today],wdw=0.35;if(!we&&wl[addDaysISO(today,-1)]){we=wl[addDaysISO(today,-1)];wdw=0.2;}
+  if(we&&we.sleep&&we.energy){var v=((we.sleep-1)/4*100)*0.5+((we.energy-1)/4*100)*0.5;if(we.pain)v-=25;parts.push([R(v),wdw]);
+    if(we.sleep<=2)f.push({t:tr('Durmió mal')+' ('+we.sleep+'/5)',n:-1});if(we.energy<=2)f.push({t:tr('Poca energía')+' ('+we.energy+'/5)',n:-1});if(we.pain)f.push({t:tr('Dijo tener una molestia en el check-in'),n:-1});
+    if(we.sleep>=4&&we.energy>=4&&!we.pain)f.push({t:tr('Check-in de hoy bien'),n:1});}
+  /* 2) autoevaluación semanal */
+  var wk=weeklyOf(p),mon=isoMonday(),e=wk[mon],ww=0.25;if(!e&&wk[addDaysISO(mon,-7)]){e=wk[addDaysISO(mon,-7)];ww=0.12;}
+  if(e&&e.fatiga){var sc=weeklyScore(e);parts.push([R(sc*10),ww]);
+    if(e.dolor>=7)f.push({t:tr('Dolor alto en la autoevaluación')+' ('+e.dolor+'/10)',n:-1});if(e.fatiga>=7)f.push({t:tr('Fatiga alta')+' ('+e.fatiga+'/10)',n:-1});if(e.estres>=7)f.push({t:tr('Estrés alto')+' ('+e.estres+'/10)',n:-1});
+    if(sc>=7.5)f.push({t:tr('Autoevaluación semanal bien')+' ('+sc+'/10)',n:1});}
+  var subj=parts.length>0;
+  /* 3) molestias de los últimos 7 días (pesa más la más fuerte y la más reciente) */
+  var pen=0,pz=null,all=painsOf(p);
+  Object.keys(all).forEach(function(d){var ago=Math.round((isoToDate(today)-isoToDate(d))/864e5);if(ago<0||ago>7)return;
+    (all[d]||[]).forEach(function(x){var q={1:15,2:35,3:60}[x.lvl]||0;q=q*(1-ago/9);if(q>pen){pen=q;pz={z:x.z,l:x.lvl,a:ago};}});});
+  parts.push([R(100-pen),0.2]);
+  if(pz)f.push({t:tr('Molestia')+': '+tr(BODY_LBL[pz.z]||pz.z)+' · '+tr('nivel')+' '+pz.l+' · '+(pz.a===0?tr('hoy'):tr('hace')+' '+pz.a+' '+tr(pz.a===1?'día':'días')),n:-1});
+  /* 4) carga */
+  var ls=null;try{ls=loadStatus(p.id);}catch(x){}
+  if(ls&&ls.zone){var lv={hi:35,up:70,ok:100,lo:90}[ls.zone];parts.push([lv,0.2]);
+    if(ls.zone==='hi'||ls.zone==='up')f.push({t:tr(LOAD_ZONE[ls.zone].t)+' ('+ls.ratio.toFixed(2)+')',n:-1});else if(ls.zone==='ok')f.push({t:tr('Carga estable')+' ('+ls.ratio.toFixed(2)+')',n:1});}
+  if(av.s==='out')return {v:null,lv:'out',f:[{t:tr('Marcado como No disponible')+(av.note?': '+av.note:''),n:-1}].concat(f),av:av};
+  if(!subj)return {v:null,lv:'none',f:f,av:av};
+  var sw=0,sv=0;parts.forEach(function(x){sv+=x[0]*x[1];sw+=x[1];});var v=Math.round(sv/sw);
+  /* vuelve después de 7 días o más sin entrenar: precaución (máximo 74) */
+  try{var dl=dailyLoads(p.id),ld=Object.keys(dl).filter(function(x){return x<=today;}).sort().pop();if(ld){var off=Math.round((isoToDate(today)-isoToDate(ld))/864e5);if(off>=7){v=Math.min(v,74);f.unshift({t:off+' '+tr('días sin entrenar: volver con carga progresiva'),n:-1});}}}catch(x){}
+  if(av.s==='lim'){v=Math.min(v,60);f.unshift({t:tr('Limitado por el profe')+(av.note?': '+av.note:''),n:-1});}
+  return {v:v,lv:v>=75?'ok':v>=55?'warn':'bad',f:f,av:av,src:we?'hoy':'semana'};
+}
+function rdyRing(r,big){
+  var L=RDY_LV[r.lv],sz=big?64:38,st=big?6:4,rad=(sz-st)/2,c=2*Math.PI*rad,pct=r.v==null?0:r.v/100;
+  var mid=r.v==null?(r.lv==='out'?'✕':'–'):String(r.v);
+  return '<span class="rdy-ring" style="width:'+sz+'px;height:'+sz+'px;"><svg viewBox="0 0 '+sz+' '+sz+'" width="'+sz+'" height="'+sz+'"><circle cx="'+sz/2+'" cy="'+sz/2+'" r="'+rad+'" fill="none" stroke="var(--s3)" stroke-width="'+st+'"/>'
+    +(pct>0?'<circle cx="'+sz/2+'" cy="'+sz/2+'" r="'+rad+'" fill="none" stroke="'+L.c+'" stroke-width="'+st+'" stroke-linecap="round" stroke-dasharray="'+(c*pct)+' '+c+'" transform="rotate(-90 '+sz/2+' '+sz/2+')"/>':'')+'</svg>'
+    +'<b style="color:'+L.c+';font-size:'+(big?22:14)+'px;">'+mid+'</b></span>';
+}
+function rdyFactorsHtml(r){
+  if(!r.f.length)return '<div class="rdy-f0">'+tr('Sin alertas: entrenamiento normal.')+'</div>';
+  return r.f.map(function(x){return '<div class="rdy-f '+(x.n<0?'neg':'pos')+'"><i></i><span>'+x.t+'</span></div>';}).join('');
+}
+function rdyPop(btn,pid){
+  var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var r=rdyOf(p),L=RDY_LV[r.lv];
+  var el=document.getElementById('pds-pop');
+  if(!el){el=document.createElement('div');el.id='pds-pop';document.body.appendChild(el);
+    document.addEventListener('pointerdown',function(ev){var q=document.getElementById('pds-pop');if(q&&q.style.display==='block'&&!q.contains(ev.target)&&!(ev.target.closest&&ev.target.closest('.pds-btn,.rdy-btn')))q.style.display='none';},true);
+    window.addEventListener('scroll',function(ev){var q=document.getElementById('pds-pop');if(q&&ev.target!==q&&!(q.contains&&q.contains(ev.target)))pdSelClose();},true);
+    window.addEventListener('resize',pdSelClose);}
+  if(el.style.display==='block'&&el.__s===pid){el.style.display='none';return;}
+  el.__s=pid;
+  el.innerHTML='<div class="rdy-pop"><div class="rdy-ph">'+rdyRing(r,false)+'<div><b>'+grEsc(p.name)+'</b><span style="color:'+L.c+'">'+tr(L.t)+'</span></div></div>'+rdyFactorsHtml(r)
+    +(r.lv==='none'?'<div class="rdy-tip">'+tr('Pedile el check-in diario o la autoevaluación semanal para calcular el puntaje.')+'</div>':'')+'</div>';
+  el.style.display='block';el.style.maxHeight='none';el.style.height='';
+  var b=btn.getBoundingClientRect(),w=Math.min(300,window.innerWidth-16);el.style.width=w+'px';
+  var top=b.bottom+6;if(top+el.offsetHeight>window.innerHeight-8)top=Math.max(8,b.top-el.offsetHeight-6);
+  el.style.left=Math.max(8,Math.min(b.left,window.innerWidth-w-8))+'px';el.style.top=top+'px';
+}
+/* tarjeta en el Resumen del alumno (Datos) */
+(function(){var _rs2=renderSummary;renderSummary=function(){_rs2.apply(this,arguments);
+  try{if(!isCoach||!currentPlayerId)return;var p=PLAYERS.find(function(x){return x.id===currentPlayerId;});var box=document.getElementById('summary-content');if(!p||!box||box.querySelector('.rdy-card'))return;
+    var r=rdyOf(p),L=RDY_LV[r.lv],d=document.createElement('div');d.className='rdy-card';
+    d.innerHTML='<div class="rdy-top">'+rdyRing(r,true)+'<div class="rdy-tt"><span>'+tr('Listo para entrenar hoy')+'</span><b style="color:'+L.c+'">'+tr(L.t)+'</b>'
+      +(r.src==='semana'?'<em>'+tr('Sin check-in de hoy: se usa la autoevaluación semanal')+'</em>':'')+'</div></div>'
+      +'<div class="rdy-fs">'+rdyFactorsHtml(r)+'</div>'+(r.lv==='none'?'<div class="rdy-tip">'+tr('Pedile el check-in diario o la autoevaluación semanal para calcular el puntaje.')+'</div>':'');
+    var av=box.querySelector('.sum-avail');if(av&&av.nextSibling)box.insertBefore(d,av.nextSibling);else box.insertBefore(d,box.firstChild);}catch(e){console.warn(e);}};})();
 function availHomeCard(){
   var pid=currentPlayerId;if(!pid)return;var p=PLAYERS.find(function(x){return x.id===pid;});var t=document.getElementById('wl-today');if(!p||!t)return;
   var el=document.getElementById('wl-avail');var a=avOf(p);
@@ -10631,6 +10730,32 @@ STATIC_I18N["válidos"]=STATIC_I18N["válidos"]||["valid","validi"];
 STATIC_I18N["válidas"]=STATIC_I18N["válidas"]||["valid","valide"];
 STATIC_I18N["pérdida máx."]=STATIC_I18N["pérdida máx."]||["max loss","perdita max"];
 STATIC_I18N["piernas tapadas"]=["legs hidden","gambe coperte"];
+STATIC_I18N["Listo"]=STATIC_I18N["Listo"]||["Ready", "Pronto"];
+STATIC_I18N["Precaución"]=STATIC_I18N["Precaución"]||["Caution", "Attenzione"];
+STATIC_I18N["Cuidar"]=STATIC_I18N["Cuidar"]||["Take care", "Attenzione alta"];
+STATIC_I18N["Sin datos"]=STATIC_I18N["Sin datos"]||["No data", "Nessun dato"];
+STATIC_I18N["días sin entrenar: volver con carga progresiva"]=["days without training: return with progressive load","giorni senza allenamento: rientro con carico progressivo"];
+STATIC_I18N["Listo hoy"]=STATIC_I18N["Listo hoy"]||["Ready today", "Pronto oggi"];
+STATIC_I18N["Listos para entrenar"]=STATIC_I18N["Listos para entrenar"]||["Ready to train", "Pronti ad allenarsi"];
+STATIC_I18N["sin datos o no disponibles"]=STATIC_I18N["sin datos o no disponibles"]||["no data or unavailable", "senza dati o non disponibili"];
+STATIC_I18N["Listo para entrenar hoy"]=STATIC_I18N["Listo para entrenar hoy"]||["Ready to train today", "Pronto ad allenarsi oggi"];
+STATIC_I18N["Durmió mal"]=STATIC_I18N["Durmió mal"]||["Slept badly", "Ha dormito male"];
+STATIC_I18N["Poca energía"]=STATIC_I18N["Poca energía"]||["Low energy", "Poca energia"];
+STATIC_I18N["Dijo tener una molestia en el check-in"]=STATIC_I18N["Dijo tener una molestia en el check-in"]||["Reported soreness in the check-in", "Ha segnalato un fastidio nel check-in"];
+STATIC_I18N["Check-in de hoy bien"]=STATIC_I18N["Check-in de hoy bien"]||["Good check-in today", "Check-in di oggi buono"];
+STATIC_I18N["Dolor alto en la autoevaluación"]=STATIC_I18N["Dolor alto en la autoevaluación"]||["High soreness in the self-assessment", "Dolore alto nell'autovalutazione"];
+STATIC_I18N["Fatiga alta"]=STATIC_I18N["Fatiga alta"]||["High fatigue", "Fatica alta"];
+STATIC_I18N["Estrés alto"]=STATIC_I18N["Estrés alto"]||["High stress", "Stress alto"];
+STATIC_I18N["Autoevaluación semanal bien"]=STATIC_I18N["Autoevaluación semanal bien"]||["Good weekly self-assessment", "Autovalutazione settimanale buona"];
+STATIC_I18N["Molestia"]=STATIC_I18N["Molestia"]||["Soreness", "Fastidio"];
+STATIC_I18N["nivel"]=STATIC_I18N["nivel"]||["level", "livello"];
+STATIC_I18N["hace"]=STATIC_I18N["hace"]||["", "fa"];
+STATIC_I18N["Marcado como No disponible"]=STATIC_I18N["Marcado como No disponible"]||["Marked as unavailable", "Segnato come non disponibile"];
+STATIC_I18N["Limitado por el profe"]=STATIC_I18N["Limitado por el profe"]||["Limited by the coach", "Limitato dal coach"];
+STATIC_I18N["Sin alertas: entrenamiento normal."]=STATIC_I18N["Sin alertas: entrenamiento normal."]||["No alerts: normal training.", "Nessun avviso: allenamento normale."];
+STATIC_I18N["Pedile el check-in diario o la autoevaluación semanal para calcular el puntaje."]=STATIC_I18N["Pedile el check-in diario o la autoevaluación semanal para calcular el puntaje."]||["Ask for the daily check-in or the weekly self-assessment to calculate the score.", "Chiedi il check-in giornaliero o l'autovalutazione settimanale per calcolare il punteggio."];
+STATIC_I18N["Sin check-in de hoy: se usa la autoevaluación semanal"]=STATIC_I18N["Sin check-in de hoy: se usa la autoevaluación semanal"]||["No check-in today: using the weekly self-assessment", "Nessun check-in oggi: si usa l'autovalutazione settimanale"];
+
 STATIC_I18N["Probar con datos de ejemplo"]=["Try it with sample data","Provala con dati di esempio"];
 STATIC_I18N["Ver un ejemplo con datos"]=["See an example with data","Vedi un esempio con dati"];
 STATIC_I18N["Modo ejemplo"]=["Sample mode","Modalità esempio"];
