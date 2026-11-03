@@ -2213,7 +2213,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261103-5';
+var APP_VERSION='20261104-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3440,7 +3440,8 @@ else if(LANG==='it'){MES_ES_L=['Gennaio','Febbraio','Marzo','Aprile','Maggio','G
 function isoToday(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
 function isoToDate(iso){var pp=String(iso).slice(0,10).split('-');return new Date(+pp[0],+pp[1]-1,+pp[2]);}
 function fmtDateLong(iso){var dt=isoToDate(iso);return DOW_ES[dt.getDay()]+' '+dt.getDate()+' '+MES_ES_L[dt.getMonth()]+' '+dt.getFullYear();}
-function fmtDateShort(iso){var dt=isoToDate(iso);return (DOW_ES[dt.getDay()]+' '+dt.getDate()).toUpperCase();}
+/* Día + número + mes (y año si no es el actual): "LUN 2 NOV". Sin el mes no se entendía el orden en historiales. */
+function fmtDateShort(iso){var dt=isoToDate(iso);if(!dt||isNaN(dt))return '';var y=dt.getFullYear(),m=MES_ES_L[dt.getMonth()].slice(0,3);return (DOW_ES[dt.getDay()]+' '+dt.getDate()+' '+m+(y!==new Date().getFullYear()?' '+String(y).slice(2):'')).toUpperCase();}
 function sessionsOf(pid){if(!JB_SESSIONS[pid])JB_SESSIONS[pid]={};return JB_SESSIONS[pid];}
 /* ===== TURNOS =====
    Un día puede tener hasta 3 turnos. El turno 1 usa la fecha como clave ("2026-10-20")
