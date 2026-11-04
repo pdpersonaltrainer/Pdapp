@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<title>PDapp · Pablo PT</title>
+<title>PDapp</title>
 <script>
 /* Tema guardado, aplicado antes de pintar para evitar un destello de color. */
 (function(){
@@ -535,6 +535,13 @@ input[type="date"]::-webkit-date-and-time-value{text-align:center;}
 .pick-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
 .pick-item:last-child{border-bottom:none;}
 .pick-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.br-cols{display:flex;gap:10px;flex-wrap:wrap;}
+.br-col{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:0 0 0 1px var(--border2);transition:transform .15s ease;}
+.br-col.on{border-color:var(--bg);box-shadow:0 0 0 2px var(--text);transform:scale(1.08);}
+.br-hint{font-size:11.5px;color:var(--muted2);margin-top:6px;line-height:1.45;}
+.br-sig{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin:2px 0 14px;cursor:pointer;}
+.br-sig input{width:18px;height:18px;accent-color:var(--mobfill);}
+#brand-box textarea{width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:10px 12px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;resize:vertical;}
 .wl-rdy-ic{flex:none;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
 .wl-streak{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:4px 10px 4px 8px;border-radius:14px;background:rgba(77,171,247,0.12);color:#4dabf7;font-size:12px;}
 .wl-streak b{font-weight:800;white-space:nowrap;}.wl-streak span{white-space:nowrap;}.wl-streak span{color:var(--muted);}
@@ -2446,7 +2453,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261104-7';
+var APP_VERSION='20261104-8';
 (function(){
   try{
     setTimeout(function(){
@@ -5733,7 +5740,7 @@ function shareWhatsApp(){
   var p=PLAYERS.find(function(x){return x.id===sharePid;});if(!p)return;
   if(!playerLink(p.id)){showInfo(tr('No se pudo obtener el link.'));return;}
   var prof=(MY_PROFILE&&MY_PROFILE.display_name)?MY_PROFILE.display_name:tr('tu profe');
-  var txt=tr('Hola')+' '+p.name+' \ud83d\udc4b\n\n'+tr('Acá tenés tu acceso a la app de entrenamiento:')+'\n\ud83d\udc49 '+playerLink(p.id)+'\n\n'+tr('Tu PIN:')+' '+String(p.pin||'----')+'\n\n\u2014 '+prof;
+  var txt=tr('Hola')+' '+p.name+' \ud83d\udc4b\n\n'+(isPaid()&&brandName()!=='PDapp'?tr('Acá tenés tu acceso a la app de entrenamiento de')+' *'+brandName()+'*:':tr('Acá tenés tu acceso a la app de entrenamiento:'))+'\n\ud83d\udc49 '+playerLink(p.id)+'\n\n'+tr('Tu PIN:')+' '+String(p.pin||'----')+'\n\n\u2014 '+prof;
   window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
 }
 function showSelectContent(){
@@ -6233,6 +6240,8 @@ var PD_IDEAS=[
  ['El que mejor se prepara llega más entero al final del partido.','The best prepared finish the match fresher.','Chi si prepara meglio arriva più fresco alla fine della partita.']
 ];
 function wlIdeaHtml(){
+  var bm=isPaid()&&MY_PROFILE&&MY_PROFILE.brand_msg&&String(MY_PROFILE.brand_msg).trim();
+  if(bm)return '<div class="wl-card" style="border-left:3px solid var(--mob);"><div class="wl-lbl">'+tr('Mensaje de tu profe')+'</div><div style="font-size:14.5px;line-height:1.45;color:var(--text);white-space:pre-line;">'+wlEsc(bm)+'</div><div style="font-size:12px;color:var(--muted2);margin-top:6px;">— '+wlEsc(brandName())+'</div></div>';
   var d=isoToDate(isoMonday()),w=Math.floor(d.getTime()/(7*86400000));
   var it=PD_IDEAS[((w%PD_IDEAS.length)+PD_IDEAS.length)%PD_IDEAS.length];
   var txt=LANG==='en'?it[1]:(LANG==='it'?it[2]:it[0]);
@@ -9313,7 +9322,7 @@ function grRepTab(M){
   return h+'<div class="gr-rep"><style>'+grScope(GR_PDF_CSS,'.gr-rep')+'</style>'+grRepHtml(M,+GR.rep||30,false)+'</div>';
 }
 function grPdf(body,title,fname){
-  var html='<!DOCTYPE html><html><head><meta charset="utf-8"/><title>'+_rpEsc(title)+'</title><style>'+GR_PDF_CSS+'html,body{background:#fff;margin:0;padding:0;}body{width:720px;}</style></head><body>'+body+'<footer>PDapp · '+_rpEsc(title)+'</footer></body></html>';
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"/><title>'+_rpEsc(title)+'</title><style>'+GR_PDF_CSS+'html,body{background:#fff;margin:0;padding:0;}body{width:720px;}</style></head><body>'+body+'<footer>'+pdfFoot(_rpEsc(title))+'</footer></body></html>';
   var st={cancel:false};
   showInfo(tr('Generando informe…'),{okLabel:tr('Cancelar'),onOk:function(){st.cancel=true;}});
   _rpBuildPdf(html).then(function(blob){
@@ -9432,7 +9441,7 @@ async function athAvailFetch(){
   try{if(!ATH_TOKEN||!PLAYERS[0])return;var r=await sb.rpc('athlete_availability',{p_token:ATH_TOKEN,p_pin:(typeof ATH_PIN!=='undefined'&&ATH_PIN)||''});
     if(r&&!r.error&&r.data){PLAYERS[0].availability=r.data;try{availHomeCard();}catch(e){}}}catch(e){}
 }
-(function(){var _ad=applyAthleteData;applyAthleteData=function(d){_ad.apply(this,arguments);try{if(d&&d.player&&d.player.availability)PLAYERS[0].availability=d.player.availability;}catch(e){}setTimeout(athAvailFetch,600);};})();
+(function(){var _ad=applyAthleteData;applyAthleteData=function(d){_ad.apply(this,arguments);try{if(d&&d.player&&d.player.availability)PLAYERS[0].availability=d.player.availability;}catch(e){}setTimeout(athAvailFetch,600);setTimeout(athBrandFetch,700);};})();
 
 /* ===== TOMAR TESTS DESDE LA APP =====
    La app genera los pitidos (no hace falta el audio oficial), anuncia niveles con voz y el profe
@@ -9848,7 +9857,7 @@ function exportPlayerPDF(pid){
   var hdrLogo='<img class="logo" src="'+logo+'" onerror="this.style.display=\'none\'"/>';
   var html='<!DOCTYPE html><html><head><meta charset="utf-8"/><title>'+_rpEsc(p.name)+'</title><style>'+css+'</style></head><body>'
     +body.replace('<header>','<header>'+hdrLogo)
-    +'<footer>PDapp · '+tr('Informe de')+' '+_rpEsc(p.name)+'</footer></body></html>';
+    +'<footer>'+pdfFoot(tr('Informe de')+' '+_rpEsc(p.name))+'</footer></body></html>';
 
   /* PDF real + menú de compartir. window.print() no funciona en la app
      instalada en iOS, así que generamos el archivo y lo entregamos. */
@@ -10761,6 +10770,26 @@ STATIC_I18N["válidos"]=STATIC_I18N["válidos"]||["valid","validi"];
 STATIC_I18N["válidas"]=STATIC_I18N["válidas"]||["valid","valide"];
 STATIC_I18N["pérdida máx."]=STATIC_I18N["pérdida máx."]||["max loss","perdita max"];
 STATIC_I18N["piernas tapadas"]=["legs hidden","gambe coperte"];
+STATIC_I18N["con tecnología de"]=STATIC_I18N["con tecnología de"]||["powered by", "con tecnologia di"];
+STATIC_I18N["hecho con PDapp"]=STATIC_I18N["hecho con PDapp"]||["made with PDapp", "fatto con PDapp"];
+STATIC_I18N["Mensaje de tu profe"]=STATIC_I18N["Mensaje de tu profe"]||["Message from your coach", "Messaggio del tuo coach"];
+STATIC_I18N["Acá tenés tu acceso a la app de entrenamiento de"]=STATIC_I18N["Acá tenés tu acceso a la app de entrenamiento de"]||["Here's your access to the training app of", "Ecco il tuo accesso all'app di allenamento di"];
+STATIC_I18N["Color de tu marca"]=STATIC_I18N["Color de tu marca"]||["Your brand color", "Colore del tuo brand"];
+STATIC_I18N["Lo ven tus alumnos en botones y resaltados."]=STATIC_I18N["Lo ven tus alumnos en botones y resaltados."]||["Your athletes see it on buttons and highlights.", "I tuoi atleti lo vedono su pulsanti ed evidenziazioni."];
+STATIC_I18N["Mensaje para tus alumnos (opcional)"]=STATIC_I18N["Mensaje para tus alumnos (opcional)"]||["Message for your athletes (optional)", "Messaggio per i tuoi atleti (opzionale)"];
+STATIC_I18N["Ej: Esta semana priorizamos el descanso: dormí 8 horas."]=STATIC_I18N["Ej: Esta semana priorizamos el descanso: dormí 8 horas."]||["E.g.: This week we prioritize rest: sleep 8 hours.", "Es.: Questa settimana diamo priorità al riposo: dormi 8 ore."];
+STATIC_I18N["Si lo completás, reemplaza la \"Idea PD de la semana\" en el inicio de tus alumnos."]=STATIC_I18N["Si lo completás, reemplaza la \"Idea PD de la semana\" en el inicio de tus alumnos."]||["If filled in, it replaces the \"PD idea of the week\" on your athletes' home.", "Se compilato, sostituisce l'\"Idea PD della settimana\" nella home dei tuoi atleti."];
+STATIC_I18N["Ocultar \"con tecnología de PDapp\""]=STATIC_I18N["Ocultar \"con tecnología de PDapp\""]||["Hide \"powered by PDapp\"", "Nascondi \"con tecnologia di PDapp\""];
+STATIC_I18N["Con el plan Elite podés ocultar \"con tecnología de PDapp\"."]=STATIC_I18N["Con el plan Elite podés ocultar \"con tecnología de PDapp\"."]||["With the Elite plan you can hide \"powered by PDapp\".", "Con il piano Elite puoi nascondere \"con tecnologia di PDapp\"."];
+STATIC_I18N["Se guardaron nombre y logo. Para el color, el mensaje y la firma falta correr marca.sql en Supabase (una sola vez)."]=STATIC_I18N["Se guardaron nombre y logo. Para el color, el mensaje y la firma falta correr marca.sql en Supabase (una sola vez)."]||["Name and logo saved. For color, message and signature, run marca.sql in Supabase (once).", "Nome e logo salvati. Per colore, messaggio e firma esegui marca.sql in Supabase (una volta)."];
+STATIC_I18N["Verde"]=STATIC_I18N["Verde"]||["Green", "Verde"];
+STATIC_I18N["Azul"]=STATIC_I18N["Azul"]||["Blue", "Blu"];
+STATIC_I18N["Naranja"]=STATIC_I18N["Naranja"]||["Orange", "Arancione"];
+STATIC_I18N["Rojo"]=STATIC_I18N["Rojo"]||["Red", "Rosso"];
+STATIC_I18N["Violeta"]=STATIC_I18N["Violeta"]||["Violet", "Viola"];
+STATIC_I18N["Celeste"]=STATIC_I18N["Celeste"]||["Teal", "Azzurro"];
+STATIC_I18N["Amarillo"]=STATIC_I18N["Amarillo"]||["Yellow", "Giallo"];
+
 STATIC_I18N["Sesiones · modelos reutilizables"]=["Sessions · reusable templates", "Sessioni · modelli riutilizzabili"];
 STATIC_I18N["Metodología PD · sesiones base de Pablo"]=["PD Method · Pablo's base sessions", "Metodo PD · sessioni base di Pablo"];
 STATIC_I18N["Programas · mesociclos de varias semanas"]=["Programs · multi-week mesocycles", "Programmi · mesocicli di più settimane"];
@@ -11763,14 +11792,34 @@ function brandName(){
   if(isPaid()&&MY_PROFILE&&MY_PROFILE.display_name)return MY_PROFILE.display_name;
   return 'PDapp';
 }
+/* Colores de marca (relleno para modo oscuro, tono oscuro para el tema claro "papel") */
+var BRAND_COLORS={green:['#a8e063','#4a7318','Verde'],blue:['#4dabf7','#1971c2','Azul'],orange:['#ff9f43','#c2410c','Naranja'],red:['#ff6b6b','#c92a2a','Rojo'],violet:['#b197fc','#6741d9','Violeta'],teal:['#38d9c0','#0f9484','Celeste'],yellow:['#ffd43b','#a16207','Amarillo']};
+function isElite(){var p=myPlan();return p==='team'||p==='club';}
+/* Firma "con tecnología de PDapp": siempre visible, salvo en Elite si el profe la apaga */
+function pdSigOn(){return !(isElite()&&MY_PROFILE&&MY_PROFILE.brand_hide);}
+function brandColorKey(){var k=isPaid()&&MY_PROFILE&&MY_PROFILE.brand_color;return BRAND_COLORS[k]?k:null;}
+function applyBrandColor(){
+  try{var r=document.documentElement,k=isCoach?null:brandColorKey();
+    if(!k||k==='green'){r.style.removeProperty('--mob');r.style.removeProperty('--mobfill');return;}
+    var c=BRAND_COLORS[k],light=r.getAttribute('data-theme')==='papel';r.style.setProperty('--mobfill',c[0]);r.style.setProperty('--mob',light?c[1]:c[0]);}catch(e){}
+}
+var PD_MINI='<img src="icon.png" alt="" style="width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin:0 4px 0 3px;">';
+/* pie de los PDF */
+function pdfFoot(t){return (isPaid()?_rpEsc(brandName())+' · ':'')+t+(pdSigOn()?' · '+tr('hecho con PDapp')+' · pdpersonaltrainer.com':'');}
+/* el alumno lee color, mensaje y firma de su profe */
+async function athBrandFetch(){
+  try{if(!ATH_TOKEN)return;var r=await sb.rpc('athlete_brand',{p_token:ATH_TOKEN,p_pin:(typeof ATH_PIN!=='undefined'&&ATH_PIN)||''});
+    if(r&&!r.error&&r.data){Object.assign(MY_PROFILE,r.data);applyBrand();try{if(typeof renderAthleteHome==='function'&&document.getElementById('wl-today'))renderAthleteHome();}catch(e){}}}catch(e){}
+}
 function brandLogo(){
   var l=MY_PROFILE&&MY_PROFILE.brand_logo;
   return (isPaid()&&l)?l:'icon.png';
 }
 /* Pie de la pantalla del alumno */
 function brandFooter(){
-  if(!isPaid())return 'PDapp by '+((MY_PROFILE&&MY_PROFILE.display_name)||'Pablo PT');
-  return brandName()+' · <span style="opacity:0.6;">'+tr('con tecnología de PDapp')+'</span>';
+  if(!isPaid())return PD_MINI+'PDapp'+((MY_PROFILE&&MY_PROFILE.display_name)?' · '+MY_PROFILE.display_name:'');
+  if(!pdSigOn())return brandName();
+  return brandName()+' · <span style="opacity:0.7;">'+tr('con tecnología de')+PD_MINI+'PDapp</span>';
 }
 /* ===== PANEL DE EQUIPO ===== */
 /* ===== PASAR UN ALUMNO A OTRO PROFE DEL EQUIPO =====
@@ -11924,7 +11973,7 @@ function removeMember(id,name){
 }
 function renderBrandBox(){
   var box=document.getElementById('brand-box');if(!box)return;
-  var PLAN_LBL={free:tr('Gratis'),pro:'Pro',team:tr('Equipo'),club:tr('Equipo')};
+  var PLAN_LBL={free:tr('Gratis'),pro:'Pro',team:'Elite',club:'Elite'};
   var lim=(isPaid()||isAdmin)?tr('Alumnos ilimitados'):(tr('Hasta')+' '+((MY_PROFILE&&MY_PROFILE.max_players)||5)+' '+tr('alumnos'));
   var head='<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 13px;margin-bottom:10px;">'
     +'<div style="min-width:0;"><div style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:'+(isPaid()?'var(--mob)':'var(--text)')+';">'+tr('Plan')+' '+(PLAN_LBL[myPlan()]||myPlan())+'</div>'
@@ -11941,10 +11990,14 @@ function renderBrandBox(){
     +'<div id="brand-logo-prev" style="width:52px;height:52px;border-radius:14px;overflow:hidden;border:1px solid var(--border2);background:var(--s2);flex:none;">'+((MY_PROFILE&&MY_PROFILE.brand_logo)?'<img src="'+MY_PROFILE.brand_logo+'" style="width:100%;height:100%;object-fit:cover;"/>':'')+'</div>'
     +'<label style="background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:var(--rsm);padding:9px 14px;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">'+tr('Subir logo')
     +'<input type="file" accept="image/*" onchange="brandLogoPick(event)" style="display:none;"></label></div>'
+    +'<div class="form-row"><label>'+tr('Color de tu marca')+'</label><div class="br-cols">'+Object.keys(BRAND_COLORS).map(function(k){var cur=(MY_PROFILE&&MY_PROFILE.brand_color)||'green';return '<button type="button" class="br-col'+(cur===k?' on':'')+'" data-k="'+k+'" title="'+tr(BRAND_COLORS[k][2])+'" style="background:'+BRAND_COLORS[k][0]+'" onclick="brandColPick(this)"></button>';}).join('')+'</div><div class="br-hint">'+tr('Lo ven tus alumnos en botones y resaltados.')+'</div></div>'
+    +'<div class="form-row"><label>'+tr('Mensaje para tus alumnos (opcional)')+'</label><textarea id="brand-msg-txt" maxlength="240" rows="3" placeholder="'+tr('Ej: Esta semana priorizamos el descanso: dormí 8 horas.')+'">'+String((MY_PROFILE&&MY_PROFILE.brand_msg)||'').replace(/</g,'&lt;')+'</textarea><div class="br-hint">'+tr('Si lo completás, reemplaza la "Idea PD de la semana" en el inicio de tus alumnos.')+'</div></div>'
+    +(isElite()?'<label class="br-sig"><input type="checkbox" id="brand-hide"'+((MY_PROFILE&&MY_PROFILE.brand_hide)?' checked':'')+'/> '+tr('Ocultar "con tecnología de PDapp"')+'</label>':'<div class="br-hint" style="margin-bottom:12px;">'+tr('Con el plan Elite podés ocultar "con tecnología de PDapp".')+'</div>')
     +'<button onclick="saveBrand()" style="width:100%;padding:12px;border-radius:var(--rsm);border:none;background:var(--mobfill);color:#0a0b0e;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">'+tr('Guardar marca')+'</button>'
     +'<div id="brand-msg" style="font-size:12.5px;color:#ff6b6b;min-height:16px;margin-top:8px;"></div>';
 }
 var _brandLogoData=null;
+function brandColPick(b){document.querySelectorAll('.br-col').forEach(function(x){x.classList.toggle('on',x===b);});}
 function brandLogoPick(e){
   var f=e.target.files[0];if(!f)return;
   var rd=new FileReader();
@@ -11971,8 +12024,12 @@ async function saveBrand(){
   showSyncStatus('saving');
   var upd={brand_name:nm};
   if(_brandLogoData)upd.brand_logo=_brandLogoData;
-  var r=await sb.from('trainers').update(upd).eq('id',MY_UID);
+  var _bc=document.querySelector('.br-col.on'),_bm=document.getElementById('brand-msg-txt'),_bh=document.getElementById('brand-hide');
+  var ext={brand_color:_bc?_bc.getAttribute('data-k'):null,brand_msg:_bm?(_bm.value||'').trim()||null:null};if(_bh)ext.brand_hide=!!_bh.checked;
+  var r=await sb.from('trainers').update(Object.assign({},upd,ext)).eq('id',MY_UID);
+  if(r.error&&/brand_(color|msg|hide)/.test(String(r.error.message||''))){r=await sb.from('trainers').update(upd).eq('id',MY_UID);if(!r.error){showSyncStatus('ok');if(msg)msg.textContent=tr('Se guardaron nombre y logo. Para el color, el mensaje y la firma falta correr marca.sql en Supabase (una sola vez).');MY_PROFILE.brand_name=nm;if(_brandLogoData)MY_PROFILE.brand_logo=_brandLogoData;_brandLogoData=null;return;}}
   if(r.error){showSyncStatus('error');if(msg)msg.textContent='Error: '+r.error.message;return;}
+  Object.assign(MY_PROFILE,ext);
   showSyncStatus('ok');
   MY_PROFILE.brand_name=nm;
   if(_brandLogoData)MY_PROFILE.brand_logo=_brandLogoData;
@@ -11985,6 +12042,12 @@ function applyBrand(){
     if(f&&!isCoach)f.innerHTML=brandFooter();
     var lg=document.getElementById('loading-spinner');
     if(lg&&!isCoach&&isPaid())lg.src=brandLogo();
+    if(!isCoach){ /* nombre e ícono que ve el alumno en la pestaña y al "Agregar a inicio" */
+      var nm=isPaid()?brandName():'PDapp';document.title=nm;
+      var mt=document.querySelector('meta[name="apple-mobile-web-app-title"]');if(mt)mt.setAttribute('content',nm);
+      if(isPaid()&&MY_PROFILE&&MY_PROFILE.brand_logo){var ai=document.querySelector('link[rel="apple-touch-icon"]');if(ai)ai.setAttribute('href',MY_PROFILE.brand_logo);}
+    }
+    applyBrandColor();
   }catch(e){}
 }
 function currentTheme(){
@@ -11998,6 +12061,7 @@ function setTheme(t){
   try{localStorage.setItem('pdapp_theme',t);}catch(e){}
   if(t==='noche')document.documentElement.removeAttribute('data-theme');
   else document.documentElement.setAttribute('data-theme',t);
+  try{applyBrandColor();}catch(e){}
   var m=document.querySelector('meta[name="theme-color"]');
   if(m)m.setAttribute('content',THEME_BAR[t]||'#0a0b0e');
   try{renderThemeBox();}catch(e){}
@@ -14007,7 +14071,8 @@ function mvDraw(L,labels){
     ctx.fillStyle='rgba(14,16,21,0.82)';mvRR(ctx,w/2-mw/2-14*s,14*s,mw+28*s,34*s,8*s);ctx.fill();
     ctx.fillStyle='#ffd166';ctx.textAlign='center';ctx.fillText(MV.msg,w/2,37*s);ctx.textAlign='left';}
   // marca de agua chica
-  ctx.font='700 '+(13*s)+'px "Barlow Condensed",sans-serif';ctx.fillStyle='rgba(168,224,99,0.85)';ctx.textAlign='left';ctx.fillText('PDapp · '+mvExName(MV.ex)+(MV_EX[MV.ex].load?' · '+tr(mvLoadOf(MV.ex)==='bar'?'con carga':'sin carga'):''),10*s,h-10*s);
+  ctx.font='700 '+(13*s)+'px "Barlow Condensed",sans-serif';ctx.fillStyle='rgba(168,224,99,0.85)';ctx.textAlign='left';var _wm=(isPaid()?brandName():'PDapp')+' · '+mvExName(MV.ex)+(MV_EX[MV.ex].load?' · '+tr(mvLoadOf(MV.ex)==='bar'?'con carga':'sin carga'):'');ctx.fillText(_wm,10*s,h-10*s);
+  if(isPaid()&&pdSigOn()){var _ww=ctx.measureText(_wm).width;ctx.font='600 '+(11*s)+'px "Barlow Condensed",sans-serif';ctx.fillStyle='rgba(255,255,255,0.55)';ctx.fillText('  ·  PDapp',10*s+_ww,h-10*s);}
 }
 function mvRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 
