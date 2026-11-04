@@ -535,6 +535,9 @@ input[type="date"]::-webkit-date-and-time-value{text-align:center;}
 .pick-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
 .pick-item:last-child{border-bottom:none;}
 .pick-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.wl-rdy-ic{flex:none;width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.wl-streak{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:4px 10px 4px 8px;border-radius:14px;background:rgba(77,171,247,0.12);color:#4dabf7;font-size:12px;}
+.wl-streak b{font-weight:800;white-space:nowrap;}.wl-streak span{white-space:nowrap;}.wl-streak span{color:var(--muted);}
 .rdy-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;}
 .rdy-ring svg{position:absolute;inset:0;}.rdy-ring svg circle:last-child{transition:stroke-dasharray .6s ease;}
 .rdy-ring b{position:relative;font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:1;}
@@ -1411,7 +1414,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 <div id="screen-pdmethod" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
-      <div class="hdr-left"><div class="hdr-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div><div class="hdr-name">Metodología PD</div><div class="hdr-sub">Sesiones base de Pablo</div></div></div>
+      <div class="hdr-left"><div class="hdr-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div><div><div class="hdr-name">Programación</div><div class="hdr-sub">Metodología PD · sesiones base de Pablo</div></div></div>
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
@@ -1437,7 +1440,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 <div id="screen-programs" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
-      <div class="hdr-left"><div class="hdr-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="22"/><line x1="15" y1="10" x2="15" y2="22"/></svg></div><div><div class="hdr-name">Programas</div><div class="hdr-sub">Mesociclos de varias semanas</div></div></div>
+      <div class="hdr-left"><div class="hdr-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="22"/><line x1="15" y1="10" x2="15" y2="22"/></svg></div><div><div class="hdr-name">Programación</div><div class="hdr-sub">Programas · mesociclos de varias semanas</div></div></div>
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
@@ -1483,7 +1486,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 <div id="screen-tests" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
-      <div class="hdr-left"><div><div class="hdr-name">Evaluaciones</div><div class="hdr-sub">Tests de tus alumnos</div></div></div>
+      <div class="hdr-left"><div><div class="hdr-name">Datos</div><div class="hdr-sub">Evaluaciones · tests de tus alumnos</div></div></div>
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
@@ -1532,7 +1535,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 <div id="screen-templates" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
-      <div class="hdr-left"><div class="hdr-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div><div class="hdr-name">Mis Sesiones</div><div class="hdr-sub">Modelos reutilizables</div></div></div>
+      <div class="hdr-left"><div class="hdr-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div><div class="hdr-name">Programación</div><div class="hdr-sub">Sesiones · modelos reutilizables</div></div></div>
       <div class="hdr-right"><button class="back-btn" onclick="goBack()">Volver</button></div>
     </div>
   </header>
@@ -2360,7 +2363,7 @@ function pdDemoData(UID){
       if(hurt&&k===0){e.dolor=8;e.fatiga=7;e.note='Molestia en el isquio derecho al acelerar';}
       if(i===1&&k===0){e.fatiga=7;e.estres=7;e.motiv=6;e.note='Semana con muchos exámenes';}
       weekly[m]=e;}
-    var wellness={};if(!lazy){var tw=[[4,4,false],[2,3,false],[2,2,true],[4,5,false],[0],[3,3,false],[5,4,false],[4,3,false]][i];if(tw[0])wellness[i%3===2?addDaysISO(today,-1):today]={sleep:tw[0],energy:tw[1],pain:tw[2],note:null,ts:ts};}
+    var wellness={};if(!lazy){var tw=[[4,4,false],[2,3,false],[2,2,true],[4,5,false],[0],[3,3,false],[5,4,false],[4,3,false]][i];if(tw[0]){var wd0=i%3===2?addDaysISO(today,-1):today;wellness[wd0]={sleep:tw[0],energy:tw[1],pain:tw[2],note:null,ts:ts};for(var q=1;q<=[6,3,2,9,0,4,12,5][i];q++){wellness[addDaysISO(wd0,-q)]={sleep:ri(3,5),energy:ri(3,5),pain:false,note:null,ts:ts};}}}
     var pains={};if(hurt)pains[addDaysISO(today,-3)]=[{z:'isquio_d',lvl:3,note:'Pinchazo en sprint'}];if(i===3)pains[addDaysISO(today,-6)]=[{z:'isquio_i',lvl:1,note:null}];
     /* tests: 3 mediciones (inicio, mitad, ahora) con mejora */
     var d0=start,d1=addDaysISO(start,14),d2=addDaysISO(today,-2),jit=function(x,s){return Math.round((x+(rnd()-0.5)*s)*100)/100;};
@@ -2443,7 +2446,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261104-5';
+var APP_VERSION='20261104-7';
 (function(){
   try{
     setTimeout(function(){
@@ -3409,7 +3412,7 @@ function pdSelOpen(s,b,opt){
   var p=document.getElementById('pds-pop');
   if(p&&p.style.display==='block'&&p.__s===s){pdSelClose();return;}
   if(!p){p=document.createElement('div');p.id='pds-pop';p.setAttribute('role','listbox');document.body.appendChild(p);
-    document.addEventListener('pointerdown',function(ev){var q=document.getElementById('pds-pop');if(q&&q.style.display==='block'&&!q.contains(ev.target)&&!(ev.target.closest&&ev.target.closest('.pds-btn,.rdy-btn')))pdSelClose();},true);
+    document.addEventListener('pointerdown',function(ev){var q=document.getElementById('pds-pop');if(q&&q.style.display==='block'&&!q.contains(ev.target)&&!(ev.target.closest&&ev.target.closest('.pds-btn,.rdy-btn,.rdy-tap')))pdSelClose();},true);
     window.addEventListener('scroll',function(ev){var q=document.getElementById('pds-pop');if(q&&ev.target!==q&&!(q.contains&&q.contains(ev.target)))pdSelClose();},true);
     window.addEventListener('resize',pdSelClose);
     document.addEventListener('keydown',function(ev){if(ev.key==='Escape')pdSelClose();});}
@@ -4691,7 +4694,7 @@ function rendSelect(pid){
   try{renderSummary();}catch(e){console.error('rend',e);}
   var p=PLAYERS.find(function(x){return x.id===pid;})||{};
   var tEl=document.getElementById('sum-title'),sEl=document.getElementById('sum-sub');
-  if(tEl)tEl.textContent=tr('Rendimiento');if(sEl)sEl.textContent=p.name||'';
+  if(tEl)tEl.textContent=tr('Datos');if(sEl)sEl.textContent=tr('Rendimiento')+(p.name?' · '+p.name:'');
   try{window.scrollTo(0,0);}catch(e){}
 }
 function rendSearch(v){REND.q=v;rendBar(true);}
@@ -5973,7 +5976,35 @@ function wlReady(p){
   sc=Math.max(5,Math.min(100,Math.round(sc)));
   return {sc:sc,sl:sl,en:en,mx:mx,zone:zone};
 }
+/* racha de check-ins: días seguidos con check-in hasta hoy (o hasta ayer si hoy todavía no lo hizo) */
+function wlStreak(p){var w=(p&&p.wellness)||{},d=isoToday(),n=0,today=!!w[d];if(!today)d=addDaysISO(d,-1);while(w[d]){n++;d=addDaysISO(d,-1);if(n>365)break;}return {n:n,today:today};}
+var WL_FIRE='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 15.5l2 2 4-4"/></svg>';
+function wlStreakHtml(p,pending){var st=wlStreak(p);if(st.n<2)return '';
+  return '<div class="wl-streak">'+WL_FIRE+'<b>'+st.n+' '+tr('check-ins seguidos')+'</b>'+(pending?'<span>'+tr('no la cortes hoy')+'</span>':'')+'</div>';}
+/* lo que ve el ALUMNO después del check-in: un mensaje según el puntaje completo (sin mostrarle el número) */
+var WL_RDY_MSG={ok:['Hoy estás para darlo todo','Llegás bien: aprovechá la sesión.'],warn:['Hoy escuchá a tu cuerpo','Si algo molesta, bajá la intensidad y avisale a tu profe.'],bad:['Hoy vamos con cuidado','Tu profe lo va a ver en su panel. Priorizá la técnica y la recuperación.']};
 function wlReadyHtml(p){
+  var r=wlReady(p);
+  if(!r&&!isCoach)return wlReadyHtml0(p).replace('</div></div><span','</div>'+wlStreakHtml(p,true)+'</div><span');
+  if(!r)return wlReadyHtml0(p);
+  var R=null;try{R=rdyOf(p);}catch(e){}
+  if(!R||R.v==null||R.lv==='out')return wlReadyHtml0(p);
+  var L=RDY_LV[R.lv],lv=['',tr('leve'),tr('moderada'),tr('fuerte')];
+  var pain=r.mx?'<span style="color:'+(r.mx>=3?'#ff7043':'#f9c846')+';">● '+(r.zone?wlEsc(TT(BODY_LBL[r.zone]||r.zone)):tr('Molestia'))+(r.mx>1?' · '+lv[r.mx]:'')+'</span>':'<span>✔ '+tr('Sin molestias')+'</span>';
+  var det='<div style="display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:4px;font-size:12px;color:var(--muted);"><span>'+tr('Sueño')+' '+r.sl+'/5</span><span>'+tr('Energía')+' '+r.en+'/5</span>'+pain+'</div>';
+  if(isCoach){ /* el profe ve el puntaje completo, igual que en Grupos y Datos */
+    return '<div class="wl-card rdy-tap" style="display:flex;gap:13px;align-items:center;cursor:pointer;" onclick="rdyPop(this,\''+p.id+'\')">'+rdyRing(R,true)
+      +'<div style="flex:1;min-width:0;"><div class="wl-lbl" style="margin-bottom:2px;">'+tr('Listo para entrenar hoy')+'</div>'
+      +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:0.02em;color:'+L.c+';">'+tr(L.t)+' <span style="font-size:12px;color:var(--muted2);font-weight:700;letter-spacing:0;text-transform:none;">· '+tr('ver motivos')+'</span></div>'+det+'</div></div>';
+  }
+  var M=WL_RDY_MSG[R.lv],ic={ok:'<path d="M20 6 9 17l-5-5"/>',warn:'<path d="M12 8v5M12 16.5h.01"/><circle cx="12" cy="12" r="9"/>',bad:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>'}[R.lv];
+  return '<div class="wl-card" style="display:flex;gap:13px;align-items:center;">'
+    +'<span class="wl-rdy-ic" style="color:'+L.c+';background:color-mix(in srgb,'+L.c+' 14%,transparent);"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">'+ic+'</svg></span>'
+    +'<div style="flex:1;min-width:0;"><div class="wl-lbl" style="margin-bottom:2px;">'+tr('Cómo llegás hoy')+'</div>'
+    +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:0.02em;color:'+L.c+';">'+tr(M[0])+'</div>'
+    +'<div style="font-size:12.5px;color:var(--text);margin-top:2px;line-height:1.4;">'+tr(M[1])+'</div>'+det+wlStreakHtml(p,false)+'</div></div>';
+}
+function wlReadyHtml0(p){
   var r=wlReady(p);
   if(!r){
     if(isCoach)return '<div class="wl-card"><div class="wl-lbl" style="margin:0;">'+tr('Cómo llega hoy')+'</div><div style="font-size:13px;color:var(--muted2);margin-top:4px;">'+tr('Todavía no hizo el check-in de hoy.')+'</div></div>';
@@ -9367,7 +9398,7 @@ function rdyPop(btn,pid){
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;var r=rdyOf(p),L=RDY_LV[r.lv];
   var el=document.getElementById('pds-pop');
   if(!el){el=document.createElement('div');el.id='pds-pop';document.body.appendChild(el);
-    document.addEventListener('pointerdown',function(ev){var q=document.getElementById('pds-pop');if(q&&q.style.display==='block'&&!q.contains(ev.target)&&!(ev.target.closest&&ev.target.closest('.pds-btn,.rdy-btn')))q.style.display='none';},true);
+    document.addEventListener('pointerdown',function(ev){var q=document.getElementById('pds-pop');if(q&&q.style.display==='block'&&!q.contains(ev.target)&&!(ev.target.closest&&ev.target.closest('.pds-btn,.rdy-btn,.rdy-tap')))q.style.display='none';},true);
     window.addEventListener('scroll',function(ev){var q=document.getElementById('pds-pop');if(q&&ev.target!==q&&!(q.contains&&q.contains(ev.target)))pdSelClose();},true);
     window.addEventListener('resize',pdSelClose);}
   if(el.style.display==='block'&&el.__s===pid){el.style.display='none';return;}
@@ -10730,6 +10761,22 @@ STATIC_I18N["válidos"]=STATIC_I18N["válidos"]||["valid","validi"];
 STATIC_I18N["válidas"]=STATIC_I18N["válidas"]||["valid","valide"];
 STATIC_I18N["pérdida máx."]=STATIC_I18N["pérdida máx."]||["max loss","perdita max"];
 STATIC_I18N["piernas tapadas"]=["legs hidden","gambe coperte"];
+STATIC_I18N["Sesiones · modelos reutilizables"]=["Sessions · reusable templates", "Sessioni · modelli riutilizzabili"];
+STATIC_I18N["Metodología PD · sesiones base de Pablo"]=["PD Method · Pablo's base sessions", "Metodo PD · sessioni base di Pablo"];
+STATIC_I18N["Programas · mesociclos de varias semanas"]=["Programs · multi-week mesocycles", "Programmi · mesocicli di più settimane"];
+STATIC_I18N["Evaluaciones · tests de tus alumnos"]=["Assessments · your athletes' tests", "Valutazioni · test dei tuoi atleti"];
+
+STATIC_I18N["días seguidos"]=STATIC_I18N["días seguidos"]||["days in a row", "giorni di fila"];
+STATIC_I18N["check-ins seguidos"]=["check-ins in a row","check-in di fila"];
+STATIC_I18N["no la cortes hoy"]=["don't break it today","non interromperla oggi"];
+STATIC_I18N["Hoy estás para darlo todo"]=STATIC_I18N["Hoy estás para darlo todo"]||["Today you're ready to give it all", "Oggi sei pronto a dare tutto"];
+STATIC_I18N["Llegás bien: aprovechá la sesión."]=STATIC_I18N["Llegás bien: aprovechá la sesión."]||["You're feeling good: make the most of the session.", "Stai bene: sfrutta la sessione."];
+STATIC_I18N["Hoy escuchá a tu cuerpo"]=STATIC_I18N["Hoy escuchá a tu cuerpo"]||["Today, listen to your body", "Oggi ascolta il tuo corpo"];
+STATIC_I18N["Si algo molesta, bajá la intensidad y avisale a tu profe."]=STATIC_I18N["Si algo molesta, bajá la intensidad y avisale a tu profe."]||["If something hurts, lower the intensity and tell your coach.", "Se qualcosa dà fastidio, abbassa l'intensità e avvisa il tuo coach."];
+STATIC_I18N["Hoy vamos con cuidado"]=STATIC_I18N["Hoy vamos con cuidado"]||["Today we go carefully", "Oggi andiamo con cautela"];
+STATIC_I18N["Tu profe lo va a ver en su panel. Priorizá la técnica y la recuperación."]=STATIC_I18N["Tu profe lo va a ver en su panel. Priorizá la técnica y la recuperación."]||["Your coach will see it on their dashboard. Focus on technique and recovery.", "Il tuo coach lo vedrà nel suo pannello. Dai priorità a tecnica e recupero."];
+STATIC_I18N["ver motivos"]=STATIC_I18N["ver motivos"]||["see why", "vedi perché"];
+
 STATIC_I18N["Listo"]=STATIC_I18N["Listo"]||["Ready", "Pronto"];
 STATIC_I18N["Precaución"]=STATIC_I18N["Precaución"]||["Caution", "Attenzione"];
 STATIC_I18N["Cuidar"]=STATIC_I18N["Cuidar"]||["Take care", "Attenzione alta"];
