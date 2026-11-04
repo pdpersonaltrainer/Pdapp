@@ -2459,7 +2459,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261104-10';
+var APP_VERSION='20261104-11';
 (function(){
   try{
     setTimeout(function(){
@@ -10776,6 +10776,8 @@ STATIC_I18N["válidos"]=STATIC_I18N["válidos"]||["valid","validi"];
 STATIC_I18N["válidas"]=STATIC_I18N["válidas"]||["valid","valide"];
 STATIC_I18N["pérdida máx."]=STATIC_I18N["pérdida máx."]||["max loss","perdita max"];
 STATIC_I18N["piernas tapadas"]=["legs hidden","gambe coperte"];
+STATIC_I18N["inclinación del tronco"]=STATIC_I18N["inclinación del tronco"]||["trunk inclination","inclinazione del busto"];
+STATIC_I18N["Teléfono <b>a la altura de la cadera</b> (no en el piso), a 3–4 m, <b>de costado</b>. Mide la <b>inclinación del tronco</b> en cada repetición y las cuenta. <b>De frente</b> mide el valgo (también a una pierna)."]=["Phone <b>at hip height</b> (not on the floor), 3–4 m away, <b>from the side</b>. It measures <b>trunk inclination</b> on each rep and counts them. <b>From the front</b> it measures valgus (also single-leg).","Telefono <b>all'altezza dell'anca</b> (non a terra), a 3–4 m, <b>di lato</b>. Misura l'<b>inclinazione del busto</b> in ogni ripetizione e le conta. <b>Di fronte</b> misura il valgo (anche su una gamba)."];
 STATIC_I18N["Cuenta principal de PDapp"]=STATIC_I18N["Cuenta principal de PDapp"]||["Main PDapp account", "Account principale di PDapp"];
 STATIC_I18N["Tu marca es PDapp"]=STATIC_I18N["Tu marca es PDapp"]||["Your brand is PDapp", "Il tuo brand è PDapp"];
 STATIC_I18N["Sos la cuenta principal: tus alumnos ven PDapp con su logo y sus colores originales. No necesitás subir logo ni elegir color. Los demás profes ven acá las opciones para poner su propia marca."]=STATIC_I18N["Sos la cuenta principal: tus alumnos ven PDapp con su logo y sus colores originales. No necesitás subir logo ni elegir color. Los demás profes ven acá las opciones para poner su propia marca."]||["You're the main account: your athletes see PDapp with its original logo and colors. No need to upload a logo or pick a color. Other coaches see the options to set their own brand here.", "Sei l'account principale: i tuoi atleti vedono PDapp con logo e colori originali. Non serve caricare un logo né scegliere un colore. Gli altri coach vedono qui le opzioni per il proprio brand."];
@@ -13134,7 +13136,7 @@ var MV={counting:false,cd:(function(){try{var v=parseInt(localStorage.getItem('p
 var MV_EX={
   squat:{n:'Sentadilla',hint:'Teléfono <b>de costado</b> (profundidad y ángulos) o <b>de frente</b> (valgo de rodillas), a la altura de la cadera, a 2–3 m. Que se vea el cuerpo entero.',trail:'shoulder',load:true},
   valgus:{n:'Sentadilla de frente (valgo)',hint:'Teléfono <b>de frente</b>, a la altura de la rodilla, a 2–3 m. Mide si las rodillas se van hacia adentro.',load:true},
-  deadlift:{n:'Peso muerto',hint:'Teléfono <b>a la altura de la cadera</b> (no en el piso), a 3–4 m, <b>de costado o un poco en diagonal desde adelante</b> para que el disco no tape la rodilla. <b>De frente</b> mide el valgo (también a una pierna).',trail:'wrist',load:true},
+  deadlift:{n:'Peso muerto',hint:'Teléfono <b>a la altura de la cadera</b> (no en el piso), a 3–4 m, <b>de costado</b>. Mide la <b>inclinación del tronco</b> en cada repetición y las cuenta. <b>De frente</b> mide el valgo (también a una pierna).',trail:'wrist',load:true},
   lunge:{n:'Estocada / búlgara',hint:'Teléfono <b>de costado</b> (rodillas y tronco) o <b>de frente</b> (valgo de la pierna que trabaja), a la altura de la cadera.',trail:'shoulder',load:true},
   bench:{n:'Press de banca',hint:'Teléfono <b>de costado</b>, a la altura del banco, un poco hacia la cabeza. Mide el codo, el recorrido de la barra y si el hombro se adelanta (se despega la escápula).',trail:'wrist',load:true},
   jump:{n:'CMJ / Saltos',hint:'Teléfono <b>fijo, de costado o de frente</b>, que se vean bien los pies. Calcula la altura por el tiempo de vuelo. Mejor a 60 fps (no cámara lenta).'},
@@ -13152,7 +13154,7 @@ var MV_P={LS:11,RS:12,LE:13,RE:14,LW:15,RW:16,LH:23,RH:24,LK:25,RK:26,LA:27,RA:2
 var MV_BONES=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[27,31],[28,30],[30,32],[28,32]];
 function mvEl(id){return document.getElementById(id);}
 function mvLoadOf(k){return MV.load[k]||'free';}
-function mvTrailOn(){var e=MV_EX[MV.ex];return !!e.trail&&(!e.load||mvLoadOf(MV.ex)==='bar');}
+function mvTrailOn(){var e=MV_EX[MV.ex];if(MV.ex==='deadlift'&&!MV.rm)return false;return !!e.trail&&(!e.load||mvLoadOf(MV.ex)==='bar');}
 function mvExName(k){return tr((MV_EX[k]||MV_EX.free).n);}
 
 /* --- abrir / cerrar --- */
@@ -13565,7 +13567,7 @@ function mvRepDone(c){
     if(!c.ok){mvFeedback(false);MV.banner={t:tr('Valgo'),until:Date.now()+1100};}else if(lim)mvFeedback(true);}
   else if(lim&&!(lim.m==='cm'&&!mvCmPerPx())){
     if(ex==='valgus'){c.ok=isFinite(c.mnRatio)&&c.mnRatio>=lim.v;mvFeedback(c.ok);}
-    else if(c.legHid){/* piernas tapadas: no se puede juzgar el límite */}
+    else if(c.legHid||c.tOnly){/* solo tronco: no se puede juzgar ese límite */}
     else{c.ok=!!c.hit;if(!c.ok)mvFeedback(false);}
   }
   delete c.hit;delete c.by;delete c.tb;delete c.y0;
@@ -13712,7 +13714,15 @@ function mvAnalyze(L,t){
     S.last={ratio:ratio,knee:knee};out.push([L[P.LK],null],[L[P.RK],null]);
   }else if(ex==='deadlift'){
     s=mvSide(L);trunk=mvEma('trunk').push(mvVert(s.H,s.S));
-    /* rodilla y cadera solo si la pierna es creíble; si no, se mide el tronco y no se dibuja la pierna */
+    /* De costado (sin modo RM) se mide SOLO el tronco: con el disco delante, rodilla, pies y barra no son confiables.
+       La repetición se cuenta con la inclinación: baja con más de 35° y sube con menos de 15°. */
+    if(!MV.rm){
+      mvLimTrack({vy:null});
+      mvRep(180-1.5*trunk,127,157,{maxTrunk:trunk,tOnly:1});
+      S.kneeHidden=false;S.last={trunk:trunk};out.push([s.H,trunk,null,null,false,'tr']);
+      return out;
+    }
+    /* modo RM: rodilla y cadera solo si la pierna es creíble */
     var lgOk=MV.rm?(mvVis(s.K)>=0.35&&!s.K.occ):mvDlLegOk(L,S.side,trunk);
     hip=lgOk?mvEma('hip').push(mvAng(s.S,s.H,s.K)):NaN;knee=lgOk?mvEma('knee').push(mvAng(s.H,s.K,s.A)):NaN;
     S.kneeHidden=!lgOk;
@@ -14004,7 +14014,7 @@ function mvRepLine(ex,r){
   if(r.fr)return tr('de frente')+' · '+[r.vL!=null?tr('valgo izq.')+' '+mvF0(r.vL)+'°':null,r.vR!=null?tr('valgo der.')+' '+mvF0(r.vR)+'°':null].filter(Boolean).join(' · ');
   if(ex==='squat')return tr('rodilla')+' '+mvF0(r.min)+'° · '+tr('cadera')+' '+mvF0(r.mnHip)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°'+(r.maxDepth>0?' · '+tr('bajo paralelo'):'');
   if(ex==='valgus')return tr('rodillas/tobillos')+' '+(isFinite(r.mnRatio)?r.mnRatio.toFixed(2):'–')+(r.mnRatio<0.8?' · '+tr('VALGO'):r.mnRatio<0.95?' · '+tr('leve valgo'):' · ok');
-  if(ex==='deadlift'){if(r.legHid)return tr('tronco')+' '+mvF0(r.maxTrunk)+'° · '+tr('piernas tapadas');
+  if(ex==='deadlift'){if(r.tOnly)return tr('inclinación del tronco')+' '+mvF0(r.maxTrunk)+'°';if(r.legHid)return tr('tronco')+' '+mvF0(r.maxTrunk)+'° · '+tr('piernas tapadas');
     return tr('cadera')+' '+mvF0(r.mnHipV!=null?r.mnHipV:r.min)+'° · '+tr('rodilla')+' '+mvF0(r.mnKnee)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°';}
   if(ex==='lunge')return tr('rodilla adelante')+' '+mvF0(r.min)+'° · '+tr('atrás')+' '+mvF0(r.mnBack)+'° · '+tr('tronco')+' '+mvF0(r.maxTrunk)+'°';
   if(ex==='bench')return tr('codo')+' '+mvF0(r.min)+'° · '+tr('hombro adelanta')+' '+mvF0(r.maxProt)+'%'+(r.maxProt>12?' · '+tr('ESCÁPULA SE DESPEGA'):'');
@@ -14058,7 +14068,7 @@ function mvOneSide(L){
   /* sentadilla de costado: sin pie (punta), llega hasta el tobillo; de frente sí se marcan los pies */
   if(MV.ex==='squat'){delete m[31];delete m[32];}
   /* peso muerto de costado: la pierna solo se dibuja cuando pasa los controles (si no, solo hombro-cadera) */
-  if(MV.ex==='deadlift'&&!MV.rm&&!(MV.S&&MV.S.lg&&MV.S.lg.show)){[25,26,27,28,29,30,31,32].forEach(function(i){delete m[i];});}
+  if(MV.ex==='deadlift'&&!MV.rm){[25,26,27,28,29,30,31,32].forEach(function(i){delete m[i];});}
   if(MV.ex==='bench'){var keep=sd==='L'?[11,13,15]:[12,14,16];m={};keep.forEach(function(i){m[i]=1;});}
   return m;
 }
@@ -14093,6 +14103,9 @@ function mvDraw(L,labels){
   ctx.restore();
   if(mvBarHint()){var ht=tr(MV.bar?'Se perdió la barra: tocá el centro del disco':'Tocá el centro del disco para seguir la barra');ctx.font='800 '+(17*s)+'px "Barlow Condensed",sans-serif';var hw=ctx.measureText(ht).width;
     ctx.fillStyle='rgba(14,16,21,0.85)';mvRR(ctx,w/2-hw/2-14*s,h-62*s,hw+28*s,32*s,8*s);ctx.fill();ctx.fillStyle='#ffd166';ctx.textAlign='center';ctx.fillText(ht,w/2,h-40*s);ctx.textAlign='left';}
+  /* peso muerto de costado: línea vertical punteada desde la cadera, para leer el ángulo del tronco */
+  if(L)labels.forEach(function(lb){if(lb[5]!=='tr')return;try{var sd=mvSide(L),H=sd.H,Sx=sd.S;var len=Math.hypot(Sx.x-H.x,Sx.y-H.y)*0.85;var hx=MV.mirror?w-H.x:H.x;
+    ctx.save();ctx.setLineDash([6*s,6*s]);ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=2.5*s;ctx.beginPath();ctx.moveTo(hx,H.y);ctx.lineTo(hx,H.y-len);ctx.stroke();ctx.restore();}catch(e){}});
   if(L)labels.forEach(function(lb){var p=lb[0],v=lb[1];if(v==null||!isFinite(v)||mvVis(p)<0.35)return;
     var x=MV.mirror?w-p.x:p.x,y=p.y,C=lb[2]||G;ctx.font='800 '+(18*s)+'px "Barlow Condensed",sans-serif';var tx=(lb[4]?'~':'')+Math.round(v)+'°',tw=ctx.measureText(tx).width;
     var bx=x+10*s;if(lb[3]!=null){var xm=MV.mirror?w-lb[3]:lb[3];if(x<xm)bx=x-10*s-tw-12*s;}
@@ -14165,8 +14178,8 @@ function mvStep(now,meta){
         if(t-S0.okSince<900){MV.msg=tr('Detectando…');}
         else if(MV.mode==='cam'&&!MV.counting){MV.msg=(MV.cdEnd||(MV.rm&&MV.rm.phase))?null:tr('Tocá ● para grabar y medir');
           /* vista previa del peso muerto: si las piernas no se ven, se avisa ANTES de grabar */
-          if(MV.ex==='deadlift'&&!MV.rm&&!MV.cdEnd){try{if(mvView(L)!=='front'){var _sd=mvSide(L);mvDlLegOk(L,S0.side,mvVert(_sd.H,_sd.S));if(mvDlLegsBad())MV.msg=tr('Subí el celu a la cadera, a 3–4 m');}}catch(e){}}}
-        else{labels=mvAnalyze(L,t);if(MV.ex==='deadlift'&&S0.kneeHidden&&S0.view!=='front'&&!MV.rm)MV.msg=tr(mvDlLegsBad()?'Subí el celu a la cadera, a 3–4 m':'Piernas tapadas: mido el tronco');}
+          if(false){try{if(mvView(L)!=='front'){var _sd=mvSide(L);mvDlLegOk(L,S0.side,mvVert(_sd.H,_sd.S));if(mvDlLegsBad())MV.msg=tr('Subí el celu a la cadera, a 3–4 m');}}catch(e){}}}
+        else{labels=mvAnalyze(L,t);if(false)MV.msg=tr(mvDlLegsBad()?'Subí el celu a la cadera, a 3–4 m':'Piernas tapadas: mido el tronco');}
       }
     }catch(e){console.warn(e);}
     if(MV.waitTap&&!MV.waitTapDone&&MV.mode==='file'){MV.waitTapDone=true;try{vid.pause();}catch(e){}MV.msg=tr('Tocá el centro del disco para empezar');var _pb=mvEl('mv-c-play');if(_pb)_pb.textContent=tr('Seguir sin marcar');mvStatus(tr('Tocá el centro del disco en el video: así la línea amarilla sigue la barra. O tocá Seguir sin marcar.'));}
@@ -14228,7 +14241,7 @@ async function mvStartFile(file){
   var vid=mvEl('mv-vid');MV.mode='file';MV.mirror=false;vid.muted=true;vid.setAttribute('playsinline','');vid.preload='auto';vid.src=URL.createObjectURL(file);vid.loop=false;try{vid.load();}catch(e){}
   await new Promise(function(r){var done=false;var f=function(){if(!done){done=true;r();}};vid.onloadedmetadata=f;vid.onloadeddata=f;vid.oncanplay=f;setTimeout(f,2500);});
   vid.playbackRate=mvSpeed();
-  MV.waitTap=!MV.barReq&&!MV.rm&&(MV.ex==='deadlift'||MV.ex==='bench')&&mvLoadOf(MV.ex)==='bar';MV.waitTapDone=false;MV.noTap=false;
+  MV.waitTap=!MV.barReq&&!MV.rm&&MV.ex==='bench'&&mvLoadOf(MV.ex)==='bar';MV.waitTapDone=false;MV.noTap=false;
   mvStartLoop();mvPlay(vid);
   vid.onended=function(){if(MV.rm){MV.running=false;rmSetEnd(true);mvStatus(tr('Carga medida. Subí el video de la próxima carga o tocá Detener para ver el resultado.'));return;}MV.running=false;mvRenderMetrics();mvRenderLog();mvUpdSave();mvStatus(tr('Análisis terminado. Guardalo o volvé a reproducirlo.'));};
   mvEl('mv-ctrl').innerHTML='<button class="mv-btn" id="mv-c-play" onclick="mvPlayPause()">'+tr('Pausa')+'</button><button class="mv-btn" onclick="mvAgain()">'+tr('Desde el inicio')+'</button><button class="mv-btn" id="mv-c-spd" onclick="mvToggleSpeed()">'+mvSpeedTxt()+'</button><button class="mv-btn" onclick="mvPickFile()">'+tr('Cambiar video')+'</button><button class="mv-btn" onclick="mvStopStage()">'+tr('Detener')+'</button>';
@@ -14309,8 +14322,9 @@ function mvSummary(ex,m){
   if(reps.some(function(r){return r.fr;})){var vv=Math.max(mx('vL')==null?-99:mx('vL'),mx('vR')==null?-99:mx('vR')),nb=reps.filter(function(r){return r.ok===false;}).length;return n+' · '+tr('de frente')+' · '+tr('valgo máx.')+' '+mvF0(vv)+'°';}
   if(ex==='squat')return n+' · '+tr('rodilla')+' '+mvF0(mn('min'))+'° · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°';
   if(ex==='valgus'){var r=mn('mnRatio');return n+' · '+tr('rodillas/tobillos')+' '+(r==null?'–':r.toFixed(2))+(r!=null&&r<0.8?' · '+tr('VALGO'):r!=null&&r<0.95?' · '+tr('leve valgo'):'');}
-  if(ex==='deadlift'){var hv=reps.filter(function(r){return !r.legHid;}).map(function(r){return r.mnHipV!=null?r.mnHipV:r.min;}).filter(isFinite);
-    return n+(hv.length?' · '+tr('cadera')+' '+mvF0(Math.min.apply(null,hv))+'°':'')+' · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°'+(hv.length<reps.length?' · '+tr('piernas tapadas por el disco'):'');}
+  if(ex==='deadlift'&&reps.length&&reps.every(function(r){return r.tOnly;}))return n+' · '+tr('inclinación del tronco')+' '+mvF0(mx('maxTrunk'))+'°';
+  if(ex==='deadlift'){var hv=reps.filter(function(r){return !r.legHid&&!r.tOnly;}).map(function(r){return r.mnHipV!=null?r.mnHipV:r.min;}).filter(isFinite);
+    return n+(hv.length?' · '+tr('cadera')+' '+mvF0(Math.min.apply(null,hv))+'°':'')+' · '+tr('tronco')+' '+mvF0(mx('maxTrunk'))+'°'+(reps.some(function(r){return r.legHid;})?' · '+tr('piernas tapadas por el disco'):'');}
   if(ex==='lunge')return n+' · '+tr('rodilla adelante')+' '+mvF0(mn('min'))+'°';
   if(ex==='bench'){var p=mx('maxProt');return n+' · '+tr('codo')+' '+mvF0(mn('min'))+'° · '+tr('hombro adelanta')+' '+mvF0(p)+'%';}
   return n;
