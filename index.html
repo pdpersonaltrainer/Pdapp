@@ -452,6 +452,30 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .sum-sec-hdr{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;-webkit-user-select:none;user-select:none;}
 .sum-sec-ic{font-size:17px;line-height:1;flex:none;color:var(--mob);display:flex;align-items:center;}
 .pnl-head{display:flex;gap:9px;margin-bottom:14px;}
+.pnl-fb{font:inherit;color:inherit;cursor:pointer;transition:border-color .2s ease,background .2s ease,transform .15s ease;}
+.pnl-fb:active{transform:scale(.98);}
+.pnl-fb.on{border-color:var(--mob);background:color-mix(in srgb,var(--mob) 10%,var(--s2));box-shadow:0 0 0 1px var(--mob) inset;}
+.pnl-fnote{font-size:12.5px;color:var(--muted);margin:-6px 2px 12px;}
+.pnl-fnote button{border:none;background:none;color:var(--mob);font:inherit;font-weight:700;cursor:pointer;padding:0;}
+.pnl-als{margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);}
+.pnl-al{display:flex;align-items:center;gap:7px;padding:5px 0;}
+.pnl-al-t{font-size:12.5px;color:var(--text);flex:1;min-width:0;}
+.pnl-more{display:block;width:100%;margin:4px 0 12px;padding:12px;border-radius:var(--rsm);border:1px dashed var(--border2);background:var(--s1);color:var(--mob);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.pnl-more span{color:var(--muted2);font-weight:700;}
+/* pantallas anchas (iPad, notebook, compu): 2 o 3 columnas y alertas como etiquetas en una línea */
+@media (min-width:860px){
+  .pnl-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start;margin-bottom:10px;}
+  .pnl-grid .pnl-card{margin-bottom:0;padding:10px 12px;}
+  .pnl-grid .sum-av{width:42px!important;height:42px!important;}
+  .pnl-grid .pnl-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pnl-grid .pnl-meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pnl-grid .pnl-als{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;}
+  .pnl-grid .pnl-al{padding:3px 9px 3px 7px;border-radius:12px;background:var(--s1);border:1px solid var(--border2);gap:5px;}
+  .pnl-grid .pnl-al-t{font-size:11.5px;flex:none;white-space:nowrap;}
+}
+@media (min-width:1500px){.pnl-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+#pd-top{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 22px);z-index:440;width:46px;height:46px;border-radius:50%;border:1px solid var(--border2);background:var(--s2);color:var(--mob);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,0.45);cursor:pointer;opacity:0;transform:translateY(14px) scale(.9);pointer-events:none;transition:opacity .22s ease,transform .22s ease;}
+#pd-top.show{opacity:1;transform:none;pointer-events:auto;}
 .pnl-stat{flex:1;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 8px;text-align:center;}
 .pnl-stat-n{font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:800;line-height:1;color:var(--text);}
 .pnl-stat-l{font-size:9.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);margin-top:4px;}
@@ -2459,7 +2483,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261104-11';
+var APP_VERSION='20261104-12';
 (function(){
   try{
     setTimeout(function(){
@@ -5387,33 +5411,41 @@ function pdCountUpIn(root,key,minFs){
       if(k<1)requestAnimationFrame(step);else e.textContent=tx;})(t0);
   });
 }
-function panelCard(p,al){
+var PNL_F='all',PNL_STEP=12,PNL_N=12;
+(function(){function mk(){if(document.getElementById('pd-top'))return;var b=document.createElement('button');b.id='pd-top';b.type='button';b.setAttribute('aria-label','Arriba');
+  b.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  b.onclick=function(){try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}};document.body.appendChild(b);
+  var on=false;window.addEventListener('scroll',function(){var v=(window.scrollY||document.documentElement.scrollTop||0)>700&&!document.querySelector('.modal-overlay.open');if(v!==on){on=v;b.classList.toggle('show',v);}},{passive:true});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mk);else setTimeout(mk,0);})();
+function pnlFilter(f){PNL_F=(PNL_F===f&&f!=='all')?'all':f;PNL_N=PNL_STEP;renderPanel();}
+function pnlMore(){PNL_N+=PNL_STEP;renderPanel();}
+function panelCard(p,al,idx){
   var av=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">'+ICON('people')+'</div>';
   var meta=[tr(p.pos),p.club].filter(Boolean).join(' · ')||'';
   var chips=al.map(function(a){
     var c=PANEL_SEV[a.sev].c;
-    return '<div style="display:flex;align-items:center;gap:7px;padding:5px 0;">'
+    return '<div class="pnl-al">'
       +'<span style="color:'+c+';display:flex;flex:none;font-size:13px;">'+ICON(a.ic)+'</span>'
-      +'<span style="font-size:12.5px;color:var(--text);flex:1;min-width:0;">'+a.txt+'</span></div>';
+      +'<span class="pnl-al-t">'+a.txt+'</span></div>';
   }).join('');
   /* Solo los urgentes llevan barra de color: los íconos de cada alerta ya
      indican la gravedad y repetirlo en la barra saturaba la lista. */
   var urg=(al.length&&al[0].sev==='alta');
   var ring=al.length?PANEL_SEV[al[0].sev].c:'#a8e063';
   var rgb={'#ff6b6b':'255,107,107','#ffb020':'255,176,32','#4dabf7':'77,171,247','#a8e063':'168,224,99'}[ring]||'168,224,99';
-  return '<div class="pnl-card'+(urg?' pnl-urg':'')+'" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)" style="--pd-al:'+ring+';--pd-alg:rgba('+rgb+','+(urg?0.5:0.3)+');">'
+  return '<div class="pnl-card'+(urg?' pnl-urg':'')+'" data-pid="'+p.id+'" onclick="selectPlayer(this.dataset.pid)" style="--pd-al:'+ring+';--pd-alg:rgba('+rgb+','+(urg?0.5:0.3)+');'+(idx!=null?'animation-delay:'+Math.min(idx,14)*30+'ms;':'')+'">'
     +'<div style="display:flex;align-items:center;gap:11px;">'+av
     +'<div style="flex:1;min-width:0;"><div class="pnl-name">'+p.name+'</div>'
     +(meta?'<div class="pnl-meta">'+meta+'</div>':'')+'</div>'+pnlWeekHtml(p.id)
     +'<span style="color:var(--muted2);font-size:18px;flex:none;">›</span></div>'
-    +(chips?'<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);">'+chips+'</div>':'')
+    +(chips?'<div class="pnl-als">'+chips+'</div>':'')
     +'</div>';
 }
 function togglePanelOk(){
   var b=document.getElementById('pnl-ok-body');var c=document.getElementById('pnl-ok-chev');
   if(!b)return;
   var open=b.style.display!=='none';
-  b.style.display=open?'none':'block';
+  b.style.display=open?'none':'';
   if(c)c.style.transform=open?'rotate(0deg)':'rotate(90deg)';
 }
 /* ===== PRIMEROS PASOS (profe nuevo) =====
@@ -5465,30 +5497,37 @@ function renderPanel0(){
   var conAlerta=rows.filter(function(x){return x.al.length;}).sort(function(a,b){return a.r-b.r;});
   var sinAlerta=rows.filter(function(x){return !x.al.length;});
   var nAlta=conAlerta.filter(function(x){return x.al[0].sev==='alta';}).length;
+  var F=PNL_F;
+  var stb=function(f,n,l,col){var oc=f==='urg'?'#ff6b6b':(f==='al'?'#ffb020':'var(--mob)');return '<button type="button" class="pnl-stat pnl-fb'+(F===f&&f!=='all'?' on':'')+'" onclick="pnlFilter(\''+f+'\')"'+(F===f&&f!=='all'?' style="border-color:'+oc+' !important;box-shadow:0 0 0 1.5px '+oc+' inset,0 0 18px -6px '+oc+' !important;"':'')+'><div class="pnl-stat-n" style="color:'+col+';">'+n+'</div><div class="pnl-stat-l">'+tr(l)+'</div></button>';};
   var head='<div class="pnl-head">'
-    +'<div class="pnl-stat"><div class="pnl-stat-n">'+_fp.length+'</div><div class="pnl-stat-l">'+tr('Alumnos')+'</div></div>'
-    +'<div class="pnl-stat"><div class="pnl-stat-n" style="color:'+(conAlerta.length?'#ffb020':'var(--mob)')+';">'+conAlerta.length+'</div><div class="pnl-stat-l">'+tr('Con alerta')+'</div></div>'
-    +'<div class="pnl-stat"><div class="pnl-stat-n" style="color:'+(nAlta?'#ff6b6b':'var(--mob)')+';">'+nAlta+'</div><div class="pnl-stat-l">'+tr('Urgentes')+'</div></div>'
-    +'</div>';
+    +stb('all',_fp.length,'Alumnos','var(--text)')
+    +stb('al',conAlerta.length,'Con alerta',conAlerta.length?'#ffb020':'var(--mob)')
+    +stb('urg',nAlta,'Urgentes',nAlta?'#ff6b6b':'var(--mob)')
+    +'</div>'+(F!=='all'?'<div class="pnl-fnote">'+tr(F==='urg'?'Mostrando solo urgentes':'Mostrando solo alumnos con alerta')+' · <button type="button" onclick="pnlFilter(\'all\')">'+tr('Ver todos')+'</button></div>':'');
   if(isCoach){
     head+='<button class="pnl-add" onclick="openPlayerModal()">'
       +'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
       +tr('Agregar alumno')+'</button>';
   }
   var body='';
-  if(conAlerta.length){
-    body+=conAlerta.map(function(x){return panelCard(x.p,x.al);}).join('');
+  var list=F==='urg'?conAlerta.filter(function(x){return x.al[0].sev==='alta';}):conAlerta;
+  if(list.length){
+    var shown=list.slice(0,PNL_N),rest=list.length-shown.length;
+    body+='<div class="pnl-grid">'+shown.map(function(x,i){return panelCard(x.p,x.al,i);}).join('')+'</div>';
+    if(rest>0)body+='<button type="button" class="pnl-more" onclick="pnlMore()">'+tr('Ver')+' '+Math.min(PNL_STEP,rest)+' '+tr('más')+' <span>· '+tr('quedan')+' '+rest+'</span></button>';
+  } else if(F!=='all'){
+    body+='<div style="text-align:center;padding:26px 16px;color:var(--muted);font-size:13.5px;">'+tr('Nadie en este grupo ahora.')+'</div>';
   } else {
     body+='<div style="text-align:center;padding:26px 16px;color:var(--muted);">'
       +'<div style="color:var(--mob);font-size:26px;margin-bottom:8px;display:flex;justify-content:center;">'+ICON('pulse')+'</div>'
       +'<div style="font-size:13.5px;">'+tr('Todo el plantel está en verde.')+'</div>'
       +'<div style="font-size:11.5px;color:var(--muted2);margin-top:3px;">'+tr('Sin alertas activas esta semana.')+'</div></div>';
   }
-  if(sinAlerta.length){
+  if(sinAlerta.length&&F==='all'){
     body+='<div class="pnl-ok-hdr" onclick="togglePanelOk()">'
       +'<svg id="pnl-ok-chev" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;flex:none;"><path d="M9 18l6-6-6-6"/></svg>'
       +'<span>'+tr('Sin alertas')+' ('+sinAlerta.length+')</span></div>'
-      +'<div id="pnl-ok-body" style="display:none;">'+sinAlerta.map(function(x){return panelCard(x.p,[]);}).join('')+'</div>';
+      +'<div id="pnl-ok-body" class="pnl-grid" style="display:none;">'+sinAlerta.map(function(x,i){return panelCard(x.p,[],i);}).join('')+'</div>';
   }
   el.innerHTML=head+body;
   try{pdCountUpIn(el,'pnl',20);}catch(_e){}
@@ -10776,6 +10815,14 @@ STATIC_I18N["válidos"]=STATIC_I18N["válidos"]||["valid","validi"];
 STATIC_I18N["válidas"]=STATIC_I18N["válidas"]||["valid","valide"];
 STATIC_I18N["pérdida máx."]=STATIC_I18N["pérdida máx."]||["max loss","perdita max"];
 STATIC_I18N["piernas tapadas"]=["legs hidden","gambe coperte"];
+STATIC_I18N["Mostrando solo urgentes"]=STATIC_I18N["Mostrando solo urgentes"]||["Showing urgent only", "Solo urgenti"];
+STATIC_I18N["Mostrando solo alumnos con alerta"]=STATIC_I18N["Mostrando solo alumnos con alerta"]||["Showing athletes with alerts only", "Solo atleti con avvisi"];
+STATIC_I18N["Ver todos"]=STATIC_I18N["Ver todos"]||["See all", "Vedi tutti"];
+STATIC_I18N["más"]=STATIC_I18N["más"]||["more", "altri"];
+STATIC_I18N["quedan"]=STATIC_I18N["quedan"]||["left", "restano"];
+STATIC_I18N["Nadie en este grupo ahora."]=STATIC_I18N["Nadie en este grupo ahora."]||["Nobody in this group right now.", "Nessuno in questo gruppo ora."];
+STATIC_I18N["Ver"]=STATIC_I18N["Ver"]||["See", "Vedi"];
+
 STATIC_I18N["inclinación del tronco"]=STATIC_I18N["inclinación del tronco"]||["trunk inclination","inclinazione del busto"];
 STATIC_I18N["Teléfono <b>a la altura de la cadera</b> (no en el piso), a 3–4 m, <b>de costado</b>. Mide la <b>inclinación del tronco</b> en cada repetición y las cuenta. <b>De frente</b> mide el valgo (también a una pierna)."]=["Phone <b>at hip height</b> (not on the floor), 3–4 m away, <b>from the side</b>. It measures <b>trunk inclination</b> on each rep and counts them. <b>From the front</b> it measures valgus (also single-leg).","Telefono <b>all'altezza dell'anca</b> (non a terra), a 3–4 m, <b>di lato</b>. Misura l'<b>inclinazione del busto</b> in ogni ripetizione e le conta. <b>Di fronte</b> misura il valgo (anche su una gamba)."];
 STATIC_I18N["Cuenta principal de PDapp"]=STATIC_I18N["Cuenta principal de PDapp"]||["Main PDapp account", "Account principale di PDapp"];
