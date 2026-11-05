@@ -621,15 +621,16 @@ input[type="date"]::-webkit-date-and-time-value{text-align:center;}
 /* --- transiciones suaves --- */
 @keyframes pdScrIn{from{opacity:0}to{opacity:1}}
 @keyframes pdRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes pdPopIn{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes pdPopIn{from{opacity:0}to{opacity:1}}
 [id^="screen-"]{animation:pdScrIn .24s ease-out backwards;}
 [id^="screen-"]>header+div,[id^="screen-"]>.sub-tabs+div{animation:pdRise .3s cubic-bezier(.2,.8,.2,1) backwards;}
 .modal-overlay{opacity:0;transition:opacity .22s ease,display .22s allow-discrete;}
 .modal-overlay.open{opacity:1;}
 .modal-overlay:not(.open){pointer-events:none;}
-.modal-overlay>.modal{transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .22s ease;}
-.modal-overlay:not(.open)>.modal{transform:translateY(28px);opacity:.6;}
-@starting-style{.modal-overlay.open{opacity:0;}.modal-overlay.open>.modal{transform:translateY(28px);opacity:.6;}}
+/* se anima 'top' y no 'transform': en iPhone un transform deja el cursor de los campos corrido */
+.modal-overlay>.modal{position:relative;top:0;transition:top .3s cubic-bezier(.2,.8,.2,1),opacity .22s ease;}
+.modal-overlay:not(.open)>.modal{top:28px;opacity:.6;}
+@starting-style{.modal-overlay.open{opacity:0;}.modal-overlay.open>.modal{top:28px;opacity:.6;}}
 #pds-pop,#exmv-pop{animation:pdPopIn .16s ease-out;transform-origin:top center;}
 @media (prefers-reduced-motion:reduce){[id^="screen-"],[id^="screen-"]>header+div,[id^="screen-"]>.sub-tabs+div,#pds-pop,#exmv-pop{animation:none!important;}.modal-overlay,.modal-overlay>.modal{transition:none!important;}}
 .pick-ty{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}.pick-ty svg{width:20px;height:20px;}
@@ -2483,7 +2484,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261104-12';
+var APP_VERSION='20261105-1';
 (function(){
   try{
     setTimeout(function(){
