@@ -501,7 +501,9 @@ html.dragging-ex ::-moz-selection{background:transparent;}
 .sum-note-day{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--act);margin-bottom:3px;}
 .sum-empty{font-size:12px;color:var(--muted2);font-style:italic;}
 .sum-badge{font-family:Barlow Condensed,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.05em;padding:3px 9px;border-radius:4px;background:rgba(168,224,99,0.12);color:var(--mob);}
-.app-tabs{position:fixed;bottom:var(--vvb,0px);transform:translateZ(0);left:0;right:0;z-index:300;background:var(--veil);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));}
+html.kb-open .app-tabs{transform:translateY(130%)!important;opacity:0;pointer-events:none;}
+html.kb-open #sess-float,html.kb-open #pd-top,html.kb-open #demo-badge{opacity:0!important;pointer-events:none!important;}
+.app-tabs{transition:transform .22s ease,opacity .22s ease;position:fixed;bottom:var(--vvb,0px);transform:translateZ(0);left:0;right:0;z-index:300;background:var(--veil);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:6px 0 calc(6px + env(safe-area-inset-bottom));}
 .app-tabs.hidden{display:none;}
 .tabs-row{max-width:var(--cw);margin:0 auto;display:flex;}
 .atab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;}
@@ -2484,7 +2486,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261105-1';
+var APP_VERSION='20261105-2';
 (function(){
   try{
     setTimeout(function(){
@@ -14969,6 +14971,13 @@ function prRmRender(box,exk,vid){
       setTimeout(fix,450);}
   });
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(fix,200);});
+  /* Arreglo de fondo: mientras hay un campo de texto activo (teclado o barrita de atajos abierta) la barra de abajo
+     y los botones flotantes se esconden. Así iOS no puede dejarlos "colgados" en el medio al hacer scroll.
+     Al salir del campo vuelven solos. */
+  var KB_RE=/^(text|search|email|number|tel|url|password|date|time|datetime-local|month|week)$/i;
+  function isTxt(t){if(!t||!t.tagName)return false;if(t.tagName==='TEXTAREA'||t.isContentEditable)return true;if(t.tagName==='INPUT')return KB_RE.test(t.type||'text');return false;}
+  document.addEventListener('focusin',function(e){if(TOUCH&&isTxt(e.target))document.documentElement.classList.add('kb-open');});
+  document.addEventListener('focusout',function(){setTimeout(function(){if(!isTxt(document.activeElement)){document.documentElement.classList.remove('kb-open');fix();}},220);});
   document.addEventListener('click',function(e){var b=e.target&&e.target.closest&&e.target.closest('.modal-overlay button,.pd-mx');if(b)setTimeout(fix,350);},true);
   fix();
 })();
