@@ -1450,7 +1450,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 
     <div style="margin-top:32px;border-top:1px solid var(--border2);padding-top:24px;">
       <div style="margin:0 0 18px;"><div style="font-size:10px;color:var(--muted2);text-align:center;margin-bottom:14px;">PDapp v<span id="app-ver-lbl"></span></div>
-      <div id="lang-title" style="font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Idioma</div><div id="lang-sel-coach" style="display:flex;gap:8px;"></div></div>
+      <div id="lang-title" style="display:none;font-size:10px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Idioma</div><div id="lang-sel-coach" style="display:none;gap:8px;"></div></div>
       <button onclick="openTutorial(isCoach?'coach':'athlete')" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid var(--border2);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;margin-bottom:10px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Tutorial / Ayuda</button>
       <button onclick="logout()" style="width:100%;padding:13px;border-radius:var(--rsm);border:1px solid rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);color:#ff6b6b;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;">Cerrar sesi&#243;n</button>
     </div>
@@ -2493,7 +2493,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261106-4';
+var APP_VERSION='20261106-5';
 (function(){
   try{
     setTimeout(function(){
