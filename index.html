@@ -2493,7 +2493,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261106-2';
+var APP_VERSION='20261106-3';
 (function(){
   try{
     setTimeout(function(){
@@ -9121,13 +9121,22 @@ function runTimerDraw(){
       for(var i=0;i<pw.length;i++){var el=pw[i];if(!vis(el)){el.setAttribute('data-pw',el.getAttribute('autocomplete')||'1');el.type='text';el.setAttribute('autocomplete','off');el.value='';}}
       var back=document.querySelectorAll('input[data-pw]');
       for(var j=0;j<back.length;j++){var b=back[j];if(vis(b)){var ac=b.getAttribute('data-pw');b.type='password';if(ac&&ac!=='1')b.setAttribute('autocomplete',ac);else b.removeAttribute('autocomplete');b.removeAttribute('data-pw');}}
+      /* usuario/email escondidos (login, registro, recuperar): Safari los usa para ofrecer
+         "contraseña de este sitio" en el chat y otros casilleros. Mientras no se ven, pasan a texto común. */
+      var us=document.querySelectorAll('input[type="email"],input[autocomplete="username"],input[autocomplete="email"]');
+      for(var u=0;u<us.length;u++){var x=us[u];if(!vis(x)){x.setAttribute('data-us',(x.getAttribute('type')||'text')+'|'+(x.getAttribute('autocomplete')||''));x.type='text';x.setAttribute('autocomplete','off');}}
+      var ub=document.querySelectorAll('input[data-us]');
+      for(var w=0;w<ub.length;w++){var y=ub[w];if(vis(y)){var pr=y.getAttribute('data-us').split('|');y.type=pr[0]||'text';if(pr[1])y.setAttribute('autocomplete',pr[1]);else y.removeAttribute('autocomplete');y.removeAttribute('data-us');}}
+      var ti=document.querySelectorAll('input:not([autocomplete]):not([type="password"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"])');
+      for(var t=0;t<ti.length;t++)ti[t].setAttribute('autocomplete','off');
       var tf=document.querySelectorAll('textarea:not([autocomplete])');
       for(var k=0;k<tf.length;k++){tf[k].setAttribute('autocomplete','off');tf[k].setAttribute('autocorrect','on');tf[k].setAttribute('spellcheck','true');}
     }catch(e){}
   }
   ['touchstart','mousedown','focusin'].forEach(function(ev){document.addEventListener(ev,guard,true);});
   document.addEventListener('visibilitychange',guard);
-  setTimeout(guard,1500);setInterval(guard,5000);
+  guard();if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',guard);
+  window.pdPwGuard=guard;setTimeout(guard,300);setTimeout(guard,1500);setInterval(guard,4000);
 })();
 /* ===== GRUPOS: panel del plantel, disponibilidad, asistencia, rankings, metros por jugador e informe =====
    Datos nuevos en players: availability {s:'ok'|'lim'|'out', note, until, ts, by, hist[]} y
