@@ -2493,7 +2493,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261106-5';
+var APP_VERSION='20261107-1';
 (function(){
   try{
     setTimeout(function(){
@@ -2991,6 +2991,9 @@ function applyLang(){
   }
 }
 var __trBusy=false;
+/* Posiciones: algunas palabras chocan con otras pantallas (Pecho/Espalda en el mapa corporal = estilos de natación). */
+var POS_I18N={'Libre':['Freestyle','Stile libero'],'Pecho':['Breaststroke','Rana'],'Espalda':['Backstroke','Dorso'],'Mariposa':['Butterfly','Farfalla'],'Combinado':['Individual medley','Misti'],'Central':['Middle blocker','Centrale']};
+function trPos(x){if(LANG!=='es'&&x&&POS_I18N[x])return POS_I18N[x][LANG==='en'?0:1];return tr(x);}
 function tr(str){
   if(LANG==='es'||!str)return str;var _i=LANG==='en'?0:1;
   var k=String(str).trim();var v=STATIC_I18N[k];
@@ -3016,8 +3019,9 @@ function trStatic(root){
       }
     };
     var fixPh=function(el){var cur=(el.placeholder||'').trim();var v=STATIC_I18N[cur];if(v&&v[_i]!==cur)el.placeholder=v[_i];};
+    var fixAt=function(el){['title','aria-label'].forEach(function(a){var cur=(el.getAttribute(a)||'').trim();if(!cur)return;var v=STATIC_I18N[cur];if(v&&v[_i]&&v[_i]!==cur)el.setAttribute(a,v[_i]);});};
     try{if(root.matches&&root.matches(SEL))fix(root);}catch(e){}
-    if(root.querySelectorAll){root.querySelectorAll(SEL).forEach(fix);root.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(fixPh);}
+    if(root.querySelectorAll){root.querySelectorAll(SEL).forEach(fix);root.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(fixPh);root.querySelectorAll('[title],[aria-label]').forEach(fixAt);try{if(root.getAttribute)fixAt(root);}catch(e){}}
     /* Pantallas marcadas con .tr-all: se traduce cada nodo de texto de adentro.
        Necesario porque muchos textos viven en div/span sin clase y el selector
        de arriba no los alcanzaba (test diario, autoevaluación, ficha). */
@@ -4374,7 +4378,7 @@ function acDo(ok){var o=acOk,cc=acCancel;document.getElementById('modal-confirm'
 var miCallback=null;
 function askInput(title,defVal,onOk){
   miCallback=onOk;
-  document.getElementById('mi-title').textContent=title;
+  document.getElementById('mi-title').textContent=tr(title);
   var f=document.getElementById('mi-field');f.value=defVal||'';
   document.getElementById('modal-input').classList.add('open');
   setTimeout(function(){f.focus();f.select();},60);
@@ -4419,7 +4423,7 @@ function closeProgEdit(){
   document.getElementById('screen-programs').style.display='block';
   curProgram=null;renderPrograms();
 }
-var PROG_DAYS=['Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b','Dom'];
+var PROG_DAYS=[1,2,3,4,5,6,0].map(function(i){return DOW_ES[i];});
 function renderProgGrid(){
   var el=document.getElementById('pe-grid');if(!el||!curProgram)return;
   var html='';
@@ -4438,7 +4442,7 @@ function progCellTap(key){
   progPickTarget=key;
   var cell=curProgram.grid[key];
   if(cell){
-    askConfirm('Este d\u00eda ya tiene "'+cell.name+'". \u00bfQu\u00e9 quer\u00e9s hacer?',function(){
+    askConfirm(tr('Este día ya tiene')+' "'+cell.name+'". '+tr('¿Qué querés hacer?'),function(){
       delete curProgram.grid[key];saveProgram();renderProgGrid();
     },{okLabel:'Quitar sesi\u00f3n',cancelLabel:'Elegir otra',onCancel:function(){openProgSessionPicker();}});
     return;
@@ -4840,7 +4844,7 @@ async function loadProfes(){
       +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:17px;font-weight:700;">'+nm+tagSelf+'</div>'
       +'<div style="font-size:12px;color:var(--muted);margin-top:2px;word-break:break-all;">'+(t.email||'')+'</div>'
       +'<div style="margin-top:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'+estado
-      +'<span style="color:var(--muted2);font-size:11px;">'+(t.players_count||0)+'/'+(t.max_players||'-')+' alumnos</span>'
+      +'<span style="color:var(--muted2);font-size:11px;">'+(t.players_count||0)+'/'+(t.max_players||'-')+' '+tr('alumnos')+'</span>'
       +'<span style="color:var(--muted2);font-size:10px;">Alta: '+fecha+'</span></div>'
       +'</div>'+btn+'</div>';
   }).join('');
@@ -5169,7 +5173,7 @@ function togglePDBase(id){
 }
 function delTemplate(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
-  askConfirm('\u00bfEliminar "'+t.name+'" de Mis Sesiones?',function(){
+  askConfirm(tr('¿Eliminar')+' "'+t.name+'" '+tr('de Mis Sesiones?'),function(){
     sb.from('session_templates').delete().eq('id',id).then(function(r){
       if(r.error){showInfo('Error: '+r.error.message);return;}
       TEMPLATES=TEMPLATES.filter(function(x){return x.id!==id;});renderTemplates();
@@ -5431,7 +5435,7 @@ function pnlFilter(f){PNL_F=(PNL_F===f&&f!=='all')?'all':f;PNL_N=PNL_STEP;render
 function pnlMore(){PNL_N+=PNL_STEP;renderPanel();}
 function panelCard(p,al,idx){
   var av=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">'+ICON('people')+'</div>';
-  var meta=[tr(p.pos),p.club].filter(Boolean).join(' · ')||'';
+  var meta=[trPos(p.pos),p.club].filter(Boolean).join(' · ')||'';
   var chips=al.map(function(a){
     var c=PANEL_SEV[a.sev].c;
     return '<div class="pnl-al">'
@@ -5565,11 +5569,11 @@ function groupMembers(gid){return PLAYERS.filter(function(p){return p.group_id==
 function renderGroups(){
   var gv=document.getElementById('groups-view');if(!gv)return;
   if(openGroupId){renderGroupDetail(gv);return;}
-  var head='<button onclick="createGroup()" class="add-block-btn" style="margin-bottom:14px;">+ Crear grupo</button>';
+  var head='<button onclick="createGroup()" class="add-block-btn" style="margin-bottom:14px;">+ '+tr('Crear grupo')+'</button>';
   if(!GROUPS.length){gv.innerHTML=head+'<div class="empty-state"><p>Todav\u00eda no ten\u00e9s grupos. Cre\u00e1 el primero.</p></div>';return;}
   var cards=GROUPS.map(function(g){
     var n=groupMembers(g.id).length;
-    return '<div class="player-card" data-gid="'+g.id+'" onclick="openGroupDetail(this.dataset.gid)"><div class="player-card-inner"><div class="player-photo" style="font-size:22px;display:flex;align-items:center;justify-content:center;color:var(--mob);">'+ICON('people')+'</div><div style="flex:1;min-width:0;"><div class="player-name">'+g.name+'</div><div class="player-meta">'+n+' '+(n===1?'alumno':'alumnos')+'</div></div><span class="player-arrow">\u203a</span></div><div class="player-card-actions"><button class="pca-btn pca-edit" data-gid="'+g.id+'" onclick="event.stopPropagation();renameGroup(this.dataset.gid)">Renombrar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-gid="'+g.id+'" onclick="event.stopPropagation();deleteGroup(this.dataset.gid)">Eliminar</button></div></div>';
+    return '<div class="player-card" data-gid="'+g.id+'" onclick="openGroupDetail(this.dataset.gid)"><div class="player-card-inner"><div class="player-photo" style="font-size:22px;display:flex;align-items:center;justify-content:center;color:var(--mob);">'+ICON('people')+'</div><div style="flex:1;min-width:0;"><div class="player-name">'+g.name+'</div><div class="player-meta">'+n+' '+tr(n===1?'alumno':'alumnos')+'</div></div><span class="player-arrow">\u203a</span></div><div class="player-card-actions"><button class="pca-btn pca-edit" data-gid="'+g.id+'" onclick="event.stopPropagation();renameGroup(this.dataset.gid)">Renombrar</button><div class="pca-sep"></div><button class="pca-btn pca-del" data-gid="'+g.id+'" onclick="event.stopPropagation();deleteGroup(this.dataset.gid)">Eliminar</button></div></div>';
   }).join('');
   var ng=PLAYERS.filter(function(p){return !p.group_id;}).length;
   var foot=ng?'<div style="text-align:center;color:var(--muted2);font-size:12px;margin-top:12px;">'+ng+' '+tr(ng!==1?'alumnos sin grupo':'alumno sin grupo')+'</div>':'';
@@ -5619,7 +5623,7 @@ function renameGroup(id){
 }
 function deleteGroup(id){
   var g=GROUPS.find(function(x){return x.id===id;});if(!g)return;
-  askConfirm('\u00bfEliminar el grupo "'+g.name+'"? Los alumnos NO se borran, solo quedan sin grupo.',function(){
+  askConfirm(tr('¿Eliminar el grupo')+' "'+g.name+'"? '+tr('Los alumnos NO se borran, solo quedan sin grupo.'),function(){
     showSyncStatus('saving');
     sb.from('groups').delete().eq('id',id).then(function(r){
       if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
@@ -5842,12 +5846,12 @@ function renderSelect(){
 function renderPlayerCard(p){
   {
     var av=p.photo?'<div class="player-photo"><img src="'+p.photo+'"/></div>':'<div class="player-photo">\ud83d\udc64</div>';
-    var meta=[tr(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
+    var meta=[trPos(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
     if(activePid&&activePid!==p.id&&!isCoach){return '<div class="player-card-locked"><div class="player-card-inner">'+av+'<div style="flex:1"><div class="player-name">'+p.name+'</div><div class="player-meta">'+meta+'</div></div><span style="font-size:16px">\ud83d\udd12</span></div></div>';}
     var pinBadge=isCoach&&p.pin?'<div class="player-pin-badge">PIN: '+p.pin.replace(/./g,'\u25cf')+'</div>':'';
     var strip=isCoach?getWeekStrip(p.id):'';
     var todayW=isCoach?(p.wellness||{})[isoToday()]:null;
-    var wDot=todayW?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+(todayW.pain?'#ff7043':'var(--mob)')+';margin-left:6px;vertical-align:middle;" title="Check-in hoy"></span>':'';
+    var wDot=todayW?'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+(todayW.pain?'#ff7043':'var(--mob)')+';margin-left:6px;vertical-align:middle;" title="'+tr('Check-in hoy')+'"></span>':'';
     var todaySess=isCoach?getTodaySession(p.id):null;
     var adh=isCoach?getAdherence(p.id):null;
     var adhColor=adh?(adh.pct>=80?'var(--mobfill)':(adh.pct>=50?'var(--actfill)':'#ff7043')):'';
@@ -5879,7 +5883,7 @@ function doSelectPlayer(pid){
   var av=document.getElementById('welcome-av');
   av.innerHTML=p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';
   document.getElementById('welcome-name').textContent=p.name;
-  var sub=[tr(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
+  var sub=[trPos(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
   document.getElementById('welcome-sub').textContent=sub;
   var ws=document.getElementById('screen-welcome');ws.classList.remove('gone','hidden');
   var wb=document.getElementById('wl-back');if(wb)wb.style.display=(isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN))?'flex':'none';
@@ -6011,7 +6015,7 @@ function wlHome(p){
   var av=p.photo?'<img src="'+p.photo+'" style="width:100%;height:100%;object-fit:cover;"/>':'<span>'+wlEsc((String(p.name||'?').split(/\s+/).map(function(w){return w.charAt(0);}).join('').slice(0,2)).toUpperCase())+'</span>';
   var stk=getStreak(pid);
   var stkH=stk>=2?'<span style="flex:none;display:inline-flex;align-items:center;gap:4px;background:rgba(168,224,99,0.12);border:1px solid var(--mob);color:var(--mob);border-radius:20px;padding:4px 10px;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:800;" title="'+wlEsc(stk+' '+TT('enRacha'))+'">🔥 '+stk+'</span>':'';
-  var sub=[tr(p.pos),p.club].filter(Boolean).join(' · ');
+  var sub=[trPos(p.pos),p.club].filter(Boolean).join(' · ');
   var _wbv=isCoach||(!ONLY_PLAYER_ID&&!ATH_TOKEN);document.getElementById('wl-head').innerHTML='<div style="display:flex;align-items:center;gap:12px;text-align:left;margin:'+(_wbv?'44px':'0')+' auto 16px;padding-right:46px;">'
     +'<div style="width:54px;height:54px;border-radius:50%;border:2.5px solid var(--mob);background:var(--s2);overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:19px;color:var(--text);">'+av+'</div>'
     +'<div style="flex:1;min-width:0;"><div style="font-size:12.5px;color:var(--muted);">'+wlEsc(dtxt)+'</div>'
@@ -6164,7 +6168,7 @@ function wlPickSport(){
     +'<div style="display:flex;gap:10px;"><button class="mbtn mbtn-cancel" onclick="document.getElementById(\'sport-pick\').classList.remove(\'open\')">'+tr('Después')+'</button><button class="mbtn mbtn-save" id="sp-save" style="background:var(--mobfill)!important;" onclick="wlSaveSport()">'+tr('Guardar')+'</button></div></div>';
   var ss=document.getElementById('sp-sport');
   ss.onchange=function(){var v=ss.value,w=document.getElementById('sp-pos-wrap'),ps=document.getElementById('sp-pos');
-    if(v&&v!=='wellness'&&SPORT_POSITIONS[v]){ps.innerHTML='<option value="">'+tr('Sin posición')+'</option>'+SPORT_POSITIONS[v].map(function(x){return '<option value="'+x+'">'+tr(x)+'</option>';}).join('');w.style.display='';}else{ps.innerHTML='';w.style.display='none';}};
+    if(v&&v!=='wellness'&&SPORT_POSITIONS[v]){ps.innerHTML='<option value="">'+tr('Sin posición')+'</option>'+SPORT_POSITIONS[v].map(function(x){return '<option value="'+x+'">'+trPos(x)+'</option>';}).join('');w.style.display='';}else{ps.innerHTML='';w.style.display='none';}};
   o.classList.add('open');
 }
 async function wlSaveSport(){
@@ -6409,7 +6413,7 @@ async function checkAthletePin(){
 function checkPlayerPin(){if(ATH_TOKEN){checkAthletePin();return;}var p=PLAYERS.find(function(x){return x.id===pendingSelectPid;});var stored=p?String(p.pin||'').trim():'';var entered=String(playerPinBuffer).trim();if(p&&stored===entered&&entered.length===4){var pid=pendingSelectPid;closePlayerPinModal();doSelectPlayer(pid);}else{for(var i=0;i<4;i++)document.getElementById('ppd'+i).classList.add('error');var box=document.getElementById('player-pin-box');box.classList.add('pin-shake');setTimeout(function(){box.classList.remove('pin-shake');playerPinBuffer='';updatePlayerPinDots();},450);}}
 
 // \u2500\u2500 PLAYER MODAL \u2500\u2500
-function openPlayerModal(id){if(!id&&!isAdmin){var _max=(MY_PROFILE&&MY_PROFILE.max_players)||5;if(PLAYERS.length>=_max){showInfo('Llegaste al l\u00edmite de tu plan ('+_max+' alumno'+(_max>1?'s':'')+').\n\nMejor\u00e1 tu plan para sumar m\u00e1s alumnos.');return;}}editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=tr(p?'Editar Alumno':'Nuevo Alumno');document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';var _q=p&&p.questionnaire?p.questionnaire:null;document.getElementById('f-psport').value=_q&&_q.sport?_q.sport:'';updatePSportPositions();if(_q&&_q.position)document.getElementById('f-pposition').value=_q.position;document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';renderTestsPicker(p);document.getElementById('modal-player').classList.add('open');}
+function openPlayerModal(id){if(!id&&!isAdmin){var _max=(MY_PROFILE&&MY_PROFILE.max_players)||5;if(PLAYERS.length>=_max){showInfo(tr('Llegaste al límite de tu plan')+' ('+_max+' '+tr(_max>1?'alumnos':'alumno')+').\n\n'+tr('Mejorá tu plan para sumar más alumnos.'));return;}}editingPlayerId=id||null;pendingPhotoData=null;var p=id?PLAYERS.find(function(x){return x.id===id;}):null;document.getElementById('modal-player-title').textContent=tr(p?'Editar Alumno':'Nuevo Alumno');document.getElementById('f-pname').value=p?p.name:'';document.getElementById('f-pclub').value=p?(p.club||''):'';var _q=p&&p.questionnaire?p.questionnaire:null;document.getElementById('f-psport').value=_q&&_q.sport?_q.sport:'';updatePSportPositions();if(_q&&_q.position)document.getElementById('f-pposition').value=_q.position;document.getElementById('f-ppin').value=p?(String(p.pin||'')):'';document.getElementById('f-pstart').value=p&&p.startDate?p.startDate:'';var prev=document.getElementById('av-preview');prev.innerHTML=p&&p.photo?'<img src="'+p.photo+'"/>':'\ud83d\udc64';if(p&&p.photo)pendingPhotoData=p.photo;var urlField=document.getElementById('f-pphotourl');if(urlField)urlField.value=(p&&p.photo&&p.photo.indexOf('http')===0)?p.photo:'';renderTestsPicker(p);document.getElementById('modal-player').classList.add('open');}
 function closePlayerModal(){document.getElementById('modal-player').classList.remove('open');editingPlayerId=null;pendingPhotoData=null;}
 function editPlayer(id){openPlayerModal(id);}
 function delPlayer(id){
@@ -6462,7 +6466,7 @@ function updatePSportPositions(){
   var clubWrap=document.getElementById('f-pclub-wrap');
   if(clubWrap)clubWrap.style.display=sport?'':'none';
   if(sport&&sport!=='wellness'&&SPORT_POSITIONS[sport]){
-    sel.innerHTML='<option value="">'+tr('Seleccioná...')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+tr(pos)+'</option>';}).join('');
+    sel.innerHTML='<option value="">'+tr('Seleccioná...')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+trPos(pos)+'</option>';}).join('');
     wrap.style.display='';
   }else{sel.innerHTML='<option value="">Seleccion\u00e1...</option>';wrap.style.display='none';}
 }
@@ -6666,7 +6670,7 @@ function volTrendHtml(pid,maxes){
   var anyKg=recent.some(function(x){return x.v.kgKnown&&x.v.kg>0;});
   var delta='';
   if(prev&&prev.kg>0&&last.kgKnown){var d=last.kg-prev.kg;var pc=Math.round(d/prev.kg*100);delta=' <span style="color:'+(d>=0?'var(--mob)':'var(--fza)')+';font-size:11px;">('+(d>=0?'+':'')+pc+'%)</span>';}
-  var head='<div style="font-size:12.5px;color:var(--text);margin:2px 0 8px;">'+tr('Esta semana')+': <b style="color:var(--mob);">'+(last.kgKnown?_pnum(last.kg)+' kg':'\u2014')+'</b>'+delta+' <span style="color:var(--muted2);font-size:11px;">\u00b7 '+last.sets+' series \u00b7 '+_pnum(last.reps)+' reps</span></div>';
+  var head='<div style="font-size:12.5px;color:var(--text);margin:2px 0 8px;">'+tr('Esta semana')+': <b style="color:var(--mob);">'+(last.kgKnown?_pnum(last.kg)+' kg':'\u2014')+'</b>'+delta+' <span style="color:var(--muted2);font-size:11px;">\u00b7 '+last.sets+' '+tr('series')+' \u00b7 '+_pnum(last.reps)+' reps</span></div>';
   var bars=recent.map(function(x){
     var kg=x.v.kg;var hgt=maxKg>0?Math.max(3,Math.round(kg/maxKg*54)):3;var d=isoToDate(x.w);
     return '<div style="width:40px;flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="font-size:8px;color:var(--muted2);white-space:nowrap;">'+(kg>0?_pnum(kg):'')+'</div><div style="width:22px;height:'+hgt+'px;background:var(--mobfill);border-radius:3px 3px 0 0;opacity:'+(kg>0?1:0.25)+';"></div><div style="font-size:8px;color:var(--muted2);white-space:nowrap;">'+d.getDate()+'/'+(d.getMonth()+1)+'</div></div>';
@@ -6887,7 +6891,7 @@ function renderPlan(){
   } else if(!sess&&!isCoach){
     body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">'+t('diaLibre')+'</div><div class="hero-pat">'+t('sinEntreno')+'</div></div>';
   } else if(!sess&&isCoach){
-    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">Día libre</div><div class="hero-pat">Sin entrenamiento asignado</div></div><div style="max-width:var(--cw);margin:18px auto 0;padding:0 13px;"><button onclick="createTraining()" style="width:100%;padding:16px;border-radius:var(--r);border:2px dashed var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">+ Crear entrenamiento</button></div>';
+    body='<div class="hero hero-w1"><div class="hero-over" style="color:var(--mob)">'+fmtDateLong(curDate)+'</div><div class="hero-title">'+tr('Día libre')+'</div><div class="hero-pat">'+tr('Sin entrenamiento asignado')+'</div></div><div style="max-width:var(--cw);margin:18px auto 0;padding:0 13px;"><button onclick="createTraining()" style="width:100%;padding:16px;border-radius:var(--r);border:2px dashed var(--mob);background:rgba(168,224,99,0.06);color:var(--mob);font-family:Barlow Condensed,sans-serif;font-size:16px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">+ '+tr('Crear entrenamiento')+'</button></div>';
   } else {
     var te=isCoach?' style="cursor:pointer" ondblclick="editSessionTitle()" title="Doble toque para renombrar"':'';
     var stkP=(!isCoach)?getStreak(currentPlayerId):0;
@@ -7560,7 +7564,7 @@ var pickSelected={};
 function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return patMatch(e,pickPattern);});if(pickSearch){var _q=pickSearch.trim().toLowerCase();if(_q)items=items.filter(function(e){return (e.name||'').toLowerCase().indexOf(_q)!==-1;});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mobfill);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';var _th=e.link?mediaThumbHtml(e.link,e.img,'pick-thumb'):(e.img?'<img class="pick-thumb" src="'+e.img+'" loading="lazy" />':'');var tw=_th?'<button class="pick-tw" data-lid="'+e.id+'" onclick="event.stopPropagation();pickPreview(this.dataset.lid)" title="'+tr('Ver video')+'">'+_th+(e.link?'<span class="pick-play"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</button>':'<div class="pick-tw pick-tw-empty"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-ty" style="color:var(--'+e.type+')">'+(BICONS[e.type]&&e.type!=='gen'?BICONS[e.type]:'')+'</div>'+tw+'<div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
 function pickPreview(id){var ex=LIB.find(function(x){return x.id===id;});if(!ex)return;if(ex.link)openVideoModal(ex.link,ex.name);}
 function togglePickSel(id){if(pickSelected[id])delete pickSelected[id];else pickSelected[id]=true;renderPickList();}
-function updatePickBtn(){var n=Object.keys(pickSelected).length;var b=document.getElementById('pick-add-btn');if(!b)return;b.textContent='Agregar ('+n+')';if(n){b.style.background='var(--mobfill)';b.style.color='#0a0b0e';}else{b.style.background='var(--border2)';b.style.color='var(--muted2)';}}
+function updatePickBtn(){var n=Object.keys(pickSelected).length;var b=document.getElementById('pick-add-btn');if(!b)return;b.textContent=tr('Agregar')+' ('+n+')';if(n){b.style.background='var(--mobfill)';b.style.color='#0a0b0e';}else{b.style.background='var(--border2)';b.style.color='var(--muted2)';}}
 function addSelectedFromLib(){
   if(!pickTarget||!currentPlayerId)return;
   var ids=Object.keys(pickSelected);if(!ids.length)return;
@@ -7811,11 +7815,11 @@ function updateDupInfo(){
   var el=document.getElementById('dup-info');var lbl=document.getElementById('dup-date-label');
   if(dupMode==='semana'){
     var ms=weekMondayISO(curDate),me=addDaysISO(ms,6);
-    el.textContent='Copiando la semana '+fmtDateShort(ms)+' \u2013 '+fmtDateShort(me)+' (solo los d\u00edas con entreno).';
+    el.textContent=tr('Copiando la semana')+' '+fmtDateShort(ms)+' \u2013 '+fmtDateShort(me)+' ('+tr('solo los días con entreno')+').';
     if(lbl)lbl.textContent='Semana destino (eleg\u00ed cualquier d\u00eda de esa semana)';
   }else{
     var sObj=getCurSession(false);
-    el.textContent=tr('Copiando:')+' '+fmtDateLong(curDate)+((tkTurn(curDate)>1||dayTurns(currentPlayerId,curDate).length>1)?' · '+tkLabel(curDate):'')+' \u2014 '+((sObj&&sObj.title)||'(d\u00eda vac\u00edo)');
+    el.textContent=tr('Copiando:')+' '+fmtDateLong(curDate)+((tkTurn(curDate)>1||dayTurns(currentPlayerId,curDate).length>1)?' · '+tkLabel(curDate):'')+' \u2014 '+((sObj&&sObj.title)||tr('(día vacío)'));
     if(lbl)lbl.textContent='Fecha destino';
   }
 }
@@ -7879,7 +7883,7 @@ function _execDuplicate(){
     var srcMon=weekMondayISO(curDate),tgtMon=weekMondayISO(tgtDate),copied=dupWeek(currentPlayerId,tgtPid,srcMon,tgtMon);
     if(!copied){showInfo('Esta semana no tiene entrenamientos para copiar.');return;}
     saveSessions(tgtPid);closeDuplicateModal();
-    toast(tr('Semana copiada a')+' '+pname+' ('+copied+' d\u00eda'+(copied>1?'s':'')+') \u00b7 semana del '+fmtDateShort(tgtMon));
+    toast(tr('Semana copiada a')+' '+pname+' ('+copied+' '+tr(copied>1?'días':'Día').toLowerCase()+') \u00b7 '+tr('Semana del').toLowerCase()+' '+fmtDateShort(tgtMon));
   }else{
     var d=srcSs[curDate];
     if(!d||!d.blocks||!d.blocks.length){showInfo('Este d\u00eda no tiene entrenamiento para duplicar.');return;}
@@ -9847,7 +9851,7 @@ function buildPlayerReport(pid){
   var S=[];
 
   // ── Encabezado
-  var meta=[tr(p.pos),p.club].filter(Boolean).join(' · ');
+  var meta=[trPos(p.pos),p.club].filter(Boolean).join(' · ');
   S.push('<header><div class="who"><h1>'+_rpEsc(p.name)+'</h1>'
     +(meta?'<div class="sub">'+_rpEsc(meta)+'</div>':'')
     +'<div class="sub">'+tr('Informe generado el')+' '+fecha+'</div></div>'
@@ -10239,8 +10243,8 @@ STATIC_I18N["Alero"]=STATIC_I18N["Alero"]||["Small forward", "Ala piccola"];
 STATIC_I18N["Ala-Pívot"]=STATIC_I18N["Ala-Pívot"]||["Power forward", "Ala grande"];
 STATIC_I18N["Pívot"]=STATIC_I18N["Pívot"]||["Center", "Centro"];
 STATIC_I18N["Libre"]=STATIC_I18N["Libre"]||["Freestyle", "Stile libero"];
-STATIC_I18N["Pecho"]=STATIC_I18N["Pecho"]||["Breaststroke", "Rana"];
-STATIC_I18N["Espalda"]=STATIC_I18N["Espalda"]||["Backstroke", "Dorso"];
+STATIC_I18N["Pecho"]=["Chest","Petto"];
+STATIC_I18N["Espalda"]=["Back","Schiena"];
 STATIC_I18N["Mariposa"]=STATIC_I18N["Mariposa"]||["Butterfly", "Farfalla"];
 STATIC_I18N["Combinado"]=STATIC_I18N["Combinado"]||["Individual medley", "Misti"];
 STATIC_I18N["Armador"]=STATIC_I18N["Armador"]||["Setter", "Palleggiatore"];
@@ -12676,7 +12680,7 @@ function renderSummary(){
   if(!LIST.length){document.getElementById('summary-content').innerHTML='<div class="empty-state"><div class="emi"><svg viewBox=\"0 0 24 24\" width=\"34\" height=\"34\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3v18h18\"/><path d=\"M7 15l4-4 3 3 6-7\"/></svg></div><p>No hay alumnos.</p></div>';return;}
   var html=LIST.map(function(p){
     var avH=p.photo?'<div class="sum-av"><img src="'+p.photo+'"/></div>':'<div class="sum-av">\ud83d\udc64</div>';
-    var meta=[tr(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
+    var meta=[trPos(p.pos),p.club].filter(Boolean).join(' \u00b7 ')||'';
     var ss=JB_SESSIONS[p.id]||{};
     var checks=JB_CHECKS[p.id]||{};
     var byDate={};
@@ -12813,7 +12817,7 @@ function updateSportPositions(){
   var wrap=document.getElementById('q-pos-wrap');
   var sel=document.getElementById('q-position');
   if(sport&&sport!=='wellness'&&SPORT_POSITIONS[sport]){
-    sel.innerHTML='<option value="">'+tr('Seleccioná tu posición...')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+tr(pos)+'</option>';}).join('');
+    sel.innerHTML='<option value="">'+tr('Seleccioná tu posición...')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+trPos(pos)+'</option>';}).join('');
     wrap.style.display='';
   }else{sel.innerHTML='';wrap.style.display='none';}
 }
@@ -13019,7 +13023,7 @@ function updateFichaPositions(){
   var wrap=document.getElementById('f-q-pos-wrap');
   var sel=document.getElementById('f-q-position');
   if(sport&&sport!=='wellness'&&SPORT_POSITIONS[sport]){
-    sel.innerHTML='<option value="">'+tr('Sin posición')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+tr(pos)+'</option>';}).join('');
+    sel.innerHTML='<option value="">'+tr('Sin posición')+'</option>'+SPORT_POSITIONS[sport].map(function(pos){return '<option value="'+pos+'">'+trPos(pos)+'</option>';}).join('');
     wrap.style.display='';
   }else{sel.innerHTML='';wrap.style.display='none';}
 }
@@ -13101,6 +13105,98 @@ function copyInviteCode(code,btn){
 }
 // ── FIN INVITE MANAGER ────────────────────────────────────────────
 
+/* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Parado de lado a una pared, marcá tu alcance máximo con el brazo estirado. Después saltá con contramovimiento (bajás y subís rápido) y marcá el punto más alto. El resultado es la diferencia."]=STATIC_I18N["Parado de lado a una pared, marcá tu alcance máximo con el brazo estirado. Después saltá con contramovimiento (bajás y subís rápido) y marcá el punto más alto. El resultado es la diferencia."]||["Stand side-on to a wall and mark your highest reach with your arm extended. Then do a countermovement jump (dip down and up fast) and mark the highest point. The result is the difference.", "Di lato a un muro, segna la tua estensione massima con il braccio teso. Poi salta con contromovimento (scendi e risali veloce) e segna il punto più alto. Il risultato è la differenza."];
+STATIC_I18N["Acostado boca arriba, subí una pierna estirada lo más alto posible manteniendo la otra apoyada y la rodilla estirada. Medí el ángulo con la app de nivel del celular apoyada en el muslo (o sacate una foto de perfil)."]=STATIC_I18N["Acostado boca arriba, subí una pierna estirada lo más alto posible manteniendo la otra apoyada y la rodilla estirada. Medí el ángulo con la app de nivel del celular apoyada en el muslo (o sacate una foto de perfil)."]||["Lying on your back, raise one straight leg as high as you can while keeping the other one on the floor with the knee straight. Measure the angle with a level app on your phone resting on the thigh (or take a side photo).", "Sdraiato sulla schiena, solleva una gamba tesa il più in alto possibile tenendo l’altra appoggiata con il ginocchio teso. Misura l’angolo con un’app livella sul telefono appoggiato sulla coscia (o fatti una foto di profilo)."];
+STATIC_I18N["Día libre"]=STATIC_I18N["Día libre"]||["Rest day", "Giorno libero"];
+STATIC_I18N["Crear grupo"]=STATIC_I18N["Crear grupo"]||["Create group", "Crea gruppo"];
+STATIC_I18N["+ Crear grupo"]=STATIC_I18N["+ Crear grupo"]||["+ Create group", "+ Crea gruppo"];
+STATIC_I18N["+ Crear entrenamiento"]=STATIC_I18N["+ Crear entrenamiento"]||["+ Create workout", "+ Crea allenamento"];
+STATIC_I18N["Check-in hoy"]=STATIC_I18N["Check-in hoy"]||["Check-in today", "Check-in oggi"];
+STATIC_I18N["(día vacío)"]=STATIC_I18N["(día vacío)"]||["(empty day)", "(giorno vuoto)"];
+STATIC_I18N["Agregar"]=STATIC_I18N["Agregar"]||["Add", "Aggiungi"];
+STATIC_I18N["Nombre del programa (ej: Pretemporada 4 semanas)"]=STATIC_I18N["Nombre del programa (ej: Pretemporada 4 semanas)"]||["Program name (e.g.: 4-week preseason)", "Nome del programma (es: Preparazione 4 settimane)"];
+STATIC_I18N["Este día ya tiene"]=STATIC_I18N["Este día ya tiene"]||["This day already has", "Questo giorno ha già"];
+STATIC_I18N["¿Qué querés hacer?"]=STATIC_I18N["¿Qué querés hacer?"]||["What do you want to do?", "Cosa vuoi fare?"];
+STATIC_I18N["¿Eliminar"]=STATIC_I18N["¿Eliminar"]||["Delete", "Eliminare"];
+STATIC_I18N["de Mis Sesiones?"]=STATIC_I18N["de Mis Sesiones?"]||["from My Sessions?", "da Le mie sessioni?"];
+STATIC_I18N["¿Eliminar el grupo"]=STATIC_I18N["¿Eliminar el grupo"]||["Delete the group", "Eliminare il gruppo"];
+STATIC_I18N["Los alumnos NO se borran, solo quedan sin grupo."]=STATIC_I18N["Los alumnos NO se borran, solo quedan sin grupo."]||["Athletes are NOT deleted, they just stay without a group.", "Gli atleti NON vengono eliminati, restano solo senza gruppo."];
+STATIC_I18N["Llegaste al límite de tu plan"]=STATIC_I18N["Llegaste al límite de tu plan"]||["You’ve reached your plan limit", "Hai raggiunto il limite del tuo piano"];
+STATIC_I18N["Mejorá tu plan para sumar más alumnos."]=STATIC_I18N["Mejorá tu plan para sumar más alumnos."]||["Upgrade your plan to add more athletes.", "Passa a un piano superiore per aggiungere altri atleti."];
+STATIC_I18N["solo los días con entreno"]=STATIC_I18N["solo los días con entreno"]||["only days with a workout", "solo i giorni con allenamento"];
+STATIC_I18N["Copiando la semana"]=STATIC_I18N["Copiando la semana"]||["Copying week", "Copia della settimana"];
+STATIC_I18N["Saltos"]=STATIC_I18N["Saltos"]||["Jumps", "Salti"];
+STATIC_I18N["Columna"]=STATIC_I18N["Columna"]||["Spine", "Colonna"];
+STATIC_I18N["Cadera"]=STATIC_I18N["Cadera"]||["Hip", "Anca"];
+STATIC_I18N["Tobillo"]=STATIC_I18N["Tobillo"]||["Ankle", "Caviglia"];
+STATIC_I18N["Hombros"]=STATIC_I18N["Hombros"]||["Shoulders", "Spalle"];
+STATIC_I18N["Dorsal"]=STATIC_I18N["Dorsal"]||["Lats", "Dorsali"];
+STATIC_I18N["Isquios"]=STATIC_I18N["Isquios"]||["Hamstrings", "Ischiocrurali"];
+STATIC_I18N["Glúteos"]=STATIC_I18N["Glúteos"]||["Glutes", "Glutei"];
+STATIC_I18N["Abductores"]=STATIC_I18N["Abductores"]||["Abductors", "Abduttori"];
+STATIC_I18N["Cuádriceps"]=STATIC_I18N["Cuádriceps"]||["Quads", "Quadricipiti"];
+STATIC_I18N["Gemelo / Sóleo"]=STATIC_I18N["Gemelo / Sóleo"]||["Calf / Soleus", "Polpaccio / Soleo"];
+STATIC_I18N["Pectoral"]=STATIC_I18N["Pectoral"]||["Chest", "Pettorali"];
+STATIC_I18N["Psoas"]=STATIC_I18N["Psoas"]||["Psoas", "Psoas"];
+STATIC_I18N["Flexor de cadera"]=STATIC_I18N["Flexor de cadera"]||["Hip flexor", "Flessori dell’anca"];
+STATIC_I18N["Anti extensión"]=STATIC_I18N["Anti extensión"]||["Anti-extension", "Anti-estensione"];
+STATIC_I18N["Anti flexión"]=STATIC_I18N["Anti flexión"]||["Anti-flexion", "Anti-flessione"];
+STATIC_I18N["Anti flexión lateral"]=STATIC_I18N["Anti flexión lateral"]||["Anti-lateral flexion", "Anti-flessione laterale"];
+STATIC_I18N["Anti rotación"]=STATIC_I18N["Anti rotación"]||["Anti-rotation", "Anti-rotazione"];
+STATIC_I18N["Dominante tobillo · Bi"]=STATIC_I18N["Dominante tobillo · Bi"]||["Ankle dominant · Bi", "Dominante caviglia · Bi"];
+STATIC_I18N["Dominante tobillo · Uni"]=STATIC_I18N["Dominante tobillo · Uni"]||["Ankle dominant · Uni", "Dominante caviglia · Uni"];
+STATIC_I18N["Tracción horizontal · Bi"]=STATIC_I18N["Tracción horizontal · Bi"]||["Horizontal pull · Bi", "Trazione orizzontale · Bi"];
+STATIC_I18N["Tracción horizontal · Uni"]=STATIC_I18N["Tracción horizontal · Uni"]||["Horizontal pull · Uni", "Trazione orizzontale · Uni"];
+STATIC_I18N["Tracción vertical · Bi"]=STATIC_I18N["Tracción vertical · Bi"]||["Vertical pull · Bi", "Trazione verticale · Bi"];
+STATIC_I18N["Tracción vertical · Uni"]=STATIC_I18N["Tracción vertical · Uni"]||["Vertical pull · Uni", "Trazione verticale · Uni"];
+STATIC_I18N["Fartlek"]=STATIC_I18N["Fartlek"]||["Fartlek", "Fartlek"];
+STATIC_I18N["Salto 1 pierna"]=["Single-leg jump", "Salto su una gamba"];
+STATIC_I18N["Salto 2 piernas"]=["Double-leg jump", "Salto a due gambe"];
+STATIC_I18N["der."]=["R", "dx"];
+STATIC_I18N["Fuerte"]=["Severe", "Forte"];
+STATIC_I18N["fuerte"]=["severe", "forte"];
+STATIC_I18N["fuerte, hoy"]=["severe, today", "forte, oggi"];
+STATIC_I18N["Molestia fuerte"]=["Severe pain", "Dolore forte"];
+STATIC_I18N["Molestia fuerte hoy"]=["Severe pain today", "Dolore forte oggi"];
+STATIC_I18N["Reportaste una molestia fuerte"]=["You reported severe pain", "Hai segnalato un dolore forte"];
+STATIC_I18N["Molestia fuerte hoy: todavía no eligió sesión"]=["Severe pain today: no session chosen yet", "Dolore forte oggi: sessione non ancora scelta"];
+STATIC_I18N["Molestia fuerte hoy: elegí su sesión"]=["Severe pain today: choose their session", "Dolore forte oggi: scegli la sessione"];
+STATIC_I18N["Cortá la serie si pierde"]=["Stop the set if it drops", "Ferma la serie se perde"];
+STATIC_I18N["El alumno puede medirse el RM solo"]=["The athlete can measure their 1RM alone", "L’atleta può misurarsi l’1RM da solo"];
+STATIC_I18N["Cambiá el peso y repetí con cada carga. Al final, <b>Detener</b> para ver el RM estimado."]=["Change the weight and repeat for each load. At the end, <b>Stop</b> to see the estimated 1RM.", "Cambia il peso e ripeti per ogni carico. Alla fine, <b>Ferma</b> per vedere l’1RM stimato."];
+STATIC_I18N["Ej: Profe Martín"]=["E.g.: Coach Martín", "Es: Coach Martino"];
+STATIC_I18N["Cargá el 1RM de los ejercicios principales. La app usa esto para convertir los % en kg y calcular el tonelaje automáticamente."]=["Enter the 1RM for the main exercises. The app uses this to convert % into kg and calculate tonnage automatically.", "Inserisci l’1RM degli esercizi principali. L’app lo usa per convertire le % in kg e calcolare il tonnellaggio automaticamente."];
+STATIC_I18N["Glúteo medio izq."]=["Left glute med", "Gluteo medio sinistro"];
+STATIC_I18N["Glúteo medio der."]=["Right glute med", "Gluteo medio destro"];
+STATIC_I18N["Deltoides post. izq."]=["Left rear deltoid", "Deltoide post. sx"];
+STATIC_I18N["Deltoides post. der."]=["Right rear deltoid", "Deltoide post. dx"];
+STATIC_I18N["Pectoral mayor izq."]=["Left pec major", "Gran pettorale sx"];
+STATIC_I18N["Pectoral mayor der."]=["Right pec major", "Gran pettorale dx"];
+STATIC_I18N["Deltoides ant. izq."]=["Left front deltoid", "Deltoide ant. sx"];
+STATIC_I18N["Deltoides ant. der."]=["Right front deltoid", "Deltoide ant. dx"];
+STATIC_I18N["Recto femoral izq."]=["Left rectus femoris", "Retto femorale sx"];
+STATIC_I18N["Recto femoral der."]=["Right rectus femoris", "Retto femorale dx"];
+STATIC_I18N["Vasto externo izq."]=["Left vastus lateralis", "Vasto laterale sx"];
+STATIC_I18N["Vasto externo der."]=["Right vastus lateralis", "Vasto laterale dx"];
+STATIC_I18N["Vasto interno izq."]=["Left vastus medialis", "Vasto mediale sx"];
+STATIC_I18N["Vasto interno der."]=["Right vastus medialis", "Vasto mediale dx"];
+STATIC_I18N["Semitendinoso izq."]=["Left semitendinosus", "Semitendinoso sx"];
+STATIC_I18N["Semitendinoso der."]=["Right semitendinosus", "Semitendinoso dx"];
+STATIC_I18N["Tibial ant. izq."]=["Left tibialis anterior", "Tibiale ant. sx"];
+STATIC_I18N["Tibial ant. der."]=["Right tibialis anterior", "Tibiale ant. dx"];
+STATIC_I18N["Antebrazo izq."]=["Left forearm", "Avambraccio sx"];
+STATIC_I18N["Antebrazo der."]=["Right forearm", "Avambraccio dx"];
+STATIC_I18N["Aductores izq."]=["Left adductors", "Adduttori sx"];
+STATIC_I18N["Aductores der."]=["Right adductors", "Adduttori dx"];
+STATIC_I18N["Oblicuo izq."]=["Left oblique", "Obliquo sx"];
+STATIC_I18N["Oblicuo der."]=["Right oblique", "Obliquo dx"];
+STATIC_I18N["Tobillo izq."]=["Left ankle", "Caviglia sx"];
+STATIC_I18N["Tobillo der."]=["Right ankle", "Caviglia dx"];
+STATIC_I18N["Dorsal izq."]=["Left lat", "Dorsale sx"];
+STATIC_I18N["Dorsal der."]=["Right lat", "Dorsale dx"];
+STATIC_I18N["Psoas izq."]=["Left psoas", "Psoas sx"];
+STATIC_I18N["Psoas der."]=["Right psoas", "Psoas dx"];
 try{applyLang();}catch(e){console.error('i18n',e);}
 try{initExDrag();}catch(e){console.error('initExDrag',e);}
 try{if('serviceWorker' in navigator&&Notification&&Notification.permission==='granted')registerSW();}catch(e){}
