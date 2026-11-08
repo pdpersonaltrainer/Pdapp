@@ -144,7 +144,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 body.side-visible #screen-lib,body.side-visible #screen-profile,body.side-visible #screen-ajustes,
 body.side-visible #screen-templates,body.side-visible #screen-pdmethod,body.side-visible #screen-programs,
 body.side-visible #screen-progedit,body.side-visible #screen-draft,body.side-visible #screen-chat,
-body.side-visible #screen-tests,body.side-visible #screen-videos,body.side-visible #screen-groups,body.side-visible #screen-profes,body.side-visible #screen-plan,
+body.side-visible #screen-tests,body.side-visible #screen-videos,body.side-visible #screen-groups,body.side-visible #screen-profes,body.side-visible #screen-team,body.side-visible #screen-plan,
 body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #screen-summary{padding-left:64px;}
 .select-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;margin-bottom:4px;}
 .select-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
@@ -658,6 +658,65 @@ input[type="date"]::-webkit-date-and-time-value{text-align:center;}
 .pds-q svg{width:16px;height:16px;color:var(--muted);flex:none;}
 .pds-q input{flex:1;min-width:0;background:var(--s1);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Barlow',sans-serif;font-size:16px;outline:none;}
 .va-sels .pds-btn{flex:1;min-width:0;width:auto;border-radius:10px;}
+/* ---- Equipo ---- */
+.tm-empty{text-align:center;color:var(--muted);font-size:13px;padding:24px 0;line-height:1.5;}
+.tm-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px;margin-bottom:22px;}
+.tm-tile{background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);padding:13px 14px;display:flex;flex-direction:column;gap:2px;min-width:0;}
+.tm-tile b{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;line-height:1;}
+.tm-tile span{font-size:11px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+.tm-tile i{font-style:normal;font-size:11px;color:var(--muted2);}
+.tm-sec{font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin:6px 2px 10px;}
+.tm-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:22px;align-items:start;}
+@media(min-width:860px){.tm-grid{grid-template-columns:1fr 1fr;}}
+.tm-card{background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);padding:14px;min-width:0;}
+.tm-card.open{border-color:rgba(168,224,99,0.35);}
+.tm-head{display:flex;align-items:center;gap:11px;cursor:pointer;}
+.tm-av{flex:none;width:40px;height:40px;border-radius:50%;background:var(--s2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;color:var(--mob);}
+.tm-who{flex:1;min-width:0;}
+.tm-nm{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tm-me{font-family:'Barlow',sans-serif;font-size:12px;font-weight:500;color:var(--muted2);}
+.tm-role{display:inline-block;margin-top:3px;font-size:9.5px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;border-radius:5px;padding:2px 7px;border:1px solid var(--border2);color:var(--muted);}
+.tm-role.r-owner{color:var(--mob);border-color:var(--mob);}
+.tm-role.r-coord{color:#4dabf7;border-color:#4dabf7;}
+.tm-chev{flex:none;width:18px;height:18px;color:var(--muted2);transition:transform .2s;}
+.tm-card.open .tm-chev{transform:rotate(180deg);}
+.tm-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:13px;}
+.tm-st{display:flex;flex-direction:column;align-items:center;min-width:0;}
+.tm-st b{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:800;line-height:1.05;}
+.tm-st span{font-size:9.5px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--muted2);white-space:nowrap;}
+.tm-bar{height:4px;border-radius:3px;background:var(--s2);margin-top:11px;overflow:hidden;}
+.tm-bar i{display:block;height:100%;border-radius:3px;}
+.tm-list{margin-top:12px;border-top:1px solid var(--border2);}
+.tm-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2);}
+.tm-dot{flex:none;width:8px;height:8px;border-radius:50%;}
+.tm-pav{flex:none;width:32px;height:32px;border-radius:50%;background:var(--s2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;color:var(--muted);}
+.tm-pav img{width:100%;height:100%;object-fit:cover;}
+.tm-pi{flex:1;min-width:0;cursor:pointer;}
+.tm-pn{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tm-un{display:inline-block;min-width:17px;padding:0 5px;border-radius:9px;background:#4dabf7;color:#0a0b0e;font-size:10.5px;font-weight:800;text-align:center;line-height:17px;vertical-align:1px;}
+.tm-ps{font-size:11.5px;color:var(--muted2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tm-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;}
+.tm-chip{font-size:10.5px;padding:2px 7px;border-radius:6px;background:var(--s2);color:var(--muted);border:1px solid var(--border2);}
+.tm-chip.s-alta{color:#ff8a8a;border-color:rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);}
+.tm-chip.s-media{color:#f9c846;border-color:rgba(249,200,70,0.35);background:rgba(249,200,70,0.07);}
+.tm-mini{flex:none;width:34px;height:34px;border-radius:9px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.tm-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.tm-btn{flex:1 1 auto;padding:10px 12px;border-radius:9px;border:1px solid var(--border2);background:var(--s2);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.tm-btn.tm-pri{background:var(--mobfill);border-color:var(--mobfill);color:#0a0b0e;flex-basis:100%;}
+.tm-btn.tm-del{color:#ff6b6b;}
+.tm-add{display:flex;gap:8px;}
+.tm-add input{flex:1;min-width:0;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;font-family:'Barlow',sans-serif;font-size:15px;color:var(--text);}
+.tm-add button{flex:none;background:var(--mobfill);color:#0a0b0e;border:none;border-radius:var(--rsm);padding:11px 16px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+.tm-note{font-size:11.5px;color:var(--muted2);line-height:1.5;margin-top:6px;}
+.tm-opt{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border2);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500;margin:0;font-size:14px;color:var(--text);}
+.tm-opt i{font-style:normal;font-size:11px;color:var(--muted2);margin-left:6px;}
+#team-view-bar{position:fixed;top:0;left:0;right:0;z-index:460;height:calc(36px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 12px 0;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:12px;background:#1b3a5c;color:#dbeafe;font-size:12.5px;}
+#team-view-bar span{display:flex;align-items:center;gap:7px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#team-view-bar b{color:#fff;}
+#team-view-bar button{flex:none;background:#fff;color:#1b3a5c;border:none;border-radius:7px;padding:5px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+body.team-view{padding-top:36px;}
+body.team-view header{top:calc(36px + env(safe-area-inset-top));}
+body.team-view .pd-side{top:calc(36px + env(safe-area-inset-top));}
 .dup-it .dup-ck{margin-left:auto;flex:none;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-style:normal;}
 .dup-it.on .dup-ck{background:var(--mobfill);border-color:var(--mobfill);}
 .dup-foot{position:sticky;bottom:-5px;margin:4px -5px -5px;padding:8px;background:var(--s2);border-top:1px solid var(--border2);display:flex;gap:8px;}
@@ -1193,6 +1252,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <button class="pd-nav-item" style="display:none;" id="side-programs" onclick="sideNav('programs')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="22"/><line x1="15" y1="10" x2="15" y2="22"/></svg><span>Programas</span></button>
       <button class="pd-nav-item" id="side-rend" onclick="sideNav('rend')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg><span>Datos</span></button>
       <button class="pd-nav-item" style="display:none;" id="side-tests" onclick="sideNav('tests')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z"/><path d="M6 6h12v15H6z"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg><span>Evaluaciones</span></button>
+      <button class="pd-nav-item" id="side-equipo" style="display:none;" onclick="sideNav('equipo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/><circle cx="12" cy="10.5" r="1.6"/></svg><span>Equipo</span></button>
       <button class="pd-nav-item" id="side-profes" style="display:none;" onclick="sideNav('profes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M5.5 17c.6-2 2-3 3.5-3s2.9 1 3.5 3"/><line x1="15" y1="9" x2="19" y2="9"/><line x1="15" y1="13" x2="19" y2="13"/></svg><span>Profes</span></button>
     </div>
     <button class="pd-nav-item" id="side-perfil" onclick="sideNav('perfil')" style="border-top:1px solid var(--border2);padding-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Mi perfil</span></button>
@@ -1566,6 +1626,15 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
   </div>
 </div>
 
+<div id="screen-team" style="display:none;padding-bottom:80px;">
+  <header>
+    <div class="hdr">
+      <div class="hdr-left"><div><div class="hdr-name">Equipo</div><div class="hdr-sub" id="team-org-name">Mi equipo</div></div></div>
+      <div class="hdr-right"><button onclick="teamLoad()" title="Actualizar" aria-label="Actualizar" style="background:none;border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:6px 9px;margin-right:6px;cursor:pointer;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button><button class="back-btn" onclick="goBack()">Volver</button></div>
+    </div>
+  </header>
+  <div id="team-body" style="max-width:1180px;margin:0 auto;width:100%;padding:18px 16px;box-sizing:border-box;"></div>
+</div>
 <div id="screen-profes" style="display:none;padding-bottom:80px;">
   <header>
     <div class="hdr">
@@ -2355,6 +2424,13 @@ function pdDemoClient(){
   return {
     from:q,
     rpc:function(n,args){
+      var D_=db();
+      var _mem=function(){var o=(D_.orgs||[])[0];return (D_.trainers||[]).filter(function(t){return t.org_id&&o&&t.org_id===o.id;}).map(function(t){return {id:t.id,display_name:t.display_name||t.name||t.email,email:t.email,is_owner:o.owner_id===t.id,org_role:t.org_role||'coach',players_count:(D_.players||[]).filter(function(p){return p.trainer_id===t.id;}).length};});};
+      if(n==='team_members'||n==='org_members')return Promise.resolve({data:_mem(),error:null});
+      if(n==='org_set_role'){(D_.trainers||[]).forEach(function(t){if(t.id===args.p_trainer)t.org_role=args.p_role;});return Promise.resolve({data:null,error:null});}
+      if(n==='org_remove_member'){(D_.trainers||[]).forEach(function(t){if(t.id===args.p_trainer)t.org_id=null;});return Promise.resolve({data:null,error:null});}
+      if(n==='coach_transfer_player'){var to=args.p_to;['players','plans','progress','messages'].forEach(function(tb){(D_[tb]||[]).forEach(function(r){if((tb==='players'?r.id:r.player_id)===args.p_player){r.trainer_id=to;if(tb==='players')r.group_id=null;}});});return Promise.resolve({data:'',error:null});}
+      if(n==='org_member_players'){return Promise.resolve({data:(D_.players||[]).filter(function(p){return p.trainer_id===args.p_trainer;}).map(function(p){return {id:p.id,name:p.name,photo_url:p.photo_url};}),error:null});}
       if(n==='org_members'||n==='org_member_players'||n==='athlete_messages'||n==='athlete_list_analyses'||n==='admin_list_trainers')return Promise.resolve({data:[],error:null});
       return Promise.resolve({data:null,error:null});
     },
@@ -2381,10 +2457,13 @@ function pdDemoData(UID){
   function ri(a,b){return a+Math.floor(rnd()*(b-a+1));}
   var today=isoToday(),mon=isoMonday(),start=addDaysISO(mon,-28),ts=new Date().toISOString();
   var W=defaultData();
-  var NAMES=[['Tomás Ferreyra','Delantero'],['Lucas Medina','Mediocampista'],['Martín Acosta','Defensor'],['Joaquín Ríos','Lateral'],['Bruno Castro','Mediocampista'],['Santiago Vera','Arquero'],['Valentina Sosa','Atleta · 400 m'],['Camila Duarte','Tenis']];
+  var NAMES=[['Tomás Ferreyra','Delantero'],['Lucas Medina','Mediocampista'],['Martín Acosta','Defensor'],['Joaquín Ríos','Lateral'],['Bruno Castro','Mediocampista'],['Santiago Vera','Arquero'],['Valentina Sosa','Atleta · 400 m'],['Camila Duarte','Tenis'],
+    /* alumnos de los otros profes del equipo de ejemplo */
+    ['Agustina Paz','Wellness','demo-c2'],['Federico Luna','Mediocampista','demo-c2'],['Nicolás Gil','Defensor','demo-c2'],['Sofía Ibarra','Atleta · 800 m','demo-c2'],['Mateo Rossi','Delantero','demo-c2'],
+    ['Julieta Mansilla','Pádel','demo-c3'],['Ramiro Sánchez','Lateral','demo-c3'],['Paula Herrera','Wellness','demo-c3'],['Ignacio Vidal','Arquero','demo-c3']];
   var players=[],plans=[],progress=[];
   NAMES.forEach(function(nm,i){
-    var id='demo-p'+(i+1),inGroup=i<6,lazy=(i===4),hurt=(i===2);
+    var id='demo-p'+(i+1),inGroup=i<6,lazy=(i===4||i===10||i===14||i===16),hurt=(i===2||i===12),TID=nm[2]||UID;
     /* sesiones: se repite el plan modelo semana a semana, 4 semanas hechas + esta + la próxima */
     var sess={};for(var w=0;w<6;w++){var wk=W[w%W.length]||[];for(var d=0;d<7;d++){var day=wk[d];if(!day)continue;var iso=addDaysISO(start,w*7+d);sess[iso]=JSON.parse(JSON.stringify(day));}}
     var checks={},loads={},times={},wi=0;
@@ -2410,7 +2489,7 @@ function pdDemoData(UID){
       if(hurt&&k===0){e.dolor=8;e.fatiga=7;e.note='Molestia en el isquio derecho al acelerar';}
       if(i===1&&k===0){e.fatiga=7;e.estres=7;e.motiv=6;e.note='Semana con muchos exámenes';}
       weekly[m]=e;}
-    var wellness={};if(!lazy){var tw=[[4,4,false],[2,3,false],[2,2,true],[4,5,false],[0],[3,3,false],[5,4,false],[4,3,false]][i];if(tw[0]){var wd0=i%3===2?addDaysISO(today,-1):today;wellness[wd0]={sleep:tw[0],energy:tw[1],pain:tw[2],note:null,ts:ts};for(var q=1;q<=[6,3,2,9,0,4,12,5][i];q++){wellness[addDaysISO(wd0,-q)]={sleep:ri(3,5),energy:ri(3,5),pain:false,note:null,ts:ts};}}}
+    var wellness={};if(!lazy){var tw=[[4,4,false],[2,3,false],[2,2,true],[4,5,false],[0],[3,3,false],[5,4,false],[4,3,false]][i%8];if(tw[0]){var wd0=i%3===2?addDaysISO(today,-1):today;wellness[wd0]={sleep:tw[0],energy:tw[1],pain:tw[2],note:null,ts:ts};for(var q=1;q<=[6,3,2,9,0,4,12,5][i];q++){wellness[addDaysISO(wd0,-q)]={sleep:ri(3,5),energy:ri(3,5),pain:false,note:null,ts:ts};}}}
     var pains={};if(hurt)pains[addDaysISO(today,-3)]=[{z:'isquio_d',lvl:3,note:'Pinchazo en sprint'}];if(i===3)pains[addDaysISO(today,-6)]=[{z:'isquio_i',lvl:1,note:null}];
     /* tests: 3 mediciones (inicio, mitad, ahora) con mejora */
     var d0=start,d1=addDaysISO(start,14),d2=addDaysISO(today,-2),jit=function(x,s){return Math.round((x+(rnd()-0.5)*s)*100)/100;};
@@ -2426,9 +2505,9 @@ function pdDemoData(UID){
     var maxes={'Sentadilla con barra':100+i*6,'Press de banca con barra':70+i*4,'Peso muerto':120+i*7,'Hip thrust':130+i*8};
     var av=hurt?{s:'out',note:'Sobrecarga de isquio derecho: solo trabajo de gimnasio de tren superior',until:addDaysISO(today,6),ts:ts,by:'coach',hist:[]}:(i===1?{s:'lim',note:'Carga reducida esta semana',ts:ts,by:'coach',hist:[]}:{s:'ok'});
     players.push({id:id,name:nm[0],club:inGroup?'Club Atlético Ejemplo':'',pos:nm[1],photo_url:'',pin:'1234',active_week:0,start_date:start,questionnaire:{done:true,sport:i===7?'tenis':(i===6?'atletismo':'futbol')},wellness:wellness,access_token:'demo-token-'+(i+1),
-      tests:tests,tests_enabled:['cmj','sprint10','sprint30','yoyo','ankle','t505'],weekly:weekly,pains:pains,matches:{},group_id:inGroup?'demo-g1':null,maxes:maxes,availability:av,attendance:{},trainer_id:UID,created_at:addDaysISO(start,-i)+'T10:00:00Z'});
-    plans.push({player_id:id,trainer_id:UID,weeks:W,sessions:sess,no_track:[]});
-    progress.push({player_id:id,trainer_id:UID,checks:checks,loads:loads,times:times});
+      tests:tests,tests_enabled:['cmj','sprint10','sprint30','yoyo','ankle','t505'],weekly:weekly,pains:pains,matches:{},group_id:inGroup?'demo-g1':null,maxes:maxes,availability:av,attendance:{},trainer_id:TID,created_at:addDaysISO(start,-i)+'T10:00:00Z'});
+    plans.push({player_id:id,trainer_id:TID,weeks:W,sessions:sess,no_track:[]});
+    progress.push({player_id:id,trainer_id:TID,checks:checks,loads:loads,times:times});
   });
   var lib=(typeof DEFAULT_LIB!=='undefined'?DEFAULT_LIB:[]).map(function(e){var o=JSON.parse(JSON.stringify(e));o.is_base=true;o.trainer_id=null;return o;});
   var tpl=[],days=[];W.forEach(function(wk){(wk||[]).forEach(function(d){if(d&&d.blocks&&d.blocks.length)days.push(d);});});
@@ -2437,8 +2516,14 @@ function pdDemoData(UID){
   return {
     players:players,plans:plans,progress:progress,
     groups:[{id:'demo-g1',name:'Primera',trainer_id:UID,created_at:addDaysISO(start,-10)+'T10:00:00Z'}],
-    exercises:lib,session_templates:tpl,programs:[],analyses:[],messages:[],notifications:[],scheduled_messages:[],orgs:[],invites:[],push_subscriptions:[],
-    trainers:[{id:UID,name:'Profe de ejemplo',email:'ejemplo@pdapp',plan:'pro',is_active:true,is_template:false,max_players:100,created_at:ts}]
+    exercises:lib,session_templates:tpl,programs:[],analyses:[],notifications:[],scheduled_messages:[],invites:[],push_subscriptions:[],
+    messages:[{id:'demo-m1',player_id:'demo-p10',trainer_id:'demo-c2',sender:'athlete',body:'Profe, ¿mañana entreno igual si tengo partido el domingo?',read_by_coach:false,created_at:addDaysISO(today,-2)+'T19:20:00Z'},
+      {id:'demo-m2',player_id:'demo-p10',trainer_id:'demo-c2',sender:'athlete',body:'Avisame así me organizo',read_by_coach:false,created_at:addDaysISO(today,-1)+'T09:05:00Z'},
+      {id:'demo-m3',player_id:'demo-p16',trainer_id:'demo-c3',sender:'athlete',body:'Me molesta un poco la rodilla',read_by_coach:false,created_at:today+'T08:40:00Z'}],
+    orgs:[{id:'demo-org',name:'PD Performance',owner_id:UID,created_at:ts}],
+    trainers:[{id:UID,name:'Profe de ejemplo',display_name:'Profe de ejemplo',email:'ejemplo@pdapp',plan:'pro',is_active:true,is_template:false,max_players:100,org_id:'demo-org',org_role:'coach',created_at:ts},
+      {id:'demo-c2',display_name:'Lucía Romero',email:'lucia@ejemplo.com',plan:'pro',is_active:true,max_players:100,org_id:'demo-org',org_role:'coord',created_at:ts},
+      {id:'demo-c3',display_name:'Diego Paredes',email:'diego@ejemplo.com',plan:'pro',is_active:true,max_players:100,org_id:'demo-org',org_role:'coach',created_at:ts}]
   };
 }
 
@@ -2493,7 +2578,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261107-1';
+var APP_VERSION='20261108-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3663,15 +3748,19 @@ function retrySync(){
   try{ location.reload(); }catch(err){}
 }
 
+function pdMapPlayer(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},matches:p.matches||{},group_id:p.group_id||null,maxes:p.maxes||{},availability:p.availability||null,attendance:p.attendance||{},trainer_id:p.trainer_id||null};}
 async function loadAllFromSupabase(){
-  var pr=await sb.from('players').select('*').order('created_at');
+  /* Solo los alumnos del profe activo (el propio, o el del equipo en el que está trabajando el dueño) */
+  var _tid=TRAINER_ID||MY_UID;
+  var _f=function(q){return _tid?q.eq('trainer_id',_tid):q;};
+  var pr=await _f(sb.from('players').select('*')).order('created_at');
   if(pr.error)throw pr.error;
-  PLAYERS=(pr.data||[]).map(function(p){return {id:p.id,name:p.name,club:p.club||'',pos:p.pos||'',photo:p.photo_url||'',pin:String(p.pin||''),activeWeek:p.active_week||0,startDate:p.start_date||'',questionnaire:p.questionnaire||null,wellness:p.wellness||{},token:p.access_token||null,tests:p.tests||{},tests_enabled:p.tests_enabled||[],weekly:p.weekly||{},pains:p.pains||{},matches:p.matches||{},group_id:p.group_id||null,maxes:p.maxes||{},availability:p.availability||null,attendance:p.attendance||{}};});
-  try{var gr=await sb.from('groups').select('*').order('created_at');if(!gr.error)GROUPS=(gr.data||[]).map(function(g){return {id:g.id,name:g.name};});else GROUPS=[];}catch(e){GROUPS=[];}
-  var plr=await sb.from('plans').select('player_id,weeks,sessions,no_track');
+  PLAYERS=(pr.data||[]).map(pdMapPlayer);
+  try{var gr=await _f(sb.from('groups').select('*')).order('created_at');if(!gr.error)GROUPS=(gr.data||[]).map(function(g){return {id:g.id,name:g.name};});else GROUPS=[];}catch(e){GROUPS=[];}
+  var plr=await _f(sb.from('plans').select('player_id,weeks,sessions,no_track'));
   if(plr.error)throw plr.error;
   JB_PLANS={};JB_SESSIONS={};JB_NOTRACK={};(plr.data||[]).forEach(function(r){JB_PLANS[r.player_id]=r.weeks;JB_SESSIONS[r.player_id]=r.sessions||null;JB_NOTRACK[r.player_id]=r.no_track||[];});
-  var pgr=await sb.from('progress').select('player_id,checks,loads,times');
+  var pgr=await _f(sb.from('progress').select('player_id,checks,loads,times'));
   if(pgr.error)throw pgr.error;
   JB_CHECKS={};JB_LOADS={};JB_TIMES={};(pgr.data||[]).forEach(function(r){JB_CHECKS[r.player_id]=r.checks||{};JB_LOADS[r.player_id]=r.loads||{};JB_TIMES[r.player_id]=r.times||{};});
   var exr=await sb.from('exercises').select('*').order('type');
@@ -3831,6 +3920,7 @@ async function bootApp(){
     try{pdConsumeLink();}catch(e){}
     var ib=document.getElementById('invites-btn');if(ib)ib.style.display=isAdmin?'':'none';
     var sp=document.getElementById('side-profes');if(sp)sp.style.display=isAdmin?'':'none';
+    try{teamSideSync();}catch(e){}
     try{if(!isAdmin&&PLAYERS.length===0&&!localStorage.getItem('pd_welcome_done')){document.getElementById('modal-welcome').classList.add('open');}}catch(e){}
     try{setTimeout(function(){maybeShowTutorial('coach');},1500);}catch(e){}
   }catch(e){
@@ -4265,6 +4355,7 @@ function sideNav(section){
   else if(section==='pdmethod'){openPDMethodFromHome();}
   else if(section==='programs'){openProgramsFromHome();}
   else if(section==='profes'){openProfesFromHome();}
+  else if(section==='equipo'){openTeamFromHome();}
   else if(section==='tests'){openTestsFromHome();}
   else if(section==='videos'){openVideosFromHome();}
   else if(section==='rend'){openRendFromHome();}
@@ -4272,7 +4363,7 @@ function sideNav(section){
   else if(section==='perfil'){openProfileFromHome();}
   else if(section==='ajustes'){openSettingsFromHome();}
 }
-var ALL_SCREENS=['screen-select','screen-welcome','screen-plan','screen-lib','screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-profes','screen-tests','screen-videos','screen-groups'];
+var ALL_SCREENS=['screen-select','screen-welcome','screen-plan','screen-lib','screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-profes','screen-tests','screen-videos','screen-groups','screen-team'];
 var CLASS_SCREENS=['screen-plan','screen-lib','screen-welcome'];
 function hideAllScreens(except){
   ALL_SCREENS.forEach(function(id){
@@ -4330,7 +4421,7 @@ function closeHomeScreens(){
   document.getElementById('screen-lib').classList.remove('active');
   var _sp=document.getElementById('screen-plan');if(_sp)_sp.classList.remove('active');
   ['screen-week','screen-msg','screen-summary'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
-  ['screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-profes','screen-tests'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-profes','screen-tests','screen-team'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
 }
 async function loadPrograms(){
   var r=await sb.from('programs').select('*').order('created_at',{ascending:false});
@@ -5604,7 +5695,7 @@ function createGroup(){
   askInput('Nombre del grupo','',function(name){
     name=(name||'').trim();if(!name)return;
     showSyncStatus('saving');
-    sb.from('groups').insert({trainer_id:MY_UID,name:name}).select('*').single().then(function(r){
+    sb.from('groups').insert({trainer_id:TRAINER_ID||MY_UID,name:name}).select('*').single().then(function(r){
       if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
       GROUPS.push({id:r.data.id,name:r.data.name});showSyncStatus('ok');renderGroups();
     });
@@ -6497,7 +6588,7 @@ async function savePlayer(){
     if(idx>=0){PLAYERS[idx].name=name;PLAYERS[idx].club=club;PLAYERS[idx].pos=pos;if(pSport)PLAYERS[idx].questionnaire=q;if(newPin)PLAYERS[idx].pin=newPin;if(pendingPhotoData)PLAYERS[idx].photo=photo;PLAYERS[idx].activeWeek=aw;PLAYERS[idx].startDate=startDate;}
   }else{
     var qNew=pSport?{sport:pSport,position:pPosition||null}:null;
-    var ins=await sb.from('players').insert({trainer_id:MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw,start_date:startDate,questionnaire:qNew}).select('id,access_token').single();
+    var ins=await sb.from('players').insert({trainer_id:TRAINER_ID||MY_UID,name:name,club:club,pos:pos,photo_url:photo,pin:newPin||'',active_week:aw,start_date:startDate,questionnaire:qNew}).select('id,access_token').single();
     if(ins.error){showSyncStatus('error');showInfo('Error al crear: '+ins.error.message);return;}
     PLAYERS.push({id:ins.data.id,name:name,club:club,pos:pos,photo:photo,pin:newPin||'',activeWeek:aw,startDate:startDate,questionnaire:qNew,wellness:{},token:ins.data.access_token||null,tests:{},tests_enabled:[]});
   }
@@ -8421,7 +8512,7 @@ function renderMsgToggle(){
 function renderMessagesInto(){renderMessages();var mc=document.getElementById('msg-content');mc.innerHTML=renderMsgToggle()+mc.innerHTML;}
 async function loadUnreadCounts(){
   CHAT_UNREAD={};
-  var r=await sb.from('messages').select('player_id').eq('sender','athlete').eq('read_by_coach',false);
+  var r=await sb.from('messages').select('player_id').eq('sender','athlete').eq('read_by_coach',false).eq('trainer_id',TRAINER_ID||MY_UID);
   if(!r.error)(r.data||[]).forEach(function(m){CHAT_UNREAD[m.player_id]=(CHAT_UNREAD[m.player_id]||0)+1;});
 }
 async function renderChatList(){
@@ -8448,7 +8539,7 @@ async function openChatThread(pid){
   var r=ATH_TOKEN?(await sb.rpc('athlete_messages',{p_token:ATH_TOKEN,p_pin:ATH_PIN})):(await sb.from('messages').select('*').eq('player_id',pid).order('created_at'));
   CHAT=r.error?[]:(r.data||[]);
   // marcar leídos
-  if(isCoach){sb.from('messages').update({read_by_coach:true}).eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false).then(function(){try{refreshChatBadge();}catch(e){}});}
+  if(isCoach&&!TEAM_VIEW){sb.from('messages').update({read_by_coach:true}).eq('player_id',pid).eq('sender','athlete').eq('read_by_coach',false).then(function(){try{refreshChatBadge();}catch(e){}});}
   else{try{wlMarkMsgsSeen();}catch(e){}sb.from('messages').update({read_by_athlete:true}).eq('player_id',pid).eq('sender','coach').eq('read_by_athlete',false).then(function(){});}
   renderChatThread();
   refreshChatBadge();
@@ -12017,6 +12108,8 @@ function doTransfer(){
     try{renderSelect();}catch(e){}
     try{await loadMembers();renderTeamBox();}catch(e){}
     try{var ml=document.getElementById('modal-member-players');if(ml&&ml.classList.contains('open'))openMemberPlayers(_tfFrom);}catch(e){}
+    try{var _ts=document.getElementById('screen-team');if(_ts&&_ts.style.display==='block')teamLoad();}catch(e){}
+    if(to===(TRAINER_ID||MY_UID)){try{await loadAllFromSupabase();await migrateAllSessions();migrateAllChecks();}catch(e){}}
     toast(_tfName+' → '+toName);
   },{okLabel:tr('Pasar')});
 }
@@ -13105,7 +13198,257 @@ function copyInviteCode(code,btn){
 }
 // ── FIN INVITE MANAGER ────────────────────────────────────────────
 
+/* ===================== EQUIPO: panel del dueño / coordinador =====================
+   Roles: Dueño (orgs.owner_id) · Coordinador (trainers.org_role='coord') · Profe.
+   Dueño y Coordinador ven este panel y pueden entrar a los alumnos de cualquier profe del equipo. */
+var TEAM={members:[],players:[],stats:{},open:{},loaded:false,busy:false};
+var TEAM_VIEW=null; /* {id,name}: mientras el dueño trabaja con los alumnos de otro profe */
+function myOrgRole(){if(!hasOrg())return null;if(isOrgOwner())return 'owner';return (MY_PROFILE&&MY_PROFILE.org_role==='coord')?'coord':'coach';}
+function isTeamLead(){var r=myOrgRole();return r==='owner'||r==='coord';}
+function teamRoleLbl(m){return m.is_owner?tr('Dueño'):(m.org_role==='coord'?tr('Coordinador'):tr('Profe'));}
+function teamSideSync(){var b=document.getElementById('side-equipo');if(b)b.style.display=(isTeamLead()&&!PLAYER_MODE)?'':'none';}
+function teamEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function teamInit(n){var p=String(n||'?').trim().split(/\s+/);return ((p[0]||'?')[0]+((p[1]||'')[0]||'')).toUpperCase();}
+
+function openTeamFromHome(){
+  if(TEAM_VIEW){teamExit(true);return;}
+  openSideScreen('screen-team');teamLoad();
+}
+/* Corre fn con los datos de los alumnos del equipo en lugar de los propios (para reusar los cálculos del Panel) */
+function teamWithData(D,fn){
+  var keep={P:PLAYERS,S:JB_SESSIONS,C:JB_CHECKS,T:JB_TIMES,L:JB_LOADS,PL:JB_PLANS,N:JB_NOTRACK};
+  PLAYERS=D.players;JB_SESSIONS=D.sessions;JB_CHECKS=D.checks;JB_TIMES=D.times;JB_LOADS=D.loads;JB_PLANS=D.plans;JB_NOTRACK=D.notrack;
+  try{return fn();}finally{PLAYERS=keep.P;JB_SESSIONS=keep.S;JB_CHECKS=keep.C;JB_TIMES=keep.T;JB_LOADS=keep.L;JB_PLANS=keep.PL;JB_NOTRACK=keep.N;}
+}
+async function teamLoad(){
+  var body=document.getElementById('team-body');if(!body)return;
+  if(!TEAM.loaded)body.innerHTML='<div class="tm-empty">'+tr('Cargando...')+'</div>';
+  var nm=document.getElementById('team-org-name');if(nm)nm.textContent=orgName();
+  try{
+    var r=await sb.rpc('team_members');
+    if(r.error)throw r.error;
+    var mem=r.data||[];
+    if(!mem.length){body.innerHTML='<div class="tm-empty">'+tr('Todavía no hay profes en el equipo.')+'</div>';return;}
+    var ids=mem.map(function(m){return m.id;});
+    var res=await Promise.all([
+      sb.from('players').select('*').in('trainer_id',ids),
+      sb.from('plans').select('player_id,trainer_id,weeks,sessions,no_track').in('trainer_id',ids),
+      sb.from('progress').select('player_id,trainer_id,checks,loads,times').in('trainer_id',ids),
+      sb.from('messages').select('player_id,trainer_id,created_at').eq('sender','athlete').eq('read_by_coach',false).in('trainer_id',ids)
+    ]);
+    for(var i=0;i<3;i++)if(res[i].error)throw res[i].error;
+    var D={players:(res[0].data||[]).map(pdMapPlayer),sessions:{},checks:{},times:{},loads:{},plans:{},notrack:{}};
+    (res[1].data||[]).forEach(function(x){D.plans[x.player_id]=x.weeks;D.sessions[x.player_id]=x.sessions||{};D.notrack[x.player_id]=x.no_track||[];});
+    (res[2].data||[]).forEach(function(x){D.checks[x.player_id]=x.checks||{};D.loads[x.player_id]=x.loads||{};D.times[x.player_id]=x.times||{};});
+    var unread={};((res[3]&&res[3].data)||[]).forEach(function(m){unread[m.player_id]=(unread[m.player_id]||0)+1;});
+    var today=isoToday(),from=addDaysISO(today,-6);
+    var rows=teamWithData(D,function(){
+      return D.players.map(function(p){
+        var sess=JB_SESSIONS[p.id]||{},tot=0,done=0;
+        Object.keys(sess).forEach(function(k){if(!TK_RE.test(k))return;var iso=tkIso(k);if(iso<from||iso>today)return;var s=sess[k];if(!s||!s.blocks||!s.blocks.length)return;tot++;if(dayTrained(p.id,k))done++;});
+        var al=[];try{al=panelAlerts(p);}catch(e){}
+        var inact=0;try{inact=getInactiveDays(p.id)||0;}catch(e){}
+        var rd=null;try{rd=rdyOf(p);}catch(e){}
+        return {p:p,tot:tot,done:done,al:al,high:al.filter(function(a){return a.sev==='alta';}).length,inact:inact,unread:unread[p.id]||0,rdy:rd};
+      });
+    });
+    TEAM.members=mem;TEAM.players=rows;TEAM.D=D;TEAM.loaded=true;
+    teamRender();
+  }catch(e){
+    body.innerHTML='<div class="tm-empty" style="color:#ff6b6b;">'+tr('No se pudo cargar el equipo.')+'<br><span style="font-size:11.5px;color:var(--muted2);">'+teamEsc((e&&e.message)||e)+'</span></div>';
+  }
+}
+function teamAgg(rows){
+  var a={n:rows.length,tot:0,done:0,high:0,inact:0,unread:0};
+  rows.forEach(function(r){a.tot+=r.tot;a.done+=r.done;a.high+=r.high;if(r.inact>=7)a.inact++;a.unread+=r.unread;});
+  a.pct=a.tot?Math.round(a.done/a.tot*100):null;return a;
+}
+function teamPctCol(v){return v==null?'var(--muted2)':v>=80?'var(--mob)':v>=60?'#f9c846':'#ff6b6b';}
+function teamRender(){
+  var body=document.getElementById('team-body');if(!body)return;
+  var owner=isOrgOwner(),all=teamAgg(TEAM.players);
+  var tile=function(v,l,c,sub){return '<div class="tm-tile"><b style="color:'+(c||'var(--text)')+'">'+v+'</b><span>'+l+'</span>'+(sub?'<i>'+sub+'</i>':'')+'</div>';};
+  var h='<div class="tm-tiles">'
+    +tile(TEAM.members.length,tr('Profes'))
+    +tile(all.n,tr('Alumnos'))
+    +tile(all.pct==null?'—':all.pct+'%',tr('Cumplimiento'),teamPctCol(all.pct),tr('últimos 7 días'))
+    +tile(all.high,tr('Alertas'),all.high?'#ff6b6b':null)
+    +tile(all.inact,tr('Inactivos'),all.inact?'#f9c846':null,tr('7+ días'))
+    +tile(all.unread,tr('Sin leer'),all.unread?'#4dabf7':null,tr('mensajes'))
+    +'</div>';
+  var mem=TEAM.members.slice().map(function(m){var rows=TEAM.players.filter(function(r){return r.p.trainer_id===m.id;});return {m:m,rows:rows,a:teamAgg(rows)};});
+  mem.sort(function(x,y){if(x.m.is_owner!==y.m.is_owner)return x.m.is_owner?-1:1;return (y.a.high*3+y.a.inact*2+y.a.unread)-(x.a.high*3+x.a.inact*2+x.a.unread);});
+  h+='<div class="tm-sec">'+tr('Profes del equipo')+'</div><div class="tm-grid">'+mem.map(function(o){return teamCardHtml(o.m,o.rows,o.a,owner);}).join('')+'</div>';
+  if(owner){
+    h+='<div class="tm-sec">'+tr('Sumar un profe')+'</div><div class="tm-add"><input type="email" id="tm-add-mail" inputmode="email" autocapitalize="off" autocomplete="off" placeholder="'+tr('Email del profe')+'"/><button onclick="teamAddMember()">'+tr('Sumar')+'</button></div>'
+      +'<div class="tm-note">'+tr('El profe tiene que tener su cuenta creada en PDapp.')+'</div><div id="tm-msg" class="tm-note" style="color:#ff6b6b;"></div>';
+  }
+  h+='<div class="tm-note" style="margin-top:18px;">'+tr('Dueño y coordinadores ven este panel y pueden entrar a los alumnos de cualquier profe. Los profes solo ven los suyos.')+'</div>';
+  body.innerHTML=h;
+  try{pdCountUpIn(body,'team',20);}catch(e){}
+}
+function teamCardHtml(m,rows,a,owner){
+  var me=m.id===MY_UID,open=!!TEAM.open[m.id];
+  var stat=function(v,l,c){return '<div class="tm-st"><b style="color:'+(c||'var(--text)')+'">'+v+'</b><span>'+l+'</span></div>';};
+  var h='<div class="tm-card'+(open?' open':'')+'">'
+    +'<div class="tm-head" onclick="teamToggle(\''+m.id+'\')"><div class="tm-av">'+teamEsc(teamInit(m.display_name||m.email))+'</div>'
+    +'<div class="tm-who"><div class="tm-nm">'+teamEsc(m.display_name||m.email||'—')+(me?' <span class="tm-me">('+tr('vos')+')</span>':'')+'</div><div class="tm-role r-'+(m.is_owner?'owner':m.org_role)+'">'+teamRoleLbl(m)+'</div></div>'
+    +'<svg class="tm-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>'
+    +'<div class="tm-stats">'+stat(a.n,tr('Alumnos'))+stat(a.pct==null?'—':a.pct+'%',tr('Cumpl.'),teamPctCol(a.pct))+stat(a.high,tr('Alertas'),a.high?'#ff6b6b':null)+stat(a.inact,tr('Inactivos'),a.inact?'#f9c846':null)+stat(a.unread,tr('Sin leer'),a.unread?'#4dabf7':null)+'</div>'
+    +'<div class="tm-bar"><i style="width:'+(a.pct||0)+'%;background:'+teamPctCol(a.pct)+'"></i></div>';
+  if(open){
+    var list=rows.slice().sort(function(x,y){return (y.high*3+(y.inact>=7?2:0)+(y.unread?1:0))-(x.high*3+(x.inact>=7?2:0)+(x.unread?1:0))||String(x.p.name).localeCompare(String(y.p.name));});
+    h+='<div class="tm-list">'+(list.length?list.map(function(r){return teamRowHtml(r,m);}).join(''):'<div class="tm-empty" style="padding:12px 0;">'+tr('Sin alumnos todavía.')+'</div>')+'</div>';
+    h+='<div class="tm-acts">'+(me?'':'<button class="tm-btn tm-pri" onclick="teamEnter(\''+m.id+'\')">'+tr('Entrar a sus alumnos')+'</button>');
+    if(owner&&!m.is_owner){
+      h+='<button class="tm-btn" onclick="teamSetRole(\''+m.id+'\',\''+(m.org_role==='coord'?'coach':'coord')+'\')">'+(m.org_role==='coord'?tr('Pasar a Profe'):tr('Hacer Coordinador'))+'</button>'
+        +'<button class="tm-btn tm-del" onclick="teamRemove(\''+m.id+'\')">'+tr('Sacar del equipo')+'</button>';
+    }
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+function teamRowHtml(r,m){
+  var p=r.p,av=p.photo?'<img src="'+teamEsc(p.photo)+'"/>':teamEsc(teamInit(p.name));
+  var dot=r.high?'#ff6b6b':(r.inact>=7||r.al.length)?'#f9c846':'var(--mob)';
+  var sub=[];
+  if(r.tot)sub.push(r.done+'/'+r.tot+' '+tr('esta semana'));
+  if(r.inact>=7)sub.push(r.inact+' '+tr('días sin entrenar'));
+  var chips=r.al.filter(function(a){return a.sev!=='baja';}).slice(0,2).map(function(a){return '<span class="tm-chip s-'+a.sev+'">'+teamEsc(a.txt)+'</span>';}).join('');
+  return '<div class="tm-row"><span class="tm-dot" style="background:'+dot+'"></span><div class="tm-pav">'+av+'</div>'
+    +'<div class="tm-pi" onclick="teamEnter(\''+m.id+'\',\''+p.id+'\')"><div class="tm-pn">'+teamEsc(p.name)+(r.unread?' <span class="tm-un">'+r.unread+'</span>':'')+'</div>'
+    +'<div class="tm-ps">'+teamEsc(sub.join(' · ')||tr('Sin entrenamientos esta semana'))+'</div>'+(chips?'<div class="tm-chips">'+chips+'</div>':'')+'</div>'
+    +'<button class="tm-mini" title="'+tr('Pasar a otro profe')+'" onclick="teamTransfer(\''+p.id+'\',\''+m.id+'\')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg></button></div>';
+}
+function teamToggle(id){TEAM.open[id]=!TEAM.open[id];teamRender();}
+function teamTransfer(pid,from){
+  var r=TEAM.players.find(function(x){return x.p.id===pid;});
+  ORG_MEMBERS=TEAM.members;openTransfer(pid,from,r?r.p.name:'');
+}
+async function teamSetRole(id,role){
+  var m=TEAM.members.find(function(x){return x.id===id;})||{};
+  askConfirm(role==='coord'?(tr('¿Hacer Coordinador a')+' '+(m.display_name||m.email)+'? '+tr('Va a ver este panel y los alumnos de todo el equipo.')):(tr('¿Pasar a Profe a')+' '+(m.display_name||m.email)+'? '+tr('Solo va a ver sus alumnos.')),async function(){
+    showSyncStatus('saving');var r=await sb.rpc('org_set_role',{p_trainer:id,p_role:role});
+    if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+    showSyncStatus('ok');m.org_role=role;teamRender();toast(tr('Rol actualizado'));
+  },{okLabel:tr('Confirmar')});
+}
+/* Sacar a un profe: si tiene alumnos, primero hay que elegir a quién pasan */
+function teamRemove(id){
+  var m=TEAM.members.find(function(x){return x.id===id;})||{},rows=TEAM.players.filter(function(r){return r.p.trainer_id===id;});
+  var nm=m.display_name||m.email||'';
+  if(!rows.length){
+    askConfirm(tr('¿Sacar a')+' '+nm+' '+tr('del equipo?'),async function(){await teamDoRemove(id);},{danger:true,okLabel:tr('Sacar')});return;
+  }
+  var others=TEAM.members.filter(function(x){return x.id!==id;});
+  var el=document.getElementById('modal-team-rm');
+  if(!el){el=document.createElement('div');el.id='modal-team-rm';el.className='modal-overlay';el.onclick=function(e){if(e.target===el)el.classList.remove('open');};el.innerHTML='<div class="modal" id="tmrm-body"></div>';document.body.appendChild(el);}
+  document.getElementById('tmrm-body').innerHTML='<div class="modal-handle"></div><h3 style="margin-top:0;">'+tr('Sacar del equipo')+'</h3>'
+    +'<div class="tm-note" style="font-size:13px;margin-bottom:12px;"><b style="color:var(--text);">'+teamEsc(nm)+'</b> '+tr('tiene')+' '+rows.length+' '+tr(rows.length===1?'alumno':'alumnos')+'. '+tr('¿A quién se los pasamos?')+'</div>'
+    +others.map(function(o,i){return '<label class="tm-opt"><input type="radio" name="tmrm-to" value="'+o.id+'"'+(i===0?' checked':'')+'/><span>'+teamEsc(o.display_name||o.email)+' <i>'+teamRoleLbl(o)+'</i></span></label>';}).join('')
+    +'<div class="tm-note">'+tr('Se llevan todo: plan, progreso y chat. Siguen entrando con el mismo enlace.')+'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:14px;"><button class="mbtn mbtn-cancel" style="flex:1;" onclick="document.getElementById(\'modal-team-rm\').classList.remove(\'open\')">'+tr('Cancelar')+'</button>'
+    +'<button class="mbtn mbtn-save" style="flex:1;background:#ff6b6b;border-color:#ff6b6b;" onclick="teamRemoveGo(\''+id+'\')">'+tr('Pasar y sacar')+'</button></div>';
+  el.classList.add('open');
+}
+async function teamRemoveGo(id){
+  var sel=document.querySelector('input[name="tmrm-to"]:checked');if(!sel)return;
+  var to=sel.value,rows=TEAM.players.filter(function(r){return r.p.trainer_id===id;});
+  var el=document.getElementById('modal-team-rm');if(el)el.classList.remove('open');
+  showSyncStatus('saving');
+  for(var i=0;i<rows.length;i++){var r=await sb.rpc('coach_transfer_player',{p_player:rows[i].p.id,p_to:to});if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);await teamLoad();return;}}
+  await teamDoRemove(id);
+  if(to===(TRAINER_ID||MY_UID)){try{await loadAllFromSupabase();await migrateAllSessions();migrateAllChecks();}catch(e){}}
+}
+async function teamDoRemove(id){
+  showSyncStatus('saving');var r=await sb.rpc('org_remove_member',{p_trainer:id});
+  if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return;}
+  showSyncStatus('ok');delete TEAM.open[id];try{await loadMembers();}catch(e){}
+  await teamLoad();toast(tr('Profe sacado del equipo'),'del');
+}
+async function teamAddMember(){
+  var i=document.getElementById('tm-add-mail'),em=(i&&i.value||'').trim().toLowerCase(),msg=document.getElementById('tm-msg');
+  if(!em||em.indexOf('@')<0){if(msg)msg.textContent=tr('Escribí el email del profe.');return;}
+  showSyncStatus('saving');var r=await sb.rpc('org_add_member',{p_email:em});
+  if(r.error){showSyncStatus('error');if(msg)msg.textContent='Error: '+r.error.message;return;}
+  showSyncStatus('ok');try{await loadMembers();}catch(e){}await teamLoad();toast(tr('Profe sumado al equipo'));
+}
+
+/* ---- Trabajar con los alumnos de otro profe ---- */
+async function teamEnter(tid,pid){
+  var m=TEAM.members.find(function(x){return x.id===tid;})||{};
+  if(tid===MY_UID){if(TEAM_VIEW)await teamExit();sideNav('alumnos');if(pid)setTimeout(function(){try{doSelectPlayer(pid);}catch(e){}},200);return;}
+  var prevV=TEAM_VIEW,prevT=TRAINER_ID;
+  TEAM_VIEW={id:tid,name:m.display_name||m.email||''};TRAINER_ID=tid;
+  showSyncStatus('saving');
+  try{await loadAllFromSupabase();await migrateAllSessions();migrateAllChecks();}
+  catch(e){TEAM_VIEW=prevV;TRAINER_ID=prevT;showSyncStatus('error');showInfo(tr('No se pudo cargar.')+' '+((e&&e.message)||''));try{await loadAllFromSupabase();}catch(_e){}return;}
+  showSyncStatus('ok');
+  teamBanner();currentPlayerId=null;
+  sideNav('alumnos');try{setCoachView(coachView||'panel');}catch(e){try{renderSelect();}catch(_e){}}
+  if(pid)setTimeout(function(){try{doSelectPlayer(pid);}catch(e){}},250);
+}
+async function teamExit(toPanel){
+  TEAM_VIEW=null;TRAINER_ID=MY_UID;teamBanner();currentPlayerId=null;
+  showSyncStatus('saving');
+  try{await loadAllFromSupabase();await migrateAllSessions();migrateAllChecks();showSyncStatus('ok');}catch(e){showSyncStatus('error');}
+  if(toPanel){openSideScreen('screen-team');setSideActive('equipo');teamLoad();}
+  else{sideNav('alumnos');try{setCoachView(coachView||'panel');}catch(e){try{renderSelect();}catch(_e){}}}
+  if(toPanel){try{setCoachView(coachView||'panel');}catch(e){}}
+}
+function teamBanner(){
+  var b=document.getElementById('team-view-bar');
+  if(!TEAM_VIEW){if(b)b.remove();document.body.classList.remove('team-view');return;}
+  if(!b){b=document.createElement('div');b.id='team-view-bar';document.body.appendChild(b);}
+  b.innerHTML='<span><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'
+    +tr('Alumnos de')+' <b>'+teamEsc(TEAM_VIEW.name)+'</b></span><button onclick="teamExit(true)">'+tr('Volver al equipo')+'</button>';
+  document.body.classList.add('team-view');
+}
+
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["7+ días"]=STATIC_I18N["7+ días"]||["7+ days", "7+ giorni"];
+STATIC_I18N["Alumnos de"]=STATIC_I18N["Alumnos de"]||["Athletes of", "Atleti di"];
+STATIC_I18N["Confirmar"]=STATIC_I18N["Confirmar"]||["Confirm", "Conferma"];
+STATIC_I18N["Coordinador"]=STATIC_I18N["Coordinador"]||["Coordinator", "Coordinatore"];
+STATIC_I18N["Cumpl."]=STATIC_I18N["Cumpl."]||["Compl.", "Compl."];
+STATIC_I18N["Cumplimiento"]=STATIC_I18N["Cumplimiento"]||["Compliance", "Aderenza"];
+STATIC_I18N["Dueño y coordinadores ven este panel y pueden entrar a los alumnos de cualquier profe. Los profes solo ven los suyos."]=STATIC_I18N["Dueño y coordinadores ven este panel y pueden entrar a los alumnos de cualquier profe. Los profes solo ven los suyos."]||["The owner and coordinators see this dashboard and can open any coach’s athletes. Coaches only see their own.", "Il titolare e i coordinatori vedono questo pannello e possono aprire gli atleti di qualsiasi coach. I coach vedono solo i propri."];
+STATIC_I18N["Entrar a sus alumnos"]=STATIC_I18N["Entrar a sus alumnos"]||["Open their athletes", "Apri i suoi atleti"];
+STATIC_I18N["Escribí el email del profe."]=STATIC_I18N["Escribí el email del profe."]||["Enter the coach’s email.", "Scrivi l’email del coach."];
+STATIC_I18N["Hacer Coordinador"]=STATIC_I18N["Hacer Coordinador"]||["Make coordinator", "Rendi coordinatore"];
+STATIC_I18N["Inactivos"]=STATIC_I18N["Inactivos"]||["Inactive", "Inattivi"];
+STATIC_I18N["No se pudo cargar el equipo."]=STATIC_I18N["No se pudo cargar el equipo."]||["Couldn’t load the team.", "Impossibile caricare il team."];
+STATIC_I18N["No se pudo cargar."]=STATIC_I18N["No se pudo cargar."]||["Couldn’t load.", "Impossibile caricare."];
+STATIC_I18N["Pasar a Profe"]=STATIC_I18N["Pasar a Profe"]||["Make coach", "Rendi coach"];
+STATIC_I18N["Pasar a otro profe"]=STATIC_I18N["Pasar a otro profe"]||["Move to another coach", "Passa a un altro coach"];
+STATIC_I18N["Pasar y sacar"]=STATIC_I18N["Pasar y sacar"]||["Move and remove", "Passa e rimuovi"];
+STATIC_I18N["Profe"]=STATIC_I18N["Profe"]||["Coach", "Coach"];
+STATIC_I18N["Profes del equipo"]=STATIC_I18N["Profes del equipo"]||["Team coaches", "Coach del team"];
+STATIC_I18N["Rol actualizado"]=STATIC_I18N["Rol actualizado"]||["Role updated", "Ruolo aggiornato"];
+STATIC_I18N["Sacar del equipo"]=STATIC_I18N["Sacar del equipo"]||["Remove from team", "Rimuovi dal team"];
+STATIC_I18N["Se llevan todo: plan, progreso y chat. Siguen entrando con el mismo enlace."]=STATIC_I18N["Se llevan todo: plan, progreso y chat. Siguen entrando con el mismo enlace."]||["Everything moves with them: plan, progress and chat. They keep using the same link.", "Si porta tutto: piano, progressi e chat. Continuano a entrare con lo stesso link."];
+STATIC_I18N["Sin alumnos todavía."]=STATIC_I18N["Sin alumnos todavía."]||["No athletes yet.", "Ancora nessun atleta."];
+STATIC_I18N["Sin entrenamientos esta semana"]=STATIC_I18N["Sin entrenamientos esta semana"]||["No workouts this week", "Nessun allenamento questa settimana"];
+STATIC_I18N["Sin leer"]=STATIC_I18N["Sin leer"]||["Unread", "Non letti"];
+STATIC_I18N["Solo va a ver sus alumnos."]=STATIC_I18N["Solo va a ver sus alumnos."]||["They’ll only see their own athletes.", "Vedrà solo i suoi atleti."];
+STATIC_I18N["Sumar un profe"]=STATIC_I18N["Sumar un profe"]||["Add a coach", "Aggiungi un coach"];
+STATIC_I18N["Todavía no hay profes en el equipo."]=STATIC_I18N["Todavía no hay profes en el equipo."]||["There are no coaches in the team yet.", "Non ci sono ancora coach nel team."];
+STATIC_I18N["Va a ver este panel y los alumnos de todo el equipo."]=STATIC_I18N["Va a ver este panel y los alumnos de todo el equipo."]||["They’ll see this dashboard and all the team’s athletes.", "Vedrà questo pannello e gli atleti di tutto il team."];
+STATIC_I18N["Volver al equipo"]=STATIC_I18N["Volver al equipo"]||["Back to team", "Torna al team"];
+STATIC_I18N["días sin entrenar"]=STATIC_I18N["días sin entrenar"]||["days without training", "giorni senza allenarsi"];
+STATIC_I18N["esta semana"]=STATIC_I18N["esta semana"]||["this week", "questa settimana"];
+STATIC_I18N["mensajes"]=STATIC_I18N["mensajes"]||["messages", "messaggi"];
+STATIC_I18N["tiene"]=STATIC_I18N["tiene"]||["has", "ha"];
+STATIC_I18N["vos"]=STATIC_I18N["vos"]||["you", "tu"];
+STATIC_I18N["¿A quién se los pasamos?"]=STATIC_I18N["¿A quién se los pasamos?"]||["Who should take them?", "A chi li passiamo?"];
+STATIC_I18N["¿Hacer Coordinador a"]=STATIC_I18N["¿Hacer Coordinador a"]||["Make coordinator:", "Rendere coordinatore"];
+STATIC_I18N["¿Pasar a Profe a"]=STATIC_I18N["¿Pasar a Profe a"]||["Make coach:", "Rendere coach"];
+STATIC_I18N["últimos 7 días"]=STATIC_I18N["últimos 7 días"]||["last 7 days", "ultimi 7 giorni"];
+STATIC_I18N["Actualizar"]=STATIC_I18N["Actualizar"]||["Refresh", "Aggiorna"];
+STATIC_I18N["Equipo"]=STATIC_I18N["Equipo"]||["Team", "Team"];
+STATIC_I18N["Dueño"]=STATIC_I18N["Dueño"]||["Owner", "Titolare"];
+STATIC_I18N["Profe sumado al equipo"]=STATIC_I18N["Profe sumado al equipo"]||["Coach added to the team", "Coach aggiunto al team"];
+
 STATIC_I18N["Parado de lado a una pared, marcá tu alcance máximo con el brazo estirado. Después saltá con contramovimiento (bajás y subís rápido) y marcá el punto más alto. El resultado es la diferencia."]=STATIC_I18N["Parado de lado a una pared, marcá tu alcance máximo con el brazo estirado. Después saltá con contramovimiento (bajás y subís rápido) y marcá el punto más alto. El resultado es la diferencia."]||["Stand side-on to a wall and mark your highest reach with your arm extended. Then do a countermovement jump (dip down and up fast) and mark the highest point. The result is the difference.", "Di lato a un muro, segna la tua estensione massima con il braccio teso. Poi salta con contromovimento (scendi e risali veloce) e segna il punto più alto. Il risultato è la differenza."];
 STATIC_I18N["Acostado boca arriba, subí una pierna estirada lo más alto posible manteniendo la otra apoyada y la rodilla estirada. Medí el ángulo con la app de nivel del celular apoyada en el muslo (o sacate una foto de perfil)."]=STATIC_I18N["Acostado boca arriba, subí una pierna estirada lo más alto posible manteniendo la otra apoyada y la rodilla estirada. Medí el ángulo con la app de nivel del celular apoyada en el muslo (o sacate una foto de perfil)."]||["Lying on your back, raise one straight leg as high as you can while keeping the other one on the floor with the knee straight. Measure the angle with a level app on your phone resting on the thigh (or take a side photo).", "Sdraiato sulla schiena, solleva una gamba tesa il più in alto possibile tenendo l’altra appoggiata con il ginocchio teso. Misura l’angolo con un’app livella sul telefono appoggiato sulla coscia (o fatti una foto di profilo)."];
 STATIC_I18N["Día libre"]=STATIC_I18N["Día libre"]||["Rest day", "Giorno libero"];
