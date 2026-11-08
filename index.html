@@ -594,6 +594,18 @@ input[type="date"]::-webkit-date-and-time-value{text-align:center;}
 .rdy-pop{padding:8px 8px 6px;}.rdy-ph{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
 .rdy-ph>div>b{display:block;font-size:14px;}.rdy-ph>div>span{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:0.04em;text-transform:uppercase;}
 .demo-cta{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;margin-top:6px;border-radius:10px;border:1px dashed rgba(168,224,99,0.45);background:transparent;color:#a8e063;font-family:'Barlow Condensed',sans-serif;font-size:14.5px;white-space:nowrap;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+/* Enlaces de la pantalla de ingreso: reaccionan al pasar el cursor y al tocar */
+.auth-link{display:block!important;width:auto!important;margin-left:auto!important;margin-right:auto!important;padding:7px 14px!important;border-radius:9px!important;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;text-decoration-thickness:1.5px;transition:color .18s ease,background-color .18s ease,text-decoration-color .18s ease,transform .12s ease;-webkit-tap-highlight-color:transparent;}
+.auth-link:hover{color:#d2d6de!important;background:rgba(255,255,255,0.06)!important;text-decoration-color:currentColor;}
+.auth-link.al-pri:hover{color:#c6f28f!important;background:rgba(168,224,99,0.10)!important;}
+.auth-link:active{transform:scale(0.97);}
+.auth-link:focus-visible{outline:2px solid rgba(168,224,99,0.6);outline-offset:2px;}
+.demo-cta{transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .12s ease;}
+.demo-cta:hover{background:rgba(168,224,99,0.08);border-style:solid;border-color:rgba(168,224,99,0.7);color:#c6f28f;}
+.demo-cta:active{transform:scale(0.98);}
+#panel-login button[onclick="login()"],#btn-register,#btn-forgot,#btn-reset{transition:filter .18s ease,transform .12s ease,box-shadow .18s ease;}
+#panel-login button[onclick="login()"]:hover,#btn-register:hover,#btn-forgot:hover,#btn-reset:hover{filter:brightness(1.07);box-shadow:0 6px 22px -8px rgba(168,224,99,0.55);}
+#panel-login button[onclick="login()"]:active,#btn-register:active,#btn-forgot:active,#btn-reset:active{transform:scale(0.98);}
 #demo-badge{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:450;display:flex;align-items:center;gap:10px;padding:7px 8px 7px 14px;border-radius:30px;background:rgba(14,16,21,0.92);border:1px solid rgba(255,209,102,0.45);box-shadow:0 8px 26px rgba(0,0,0,0.5);color:#ffd166;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
 #demo-badge small{display:block;font-family:'Barlow',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);}
 #demo-badge .db-dot{width:8px;height:8px;border-radius:50%;background:#ffd166;box-shadow:0 0 0 0 rgba(255,209,102,0.6);animation:pdBlink 1.6s ease-in-out infinite;}
@@ -1174,8 +1186,8 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <button onclick="pdDemoStart()" class="demo-cta"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Probar con datos de ejemplo</button>
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;font-size:12.5px;color:#6b7280;line-height:1.55;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
       
-      <button onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#a8e063;font-size:13px;font-weight:600;cursor:pointer;">&#191;Te invitaron? Cre&#225; tu cuenta con tu c&#243;digo</button>
-      <button onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
+      <button class="auth-link al-pri" onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#a8e063;font-size:13px;font-weight:600;cursor:pointer;">&#191;Te invitaron? Cre&#225; tu cuenta con tu c&#243;digo</button>
+      <button class="auth-link" onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
     </div>
 
     <!-- PANEL REGISTRO -->
@@ -1189,7 +1201,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <input id="reg-code" type="text" placeholder="C&#243;digo de invitaci&#243;n" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){event.preventDefault();registerCoach();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;font-family:monospace;letter-spacing:0.1em;">
       <button onclick="registerCoach()" id="btn-register" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Crear cuenta</button>
       <div id="reg-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
-      <button onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Ya ten&#233;s cuenta? Ingres&#225;</button>
+      <button class="auth-link" onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Ya ten&#233;s cuenta? Ingres&#225;</button>
     </div>
 
     <!-- PANEL RECUPERAR CONTRASEÑA -->
@@ -1199,7 +1211,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <input id="forgot-email" type="email" placeholder="Email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();sendReset();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <button onclick="sendReset()" id="btn-forgot" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Enviar link</button>
       <div id="forgot-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
-      <button onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Volver</button>
+      <button class="auth-link" onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Volver</button>
     </div>
 
     <!-- PANEL NUEVA CONTRASEÑA (desde link de recuperación) -->
@@ -2575,7 +2587,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261108-3';
+var APP_VERSION='20261108-4';
 (function(){
   try{
     setTimeout(function(){
