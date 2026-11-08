@@ -2578,7 +2578,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261108-1';
+var APP_VERSION='20261108-2';
 (function(){
   try{
     setTimeout(function(){
@@ -6418,7 +6418,7 @@ function enterPlan(){
 }
 function athBackHome(){
   ['screen-plan','screen-lib'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('active');});
-  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes','screen-videos','screen-groups'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes','screen-videos','screen-groups','screen-team'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   try{document.getElementById('screen-select').style.display='none';}catch(e){}
   currentTab='plan';
@@ -6439,7 +6439,7 @@ function goBack(){
   rendOff();
   if(!isCoach&&currentPlayerId&&PLAYERS.some(function(x){return x.id===currentPlayerId;})){athBackHome();return;}
   ['screen-plan','screen-lib'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes','screen-videos','screen-groups'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  ['screen-week','screen-msg','screen-summary','screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes','screen-videos','screen-groups','screen-team'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById('app-tabs').classList.add('hidden');
   showSelectContent();
   currentPlayerId=null;activePid=null;PLAN=[];checkState={};curDate=null;calCursor=null;currentTab='plan';renderSelect();if(isCoach){showSidebar();setSideActive('alumnos');}
@@ -13385,6 +13385,7 @@ async function teamEnter(tid,pid){
   catch(e){TEAM_VIEW=prevV;TRAINER_ID=prevT;showSyncStatus('error');showInfo(tr('No se pudo cargar.')+' '+((e&&e.message)||''));try{await loadAllFromSupabase();}catch(_e){}return;}
   showSyncStatus('ok');
   teamBanner();currentPlayerId=null;
+  var _tsc=document.getElementById('screen-team');if(_tsc)_tsc.style.display='none';
   sideNav('alumnos');try{setCoachView(coachView||'panel');}catch(e){try{renderSelect();}catch(_e){}}
   if(pid)setTimeout(function(){try{doSelectPlayer(pid);}catch(e){}},250);
 }
