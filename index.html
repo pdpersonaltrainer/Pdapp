@@ -1174,22 +1174,19 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
       <button onclick="pdDemoStart()" class="demo-cta"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Probar con datos de ejemplo</button>
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;font-size:12.5px;color:#6b7280;line-height:1.55;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
       
-      <button onclick="showRegister()" style="width:100%;padding:11px;margin-top:14px;border:1px solid rgba(168,224,99,0.35);background:rgba(168,224,99,0.08);color:#a8e063;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">&#191;Sos profe? Cre&#225; tu cuenta gratis &#8594;</button>
+      <button onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#a8e063;font-size:13px;font-weight:600;cursor:pointer;">&#191;Te invitaron? Cre&#225; tu cuenta con tu c&#243;digo</button>
       <button onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
     </div>
 
     <!-- PANEL REGISTRO -->
     <div id="panel-register" style="display:none;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#a8e063;margin-top:6px;">Bienvenido a PDapp</div>
-      <div style="font-size:13px;color:#9aa0aa;margin:6px 0 18px;line-height:1.5;">Cre&#225; tu cuenta de profe y empez&#225; a gestionar tus alumnos con la Metodolog&#237;a PD.</div>
+      <div style="font-size:13px;color:#9aa0aa;margin:6px 0 18px;line-height:1.5;">Para crear tu cuenta necesit&#225;s el c&#243;digo de invitaci&#243;n que te pas&#243; PD.</div>
       <input id="reg-name" type="text" placeholder="Nombre completo" autocomplete="name" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <input id="reg-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <input id="reg-pass" type="password" placeholder="Contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
       <input id="reg-pass2" type="password" placeholder="Confirmar contrase&#241;a" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <input id="reg-code" type="text" placeholder="C&#243;digo de invitaci&#243;n (opcional)" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){event.preventDefault();registerCoach();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;font-family:monospace;letter-spacing:0.1em;">
-      <div style="background:rgba(168,224,99,0.08);border:1px solid rgba(168,224,99,0.28);border-radius:10px;padding:11px 13px;margin:12px 0 4px;font-size:12.5px;color:#9aa3b2;line-height:1.5;text-align:left;">
-        <b style="color:#a8e063;">Empez&#225; gratis</b><br>Hasta 5 alumnos, sin tarjeta y sin vencimiento. Cuando crezcas, pas&#225;s a Pro y tus alumnos ven tu marca.
-      </div>
+      <input id="reg-code" type="text" placeholder="C&#243;digo de invitaci&#243;n" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){event.preventDefault();registerCoach();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;font-family:monospace;letter-spacing:0.1em;">
       <button onclick="registerCoach()" id="btn-register" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Crear cuenta</button>
       <div id="reg-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
       <button onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Ya ten&#233;s cuenta? Ingres&#225;</button>
@@ -2578,7 +2575,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261108-2';
+var APP_VERSION='20261108-3';
 (function(){
   try{
     setTimeout(function(){
@@ -4009,7 +4006,7 @@ function _authErrMsg(err){
   if(/not authorized|not allowed|cannot be used|sending confirmation|error sending|sending.*email/i.test(m))return 'No pudimos mandarte el mail de confirmación a esta dirección. Escribile a PD para que active tu cuenta.';
   if(/rate limit|too many|security purposes|after \d+ seconds/i.test(m))return 'Hubo demasiados intentos seguidos. Esperá unos minutos y probá de nuevo (no hace falta cambiar nada).';
   if(/already registered|already been registered|already exists|user_already_exists/i.test(m))return 'Ese email ya tiene una cuenta. Volvé a "Ingresar" o tocá "¿Olvidaste tu contraseña?".';
-  if(/database error saving new user|database error/i.test(m))return 'No se pudo crear la cuenta. Revisá el código de invitación (o dejalo vacío) y probá de nuevo. Si sigue, escribile a PD.';
+  if(/database error saving new user|database error/i.test(m))return 'No se pudo crear la cuenta. Revisá el código de invitación: puede estar mal escrito o ya usado. Si sigue, escribile a PD.';
   if(/invalid login credentials/i.test(m))return 'Email o contraseña incorrectos.';
   if(/email not confirmed/i.test(m))return 'Todavía no confirmaste tu email. Buscá el mail de PDapp (mirá también en Spam o Promociones) y tocá el enlace.';
   if(/password.*(weak|short|least)|weak password/i.test(m))return 'La contraseña es muy débil: usá al menos 8 caracteres, con letras y números.';
@@ -4047,6 +4044,7 @@ async function registerCoach(){
   var btn=document.getElementById('btn-register');
   msgEl.style.color='#6b7280';
   if(!name||!email||!pass||!pass2){msgEl.style.color='#ff4d4d';msgEl.textContent=tr('Completá nombre, email y contraseña.');return;}
+  if(!code||code.length<6){msgEl.style.color='#ff4d4d';msgEl.textContent=tr('Ingresá el código de invitación que te pasó PD.');try{document.getElementById('reg-code').focus();}catch(e){}return;}
   if(pass!==pass2){msgEl.style.color='#ff4d4d';msgEl.textContent=tr('Las contraseñas no coinciden.');return;}
   if(pass.length<6){msgEl.style.color='#ff4d4d';msgEl.textContent=tr('La contraseña debe tener al menos 6 caracteres.');return;}
   btn.disabled=true;btn.textContent=tr('Creando cuenta...');
@@ -4154,6 +4152,9 @@ async function bootPlayer(){
 async function initApp(){
   if(IS_RECOVERY||/type=recovery/.test(location.hash||'')){showResetPanel();return;}
   var params=new URLSearchParams(location.search);
+  var _inv=(params.get('invite')||'').trim().toUpperCase();
+  if(_inv){try{if(history.replaceState)history.replaceState(null,'',location.origin+location.pathname);}catch(e){}
+    setTimeout(function(){try{var se=document.getElementById('screen-login');if(se&&se.style.display!=='none'){showRegister();var c=document.getElementById('reg-code');if(c)c.value=_inv;}}catch(e){}},300);}
   if(params.get('reset')){
     clearAthToken();
     try{await sb.auth.signOut();}catch(e){}
@@ -13180,10 +13181,8 @@ function waInvite(code){
   var msg='\u00a1Hola! Te doy la bienvenida a *PDapp* \ud83d\udcaa\n\n'
     +'PDapp es la plataforma con la que vas a poder gestionar a tus alumnos, armar sus planes de entrenamiento con la *Metodolog\u00eda PD* y hacer su seguimiento d\u00eda a d\u00eda.\n\n'
     +'\ud83c\udf9f Tu c\u00f3digo de invitaci\u00f3n: *'+code+'*\n\n'
-    +'*Para crear tu cuenta:*\n'
-    +'1\ufe0f\u20e3 Entr\u00e1 a '+url+'\n'
-    +'2\ufe0f\u20e3 Toc\u00e1 \u00abRegistrate\u00bb\n'
-    +'3\ufe0f\u20e3 Complet\u00e1 tus datos e ingres\u00e1 el c\u00f3digo\n\n'
+    +'*Para crear tu cuenta* entr\u00e1 a este enlace (el c\u00f3digo ya va cargado):\n'+url+'?invite='+code+'\n\n'
+    +'Complet\u00e1 nombre, email y contrase\u00f1a, y confirm\u00e1 el mail que te llega.\n\n'
     +'Cualquier duda me escrib\u00eds. \u00a1Nos vemos adentro!';
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
@@ -13407,6 +13406,12 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["¿Te invitaron? Creá tu cuenta con tu código"]=STATIC_I18N["¿Te invitaron? Creá tu cuenta con tu código"]||["Invited? Create your account with your code", "Sei stato invitato? Crea il tuo account con il codice"];
+STATIC_I18N["Para crear tu cuenta necesitás el código de invitación que te pasó PD."]=STATIC_I18N["Para crear tu cuenta necesitás el código de invitación que te pasó PD."]||["To create your account you need the invitation code PD sent you.", "Per creare il tuo account ti serve il codice d’invito che ti ha inviato PD."];
+STATIC_I18N["Código de invitación"]=STATIC_I18N["Código de invitación"]||["Invitation code", "Codice d’invito"];
+STATIC_I18N["Ingresá el código de invitación que te pasó PD."]=STATIC_I18N["Ingresá el código de invitación que te pasó PD."]||["Enter the invitation code PD sent you.", "Inserisci il codice d’invito che ti ha inviato PD."];
+STATIC_I18N["No se pudo crear la cuenta. Revisá el código de invitación: puede estar mal escrito o ya usado. Si sigue, escribile a PD."]=STATIC_I18N["No se pudo crear la cuenta. Revisá el código de invitación: puede estar mal escrito o ya usado. Si sigue, escribile a PD."]||["Couldn’t create the account. Check the invitation code: it may be mistyped or already used. If it keeps happening, contact PD.", "Impossibile creare l’account. Controlla il codice d’invito: potrebbe essere scritto male o già usato. Se continua, scrivi a PD."];
+
 STATIC_I18N["7+ días"]=STATIC_I18N["7+ días"]||["7+ days", "7+ giorni"];
 STATIC_I18N["Alumnos de"]=STATIC_I18N["Alumnos de"]||["Athletes of", "Atleti di"];
 STATIC_I18N["Confirmar"]=STATIC_I18N["Confirmar"]||["Confirm", "Conferma"];
