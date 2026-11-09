@@ -84,8 +84,7 @@ html[data-theme="papel"]{
 html[data-theme="papel"] body{background:var(--bg);}
 /* En claro el menú lateral y sus íconos deben ir en oscuro */
 html[data-theme="papel"]{--navtext:rgba(20,22,26,0.78);}
-html[data-theme="papel"] .pd-nav-item:hover,
-html[data-theme="papel"] .pd-nav-item.active{color:var(--mob);}
+html[data-theme="papel"] .pd-nav-item.active{color:var(--text);}
 html[data-theme="grafito"]{--navtext:rgba(255,255,255,0.80);}
 /* Rellenos verdes: usan --mobfill (verde de marca) con texto oscuro.
    --mob queda oscuro en este tema para poder usarse como texto legible. */
@@ -122,22 +121,141 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-
 .coach-toggle{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);cursor:pointer;}
 .coach-toggle.active{background:rgba(168,224,99,0.12);border-color:var(--mob);color:var(--mob);}
 .select-body{flex:1;max-width:var(--cw);margin:0 auto;width:100%;padding:24px 16px 100px;position:relative;z-index:1;}
-#screen-select.with-side .select-header,#screen-select.with-side .select-body{padding-left:80px;}
-.pd-side{position:fixed;top:0;left:0;bottom:0;width:64px;background:var(--veil);border-right:1px solid var(--border);z-index:400;display:none;flex-direction:column;padding:calc(16px + env(safe-area-inset-top)) 0 16px;transition:width .22s ease;overflow:hidden;}
-.pd-side.expanded,.pd-side.hovering{width:210px;box-shadow:8px 0 30px rgba(0,0,0,0.45);}
-.pd-side-logo{display:flex;align-items:center;gap:11px;padding:2px 17px 16px;min-width:210px;cursor:pointer;}
-.pd-side-logo img{width:34px;height:34px;object-fit:cover;border-radius:10px;flex:none;}
-.pd-side-logo span,.pd-nav-item span{opacity:0;transition:opacity .18s ease;}
-.pd-side.expanded .pd-side-logo span,.pd-side.expanded .pd-nav-item span,.pd-side.hovering .pd-side-logo span,.pd-side.hovering .pd-nav-item span{opacity:1;}
-.pd-side-logo span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:0.05em;text-transform:uppercase;background:linear-gradient(90deg,var(--mob),#d4f59a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
-.pd-nav{display:flex;flex-direction:column;gap:3px;flex:1;}
-.pd-nav-item{position:relative;display:flex;align-items:center;gap:15px;padding:12px 21px;min-width:210px;cursor:pointer;color:var(--navtext);border:none;background:none;text-align:left;font-family:'Barlow Condensed',sans-serif;transition:color .15s ease;}
-@media (hover:hover) and (pointer:fine){.pd-side:hover .pd-nav-item:hover{color:#fff;}}
-@media (hover:hover) and (pointer:fine){.pd-side-logo:hover{opacity:0.85;}}
-.pd-nav-item svg{width:23px;height:23px;flex:none;stroke:currentColor;}
-.pd-nav-item span{font-size:15px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;}
-.pd-nav-item.active{color:var(--mob);}
-.pd-nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:26px;background:var(--mobfill);border-radius:0 3px 3px 0;}
+/* ===== Menú lateral flotante (panel "Hoy") ===== */
+:root{--sdw:64px;--sdwx:262px;--sdm:10px;--sd-bg:linear-gradient(180deg,rgba(34,39,48,0.94),rgba(19,22,28,0.97));--sd-bd:rgba(255,255,255,0.07);--sd-hl:rgba(255,255,255,0.06);
+  --sg1:#a8e063;--sg2:#7fd8a6;--sg3:#d2e77a;--sg4:#5fc4a4;--sg1b:rgba(168,224,99,0.15);--sg2b:rgba(127,216,166,0.13);--sg3b:rgba(210,231,122,0.12);--sg4b:rgba(95,196,164,0.13);--sg0b:rgba(255,255,255,0.06);--sg0:#c3c9d3;
+  --sd-today:linear-gradient(145deg,#2d4a17 0%,#1a2a12 55%,#141a12 100%);--sd-today-t:#b9c7a8;--sd-pill:rgba(0,0,0,0.28);}
+html[data-theme="papel"]{--sd-bg:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(246,244,238,0.97));--sd-bd:rgba(20,22,26,0.10);--sd-hl:rgba(255,255,255,0.8);
+  --sg1:#4f8a1c;--sg2:#2f8f63;--sg3:#7a8a12;--sg4:#1f7f6a;--sg1b:rgba(79,138,28,0.12);--sg2b:rgba(47,143,99,0.11);--sg3b:rgba(122,138,18,0.11);--sg4b:rgba(31,127,106,0.11);--sg0b:rgba(20,22,26,0.06);--sg0:#4a505a;
+  --sd-today:linear-gradient(145deg,#e6f3d2 0%,#f1f7e8 60%,#fafcf6 100%);--sd-today-t:#5b6b48;--sd-pill:rgba(255,255,255,0.75);}
+html[data-theme="grafito"]{--sd-bg:linear-gradient(180deg,rgba(58,62,69,0.95),rgba(41,44,49,0.97));--sd-bd:rgba(255,255,255,0.11);--sd-hl:rgba(255,255,255,0.08);--sd-today:linear-gradient(145deg,#3a5422 0%,#2a3622 55%,#262b24 100%);--sd-pill:rgba(0,0,0,0.22);}
+html[data-theme="grafito"] .pd-td-ring div{background:#2c3a22;}
+html[data-theme="grafito"] .pd-nav-item .pd-nb{border-color:#33373d;}
+@media(max-width:640px){:root{--sdw:58px;--sdm:6px;}}
+#screen-select.with-side .select-header,#screen-select.with-side .select-body{padding-left:calc(var(--sdw) + var(--sdm) + 18px);}
+.pd-side{position:fixed;top:calc(var(--sdm) + env(safe-area-inset-top));left:calc(var(--sdm) + env(safe-area-inset-left));bottom:var(--sdm);width:var(--sdw);z-index:400;display:none;flex-direction:column;
+  padding:12px 0 10px;border-radius:22px;background:var(--sd-bg);border:1px solid var(--sd-bd);
+  box-shadow:0 24px 50px -16px rgba(0,0,0,0.75),inset 0 1px 0 var(--sd-hl);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);
+  transition:width .24s cubic-bezier(.2,.7,.2,1),box-shadow .24s ease;overflow:hidden;}
+.pd-side.expanded,.pd-side.hovering{width:var(--sdwx);box-shadow:0 30px 70px -14px rgba(0,0,0,0.85),inset 0 1px 0 var(--sd-hl);}
+html[data-theme="papel"] .pd-side{box-shadow:0 18px 40px -18px rgba(20,22,26,0.35),inset 0 1px 0 var(--sd-hl);}
+.pd-side-top{display:flex;align-items:center;gap:8px;padding:0 calc((var(--sdw) - 38px)/2) 10px;min-width:0;flex-direction:column;}
+.pd-side.expanded .pd-side-top,.pd-side.hovering .pd-side-top{flex-direction:row;padding:0 12px 12px 13px;}
+.pd-side-logo{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:0;flex:1;}
+.pd-side-logo img{width:38px;height:38px;object-fit:cover;border-radius:12px;flex:none;filter:drop-shadow(0 0 10px rgba(168,224,99,0.45));}
+.pd-side-logo span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;color:var(--text);display:none;}
+.pd-side.expanded .pd-side-logo span,.pd-side.hovering .pd-side-logo span{display:block;}
+.pd-plus{flex:none;width:38px;height:38px;border-radius:12px;border:none;background:var(--mobfill);color:#0a0b0e;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 18px -6px rgba(168,224,99,0.75);transition:transform .15s ease,filter .15s ease;}
+.pd-plus svg{width:18px;height:18px;}
+.pd-plus:hover{transform:scale(1.06);filter:brightness(1.06);}
+.pd-plus:active{transform:scale(0.95);}
+/* tarjeta Hoy */
+.pd-today{flex:none;margin:0 auto 8px;cursor:pointer;}
+.pd-today:empty{display:none;}
+.pd-td-full{display:none;}
+.pd-side.expanded .pd-today,.pd-side.hovering .pd-today{margin:0 11px 10px;}
+.pd-side.expanded .pd-td-full,.pd-side.hovering .pd-td-full{display:block;}
+.pd-side.expanded .pd-td-mini,.pd-side.hovering .pd-td-mini{display:none;}
+.pd-td-mini{width:calc(var(--sdw) - 14px);border-radius:15px;padding:8px 0 7px;text-align:center;background:var(--sd-today);border:1px solid rgba(168,224,99,0.3);}
+.pd-td-mini b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;display:block;line-height:1;color:var(--text);}
+.pd-td-mini span{font-size:8.5px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:var(--sg1);}
+.pd-td-full{position:relative;border-radius:18px;padding:14px 14px 14px;overflow:hidden;background:var(--sd-today);border:1px solid rgba(168,224,99,0.3);box-shadow:0 10px 24px -12px rgba(168,224,99,0.45);min-width:238px;}
+.pd-td-full::after{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(168,224,99,0.26),transparent 70%);pointer-events:none;}
+.pd-td-d{font-size:10.5px;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:var(--sg1);white-space:nowrap;}
+.pd-td-row{display:flex;align-items:center;gap:12px;margin:8px 0 12px;}
+.pd-td-ring{width:46px;height:46px;border-radius:50%;flex:none;padding:4px;}
+.pd-td-ring div{width:100%;height:100%;border-radius:50%;background:#1b2914;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:#fff;}
+html[data-theme="papel"] .pd-td-ring div{background:#f3f8ea;color:#1f2a14;}
+.pd-td-n{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;line-height:1.05;color:var(--text);white-space:nowrap;}
+.pd-td-n small{display:block;font-family:'Barlow',sans-serif;font-size:11.5px;font-weight:600;color:var(--sd-today-t);}
+.pd-td-pills{display:flex;gap:6px;position:relative;z-index:1;}
+.pd-td-pill{flex:1;min-width:0;text-align:center;border-radius:11px;padding:8px 0;background:var(--sd-pill);border:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;line-height:1;cursor:pointer;transition:transform .12s ease,background .15s ease;}
+.pd-td-pill:hover{background:rgba(0,0,0,0.42);transform:translateY(-1px);}
+html[data-theme="papel"] .pd-td-pill:hover{background:#fff;}
+.pd-td-pill span{display:block;font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--sd-today-t);margin-top:4px;white-space:nowrap;}
+/* secciones */
+.pd-nav{display:flex;flex-direction:column;gap:2px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:4px;}
+.pd-nav::-webkit-scrollbar{display:none;}
+.pd-gl{flex:none;height:1px;margin:6px auto;width:28px;background:var(--sd-bd);}
+.pd-gl span{display:none;}
+.pd-side.expanded .pd-gl,.pd-side.hovering .pd-gl{height:auto;width:auto;background:none;margin:11px 19px 4px;}
+.pd-side.expanded .pd-gl span,.pd-side.hovering .pd-gl span{display:block;font-family:'Barlow',sans-serif;font-size:9.5px;font-weight:800;letter-spacing:0.11em;text-transform:uppercase;color:var(--muted2);white-space:nowrap;}
+.pd-nav-item{flex:none;position:relative;display:flex;align-items:center;gap:11px;margin:0 calc((var(--sdw) - 46px)/2);padding:5px 6px;border-radius:13px;cursor:pointer;color:var(--navtext);border:none;background:none;text-align:left;font-family:'Barlow',sans-serif;transition:background .15s ease,color .15s ease,transform .15s ease;min-width:0;}
+.pd-side.expanded .pd-nav-item,.pd-side.hovering .pd-nav-item{margin:0 11px;}
+.pd-tl{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;transition:box-shadow .15s ease,transform .15s ease;font-style:normal;}
+.pd-tl svg{width:18px;height:18px;flex:none;stroke:currentColor;stroke-width:1.9;}
+.pd-tl.t0{background:var(--sg0b);color:var(--sg0);}
+.pd-tl.t1{background:var(--sg1b);color:var(--sg1);}
+.pd-tl.t2{background:var(--sg2b);color:var(--sg2);}
+.pd-tl.t3{background:var(--sg3b);color:var(--sg3);}
+.pd-tl.t4{background:var(--sg4b);color:var(--sg4);}
+.pd-nav-item > span{display:none;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pd-side.expanded .pd-nav-item > span,.pd-side.hovering .pd-nav-item > span{display:block;}
+@media (hover:hover) and (pointer:fine){
+  .pd-nav-item:hover{background:rgba(255,255,255,0.05);color:var(--text);}
+  .pd-side.hovering .pd-nav-item:hover,.pd-side.expanded .pd-nav-item:hover{transform:translateX(2px);}
+  .pd-nav-item:hover .pd-tl{transform:scale(1.05);}
+  html[data-theme="papel"] .pd-nav-item:hover{background:rgba(20,22,26,0.05);}
+}
+.pd-nav-item.active{color:var(--text);background:linear-gradient(90deg,rgba(168,224,99,0.16),rgba(168,224,99,0.03));}
+.pd-nav-item.active .pd-tl{box-shadow:0 0 0 1.5px rgba(168,224,99,0.5),0 6px 14px -6px rgba(168,224,99,0.75);}
+.pd-nav-item.active::before{content:'';position:absolute;left:calc(-1 * (var(--sdw) - 46px)/2 - 1px);top:9px;bottom:9px;width:4px;border-radius:0 4px 4px 0;background:var(--mobfill);box-shadow:0 0 14px var(--mobfill);}
+.pd-side.expanded .pd-nav-item.active::before,.pd-side.hovering .pd-nav-item.active::before{left:-12px;}
+.pd-nav-item .pd-nb{left:auto;right:-2px;top:-2px;border-color:#1a1e25;box-shadow:none;}
+.pd-nav-item #side-chat-dot{background:var(--sg4);color:#0a0b0e;}
+.pd-side.expanded .pd-nav-item .pd-nb,.pd-side.hovering .pd-nav-item .pd-nb{right:10px;top:50%;transform:translateY(-50%);border:none;}
+html[data-theme="papel"] .pd-nav-item .pd-nb{border-color:#fff;}
+/* abajo: perfil + ajustes */
+.pd-me{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:9px calc((var(--sdw) - 38px)/2) 0;border-top:1px solid var(--sd-bd);margin-top:4px;}
+.pd-side.expanded .pd-me,.pd-side.hovering .pd-me{flex-direction:row;padding:10px 12px 0 13px;}
+.pd-me-u{display:flex;align-items:center;gap:10px;flex:1;min-width:0;border:none;background:none;padding:2px;border-radius:12px;cursor:pointer;color:var(--text);text-align:left;}
+.pd-av{width:36px;height:36px;border-radius:50%;flex:none;background:var(--s3,#2c3340);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;font-style:normal;color:var(--text);background-size:cover;background-position:center;box-shadow:0 0 0 1.5px var(--sd-bd);}
+.pd-me-u.active .pd-av{box-shadow:0 0 0 2px var(--mobfill);}
+.pd-me-t{display:none;min-width:0;}
+.pd-side.expanded .pd-me-t,.pd-side.hovering .pd-me-t{display:block;}
+.pd-me-t b{display:block;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pd-me-t small{display:block;font-size:11px;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pd-me-g{flex:none;width:36px;height:36px;border-radius:11px;border:none;background:none;color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s ease,color .15s ease;}
+.pd-me-g svg{width:19px;height:19px;stroke:currentColor;}
+.pd-me-g:hover,.pd-me-u:hover{background:rgba(255,255,255,0.05);color:var(--text);}
+.pd-me-g.active{color:var(--mob);background:rgba(168,224,99,0.1);}
+/* Pantallas bajas (iPad horizontal): todo el menú entra sin scroll */
+@media (max-height:900px){
+  .pd-side{padding:10px 0 8px;}
+  .pd-side-top{padding-bottom:8px;gap:6px;}
+  .pd-side.expanded .pd-side-top,.pd-side.hovering .pd-side-top{padding-bottom:9px;}
+  .pd-side-logo img,.pd-plus{width:34px;height:34px;border-radius:11px;}
+  .pd-td-mini{padding:6px 0 5px;}
+  .pd-td-mini b{font-size:17px;}
+  .pd-side.expanded .pd-today,.pd-side.hovering .pd-today{margin-bottom:6px;}
+  .pd-td-full{padding:11px 12px 11px;border-radius:16px;}
+  .pd-td-row{margin:5px 0 9px;gap:10px;}
+  .pd-td-ring{width:40px;height:40px;padding:3.5px;}
+  .pd-td-n{font-size:20px;}
+  .pd-td-pill{padding:6px 0;font-size:16px;}
+  .pd-td-pill span{margin-top:3px;}
+  .pd-nav{gap:1px;}
+  .pd-nav-item{padding:3px 6px;border-radius:11px;}
+  .pd-tl{width:30px;height:30px;border-radius:9px;}
+  .pd-tl svg{width:16px;height:16px;}
+  .pd-gl{margin:4px auto;}
+  .pd-side.expanded .pd-gl,.pd-side.hovering .pd-gl{margin:7px 19px 2px;}
+  .pd-nav-item.active::before{top:7px;bottom:7px;}
+  .pd-me{padding-top:7px;gap:4px;}
+  .pd-side.expanded .pd-me,.pd-side.hovering .pd-me{padding-top:8px;}
+  .pd-av,.pd-me-g{width:32px;height:32px;}
+}
+/* menú del "+" */
+#side-plus-menu{position:fixed;z-index:700;width:244px;background:var(--s2);border:1px solid var(--border2);border-radius:16px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,0.6);display:none;}
+#side-plus-menu.open{display:block;animation:pdPlusIn .16s ease;}
+@keyframes pdPlusIn{from{opacity:0;transform:translateY(-4px) scale(.98);}to{opacity:1;transform:none;}}
+.spm-h{font-size:9.5px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2);padding:7px 10px 5px;}
+.spm-r{display:flex;align-items:center;gap:10px;width:100%;padding:7px 8px;border-radius:10px;border:none;background:none;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;text-align:left;cursor:pointer;}
+.spm-r:hover{background:rgba(255,255,255,0.05);}
+html[data-theme="papel"] .spm-r:hover{background:rgba(20,22,26,0.05);}
+.spm-r .pd-tl{width:30px;height:30px;border-radius:9px;}
+.spm-r .pd-tl svg{width:16px;height:16px;}
+.spm-r small{display:block;font-size:11px;color:var(--muted2);font-weight:500;}
 @media (max-width:820px){
   input[type="text"],input[type="number"],input[type="email"],input[type="password"],input[type="date"],input[type="search"],input:not([type]),textarea,select{font-size:16px!important;}
 }
@@ -145,7 +263,7 @@ body.side-visible #screen-lib,body.side-visible #screen-profile,body.side-visibl
 body.side-visible #screen-templates,body.side-visible #screen-pdmethod,body.side-visible #screen-programs,
 body.side-visible #screen-progedit,body.side-visible #screen-draft,body.side-visible #screen-chat,
 body.side-visible #screen-tests,body.side-visible #screen-videos,body.side-visible #screen-groups,body.side-visible #screen-profes,body.side-visible #screen-team,body.side-visible #screen-plan,
-body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #screen-summary{padding-left:64px;}
+body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #screen-summary{padding-left:calc(var(--sdw) + var(--sdm) + 6px);}
 .select-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;margin-bottom:4px;}
 .select-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
 .players-grid{display:flex;flex-direction:column;gap:12px;}
@@ -728,7 +846,7 @@ input[type="date"]::-webkit-date-and-time-value{text-align:center;}
 #team-view-bar button{flex:none;background:#fff;color:#1b3a5c;border:none;border-radius:7px;padding:5px 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
 body.team-view{padding-top:36px;}
 body.team-view header{top:calc(36px + env(safe-area-inset-top));}
-body.team-view .pd-side{top:calc(36px + env(safe-area-inset-top));}
+body.team-view .pd-side{top:calc(36px + var(--sdm) + env(safe-area-inset-top));}
 .dup-it .dup-ck{margin-left:auto;flex:none;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-style:normal;}
 .dup-it.on .dup-ck{background:var(--mobfill);border-color:var(--mobfill);}
 .dup-foot{position:sticky;bottom:-5px;margin:4px -5px -5px;padding:8px;background:var(--s2);border-top:1px solid var(--border2);display:flex;gap:8px;}
@@ -845,10 +963,6 @@ button:active:not(:disabled):not(#sess-float):not(.mv-shutter){transform:scale(.
 .form-row input,.form-row textarea,.form-row select,.block-note{box-shadow:var(--dp-sunk);}
 .form-row input:focus,.form-row textarea:focus,.form-row select:focus,.block-note:focus{box-shadow:var(--dp-sunk),0 0 0 3px rgba(168,224,99,0.22);border-color:var(--mob)!important;outline:none;}
 /* 7. Navegación: barra lateral y barra de abajo */
-.pd-side{-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);box-shadow:1px 0 0 var(--dp-edge),12px 0 40px -22px rgba(0,0,0,0.8);}
-.pd-nav-item.active{background:linear-gradient(90deg,rgba(168,224,99,0.18),rgba(168,224,99,0.02));border-radius:0 12px 12px 0;box-shadow:inset 0 0 0 1px rgba(168,224,99,0.22),0 0 22px -8px rgba(168,224,99,0.5);}
-.pd-nav-item.active svg{filter:drop-shadow(0 0 6px rgba(168,224,99,0.75));}
-.pd-side-logo img{filter:drop-shadow(0 0 10px rgba(168,224,99,0.5));}
 .app-tabs{box-shadow:0 -10px 30px -18px rgba(0,0,0,0.8);}
 .atab.active .atab-icon svg{filter:drop-shadow(0 0 7px rgba(168,224,99,0.75));}
 .atab.active .atab-icon{position:relative;}
@@ -1247,25 +1361,35 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 </div>
 
 <!-- SELECT -->
-  <nav class="pd-side" id="pd-sidebar">
-    <div class="pd-side-logo" onclick="toggleSidebar()"><img src="icon.png" alt="PDapp" onerror="this.style.display='none'"><span>PDapp</span></div>
-    <div class="pd-nav">
-      <button class="pd-nav-item" id="side-notif" onclick="openNotifPanel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Notificaciones</span><b id="side-notif-n" class="pd-nb" style="display:none;">0</b></button>
-      <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Alumnos</span></button>
-      <button class="pd-nav-item" id="side-grupos" onclick="sideNav('grupos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l7.5 3v6c0 4.6-3.2 8.3-7.5 10-4.3-1.7-7.5-5.4-7.5-10v-6z"/><path d="M8.6 12.2l2.3 2.3 4.5-4.6"/></svg><span>Grupos</span></button>
-      <button class="pd-nav-item" id="side-chat" onclick="sideNav('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>Chat</span><b id="side-chat-dot" class="pd-nb" style="display:none;">0</b></button>
-      <button class="pd-nav-item" id="side-videos" onclick="sideNav('videos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg><span>Videoanálisis</span><b id="side-vid-n" class="pd-nb" style="display:none;">0</b></button>
-      <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg><span>Biblioteca</span></button>
-      <button class="pd-nav-item" id="side-templates" onclick="sideNav('templates')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Programación</span></button>
-      <button class="pd-nav-item" style="display:none;" id="side-pdmethod" onclick="sideNav('pdmethod')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Metodología PD</span></button>
-      <button class="pd-nav-item" style="display:none;" id="side-programs" onclick="sideNav('programs')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="22"/><line x1="15" y1="10" x2="15" y2="22"/></svg><span>Programas</span></button>
-      <button class="pd-nav-item" id="side-rend" onclick="sideNav('rend')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg><span>Datos</span></button>
-      <button class="pd-nav-item" style="display:none;" id="side-tests" onclick="sideNav('tests')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z"/><path d="M6 6h12v15H6z"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg><span>Evaluaciones</span></button>
-      <button class="pd-nav-item" id="side-equipo" style="display:none;" onclick="sideNav('equipo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/><circle cx="12" cy="10.5" r="1.6"/></svg><span>Equipo</span></button>
-      <button class="pd-nav-item" id="side-profes" style="display:none;" onclick="sideNav('profes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M5.5 17c.6-2 2-3 3.5-3s2.9 1 3.5 3"/><line x1="15" y1="9" x2="19" y2="9"/><line x1="15" y1="13" x2="19" y2="13"/></svg><span>Profes</span></button>
+    <nav class="pd-side" id="pd-sidebar">
+    <div class="pd-side-top">
+      <div class="pd-side-logo" onclick="toggleSidebar()" title="PDapp"><img src="icon.png" alt="PDapp" onerror="this.style.display='none'"><span>PDapp</span></div>
+      <button class="pd-plus" id="side-plus" onclick="sidePlusOpen(event)" title="Crear" aria-label="Crear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
     </div>
-    <button class="pd-nav-item" id="side-perfil" onclick="sideNav('perfil')" style="border-top:1px solid var(--border2);padding-top:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Mi perfil</span></button>
-    <button class="pd-nav-item" id="side-ajustes" onclick="sideNav('ajustes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Ajustes</span></button>
+    <div class="pd-today" id="side-today"></div>
+    <div class="pd-nav">
+      <button class="pd-nav-item active" id="side-alumnos" onclick="sideNav('alumnos')" title="Alumnos"><i class="pd-tl t1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></i><span>Alumnos</span></button>
+      <button class="pd-nav-item" id="side-grupos" onclick="sideNav('grupos')" title="Grupos"><i class="pd-tl t0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l7.5 3v6c0 4.6-3.2 8.3-7.5 10-4.3-1.7-7.5-5.4-7.5-10v-6z"/><path d="M8.6 12.2l2.3 2.3 4.5-4.6"/></svg></i><span>Grupos</span></button>
+      <div class="pd-gl"><span>Planificar</span></div>
+      <button class="pd-nav-item" id="side-templates" onclick="sideNav('templates')" title="Sesiones y programas"><i class="pd-tl t2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></i><span>Sesiones y programas</span></button>
+      <button class="pd-nav-item" id="side-pdmethod" style="display:none;" onclick="sideNav('pdmethod')" title="Metodología PD"><i class="pd-tl t2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></i><span>Metodología PD</span></button>
+      <button class="pd-nav-item" id="side-programs" style="display:none;" onclick="sideNav('programs')" title="Programas"><i class="pd-tl t2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="22"/><line x1="15" y1="10" x2="15" y2="22"/></svg></i><span>Programas</span></button>
+      <button class="pd-nav-item" id="side-lib" onclick="sideNav('lib')" title="Biblioteca"><i class="pd-tl t2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v16H5.5A2.5 2.5 0 0 0 3 21.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H13v16h5.5A2.5 2.5 0 0 1 21 21.5z"/></svg></i><span>Biblioteca</span></button>
+      <div class="pd-gl"><span>Medir</span></div>
+      <button class="pd-nav-item" id="side-rend" onclick="sideNav('rend')" title="Rendimiento y tests"><i class="pd-tl t3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-7"/></svg></i><span>Rendimiento y tests</span></button>
+      <button class="pd-nav-item" id="side-tests" style="display:none;" onclick="sideNav('tests')" title="Evaluaciones"><i class="pd-tl t3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v3H9z"/><path d="M6 6h12v15H6z"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg></i><span>Evaluaciones</span></button>
+      <button class="pd-nav-item" id="side-videos" onclick="sideNav('videos')" title="Videoanálisis"><i class="pd-tl t3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></i><span>Videoanálisis</span><b id="side-vid-n" class="pd-nb" style="display:none;">0</b></button>
+      <div class="pd-gl"><span>Comunicar</span></div>
+      <button class="pd-nav-item" id="side-chat" onclick="sideNav('chat')" title="Chat"><i class="pd-tl t4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></i><span>Chat</span><b id="side-chat-dot" class="pd-nb" style="display:none;">0</b></button>
+      <button class="pd-nav-item" id="side-notif" onclick="openNotifPanel()" title="Avisos"><i class="pd-tl t4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></i><span>Avisos</span><b id="side-notif-n" class="pd-nb" style="display:none;">0</b></button>
+      <div class="pd-gl" id="side-gl-team" style="display:none;"><span>Gestión</span></div>
+      <button class="pd-nav-item" id="side-equipo" style="display:none;" onclick="sideNav('equipo')" title="Equipo"><i class="pd-tl t0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/><circle cx="12" cy="10.5" r="1.6"/></svg></i><span>Equipo</span></button>
+      <button class="pd-nav-item" id="side-profes" style="display:none;" onclick="sideNav('profes')" title="Profes"><i class="pd-tl t0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2.5"/><path d="M5.5 17c.6-2 2-3 3.5-3s2.9 1 3.5 3"/><line x1="15" y1="9" x2="19" y2="9"/><line x1="15" y1="13" x2="19" y2="13"/></svg></i><span>Profes</span></button>
+    </div>
+    <div class="pd-me">
+      <button class="pd-me-u" id="side-perfil" onclick="sideNav('perfil')" title="Mi perfil"><i class="pd-av" id="side-av">PD</i><span class="pd-me-t"><b id="side-me-name">Mi perfil</b><small id="side-me-sub">Profe</small></span></button>
+      <button class="pd-me-g" id="side-ajustes" onclick="sideNav('ajustes')" title="Ajustes" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
     <button class="pd-nav-item" style="display:none;" id="side-lang" onclick="openLangModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg><span>Idioma</span></button>
   </nav>
 <div id="screen-select">
@@ -2587,7 +2711,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261108-4';
+var APP_VERSION='20261109-2';
 (function(){
   try{
     setTimeout(function(){
@@ -3098,7 +3222,7 @@ function tr(str){
 }
 function trStatic(root){
   if(LANG==='es'||!root||__trBusy)return;var _i=LANG==='en'?0:1;
-  var SEL='.hdr-name,.hdr-sub,.pd-nav-item span,label,button,h2,h3,option,.lib-tag,.atab-lbl,.filter-chip,.pca-btn,.sec-lbl,.sum-lbl,.cv-btn,.select-title,.select-sub,.welcome-sub,.pnl-stat-l,.modal-sub,.form-row label';
+  var SEL='.hdr-name,.hdr-sub,.pd-nav-item span,.pd-gl span,label,button,h2,h3,option,.lib-tag,.atab-lbl,.filter-chip,.pca-btn,.sec-lbl,.sum-lbl,.cv-btn,.select-title,.select-sub,.welcome-sub,.pnl-stat-l,.modal-sub,.form-row label';
   __trBusy=true;
   try{
     var fix=function(el){
@@ -3930,6 +4054,7 @@ async function bootApp(){
     var ib=document.getElementById('invites-btn');if(ib)ib.style.display=isAdmin?'':'none';
     var sp=document.getElementById('side-profes');if(sp)sp.style.display=isAdmin?'':'none';
     try{teamSideSync();}catch(e){}
+    try{sideMeSync();sideTodayRender();}catch(e){}
     try{if(!isAdmin&&PLAYERS.length===0&&!localStorage.getItem('pd_welcome_done')){document.getElementById('modal-welcome').classList.add('open');}}catch(e){}
     try{setTimeout(function(){maybeShowTutorial('coach');},1500);}catch(e){}
   }catch(e){
@@ -4354,7 +4479,7 @@ function hideSidebar(){var s=document.getElementById('pd-sidebar');if(s){s.style
 })();
 function toggleSidebar(){var s=document.getElementById('pd-sidebar');if(s)s.classList.toggle('expanded');}
 var SIDE_ALIAS={pdmethod:'templates',programs:'templates',tests:'rend'};
-function setSideActive(section){section=SIDE_ALIAS[section]||section;document.querySelectorAll('.pd-nav-item').forEach(function(n){n.classList.remove('active');});var el=document.getElementById('side-'+section);if(el)el.classList.add('active');}
+function setSideActive(section){section=SIDE_ALIAS[section]||section;document.querySelectorAll('.pd-nav-item,.pd-me-u,.pd-me-g').forEach(function(n){n.classList.remove('active');});var el=document.getElementById('side-'+section);if(el)el.classList.add('active');}
 function sideNav(section){
   if(section!=='rend')rendOff();
   setSideActive(section);
@@ -4745,6 +4870,7 @@ async function refreshChatBadge(){
   await loadUnreadCounts();
   var total=0;Object.keys(CHAT_UNREAD).forEach(function(k){total+=CHAT_UNREAD[k];});
   var d=document.getElementById('side-chat-dot');if(d){d.textContent=total>9?'9+':String(total);d.style.display=total?'flex':'none';}
+  try{sideTodayRender();}catch(e){}
 }
 /* ===== VIDEOANÁLISIS: todo lo que mandan los alumnos, en un solo lugar ===== */
 var VA={items:[],f:'new',pid:'',ex:'',loaded:false,noSeen:false,busy:false};
@@ -5601,7 +5727,7 @@ function obInject(){
     +'<button class="ob-demo" onclick="pdDemoStart()">'+tr('¿Querés ver cómo queda con alumnos cargados? Ver un ejemplo')+' →</button></div>';
   el.insertAdjacentHTML('afterbegin',h);
 }
-function renderPanel(){try{return renderPanel0.apply(this,arguments);}finally{try{obInject();}catch(e){}}}
+function renderPanel(){try{return renderPanel0.apply(this,arguments);}finally{try{obInject();}catch(e){}try{sideTodayRender();}catch(e){}}}
 function renderPanel0(){
   var el=document.getElementById('panel-view');if(!el)return;
   if(!PLAYERS.length){
@@ -13209,6 +13335,97 @@ function copyInviteCode(code,btn){
 }
 // ── FIN INVITE MANAGER ────────────────────────────────────────────
 
+/* ===================== MENÚ LATERAL: tarjeta "Hoy", botón "+" y perfil ===================== */
+function sideTodayStats(){
+  var today=isoToday(),sched=0,done=0,urg=0,chk=0,unread=0;
+  (PLAYERS||[]).forEach(function(p){
+    var sess=(JB_SESSIONS&&JB_SESSIONS[p.id])||{},has=false,did=false;
+    Object.keys(sess).forEach(function(k){if(!TK_RE.test(k))return;if(tkIso(k)!==today)return;var s=sess[k];if(!s||!s.blocks||!s.blocks.length)return;has=true;try{if(dayTrained(p.id,k))did=true;}catch(e){}});
+    if(has){sched++;if(did)done++;}
+    try{var al=panelAlerts(p);if(al.length&&al[0].sev==='alta')urg++;}catch(e){}
+    if(p.wellness&&p.wellness[today])chk++;
+  });
+  try{Object.keys(CHAT_UNREAD||{}).forEach(function(k){unread+=CHAT_UNREAD[k]||0;});}catch(e){}
+  return {total:(PLAYERS||[]).length,sched:sched,done:done,urg:urg,chk:chk,unread:unread};
+}
+function sideTodayRender(){
+  var el=document.getElementById('side-today');if(!el)return;
+  if(!isCoach||PLAYER_MODE||!(PLAYERS||[]).length){el.innerHTML='';return;}
+  var t=sideTodayStats(),pct=t.sched?Math.round(t.done/t.sched*100):0;
+  var d=new Date(),dl=(DOW_ES[d.getDay()]||'')+' '+d.getDate()+' '+((MES_ES_L&&MES_ES_L[d.getMonth()])||'').slice(0,3).toLowerCase();
+  var ring='conic-gradient(var(--sg1) 0 '+pct+'%,rgba(128,128,128,0.22) '+pct+'% 100%)';
+  var pill=function(n,l,col,go){return '<button type="button" class="pd-td-pill" style="color:'+col+'" onclick="event.stopPropagation();'+go+'">'+n+'<span>'+tr(l)+'</span></button>';};
+  el.title=t.sched?(tr('Ya entrenaron')+' '+t.done+' '+tr('de')+' '+t.sched):'';
+  el.onclick=function(){sideTodayGo('all');};
+  el.innerHTML='<div class="pd-td-mini"><b>'+t.sched+'</b><span>'+tr('hoy')+'</span></div>'
+    +'<div class="pd-td-full"><div class="pd-td-d">'+tr('Hoy')+' · '+dl+'</div>'
+    +'<div class="pd-td-row"><div class="pd-td-ring" style="background:'+ring+'"><div>'+(t.sched?pct+'%':'—')+'</div></div>'
+    +'<div class="pd-td-n">'+(t.sched?t.sched+' '+tr('de')+' '+t.total:tr('Nadie'))+'<small>'+tr(t.sched?'entrenan hoy':'tiene entrenamiento hoy')+'</small></div></div>'
+    +'<div class="pd-td-pills">'+pill(t.urg,'alertas',t.urg?'#ff6b6b':'var(--sd-today-t)',"sideTodayGo('urg')")+pill(t.unread,'mensajes',t.unread?'var(--sg4)':'var(--sd-today-t)',"sideNav('chat')")+pill(t.chk,'check-in',t.chk?'var(--sg1)':'var(--sd-today-t)',"sideTodayGo('all')")+'</div></div>';
+}
+function sideTodayGo(f){
+  sideNav('alumnos');
+  setTimeout(function(){try{setCoachView('panel');PNL_F=f||'all';PNL_N=PNL_STEP;renderPanel();}catch(e){}},60);
+}
+function sideMeSync(){
+  var nm=(MY_PROFILE&&(MY_PROFILE.display_name||MY_PROFILE.email))||'';
+  var n=document.getElementById('side-me-name');if(n)n.textContent=nm||tr('Mi perfil');
+  var sub=document.getElementById('side-me-sub');
+  if(sub){var PL={free:tr('Gratis'),pro:'Pro',team:'Elite',club:'Elite'};var r='';try{r=isMainAcct()?tr('Cuenta principal'):(tr('Plan')+' '+(PL[myPlan()]||myPlan()));}catch(e){}
+    try{if(hasOrg()&&isTeamLead())r=teamRoleLbl({is_owner:isOrgOwner(),org_role:MY_PROFILE&&MY_PROFILE.org_role})+' · '+orgName();}catch(e){}
+    sub.textContent=r;}
+  var av=document.getElementById('side-av');
+  if(av){var lg=MY_PROFILE&&MY_PROFILE.brand_logo;
+    if(lg&&!isMainAcct()){av.style.backgroundImage='url("'+lg+'")';av.textContent='';}
+    else{av.style.backgroundImage='';var p=String(nm||'PD').replace(/@.*/,'').trim().split(/\s+/);av.textContent=((p[0]||'P')[0]+((p[1]||'')[0]||'')).toUpperCase();}}
+  var gl=document.getElementById('side-gl-team');
+  if(gl){var a=document.getElementById('side-equipo'),b=document.getElementById('side-profes');gl.style.display=((a&&a.style.display!=='none')||(b&&b.style.display!=='none'))?'':'none';}
+}
+/* ---- botón "+" ---- */
+function sidePlusOpen(ev){
+  if(ev)ev.stopPropagation();
+  var m=document.getElementById('side-plus-menu');
+  if(!m){m=document.createElement('div');m.id='side-plus-menu';document.body.appendChild(m);
+    document.addEventListener('pointerdown',function(e){var mm=document.getElementById('side-plus-menu');if(mm&&mm.classList.contains('open')&&!mm.contains(e.target)&&!(e.target.closest&&e.target.closest('#side-plus')))mm.classList.remove('open');});}
+  if(m.classList.contains('open')){m.classList.remove('open');return;}
+  var row=function(tone,svg,t,sub,go){return '<button type="button" class="spm-r" onclick="sidePlusClose();'+go+'"><i class="pd-tl '+tone+'">'+svg+'</i><span>'+tr(t)+(sub?'<small>'+tr(sub)+'</small>':'')+'</span></button>';};
+  var S=function(d){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';};
+  m.innerHTML='<div class="spm-h">'+tr('Crear')+'</div>'
+    +row('t2',S('<path d="M8 2v4M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M12 14v4M10 16h4"/>'),'Entrenamiento','Elegí el alumno y el día',"sidePlusSession()")
+    +row('t1',S('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>'),'Alumno','Te da su enlace al toque',"openPlayerModal()")
+    +row('t0',S('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 9v6M9 12h6"/>'),'Grupo','',"createGroup()")
+    +row('t3',S('<path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/>'),'Test','Salto, sprint, movilidad…',"sideNav('tests')");
+  var b=document.getElementById('side-plus').getBoundingClientRect(),vw=window.innerWidth;
+  m.style.left=Math.min(b.right+10,vw-254)+'px';m.style.top=Math.max(8,b.top)+'px';
+  m.classList.add('open');
+}
+function sidePlusClose(){var m=document.getElementById('side-plus-menu');if(m)m.classList.remove('open');var s=document.getElementById('pd-sidebar');if(s){s.classList.remove('hovering');s.classList.remove('expanded');}}
+/* Entrenamiento: elegir alumno y abrir su plan en hoy */
+function sidePlusSession(){
+  if(!(PLAYERS||[]).length){openPlayerModal();return;}
+  var el=document.getElementById('modal-side-pick');
+  if(!el){el=document.createElement('div');el.id='modal-side-pick';el.className='modal-overlay';el.onclick=function(e){if(e.target===el)el.classList.remove('open');};
+    el.innerHTML='<div class="modal"><div class="modal-handle"></div><h3 style="margin-top:0;">'+tr('¿Para quién es el entrenamiento?')+'</h3>'
+      +'<input type="search" id="sp-q" autocomplete="off" placeholder="'+tr('Buscar alumno...')+'" style="width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:11px 12px;color:var(--text);font-size:15px;margin-bottom:8px;" oninput="sidePickList()">'
+      +'<div id="sp-list" style="max-height:52vh;overflow-y:auto;"></div>'
+      +'<button class="mbtn mbtn-cancel" style="width:100%;margin-top:12px;" onclick="document.getElementById(\'modal-side-pick\').classList.remove(\'open\')">'+tr('Cancelar')+'</button></div>';
+    document.body.appendChild(el);}
+  document.getElementById('sp-q').value='';sidePickList();el.classList.add('open');
+  setTimeout(function(){try{if(window.matchMedia('(pointer:fine)').matches)document.getElementById('sp-q').focus();}catch(e){}},120);
+}
+function sidePickList(){
+  var q=pdNorm((document.getElementById('sp-q')||{}).value||'').trim(),L=document.getElementById('sp-list');if(!L)return;
+  var ps=(PLAYERS||[]).filter(function(p){return !q||pdNorm(p.name).indexOf(q)>=0;}).sort(function(a,b){return String(a.name).localeCompare(String(b.name));});
+  L.innerHTML=ps.length?ps.map(function(p){var av=p.photo?'<img src="'+String(p.photo).replace(/"/g,'&quot;')+'" style="width:100%;height:100%;object-fit:cover;">':String(p.name||'?').trim().split(/\s+/).map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+    return '<button type="button" class="spm-r" style="padding:9px 6px;" onclick="sidePickGo(\''+p.id+'\')"><i class="pd-av" style="width:34px;height:34px;overflow:hidden;">'+av+'</i><span>'+String(p.name).replace(/</g,'&lt;')+(p.pos?'<small>'+String(p.pos).replace(/</g,'&lt;')+'</small>':'')+'</span></button>';}).join('')
+    :'<div style="text-align:center;color:var(--muted);font-size:13px;padding:18px 0;">'+tr('Sin resultados.')+'</div>';
+}
+function sidePickGo(pid){
+  var el=document.getElementById('modal-side-pick');if(el)el.classList.remove('open');
+  sideNav('alumnos');
+  setTimeout(function(){try{doSelectPlayer(pid);setTimeout(function(){try{enterPlan();}catch(e){}},150);}catch(e){}},80);
+}
+
 /* ===================== EQUIPO: panel del dueño / coordinador =====================
    Roles: Dueño (orgs.owner_id) · Coordinador (trainers.org_role='coord') · Profe.
    Dueño y Coordinador ven este panel y pueden entrar a los alumnos de cualquier profe del equipo. */
@@ -13217,7 +13434,7 @@ var TEAM_VIEW=null; /* {id,name}: mientras el dueño trabaja con los alumnos de 
 function myOrgRole(){if(!hasOrg())return null;if(isOrgOwner())return 'owner';return (MY_PROFILE&&MY_PROFILE.org_role==='coord')?'coord':'coach';}
 function isTeamLead(){var r=myOrgRole();return r==='owner'||r==='coord';}
 function teamRoleLbl(m){return m.is_owner?tr('Dueño'):(m.org_role==='coord'?tr('Coordinador'):tr('Profe'));}
-function teamSideSync(){var b=document.getElementById('side-equipo');if(b)b.style.display=(isTeamLead()&&!PLAYER_MODE)?'':'none';}
+function teamSideSync(){var b=document.getElementById('side-equipo');if(b)b.style.display=(isTeamLead()&&!PLAYER_MODE)?'':'none';try{sideMeSync();}catch(e){}}
 function teamEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function teamInit(n){var p=String(n||'?').trim().split(/\s+/);return ((p[0]||'?')[0]+((p[1]||'')[0]||'')).toUpperCase();}
 
@@ -13418,6 +13635,40 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Planificar"]=STATIC_I18N["Planificar"]||["Plan", "Pianifica"];
+STATIC_I18N["Medir"]=STATIC_I18N["Medir"]||["Measure", "Misura"];
+STATIC_I18N["Comunicar"]=STATIC_I18N["Comunicar"]||["Communicate", "Comunica"];
+STATIC_I18N["Gestión"]=STATIC_I18N["Gestión"]||["Management", "Gestione"];
+STATIC_I18N["Sesiones y programas"]=STATIC_I18N["Sesiones y programas"]||["Sessions & programs", "Sessioni e programmi"];
+STATIC_I18N["Rendimiento y tests"]=STATIC_I18N["Rendimiento y tests"]||["Performance & tests", "Rendimento e test"];
+STATIC_I18N["Avisos"]=STATIC_I18N["Avisos"]||["Alerts", "Avvisi"];
+STATIC_I18N["Crear"]=STATIC_I18N["Crear"]||["Create", "Crea"];
+STATIC_I18N["Entrenamiento"]=STATIC_I18N["Entrenamiento"]||["Workout", "Allenamento"];
+STATIC_I18N["Elegí el alumno y el día"]=STATIC_I18N["Elegí el alumno y el día"]||["Pick the athlete and the day", "Scegli l’atleta e il giorno"];
+STATIC_I18N["Alumno"]=STATIC_I18N["Alumno"]||["Athlete", "Atleta"];
+STATIC_I18N["Te da su enlace al toque"]=STATIC_I18N["Te da su enlace al toque"]||["Get their link right away", "Ricevi subito il suo link"];
+STATIC_I18N["Grupo"]=STATIC_I18N["Grupo"]||["Group", "Gruppo"];
+STATIC_I18N["Test"]=STATIC_I18N["Test"]||["Test", "Test"];
+STATIC_I18N["Salto, sprint, movilidad…"]=STATIC_I18N["Salto, sprint, movilidad…"]||["Jump, sprint, mobility…", "Salto, sprint, mobilità…"];
+STATIC_I18N["¿Para quién es el entrenamiento?"]=STATIC_I18N["¿Para quién es el entrenamiento?"]||["Who is the workout for?", "Per chi è l’allenamento?"];
+STATIC_I18N["Buscar alumno..."]=STATIC_I18N["Buscar alumno..."]||["Search athlete...", "Cerca atleta..."];
+STATIC_I18N["Sin resultados."]=STATIC_I18N["Sin resultados."]||["No results.", "Nessun risultato."];
+STATIC_I18N["Ya entrenaron"]=STATIC_I18N["Ya entrenaron"]||["Already trained:", "Hanno già allenato:"];
+STATIC_I18N["hoy"]=STATIC_I18N["hoy"]||["today", "oggi"];
+STATIC_I18N["Hoy"]=STATIC_I18N["Hoy"]||["Today", "Oggi"];
+STATIC_I18N["Nadie"]=STATIC_I18N["Nadie"]||["No one", "Nessuno"];
+STATIC_I18N["entrenan hoy"]=STATIC_I18N["entrenan hoy"]||["train today", "si allenano oggi"];
+STATIC_I18N["tiene entrenamiento hoy"]=STATIC_I18N["tiene entrenamiento hoy"]||["has a workout today", "ha allenamento oggi"];
+STATIC_I18N["alertas"]=STATIC_I18N["alertas"]||["alerts", "avvisi"];
+STATIC_I18N["mensajes"]=STATIC_I18N["mensajes"]||["messages", "messaggi"];
+STATIC_I18N["check-in"]=STATIC_I18N["check-in"]||["check-in", "check-in"];
+STATIC_I18N["Cuenta principal"]=STATIC_I18N["Cuenta principal"]||["Main account", "Account principale"];
+STATIC_I18N["Mi perfil"]=STATIC_I18N["Mi perfil"]||["My profile", "Il mio profilo"];
+STATIC_I18N["Ajustes"]=STATIC_I18N["Ajustes"]||["Settings", "Impostazioni"];
+STATIC_I18N["de"]=STATIC_I18N["de"]||["of", "di"];
+STATIC_I18N["Gratis"]=STATIC_I18N["Gratis"]||["Free", "Gratis"];
+STATIC_I18N["Plan"]=STATIC_I18N["Plan"]||["Plan", "Piano"];
+
 STATIC_I18N["¿Te invitaron? Creá tu cuenta con tu código"]=STATIC_I18N["¿Te invitaron? Creá tu cuenta con tu código"]||["Invited? Create your account with your code", "Sei stato invitato? Crea il tuo account con il codice"];
 STATIC_I18N["Para crear tu cuenta necesitás el código de invitación que te pasó PD."]=STATIC_I18N["Para crear tu cuenta necesitás el código de invitación que te pasó PD."]||["To create your account you need the invitation code PD sent you.", "Per creare il tuo account ti serve il codice d’invito che ti ha inviato PD."];
 STATIC_I18N["Código de invitación"]=STATIC_I18N["Código de invitación"]||["Invitation code", "Codice d’invito"];
