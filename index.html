@@ -2711,7 +2711,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261109-2';
+var APP_VERSION='20261109-3';
 (function(){
   try{
     setTimeout(function(){
@@ -6107,6 +6107,7 @@ function doSelectPlayer(pid){
   try{if(!isCoach){currentPlayerId=pid;autoCloseStale();}}catch(e){console.error('autoCloseStale',e);}
   currentPlayerId=pid;activePid=pid;PLAN=loadPlan(pid);checkState={};lastCheckedDay=null;loadCheckState();
   var p=PLAYERS.find(function(x){return x.id===pid;});if(!p)return;
+  if(isCoach){try{hideSideScreens();}catch(e){}}
   if(!isCoach&&!p.questionnaire){showQuestionnaire(pid);return;}
   if(!isCoach&&!(p.wellness||{})[isoToday()]&&!((p._wlSkip||{})[isoToday()])){showWellness(pid);return;}
   if(!isCoach&&needsWeekly(p)&&!((p._wkSkip||{})[isoMonday()])){showWeekly(pid);return;}
@@ -6538,9 +6539,12 @@ function wlIdeaHtml(){
 }
 
 function wlGoDate(iso){var sess=JB_SESSIONS[currentPlayerId]||{};var s=sess[iso];if(!s||!s.blocks||!s.blocks.length)return;pendingDate=iso;enterPlan();}
+/* Pantallas del menú lateral: se esconden al abrir un alumno (si no, quedaban debajo, p. ej. al tocar un aviso) */
+function hideSideScreens(){['screen-profile','screen-ajustes','screen-templates','screen-pdmethod','screen-programs','screen-progedit','screen-draft','screen-chat','screen-tests','screen-profes','screen-videos','screen-groups','screen-team','screen-rend'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var lb=document.getElementById('screen-lib');if(lb)lb.classList.remove('active');}
 function enterPlan(){
   rendOff();
   hideSidebar();
+  try{hideSideScreens();}catch(e){}
   var ws=document.getElementById('screen-welcome');ws.classList.add('hidden');
   var _wb=document.getElementById('wl-back');if(_wb)_wb.style.display='none';
   setTimeout(function(){ws.classList.add('gone');},420);
