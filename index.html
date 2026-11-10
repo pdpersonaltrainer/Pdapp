@@ -219,6 +219,19 @@ html[data-theme="papel"] .pd-nav-item .pd-nb{border-color:#fff;}
 .pd-me-g svg{width:19px;height:19px;stroke:currentColor;}
 .pd-me-g:hover,.pd-me-u:hover{background:rgba(255,255,255,0.05);color:var(--text);}
 .pd-me-g.active{color:var(--mob);background:rgba(168,224,99,0.1);}
+/* en vivo */
+.bcard.live-chg{animation:liveChg 2.6s ease;}
+@keyframes liveChg{0%,30%{box-shadow:0 0 0 2px var(--mobfill),0 0 28px -4px rgba(168,224,99,0.7);}100%{box-shadow:none;}}
+#live-coach-pill{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;
+  padding:9px 14px;border-radius:14px;background:rgba(20,32,14,0.94);border:1px solid rgba(168,224,99,0.45);color:#dff3c4;font-size:12.5px;box-shadow:0 10px 26px -10px rgba(0,0,0,0.7);}
+#live-coach-pill i{width:8px;height:8px;border-radius:50%;background:var(--mobfill);box-shadow:0 0 0 0 rgba(168,224,99,0.7);animation:livePulse 1.6s infinite;flex:none;}
+#live-coach-pill b{color:#fff;}
+#live-coach-pill small{font-size:11px;color:#a9bf8f;margin-left:auto;}
+@media(max-width:480px){#live-coach-pill small{margin-left:16px;flex-basis:100%;}}
+html[data-theme="papel"] #live-coach-pill{background:#eef7e2;color:#2f4a17;border-color:rgba(79,138,28,0.45);}
+html[data-theme="papel"] #live-coach-pill b{color:#1f2a14;}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(168,224,99,0.7);}70%{box-shadow:0 0 0 8px rgba(168,224,99,0);}100%{box-shadow:0 0 0 0 rgba(168,224,99,0);}}
+@media (prefers-reduced-motion:reduce){.bcard.live-chg,#live-coach-pill i{animation:none;}}
 /* Pantallas bajas (iPad horizontal): todo el menú entra sin scroll */
 @media (max-height:900px){
   .pd-side{padding:10px 0 8px;}
@@ -2716,7 +2729,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261110-1';
+var APP_VERSION='20261110-2';
 (function(){
   try{
     setTimeout(function(){
@@ -3942,7 +3955,8 @@ function saveSessions(pid){
   /* Cualquier guardado de sesiones refresca la vista visible del alumno abierto.
      Así no depende de que cada función que inserta se acuerde de refrescar. */
   try{if(pid&&pid===currentPlayerId)setTimeout(function(){try{refreshAfterChange();}catch(e){}},0);}catch(e){}
-  showSyncStatus('saving');sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);});}
+  try{liveEnsureUids(pid);}catch(e){}
+  showSyncStatus('saving');sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);else{try{livePing(pid);}catch(e){}}});}
 async function migrateAllSessions(){for(var i=0;i<PLAYERS.length;i++){var pp=PLAYERS[i];var ex=JB_SESSIONS[pp.id];if(ex&&Object.keys(ex).length)continue;if(!pp.startDate)continue;var weeks=JB_PLANS[pp.id];if(!weeks)continue;var sess=buildSessionsFromWeeks(weeks,pp.startDate);JB_SESSIONS[pp.id]=sess;try{await sb.from('plans').update({sessions:sess,updated_at:new Date().toISOString()}).eq('player_id',pp.id);}catch(e){console.error('migrate',e);}}}
 var MES_ES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var DOW_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
@@ -6553,6 +6567,7 @@ function hideSideScreens(){['screen-profile','screen-ajustes','screen-templates'
 function enterPlan(){
   rendOff();
   hideSidebar();
+  if(isCoach)setTimeout(function(){try{liveCoachCheck();}catch(e){}},600);
   try{hideSideScreens();}catch(e){}
   var ws=document.getElementById('screen-welcome');ws.classList.add('hidden');
   var _wb=document.getElementById('wl-back');if(_wb)_wb.style.display='none';
@@ -6647,6 +6662,7 @@ async function checkAthletePin(){
   ATH_PIN=entered;
   savePin(entered);
   applyAthleteData(r.data);
+  setTimeout(function(){try{liveStart();}catch(e){}},1500);
   var pid=PLAYERS[0].id;
   closePlayerPinModal();
   renderSelect();
@@ -7120,6 +7136,8 @@ function renderPlan(){
   else if(isCoach&&PLAN_VARIANT==='b')PLAN_VARIANT='a';
   var _mx=(PLAYERS.find(function(x){return x.id===currentPlayerId;})||{}).maxes||{};
   PLAN=[[day]];cW=0;cD=0;
+  if(!isCoach){try{if(liveReconcileChecks())saveCheckState();}catch(e){}}
+  if(isCoach){try{setTimeout(liveCoachPill,0);}catch(e){}}
   var nw=document.getElementById('nwlbl');if(nw)nw.textContent=fmtDateLong(curDate);
   var nd=document.getElementById('ndlbl');if(nd)nd.textContent=sess?(day.title||''):t('sinEntrenoShort');
   var bp=document.getElementById('btn-prev');if(bp)bp.disabled=false;
@@ -7796,9 +7814,10 @@ function toggleCheck(w,d,b){
   /* Guardamos la hora: si el alumno se olvida de finalizar, la sesión se cierra
      con el último bloque completado en vez de quedar corriendo toda la noche. */
   if(checkState[key].done)checkState[key].ts=new Date().toISOString();
+  try{var _bid=liveBlockId(liveDayBlocks()[b]);if(_bid)checkState[key].u=_bid;}catch(e){}
   saveCheckState();refreshPlanUI();
 }
-function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;saveCheckState();refreshPlanUI();}
+function setRpe(w,d,b,r){var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].rpe=(checkState[key].rpe===r)?0:r;try{var _bid=liveBlockId(liveDayBlocks()[b]);if(_bid)checkState[key].u=_bid;}catch(e){}saveCheckState();refreshPlanUI();}
 function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var key=w+'-'+d+'-'+b;if(!checkState[key])checkState[key]={done:false,note:'',rpe:0};checkState[key].note=el.value;saveCheckState();}
 
 function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';pickSearch='';fillPatSelect(document.getElementById('pick-pat-filter'),'','');var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';var ssel=document.getElementById('pick-search');if(ssel)ssel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
@@ -13350,6 +13369,105 @@ function copyInviteCode(code,btn){
 }
 // ── FIN INVITE MANAGER ────────────────────────────────────────────
 
+/* ===================== EN VIVO: cambios del profe llegan al alumno mientras entrena =====================
+   - El profe, al guardar el plan de un alumno, manda un aviso por un canal de Supabase (Broadcast, sin datos).
+   - El alumno, con la app abierta, escucha ese canal y recarga su plan. Si el aviso no llega (mala señal),
+     mientras tiene una sesión en curso revisa cada minuto, y además al volver a la app.
+   - El cronómetro guarda la hora de inicio: sigue corriendo. Los checks siguen al bloque correcto (ids de bloque). */
+var LIVE={ch:null,pid:null,poll:null,busy:false,sig:null,sendT:{},coachT:null};
+function liveChan(pid){return 'pd-plan-'+pid;}
+/* id propio para cada bloque (se asigna al guardar; único dentro del día) */
+function liveUid(){return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function liveEnsureUids(pid){
+  var ss=(JB_SESSIONS&&JB_SESSIONS[pid])||null;if(!ss)return;
+  Object.keys(ss).forEach(function(k){var s=ss[k];if(!s||!s.blocks)return;var seen={};
+    s.blocks.forEach(function(b){if(!b||typeof b!=='object')return;if(!b.uid||seen[b.uid])b.uid=liveUid();seen[b.uid]=1;});});
+}
+function liveBlockId(b){if(!b)return '';if(b.uid)return b.uid;
+  return 's:'+(b.t||'')+'|'+String(b.title||'').trim().toLowerCase()+'|'+(b.exs||[]).map(function(e){return String((e&&(e.n||e.name))||'').trim().toLowerCase();}).join(',');}
+function liveDayBlocks(){try{return (PLAN&&PLAN[0]&&PLAN[0][0]&&PLAN[0][0].blocks)||[];}catch(e){return [];}}
+/* Los checks guardan a qué bloque pertenecen: si el profe mueve, agrega o borra bloques, cada check vuelve a su bloque */
+function liveReconcileChecks(){
+  var bl=liveDayBlocks();if(!bl.length)return false;
+  var ids=bl.map(liveBlockId),moved=false,out={},used={};
+  Object.keys(checkState).forEach(function(k){var c=checkState[k],bi=+k.split('-')[2];
+    if(!c||!c.u){if(!out[k])out[k]=c;return;}
+    if(ids[bi]===c.u&&!used[bi]){out[k]=c;used[bi]=1;return;}
+    var j=-1;for(var i=0;i<ids.length;i++){if(ids[i]===c.u&&!used[i]){j=i;break;}}
+    moved=true;if(j>=0){out['0-0-'+j]=c;used[j]=1;} /* si el bloque ya no está, se descarta la marca */
+  });
+  if(moved)checkState=out;return moved;
+}
+/* ---- Profe: avisar al alumno ---- */
+function livePing(pid){
+  if(!isCoach||!pid||!sb||!sb.channel||PD_DEMO)return;
+  clearTimeout(LIVE.sendT[pid]);
+  LIVE.sendT[pid]=setTimeout(function(){
+    try{var ch=sb.channel(liveChan(pid),{config:{broadcast:{self:false,ack:false}}});var done=false;
+      var fin=function(){if(done)return;done=true;setTimeout(function(){try{sb.removeChannel(ch);}catch(e){}},1200);};
+      ch.subscribe(function(st){if(st==='SUBSCRIBED'){try{ch.send({type:'broadcast',event:'upd',payload:{t:Date.now()}}).then(fin,fin);}catch(e){fin();}}
+        else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED')fin();});
+      setTimeout(fin,8000);
+    }catch(e){}
+  },1200);
+}
+/* ---- Alumno: escuchar ---- */
+function liveIsAthlete(){return !isCoach&&!!ATH_TOKEN&&!!ATH_PIN&&!!currentPlayerId;}
+function liveStart(){
+  if(!liveIsAthlete()||!sb||!sb.channel||document.hidden)return;
+  if(LIVE.ch&&LIVE.pid===currentPlayerId)return;
+  liveStop();LIVE.pid=currentPlayerId;
+  try{LIVE.ch=sb.channel(liveChan(currentPlayerId),{config:{broadcast:{self:false}}})
+    .on('broadcast',{event:'upd'},function(){liveRefresh('push');}).subscribe();}catch(e){LIVE.ch=null;}
+}
+function liveStop(){if(LIVE.ch){try{sb.removeChannel(LIVE.ch);}catch(e){}LIVE.ch=null;}}
+function liveInSession(){try{var t=timesOf(currentPlayerId)[isoToday()];return !!(t&&t.s&&!t.e);}catch(e){return false;}}
+function liveSig(){try{return JSON.stringify(JB_SESSIONS[currentPlayerId]||{})+'#'+JSON.stringify(JB_NOTRACK[currentPlayerId]||[]);}catch(e){return '';}}
+async function liveRefresh(why){
+  if(!liveIsAthlete()||LIVE.busy)return;LIVE.busy=true;
+  try{
+    var r=await sb.rpc('athlete_bootstrap',{p_token:ATH_TOKEN,p_pin:ATH_PIN});
+    if(r.error||!r.data||!r.data.plan)return;
+    var pid=currentPlayerId,before=liveSig(),oldBl=liveDayBlocks().map(function(b){return JSON.stringify(b);});
+    var pl=r.data.plan;
+    JB_SESSIONS[pid]=pl.sessions||null;JB_PLANS[pid]=pl.weeks||null;JB_NOTRACK[pid]=pl.no_track||[];
+    if(liveSig()===before)return;
+    var y=window.scrollY||0;
+    try{refreshAfterChange();}catch(e){}
+    try{window.scrollTo(0,y);}catch(e){}
+    var nb=liveDayBlocks(),cards=document.querySelectorAll('#screen-plan .bcard'),chg=0;
+    nb.forEach(function(b,i){if(oldBl.indexOf(JSON.stringify(b))<0){chg++;var c=cards[i];if(c){c.classList.remove('live-chg');void c.offsetWidth;c.classList.add('live-chg');}}});
+    toast(tr('Tu profe actualizó el entrenamiento')+(chg?' · '+chg+' '+tr(chg===1?'bloque cambiado':'bloques cambiados'):''));
+  }catch(e){}finally{LIVE.busy=false;}
+}
+function liveTick(){
+  if(liveIsAthlete()){liveStart();if(liveInSession()&&!document.hidden)liveRefresh('poll');}
+  if(isCoach)liveCoachCheck();
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){liveStop();return;}
+  if(liveIsAthlete()){liveStart();liveRefresh('focus');}
+  if(isCoach)liveCoachCheck();
+});
+setInterval(liveTick,60000);
+/* ---- Profe: ver si el alumno está entrenando ahora ---- */
+async function liveCoachCheck(){
+  if(!isCoach||!currentPlayerId||document.hidden)return;
+  var sp=document.getElementById('screen-plan');if(!sp||sp.style.display==='none')return;
+  var pid=currentPlayerId;
+  try{var r=await sb.from('progress').select('times').eq('player_id',pid).maybeSingle();
+    if(r&&r.data&&r.data.times&&pid===currentPlayerId){JB_TIMES[pid]=Object.assign({},JB_TIMES[pid]||{},r.data.times);liveCoachPill();}}catch(e){}
+}
+function liveCoachPill(){
+  var el=document.getElementById('live-coach-pill');
+  var show=false,since='';
+  try{if(isCoach&&currentPlayerId&&curDate===isoToday()){var t=(JB_TIMES[currentPlayerId]||{})[curDate];if(t&&t.s&&!t.e){show=true;var d=new Date(t.s);since=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}}}catch(e){}
+  var pc=document.getElementById('plan-content');
+  if(!show||!pc){if(el)el.remove();return;}
+  if(!el||el.parentNode!==pc){if(el)el.remove();el=document.createElement('div');el.id='live-coach-pill';pc.insertBefore(el,pc.firstChild);}
+  el.innerHTML='<i></i><span><b>'+tr('Entrenando ahora')+'</b> · '+tr('desde')+' '+since+'</span><small>'+tr('Tus cambios le llegan en vivo')+'</small>';
+}
+
 /* ===================== MENÚ LATERAL: tarjeta "Hoy", botón "+" y perfil ===================== */
 function sideTodayStats(){
   var today=isoToday(),sched=0,done=0,urg=0,chk=0,unread=0;
@@ -13652,6 +13770,13 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Tu profe actualizó el entrenamiento"]=STATIC_I18N["Tu profe actualizó el entrenamiento"]||["Your coach updated the workout", "Il tuo coach ha aggiornato l’allenamento"];
+STATIC_I18N["bloque cambiado"]=STATIC_I18N["bloque cambiado"]||["block changed", "blocco modificato"];
+STATIC_I18N["bloques cambiados"]=STATIC_I18N["bloques cambiados"]||["blocks changed", "blocchi modificati"];
+STATIC_I18N["Entrenando ahora"]=STATIC_I18N["Entrenando ahora"]||["Training now", "Si sta allenando ora"];
+STATIC_I18N["desde"]=STATIC_I18N["desde"]||["since", "dalle"];
+STATIC_I18N["Tus cambios le llegan en vivo"]=STATIC_I18N["Tus cambios le llegan en vivo"]||["Your changes reach them live", "Le tue modifiche arrivano in diretta"];
+
 STATIC_I18N["Planificar"]=STATIC_I18N["Planificar"]||["Plan", "Pianifica"];
 STATIC_I18N["Medir"]=STATIC_I18N["Medir"]||["Measure", "Misura"];
 STATIC_I18N["Comunicar"]=STATIC_I18N["Comunicar"]||["Communicate", "Comunica"];
