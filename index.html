@@ -220,6 +220,12 @@ html[data-theme="papel"] .pd-nav-item .pd-nb{border-color:#fff;}
 .pd-me-g:hover,.pd-me-u:hover{background:rgba(255,255,255,0.05);color:var(--text);}
 .pd-me-g.active{color:var(--mob);background:rgba(168,224,99,0.1);}
 /* en vivo */
+#auto-ntf{position:fixed;left:0;right:0;margin:0 auto;width:max-content;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateY(-16px);z-index:700;display:flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);box-sizing:border-box;padding:9px 9px 9px 14px;border-radius:999px;background:var(--s1);border:1px solid var(--border2);box-shadow:0 12px 34px rgba(0,0,0,0.35);color:var(--text);font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;}
+#auto-ntf.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+#auto-ntf svg{flex:none;color:var(--mob);}
+#auto-ntf span{min-width:0;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#auto-ntf button{flex:none;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:999px;padding:6px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
+#auto-ntf button:hover{border-color:var(--mob);}
 .bcard.live-chg{animation:liveChg 2.6s ease;}
 @keyframes liveChg{0%,30%{box-shadow:0 0 0 2px var(--mobfill),0 0 28px -4px rgba(168,224,99,0.7);}100%{box-shadow:none;}}
 #live-coach-pill{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px;
@@ -2729,7 +2735,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261110-2';
+var APP_VERSION='20261112-2';
 (function(){
   try{
     setTimeout(function(){
@@ -3956,6 +3962,7 @@ function saveSessions(pid){
      Así no depende de que cada función que inserta se acuerde de refrescar. */
   try{if(pid&&pid===currentPlayerId)setTimeout(function(){try{refreshAfterChange();}catch(e){}},0);}catch(e){}
   try{liveEnsureUids(pid);}catch(e){}
+  try{autoQueue(pid);}catch(e){}
   showSyncStatus('saving');sb.from('plans').upsert({player_id:pid,trainer_id:TRAINER_ID,sessions:JB_SESSIONS[pid],updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(r){showSyncStatus(r.error?'error':'ok');if(r.error)console.error('saveSessions',r.error);else{try{livePing(pid);}catch(e){}}});}
 async function migrateAllSessions(){for(var i=0;i<PLAYERS.length;i++){var pp=PLAYERS[i];var ex=JB_SESSIONS[pp.id];if(ex&&Object.keys(ex).length)continue;if(!pp.startDate)continue;var weeks=JB_PLANS[pp.id];if(!weeks)continue;var sess=buildSessionsFromWeeks(weeks,pp.startDate);JB_SESSIONS[pp.id]=sess;try{await sb.from('plans').update({sessions:sess,updated_at:new Date().toISOString()}).eq('player_id',pp.id);}catch(e){console.error('migrate',e);}}}
 var MES_ES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -4069,6 +4076,7 @@ async function bootApp(){
     overlay.style.display='none';
     activateCoach();
     try{notifStartPolling();}catch(e){}
+    try{setTimeout(pushResync,2500);}catch(e){}
     try{pdConsumeLink();}catch(e){}
     var ib=document.getElementById('invites-btn');if(ib)ib.style.display=isAdmin?'':'none';
     var sp=document.getElementById('side-profes');if(sp)sp.style.display=isAdmin?'':'none';
@@ -6663,6 +6671,7 @@ async function checkAthletePin(){
   savePin(entered);
   applyAthleteData(r.data);
   setTimeout(function(){try{liveStart();}catch(e){}},1500);
+  setTimeout(function(){try{pushResync();}catch(e){}},2500);
   var pid=PLAYERS[0].id;
   closePlayerPinModal();
   renderSelect();
@@ -12552,6 +12561,19 @@ async function enablePush(){
     sub=await reg.pushManager.getSubscription();
     if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_u8(VAPID_PUBLIC)});
   }catch(e){ console.error('subscribe',e); showInfo(tr('No se pudo activar el servicio de avisos.')); return false; }
+  showSyncStatus('saving');
+  var r=await pushSaveSub(sub);
+  if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return false;}
+  showSyncStatus('ok');
+  showInfo(tr('✅ Avisos activados.'));
+  try{renderPushBox();}catch(e){}
+  try{renderWlPush();}catch(e){}
+  return true;
+}
+/* Quién usa los avisos en este dispositivo (profe o alumno): evita que abrir el link de un alumno
+   en el teléfono del profe le "robe" la suscripción al profe. */
+function pushWho(){return isCoach?('c:'+(MY_UID||'')):('a:'+(currentPlayerId||''));}
+async function pushSaveSub(sub){
   var j=sub.toJSON();
   var row={
     endpoint:j.endpoint,
@@ -12564,16 +12586,35 @@ async function enablePush(){
     lang:LANG,
     updated_at:new Date().toISOString()
   };
-  showSyncStatus('saving');
   var r=ATH_TOKEN
     ? await sb.rpc('athlete_save_push',{p_token:ATH_TOKEN,p_pin:ATH_PIN,p_sub:row})
     : await sb.from('push_subscriptions').upsert(row,{onConflict:'endpoint'});
-  if(r.error){showSyncStatus('error');showInfo('Error: '+r.error.message);return false;}
-  showSyncStatus('ok');
-  showInfo(tr('✅ Avisos activados.'));
-  try{renderPushBox();}catch(e){}
-  try{renderWlPush();}catch(e){}
-  return true;
+  if(!r.error){try{localStorage.setItem('pd_push_who',pushWho());}catch(e){}}
+  return r;
+}
+/* BUG arreglado: antes la suscripción se guardaba UNA sola vez, al tocar "Activar avisos".
+   Si después el teléfono la renovaba, o el servidor la borraba por vencida, el alumno seguía viendo
+   "Avisos activados" pero ya no le llegaba nada. Ahora, cada vez que se abre la app, se vuelve a
+   guardar en silencio (y si hace falta se renueva). */
+var _pushResynced='';
+async function pushResync(){
+  try{
+    if(PD_DEMO||!pushSupported()||Notification.permission!=='granted')return;
+    if(/iPad|iPhone|iPod/.test(navigator.userAgent)&&!isStandalone())return;
+    if(!isCoach&&!(ATH_TOKEN&&currentPlayerId))return;
+    if(isCoach&&!MY_UID)return;
+    var who=pushWho();if(_pushResynced===who)return;
+    var prev=null;try{prev=localStorage.getItem('pd_push_who');}catch(e){}
+    if(prev&&prev!==who)return; /* este dispositivo recibe los avisos de otra persona */
+    var reg=await navigator.serviceWorker.getRegistration();
+    if(!reg)reg=await registerSW();if(!reg)return;
+    try{await navigator.serviceWorker.ready;}catch(e){}
+    var sub=await reg.pushManager.getSubscription();
+    if(!sub){try{sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_u8(VAPID_PUBLIC)});}catch(e){return;}}
+    var r=await pushSaveSub(sub);
+    if(r&&r.error){console.warn('pushResync',r.error);return;}
+    _pushResynced=who;
+  }catch(e){console.warn('pushResync',e);}
 }
 async function disablePush(){
   try{
@@ -12799,6 +12840,7 @@ async function pdOpenLink(l){
   try{
     if(!isCoach){ /* alumno: por ahora solo el chat */
       if(l.k==='chat'){try{wlGoChat();}catch(e){enterPlan();setTimeout(function(){showTab('msg');},200);}}
+      else if(l.k==='day'){try{pendingDate=l.d||isoToday();enterPlan();}catch(e){}}
       return;
     }
     var pid=l.pid,p=pid?PLAYERS.find(function(x){return x.id===pid;}):null;
@@ -12818,14 +12860,23 @@ async function pdOpenLink(l){
 }
 /* ===================== fin NOTIFICACIONES ===================== */
 
+/* Si el aviso no le llega a nadie, el profe se entera (una vez por alumno y por sesión) */
+var _pushWarned={};
+function pushWarn(pid,kind){
+  if(_pushWarned[pid])return;_pushWarned[pid]=1;
+  var p=(PLAYERS||[]).find(function(x){return x.id===pid;}),nm=(p&&p.name)?String(p.name).split(' ')[0]:tr('El alumno');
+  toast(kind==='off'?(nm+' '+tr('no tiene los avisos activados: no le llegó la notificación.')):(tr('No se pudo enviar la notificación a')+' '+nm+'.'));
+}
 function notifyPlayer(pid,title,text,url){
   if(!isCoach||!pid){console.warn('notifyPlayer: sin coach o sin pid',isCoach,pid);return;}
+  if(title===tr('Nuevo entrenamiento')||title===tr('Tu sesión de hoy')){try{autoSkip(pid);}catch(e){}}
+  if(PD_DEMO)return;
   try{
     sb.functions.invoke('send-push',{body:{to:'player',player_id:pid,title:title,body:text,url:url||'/'}})
       .then(function(r){
-        if(r&&r.error)console.error('notifyPlayer error',r.error);
-        else console.log('notifyPlayer ok',r&&r.data);
-      },function(e){console.error('notifyPlayer fallo',e);});
+        if(r&&r.error){console.error('notifyPlayer error',r.error);pushWarn(pid,'err');}
+        else{console.log('notifyPlayer ok',r&&r.data);if(r&&r.data&&!(r.data.sent>0))pushWarn(pid,(r.data.removed||r.data.note)?'off':'err');}
+      },function(e){console.error('notifyPlayer fallo',e);pushWarn(pid,'err');});
   }catch(e){console.error('notifyPlayer excepcion',e);}
 }
 function notifyCoach(title,text,link){
@@ -13468,6 +13519,75 @@ function liveCoachPill(){
   el.innerHTML='<i></i><span><b>'+tr('Entrenando ahora')+'</b> · '+tr('desde')+' '+since+'</span><small>'+tr('Tus cambios le llegan en vivo')+'</small>';
 }
 
+/* ===================== AVISO AUTOMÁTICO AL ALUMNO CUANDO EL PROFE EDITA SU PLAN =====================
+   - Espera 3 min desde el último cambio en ese alumno: diez cambios seguidos = un solo aviso.
+   - Junta los días tocados ("Actualizó 3 entrenamientos · jue 12, vie 13…"). Solo de hoy en adelante.
+   - No avisa si el alumno está entrenando ese día con la app abierta (ya le llega en vivo),
+     ni repite si ya se le avisó por plantilla o duplicado.
+   - Al guardar aparece "Se le avisará a X · No avisar" para poder cancelarlo.
+   - Si el profe cierra o minimiza la app antes de los 3 min, el aviso sale en ese momento. */
+var AUTO={snap:{},pend:{},t:{},ready:false,mute:0,DELAY:180000,barT:null};
+function autoSig(s){try{return JSON.stringify(s,function(k,v){return k==='uid'?undefined:v;});}catch(e){return '';}}
+function autoSnap(pid){var ss=(JB_SESSIONS&&JB_SESSIONS[pid])||{},m={};Object.keys(ss).forEach(function(k){if(TK_RE.test(k))m[k]=autoSig(ss[k]);});AUTO.snap[pid]=m;}
+function autoSnapAll(){(PLAYERS||[]).forEach(function(p){if(!AUTO.pend[p.id])autoSnap(p.id);});AUTO.ready=true;}
+function autoQueue(pid){
+  if(!isCoach||!AUTO.ready||AUTO.mute||!pid)return;
+  var snap=AUTO.snap[pid]||(AUTO.snap[pid]={}),ss=JB_SESSIONS[pid]||{},today=isoToday(),P=AUTO.pend[pid]||{};
+  Object.keys(ss).forEach(function(k){if(!TK_RE.test(k)||tkIso(k)<today||!hasBlk(ss[k]))return;if(snap[k]!==autoSig(ss[k]))P[k]=1;});
+  if(!Object.keys(P).length)return;
+  AUTO.pend[pid]=P;clearTimeout(AUTO.t[pid]);
+  AUTO.t[pid]=setTimeout(function(){autoFlush(pid);},AUTO.DELAY);
+  autoBar(pid);
+}
+/* Ya se le avisó por otro lado (plantilla, duplicado, versión suave): no repetir */
+function autoSkip(pid){clearTimeout(AUTO.t[pid]);delete AUTO.pend[pid];try{autoSnap(pid);}catch(e){}autoBarHide(pid);}
+function autoCancel(pid){autoSkip(pid);toast(tr('Listo, no se le avisará.'));}
+async function autoFlush(pid){
+  clearTimeout(AUTO.t[pid]);var P=AUTO.pend[pid];delete AUTO.pend[pid];autoBarHide(pid);if(!P)return;
+  var ss=JB_SESSIONS[pid]||{},snap=AUTO.snap[pid]||(AUTO.snap[pid]={}),today=isoToday();
+  var keys=Object.keys(P).filter(function(k){return hasBlk(ss[k])&&tkIso(k)>=today&&autoSig(ss[k])!==snap[k];});
+  if(!keys.length)return;
+  var isNew=keys.every(function(k){return snap[k]===undefined;});
+  keys.forEach(function(k){snap[k]=autoSig(ss[k]);});
+  /* Si está entrenando hoy con la app abierta, el cambio ya le aparece en vivo */
+  if(!PD_DEMO&&keys.some(function(k){return tkIso(k)===today;})){
+    try{var r=await sb.from('progress').select('times').eq('player_id',pid).maybeSingle(),tm=(r&&r.data&&r.data.times)||{};
+      keys=keys.filter(function(k){var t=tm[k];return !(tkIso(k)===today&&t&&t.s&&!t.e);});}catch(e){}
+  }
+  if(!keys.length)return;
+  var days=[];keys.forEach(function(k){var d=tkIso(k);if(days.indexOf(d)<0)days.push(d);});days.sort();
+  var lbl=function(d){if(d===today)return tr('hoy');if(d===addDaysISO(today,1))return tr('mañana');return fmtDateShort(d).toLowerCase();};
+  var body=days.length===1
+    ?(tr(isNew?'Nuevo entrenamiento':'Cambió tu entrenamiento')+' · '+lbl(days[0]))
+    :(tr('Actualizó')+' '+days.length+' '+tr('entrenamientos')+' · '+days.slice(0,3).map(lbl).join(', ')+(days.length>3?'…':''));
+  var prof=(MY_PROFILE&&MY_PROFILE.display_name)||tr('Tu profe');
+  AUTO.last={pid:pid,body:body}; /* para pruebas */
+  notifyPlayer(pid,prof,body,pdLinkUrl({k:'day',d:days[0]}));
+}
+function autoFlushAll(){Object.keys(AUTO.pend).forEach(function(pid){try{autoFlush(pid);}catch(e){}});}
+document.addEventListener('visibilitychange',function(){if(document.hidden)autoFlushAll();});
+window.addEventListener('pagehide',autoFlushAll);
+/* Cartelito "Se le avisará a X · No avisar" */
+function autoBar(pid){
+  var el=document.getElementById('auto-ntf');
+  if(!el){el=document.createElement('div');el.id='auto-ntf';document.body.appendChild(el);}
+  var p=(PLAYERS||[]).find(function(x){return x.id===pid;}),nm=(p&&p.name)?String(p.name).split(' ')[0]:tr('El alumno');
+  el.dataset.pid=pid;
+  el.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>'
+    +'<span>'+tr('Se le avisará a')+' <b>'+String(nm).replace(/</g,'&lt;')+'</b> '+tr('en unos minutos')+'</span>'
+    +'<button type="button" onclick="autoCancel(\''+pid+'\')">'+tr('No avisar')+'</button>';
+  el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+  clearTimeout(AUTO.barT);AUTO.barT=setTimeout(function(){el.classList.remove('show');},7000);
+}
+function autoBarHide(pid){var el=document.getElementById('auto-ntf');if(el&&(!pid||el.dataset.pid===pid))el.classList.remove('show');}
+/* Foto inicial del plan de cada alumno (lo que ya existía no genera aviso) */
+(function(){
+  var _la=loadAllFromSupabase;
+  loadAllFromSupabase=async function(){var r=await _la.apply(this,arguments);try{autoSnapAll();}catch(e){}return r;};
+  var _mg=migrateAllSessions;
+  migrateAllSessions=async function(){AUTO.mute++;try{return await _mg.apply(this,arguments);}finally{AUTO.mute--;try{autoSnapAll();}catch(e){}}};
+})();
+
 /* ===================== MENÚ LATERAL: tarjeta "Hoy", botón "+" y perfil ===================== */
 function sideTodayStats(){
   var today=isoToday(),sched=0,done=0,urg=0,chk=0,unread=0;
@@ -13770,6 +13890,19 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Cambió tu entrenamiento"]=STATIC_I18N["Cambió tu entrenamiento"]||["Your training was changed", "Il tuo allenamento è cambiato"];
+STATIC_I18N["Actualizó"]=STATIC_I18N["Actualizó"]||["Updated", "Ha aggiornato"];
+STATIC_I18N["entrenamientos"]=STATIC_I18N["entrenamientos"]||["workouts", "allenamenti"];
+STATIC_I18N["hoy"]=STATIC_I18N["hoy"]||["today", "oggi"];
+STATIC_I18N["mañana"]=STATIC_I18N["mañana"]||["tomorrow", "domani"];
+STATIC_I18N["Se le avisará a"]=STATIC_I18N["Se le avisará a"]||["We’ll notify", "Avviseremo"];
+STATIC_I18N["en unos minutos"]=STATIC_I18N["en unos minutos"]||["in a few minutes", "tra qualche minuto"];
+STATIC_I18N["No avisar"]=STATIC_I18N["No avisar"]||["Don’t notify", "Non avvisare"];
+STATIC_I18N["Listo, no se le avisará."]=STATIC_I18N["Listo, no se le avisará."]||["Done, they won’t be notified.", "Fatto, non verrà avvisato."];
+STATIC_I18N["Tu profe"]=STATIC_I18N["Tu profe"]||["Your coach", "Il tuo coach"];
+STATIC_I18N['no tiene los avisos activados: no le llegó la notificación.']=STATIC_I18N['no tiene los avisos activados: no le llegó la notificación.']||['doesn’t have notifications turned on: the notification didn’t reach them.','non ha attivato gli avvisi: la notifica non gli è arrivata.'];
+STATIC_I18N['No se pudo enviar la notificación a']=STATIC_I18N['No se pudo enviar la notificación a']||['Couldn’t send the notification to','Impossibile inviare la notifica a'];
+STATIC_I18N['El alumno']=STATIC_I18N['El alumno']||['The athlete','L’atleta'];
 STATIC_I18N["Tu profe actualizó el entrenamiento"]=STATIC_I18N["Tu profe actualizó el entrenamiento"]||["Your coach updated the workout", "Il tuo coach ha aggiornato l’allenamento"];
 STATIC_I18N["bloque cambiado"]=STATIC_I18N["bloque cambiado"]||["block changed", "blocco modificato"];
 STATIC_I18N["bloques cambiados"]=STATIC_I18N["bloques cambiados"]||["blocks changed", "blocchi modificati"];
