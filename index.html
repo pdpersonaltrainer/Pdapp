@@ -291,6 +291,11 @@ body.side-visible #screen-week,body.side-visible #screen-msg,body.side-visible #
 .pr-st{width:100%;border-collapse:collapse;font-size:13px;}.pr-st td{padding:4px 4px;border-top:1px solid var(--border2);vertical-align:middle;}.pr-st tr:first-child td{border-top:none;}.pr-st input{width:100%;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:7px;font-size:14px;color:var(--text);outline:none;text-align:center;}.ex-sets{margin-top:6px;display:inline-grid;grid-template-columns:auto auto auto;gap:2px 12px;font-size:12px;color:var(--muted);background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;}.ex-sets b{color:var(--text);font-weight:600;}.ex-sets.trk{grid-template-columns:auto auto auto 64px;align-items:center;}.ex-sets-h{font-size:9.5px;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted2);}.ex-sets.trk input{width:64px;box-sizing:border-box;background:var(--s);border:1px solid var(--cm);border-radius:6px;color:var(--text);padding:4px 6px;font-size:16px;text-align:center;outline:none;}.ex-pos{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;}
 .pr-lbl{font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
 .pr-type,.pr-eff{flex:1;font-size:12px;padding:9px 4px;}
+.pr-sw{display:flex;align-items:center;gap:12px;width:100%;margin-top:10px;padding:10px 12px;box-sizing:border-box;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);color:var(--text);text-align:left;cursor:pointer;font:inherit;}
+.pr-sw span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}.pr-sw b{font-size:13.5px;}.pr-sw small{font-size:11.5px;color:var(--muted2);line-height:1.35;}
+.pr-sw i{flex:none;width:40px;height:24px;border-radius:12px;background:var(--border2);position:relative;transition:background .2s;}
+.pr-sw i::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;}
+.pr-sw.on i{background:var(--mob);}.pr-sw.on i::after{transform:translateX(16px);}
 .pr-type.pr-on,.pr-eff.pr-on,.pr-var.pr-on,.pr-vid.pr-on{background:var(--mobfill);color:#0a0b0e;border-color:var(--mob);}
 .player-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.15s,box-shadow 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.28);}
 .player-card:active{transform:scale(0.985);}
@@ -2735,7 +2740,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261112-2';
+var APP_VERSION='20261115-2';
 (function(){
   try{
     setTimeout(function(){
@@ -7804,7 +7809,7 @@ function savePresc(){
   var _pn=document.getElementById('pr-note');
   var _nv=_pn?String(_pn.value||'').trim():'';
   if(_nv)ex.note=_nv;else delete ex.note;
-  if(prescVidOn){var _vx=document.getElementById('pr-vid-ex');ex.vid={ex:(_vx&&_vx.value)||mvGuessEx(ex.n)};if(String(ex.vid.ex).indexOf('rm:')===0){try{var _rl=String((document.getElementById('pr-rm-loads')||{}).value||'').split(/[;,\s]+/).map(function(x){return parseFloat(x.replace(',','.'));}).filter(function(x){return isFinite(x)&&x>=0;});ex.vid.rm={loads:_rl,r1:+(document.getElementById('pr-rm-r1')||{}).value||120,r2:+(document.getElementById('pr-rm-r2')||{}).value||180};}catch(_e4){}}try{var _lm=document.getElementById('pr-lim-m'),_lv=document.getElementById('pr-lim-v'),_ft=document.getElementById('pr-fat');if(_lm&&_lm.value!=='off')ex.vid.lim={m:_lm.value,v:(_lv&&_lv.value!=='')?+_lv.value:null};if(_ft&&+_ft.value)ex.vid.fat=+_ft.value;}catch(_e3){}}else delete ex.vid;
+  if(prescVidOn){var _vx=document.getElementById('pr-vid-ex');ex.vid={ex:(_vx&&_vx.value)||mvGuessEx(ex.n)};if(String(ex.vid.ex).indexOf('rm:')===0){try{var _rl=String((document.getElementById('pr-rm-loads')||{}).value||'').split(/[;,\s]+/).map(function(x){return parseFloat(x.replace(',','.'));}).filter(function(x){return isFinite(x)&&x>=0;});ex.vid.rm={loads:_rl,r1:+(document.getElementById('pr-rm-r1')||{}).value||120,r2:+(document.getElementById('pr-rm-r2')||{}).value||180};}catch(_e4){}}try{var _lm=document.getElementById('pr-lim-m'),_lv=document.getElementById('pr-lim-v'),_ft=document.getElementById('pr-fat');if(_lm&&_lm.value!=='off')ex.vid.lim={m:_lm.value,v:(_lv&&_lv.value!=='')?+_lv.value:null};if(_ft&&+_ft.value)ex.vid.fat=+_ft.value;var _pv=document.getElementById('pr-view'),_pa=document.getElementById('pr-auto');if(_pv&&MV_FRONT_EX[ex.vid.ex])ex.vid.view=_pv.dataset.v==='front'?'front':'side';if(_pa&&_pa.dataset.on==='0')ex.vid.auto=false;}catch(_e3){}}else delete ex.vid;
   commitSession();closePrescModal();refreshPlanUI();
 }
 
@@ -13890,6 +13895,20 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Ponete de perfil a la cámara"]=STATIC_I18N["Ponete de perfil a la cámara"]||["Stand side-on to the camera", "Mettiti di profilo alla fotocamera"];
+STATIC_I18N["Ponete de frente a la cámara"]=STATIC_I18N["Ponete de frente a la cámara"]||["Face the camera", "Mettiti di fronte alla fotocamera"];
+STATIC_I18N["Serie terminada"]=STATIC_I18N["Serie terminada"]||["Set finished", "Serie finita"];
+STATIC_I18N["Seguir marcando"]=STATIC_I18N["Seguir marcando"]||["Keep tracking", "Continua a tracciare"];
+STATIC_I18N["Guardar / compartir video"]=STATIC_I18N["Guardar / compartir video"]||["Save / share video", "Salva / condividi video"];
+STATIC_I18N["Filmate"]=STATIC_I18N["Filmate"]||["Film yourself", "Riprenditi"];
+STATIC_I18N["De perfil"]=STATIC_I18N["De perfil"]||["From the side", "Di profilo"];
+STATIC_I18N["De frente"]=STATIC_I18N["De frente"]||["From the front", "Di fronte"];
+STATIC_I18N["Fin de la serie"]=STATIC_I18N["Fin de la serie"]||["End of set", "Fine della serie"];
+STATIC_I18N["Se corta solo al terminar"]=STATIC_I18N["Se corta solo al terminar"]||["Stops on its own when you finish", "Si ferma da solo quando finisci"];
+STATIC_I18N["Lo cortás vos"]=STATIC_I18N["Lo cortás vos"]||["You stop it", "Lo fermi tu"];
+STATIC_I18N["Vista"]=STATIC_I18N["Vista"]||["View", "Vista"];
+STATIC_I18N["Cortar al terminar la serie"]=STATIC_I18N["Cortar al terminar la serie"]||["Stop when the set ends", "Ferma a fine serie"];
+STATIC_I18N["Deja de marcar y para la grabación cuando termina, camina o se gira."]=STATIC_I18N["Deja de marcar y para la grabación cuando termina, camina o se gira."]||["Stops tracking and recording when they finish, walk away or turn.", "Smette di tracciare e ferma la registrazione quando finisce, cammina o si gira."];
 STATIC_I18N["Cambió tu entrenamiento"]=STATIC_I18N["Cambió tu entrenamiento"]||["Your training was changed", "Il tuo allenamento è cambiato"];
 STATIC_I18N["Actualizó"]=STATIC_I18N["Actualizó"]||["Updated", "Ha aggiornato"];
 STATIC_I18N["entrenamientos"]=STATIC_I18N["entrenamientos"]||["workouts", "allenamenti"];
@@ -14626,6 +14645,8 @@ function mvToggleSound(){MV.sound=!MV.sound;mvSavePrefs();mvRenderLim();if(MV.so
 function mvReadOnly(){try{return !isCoach&&!!MV.req&&!MV.rm;}catch(e){return false;}}
 function mvReqSpecHtml(){
   var ex=MV.ex,e=MV_EX[ex]||{},it=[];
+  var _lk=mvLockView();if(_lk)it.push([tr('Filmate'),tr(_lk==='front'?'De frente':'De perfil')]);
+  if(MV.req&&MV_AE_EX[ex])it.push([tr('Fin de la serie'),tr(mvAeOn()?'Se corta solo al terminar':'Lo cortás vos')]);
   if(e.load)it.push([tr('Carga'),tr(mvLoadOf(ex)==='bar'?'Con carga':'Sin carga')]);
   var cur=mvLimOf(ex);
   if(MV_LIMS[ex]){var lv=tr('Sin límite');if(cur){var tx=MV_LIMTXT[ex+'_'+cur.m]||['',''],hasV=(MV_LIMS[ex].filter(function(d){return d[0]===cur.m;})[0]||[])[2]!=null;
@@ -14752,7 +14773,7 @@ function mvSayUnlock(force){try{if(window.speechSynthesis&&(force||!MV._sayOk)){
 function mvSay(kind){
   if(!MV.sound||!window.speechSynthesis)return;
   var now=Date.now();if(kind==='good'&&now-MV_SAYT<600)return;MV_SAYT=now;
-  var T={good:['¡Buenaa!','Nice!','Bene!'],cut:['¡Cortá la serie!','Stop the set!','Ferma la serie!']}[kind];if(!T)return;
+  var T={good:['¡Buenaa!','Nice!','Bene!'],cut:['¡Cortá la serie!','Stop the set!','Ferma la serie!'],done:['¡Listo!','Done!','Fatto!']}[kind];if(!T)return;
   var i=LANG==='en'?1:(LANG==='it'?2:0),lg=['es','en','it'][i];
   try{
     var u=new SpeechSynthesisUtterance(T[i]);var vs=speechSynthesis.getVoices()||[],v=null;
@@ -14783,8 +14804,17 @@ function prVidLimRender(vid){
       +'<input id="pr-lim-v" type="number" inputmode="decimal" value="'+val+'" style="width:78px;'+st+'display:'+(d[2]!=null?'block':'none')+';"><span id="pr-lim-u" style="font-size:13px;color:var(--muted);min-width:18px;">'+(d[3]||'')+'</span></div>';}
   if(MV_FAT_EX[exk]){var f=+(vid.fat||0);
     h+='<select id="pr-fat" style="width:100%;margin-top:6px;'+st+'">'+[0,10,20,30].map(function(v){return '<option value="'+v+'"'+(v===f?' selected':'')+'>'+(v?tr('Aviso de fatiga')+': '+tr('pérdida')+' '+v+'%':tr('Sin aviso de fatiga'))+'</option>';}).join('')+'</select>';}
+  /* vista y corte automático: se mantienen al cambiar de ejercicio */
+  var _ov=document.getElementById('pr-view'),_oa=document.getElementById('pr-auto');
+  var vw=vid.view||(_ov&&_ov.dataset.v)||'side',au=vid.auto!=null?vid.auto!==false:(_oa?_oa.dataset.on!=='0':true);
+  if(MV_FRONT_EX[exk])h+='<div class="pr-lbl" style="margin-top:10px;">'+tr('Vista')+'</div><div id="pr-view" data-v="'+vw+'" style="display:flex;gap:6px;">'
+    +'<button type="button" class="pr-vid cv-btn'+(vw==='side'?' pr-on':'')+'" onclick="prSetView(\'side\')">'+tr('De perfil')+'</button>'
+    +'<button type="button" class="pr-vid cv-btn'+(vw==='front'?' pr-on':'')+'" onclick="prSetView(\'front\')">'+tr('De frente')+'</button></div>';
+  if(MV_AE_EX[exk])h+='<button type="button" id="pr-auto" data-on="'+(au?'1':'0')+'" onclick="prToggleAuto()" class="pr-sw'+(au?' on':'')+'"><span><b>'+tr('Cortar al terminar la serie')+'</b><small>'+tr('Deja de marcar y para la grabación cuando termina, camina o se gira.')+'</small></span><i></i></button>';
   box.innerHTML=h;
 }
+function prSetView(v){var w=document.getElementById('pr-view');if(!w)return;w.dataset.v=v;w.querySelectorAll('button').forEach(function(b,i){b.classList.toggle('pr-on',(i===0)===(v==='side'));});}
+function prToggleAuto(){var b=document.getElementById('pr-auto');if(!b)return;var on=b.dataset.on==='0';b.dataset.on=on?'1':'0';b.classList.toggle('on',on);}
 function prVidLimChg(){
   var exk=(document.getElementById('pr-vid-ex')||{}).value,m=(document.getElementById('pr-lim-m')||{}).value;
   var d=(MV_LIMS[exk]||[]).filter(function(x){return x[0]===m;})[0];if(!d)return;
@@ -14828,7 +14858,11 @@ function mvFront(L,t){
 }
 function mvAnalyze(L,t){
   var P=MV_P,S=MV.S,out=[],ex=MV.ex,s,knee,hip,trunk;
-  if(MV_FRONT_EX[ex]&&!MV.rm){var _vw=mvView(L);
+  var _lk=mvLockView();
+  if(_lk){var _vl=mvView(L);
+    if(_vl!==_lk){if(!S.viewOff){S.viewOff=true;S.phase='up';S.cur=null;S.curSnap=null;S.curScore=null;S.fBase=null;}MV.msg=mvViewMsg(_lk);return [];}
+    S.viewOff=false;if(_lk==='front')return mvFront(L,t);}
+  else if(MV_FRONT_EX[ex]&&!MV.rm){var _vw=mvView(L);
     if(S.lastView&&S.lastView!==_vw){S.phase='up';S.cur=null;S.curSnap=null;S.curScore=null;S.fBase=null;}S.lastView=_vw;
     if(_vw==='front')return mvFront(L,t);}
   if(ex==='squat'){
@@ -15181,6 +15215,48 @@ var MV_SIDE_LEG={L:[11,23,25,27,31],R:[12,24,26,28,32]};var MV_ARM_EX={bench:1,p
 /* de frente o de costado: se detecta solo por el ancho de caderas/hombros vs. el largo del tronco */
 var MV_VIEW_EX={squat:1,deadlift:1,lunge:1,valgus:1,free:1,jump:1};
 var MV_LEG_BOTH=[11,12,23,24,25,26,27,28,31,32];
+/* ===================== VISTA FIJA (perfil / frente) + CORTE AUTOMÁTICO AL TERMINAR LA SERIE =====================
+   Vista fija: el profe elige al pedir el video. Si el alumno no está en esa vista, no se marcan líneas ni se cuentan reps.
+   Corte automático (después de la 1.ª rep, de pie), lo que llegue primero:
+     - hizo las reps pedidas y pasan 2,5 s sin volver a bajar
+     - camina (la cadera se corre ~media pierna) · se gira · se acerca a la cámara · sale de cuadro
+     - 6 s de pie sin bajar (10 s si es por lado)
+   Al cortar: se congelan las líneas, "Serie terminada · N reps" y, en vivo, la grabación para sola. */
+var MV_AE_EX={squat:1,valgus:1,deadlift:1,lunge:1,bench:1,pullup:1};
+function mvLockView(){var r=MV.req;if(!r||MV.rm||!MV_FRONT_EX[MV.ex])return null;return r.view==='front'?'front':(r.view==='side'?'side':null);}
+function mvAeOn(){return !!(MV.req&&MV.req.auto!==false&&MV_AE_EX[MV.ex]&&!MV.rm&&!MV.testKey);}
+function mvViewMsg(v){return tr(v==='front'?'Ponete de frente a la cámara':'Ponete de perfil a la cámara');}
+function mvAeRef(L){var P=MV_P,hm=mvMid(L[P.LH],L[P.RH]),sm=mvMid(L[P.LS],L[P.RS]),am=mvMid(L[P.LA],L[P.RA]);
+  var tl=Math.hypot(sm.x-hm.x,sm.y-hm.y)||1,lg=Math.hypot(am.x-hm.x,am.y-hm.y)||tl*1.5;return {hx:hm.x,tl:tl,leg:lg};}
+function mvAutoEnd(L,t){
+  var S=MV.S;if(!mvAeOn()||S.ended||!S.reps||!S.reps.length)return;
+  if(S.aeN!==S.reps.length){S.aeN=S.reps.length;S.aeT=t;S.aeRef=mvAeRef(L);S.aeView=S.view;S.aeOff=null;S.aeLost=null;return;}
+  if(S.phase!=='up'||!S.aeRef)return;
+  var dt=t-S.aeT,why=null,R=S.aeRef,c=mvAeRef(L),tg=MV.req&&MV.req.target;
+  /* fuera de la vista pedida (o se giró) */
+  var off=!!S.viewOff||(S.aeView&&S.view&&S.view!==S.aeView);
+  if(off){S.aeOff=S.aeOff||t;if(t-S.aeOff>700)why='view';}else S.aeOff=null;
+  if(!why&&tg&&S.reps.length>=tg&&dt>2500)why='target';
+  if(!why&&MV.ex!=='lunge'&&Math.abs(c.hx-R.hx)>0.5*R.leg)why='walk'; /* estocada caminando: no cuenta como caminar */
+  if(!why&&c.tl>1.35*R.tl)why='near';
+  if(!why&&dt>(MV.req&&MV.req.ps?10000:6000))why='pause';
+  if(why)mvSetEnded(why);
+}
+function mvAutoEndLost(t){var S=MV.S;if(!mvAeOn()||S.ended||!S.reps||!S.reps.length)return;S.aeLost=S.aeLost||t;if(t-S.aeLost>1500)mvSetEnded('lost');}
+function mvSetEnded(why){
+  var S=MV.S;S.ended=why;S.phase='up';S.cur=null;S.curSnap=null;S.curScore=null;
+  var n=S.reps.length;
+  MV.banner={t:tr('Serie terminada')+' · '+n+' '+(n===1?'rep':'reps'),until:Date.now()+2600,bg:'rgba(168,224,99,0.95)',fg:'#0a0b0e'};
+  mvSay('done');try{mvRenderMetrics();mvRenderLog();mvUpdSave();}catch(e){}
+  if(MV.mode==='cam'){
+    setTimeout(function(){if(MV.S===S&&S.ended&&MV.running&&MV.rec){MV.autoRec=true;mvStopStage();}},1800);
+  }else{
+    var c=mvEl('mv-ctrl');if(c&&!mvEl('mv-c-resume'))c.insertAdjacentHTML('afterbegin','<button class="mv-btn" id="mv-c-resume" onclick="mvResumeSet()">'+tr('Seguir marcando')+'</button>');
+  }
+}
+function mvResumeSet(){var S=MV.S;if(!S)return;S.ended=null;S.aeN=null;S.aeRef=null;S.aeLost=null;S.aeOff=null;var b=mvEl('mv-c-resume');if(b)b.remove();}
+function mvShareLast(){if(MV.lastRec)mvShareRec(MV.lastRec);}
+
 function mvView(L){
   var S=MV.S,v=(S&&S.view)||'side';
   try{var w=(Math.abs(L[23].x-L[24].x)+Math.abs(L[11].x-L[12].x))/2,
@@ -15308,17 +15384,21 @@ function mvStep(now,meta){
         // cuerpo incompleto: no medimos nada y se corta la repetición en curso
         if(S0.okSince!=null||S0.cur||S0.phase!=='up'){S0.phase='up';S0.cur=null;S0.curSnap=null;S0.curScore=null;S0.ema={};S0.last={};S0.j={state:'ground',base:null,legLen:null,t0:0,prevY:null,prevT:null};mvRenderMetrics();}
         S0.okSince=null;MV.msg=tr(L?'Que se vea el cuerpo entero':'Buscando el cuerpo…');
+        if(MV.counting||MV.mode==='file'){try{mvAutoEndLost(t);}catch(e){}}
       }else{
         if(S0.okSince==null)S0.okSince=t;
         if(t-S0.okSince<900){MV.msg=tr('Detectando…');}
         else if(MV.mode==='cam'&&!MV.counting){MV.msg=(MV.cdEnd||(MV.rm&&MV.rm.phase))?null:tr('Tocá ● para grabar y medir');
+          try{var _lk0=mvLockView();if(_lk0&&mvView(L)!==_lk0)MV.msg=mvViewMsg(_lk0);}catch(e){}
           /* vista previa del peso muerto: si las piernas no se ven, se avisa ANTES de grabar */
           if(false){try{if(mvView(L)!=='front'){var _sd=mvSide(L);mvDlLegOk(L,S0.side,mvVert(_sd.H,_sd.S));if(mvDlLegsBad())MV.msg=tr('Subí el celu a la cadera, a 3–4 m');}}catch(e){}}}
-        else{labels=mvAnalyze(L,t);if(false)MV.msg=tr(mvDlLegsBad()?'Subí el celu a la cadera, a 3–4 m':'Piernas tapadas: mido el tronco');}
+        else if(S0.ended){/* serie terminada: no se marca más */}
+        else{S0.aeLost=null;labels=mvAnalyze(L,t);try{mvAutoEnd(L,t);}catch(e){console.warn('autoEnd',e);}}
       }
     }catch(e){console.warn(e);}
     if(MV.waitTap&&!MV.waitTapDone&&MV.mode==='file'){MV.waitTapDone=true;try{vid.pause();}catch(e){}MV.msg=tr('Tocá el centro del disco para empezar');var _pb=mvEl('mv-c-play');if(_pb)_pb.textContent=tr('Seguir sin marcar');mvStatus(tr('Tocá el centro del disco en el video: así la línea amarilla sigue la barra. O tocá Seguir sin marcar.'));}
-    mvDraw(L,labels);
+    if(MV.S.ended)MV.msg=null;
+    mvDraw((MV.S.ended||MV.S.viewOff)?null:L,labels);
     // captura del punto más profundo de la rep en curso (después de dibujar)
     var S=MV.S;if(S.phase==='down'&&S.cur&&MV.ex!=='jump'){mvSnapCandidate(S.cur.min);}
     MV.fps.push(performance.now());while(MV.fps.length>20)MV.fps.shift();
@@ -15428,7 +15508,9 @@ function mvStartRec(){
   var type=['video/mp4','video/webm;codecs=vp9','video/webm'].find(function(t){return MediaRecorder.isTypeSupported(t);})||'';
   MV.chunks=[];MV.rec=new MediaRecorder(cv.captureStream(30),type?{mimeType:type,videoBitsPerSecond:4e6}:undefined);
   MV.rec.ondataavailable=function(e){if(e.data.size)MV.chunks.push(e.data);};
-  MV.rec.onstop=function(){var blob=new Blob(MV.chunks,{type:(MV.rec&&MV.rec.mimeType)||type||'video/mp4'});MV.rec=null;mvShareRec(blob);};
+  MV.rec.onstop=function(){var blob=new Blob(MV.chunks,{type:(MV.rec&&MV.rec.mimeType)||type||'video/mp4'});MV.rec=null;MV.lastRec=blob;
+    if(MV.autoRec){MV.autoRec=false;var _c=mvEl('mv-ctrl');if(_c)_c.insertAdjacentHTML('afterbegin','<button class="mv-btn" style="border-color:var(--mob);color:var(--mob);" onclick="mvShareLast()">'+tr('Guardar / compartir video')+'</button>');return;}
+    mvShareRec(blob);};
   MV.rec.start(500);var rd=mvEl('mv-recdot');rd.style.display='block';MV.recT0=Date.now();rd.textContent='● REC 0:00';
   MV.recTimer=setInterval(function(){var s=Math.floor((Date.now()-MV.recT0)/1000);rd.textContent='● REC '+Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);},500);
   mvEl('mv-shutter').classList.add('on');
@@ -15625,8 +15707,14 @@ function mvOpenReq(btn){
   if(MV_EX[ex]&&MV_EX[ex].load)MV.load[ex]=d.load||'free';
   var sess=(JB_SESSIONS[currentPlayerId]||{})[curDate];var note='';
   try{note=sess.blocks[+d.b].exs[+d.e].note||'';}catch(e){}
-  try{var _vd=sess.blocks[+d.b].exs[+d.e].vid||{};if(_vd.lim&&MV_LIMS[ex])MV.lim[ex]={m:_vd.lim.m,v:_vd.lim.v};if(_vd.fat!=null&&MV_FAT_EX[ex])MV.fatTh[ex]=+_vd.fat;}catch(e){}
-  openMov({pid:currentPlayerId,ex:ex,req:{d:curDate,n:d.n,b:+d.b,e:+d.e,note:note}});
+  var _rq={d:curDate,n:d.n,b:+d.b,e:+d.e,note:note};
+  try{var _x=sess.blocks[+d.b].exs[+d.e],_vd=_x.vid||{};if(_vd.lim&&MV_LIMS[ex])MV.lim[ex]={m:_vd.lim.m,v:_vd.lim.v};if(_vd.fat!=null&&MV_FAT_EX[ex])MV.fatTh[ex]=+_vd.fat;
+    _rq.view=_vd.view||null;_rq.auto=_vd.auto!==false;
+    /* reps pedidas (si es una cantidad fija): con eso sabe cuándo terminó la serie */
+    var _p=_x.p||{},_t=null;if((_p.type||'reps')==='reps'&&_p.repsMode!=='var'){var _m=String(_p.reps||'').match(/\d+/g);if(_m)_t=Math.max.apply(null,_m.map(Number));}
+    if(!_t){var _m2=String(_x.l||'').match(/[×x]\s*(\d+)(?:\s*[-–]\s*(\d+))?/i);if(_m2)_t=+(_m2[2]||_m2[1]);}
+    if(_t>0&&_t<60)_rq.target=_t;if(_p.perSide)_rq.ps=1;}catch(e){}
+  openMov({pid:currentPlayerId,ex:ex,req:_rq});
 }
 
 
@@ -16117,6 +16205,4 @@ function prRmRender(box,exk,vid){
 </script>
 
 </body>
-</html.bz{fill:transparent;stroke:rgba(120,130,150,0.28);stroke-width:1;cursor:pointer;transition:fill .12s,stroke .12s;}
-.bz:hover{fill:rgba(255,255,255,0.22);stroke:rgba(255,255,255,0.65);}
->
+</html>
