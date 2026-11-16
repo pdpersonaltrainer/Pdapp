@@ -739,6 +739,62 @@ input[type="date"]::-webkit-date-and-time-value{text-align:center;}
 .rdy-ph>div>b{display:block;font-size:14px;}.rdy-ph>div>span{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:0.04em;text-transform:uppercase;}
 .demo-cta{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;margin-top:6px;border-radius:10px;border:1px dashed rgba(168,224,99,0.45);background:transparent;color:#a8e063;font-family:'Barlow Condensed',sans-serif;font-size:14.5px;white-space:nowrap;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;}
 /* Enlaces de la pantalla de ingreso: reaccionan al pasar el cursor y al tocar */
+/* ===== Ingreso del profe (opción A: marca + formulario) ===== */
+#screen-login{flex-direction:column;}
+.lg-hero{position:relative;overflow:hidden;flex:none;padding:calc(env(safe-area-inset-top,0px) + 26px) 24px 24px;background:radial-gradient(120% 90% at 0% 0%,rgba(168,224,99,0.20),transparent 55%),linear-gradient(160deg,#121620,#0b0d12);border-bottom:1px solid #1d212a;color:#e8eaee;}
+.lg-grid{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.lg-brand{position:relative;display:flex;align-items:center;gap:10px;}
+.lg-brand img{width:34px;height:auto;filter:drop-shadow(0 0 8px rgba(168,224,99,0.5));}
+.lg-brand span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;letter-spacing:0.06em;text-transform:uppercase;}
+.lg-h{position:relative;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:31px;line-height:0.98;letter-spacing:0.01em;margin-top:20px;}
+.lg-h em{font-style:normal;color:#a8e063;}
+.lg-hs{position:relative;color:#9aa0aa;font-size:13.5px;line-height:1.5;margin-top:10px;max-width:460px;}
+.lg-feat{display:none;position:relative;list-style:none;padding:0;margin:28px 0 0;flex-direction:column;gap:14px;}
+.lg-feat li{display:flex;align-items:center;gap:12px;font-size:14.5px;color:#cfd3da;}
+.lg-feat i{flex:none;width:36px;height:36px;border-radius:10px;background:rgba(168,224,99,0.12);color:#a8e063;display:flex;align-items:center;justify-content:center;}
+.lg-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 24px calc(env(safe-area-inset-bottom,0px) + 26px);}
+.lg-col{width:100%;max-width:370px;}
+@media (min-width:760px){
+  #screen-login{flex-direction:row;}
+  .lg-hero{width:50%;min-height:100%;border-bottom:0;border-right:1px solid #1d212a;padding:48px 48px;display:flex;flex-direction:column;justify-content:center;}
+  .lg-h{font-size:clamp(44px,5.2vw,64px);margin-top:44px;}
+  .lg-hs{font-size:15.5px;}
+  .lg-feat{display:flex;}
+  .lg-side{padding:48px;}
+}
+.lg-ft{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:31px;letter-spacing:0.02em;text-transform:uppercase;line-height:1;color:var(--text);}
+.lg-fs{color:var(--muted2);font-size:14px;margin:7px 0 22px;line-height:1.45;}
+.lg-fl{display:block;font-size:12px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted2);margin:0 0 7px;}
+.lg-row{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;}
+.lg-lk{background:none;border:0;padding:0;font:inherit;font-size:13px;font-weight:700;color:#a8e063;cursor:pointer;}
+.lg-lk:hover{color:#c6f28f;text-decoration:underline;}
+.lg-in{display:flex;align-items:center;gap:10px;background:var(--s1);border:1.5px solid var(--border2);border-radius:12px;padding:0 6px 0 13px;height:52px;color:var(--muted);transition:border-color .15s,box-shadow .15s,color .15s;}
+.lg-in:focus-within{border-color:#a8e063;box-shadow:0 0 0 4px rgba(168,224,99,0.15);color:#a8e063;}
+.lg-in input{flex:1;min-width:0;height:100%;background:none;border:0;outline:0;color:var(--text);font-size:16px;font-family:inherit;padding:0;}
+.lg-in input::placeholder{color:var(--muted);opacity:.75;}
+.lg-in svg{flex:none;}
+.lg-eye{background:none;border:0;color:var(--muted);cursor:pointer;padding:9px;display:flex;border-radius:8px;}
+.lg-eye.on{color:#a8e063;}
+.lg-inp{width:100%;height:50px;margin:6px 0;padding:0 14px;border-radius:12px;border:1.5px solid var(--border2);background:var(--s1);color:var(--text);font-size:16px;box-sizing:border-box;outline:0;transition:border-color .15s,box-shadow .15s;}
+.lg-inp:focus{border-color:#a8e063;box-shadow:0 0 0 4px rgba(168,224,99,0.15);}
+.lg-btn{width:100%;height:54px;margin-top:20px;border:0;border-radius:12px;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:0.06em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:0 10px 30px -10px rgba(168,224,99,0.7);transition:transform .12s,filter .12s;}
+.lg-btn:hover{filter:brightness(1.06);}.lg-btn:active{transform:scale(0.98);}
+.lg-err{color:#ff6b6b;font-size:13px;margin-top:10px;min-height:18px;text-align:center;}
+.lg-msg{font-size:13px;margin-top:12px;min-height:18px;text-align:center;}
+.lg-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:6px 0 16px;text-transform:uppercase;letter-spacing:0.1em;}
+.lg-or::before,.lg-or::after{content:'';flex:1;height:1px;background:var(--border2);}
+.lg-ghost{width:100%;height:48px;border:1.5px solid var(--border2);background:transparent;color:var(--text);border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.05em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;white-space:nowrap;transition:border-color .15s,background .15s;}
+.lg-ghost svg{color:#a8e063;flex:none;}.lg-ghost:hover{border-color:#a8e063;background:rgba(168,224,99,0.06);}
+.lg-inv{text-align:center;font-size:13.5px;color:var(--muted2);margin-top:18px;}
+.lg-back{display:block;margin:14px auto 0;background:none;border:0;color:var(--muted2);font-size:13px;cursor:pointer;padding:7px 14px;border-radius:9px;}
+.lg-back:hover{color:var(--text);background:rgba(255,255,255,0.06);}
+.lg-foot{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:26px;}
+.lg-chip{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted2);background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:999px;padding:7px 13px;line-height:1.35;}
+.lg-chip svg{flex:none;color:#a8e063;}
+.lg-lang{display:flex;gap:4px;}
+.lg-lang button{background:none;border:0;font-size:12px;font-weight:700;letter-spacing:0.08em;padding:5px 9px;border-radius:7px;color:var(--muted);cursor:pointer;}
+.lg-lang button.on{background:var(--s2);color:#a8e063;}
+html[data-theme="papel"] #screen-login .lg-in input{background:none!important;border:0!important;}
 .auth-link{display:block!important;width:auto!important;margin-left:auto!important;margin-right:auto!important;padding:7px 14px!important;border-radius:9px!important;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;text-decoration-thickness:1.5px;transition:color .18s ease,background-color .18s ease,text-decoration-color .18s ease,transform .12s ease;-webkit-tap-highlight-color:transparent;}
 .auth-link:hover{color:#d2d6de!important;background:rgba(255,255,255,0.06)!important;text-decoration-color:currentColor;}
 .auth-link.al-pri:hover{color:#c6f28f!important;background:rgba(168,224,99,0.10)!important;}
@@ -1323,58 +1379,75 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
 </head>
 <body>
 <!-- LOGIN PROFE -->
-<div id="screen-login" style="position:fixed;inset:0;z-index:700;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-  <div style="width:100%;max-width:340px;text-align:center;margin:auto 0;">
-    <img src="icon.png" alt="PDapp" style="width:96px;height:96px;object-fit:cover;border-radius:26px;display:block;margin:0 auto 14px;" onerror="this.style.display='none'">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;">PDapp</div>
+<div id="screen-login" style="position:fixed;inset:0;z-index:700;background:var(--bg);display:flex;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <!-- Marca (opción A): quién sos y qué hace la app -->
+  <aside class="lg-hero">
+    <svg class="lg-grid" aria-hidden="true"><defs><pattern id="lg-g" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="rgba(168,224,99,0.07)"/></pattern></defs><rect width="100%" height="100%" fill="url(#lg-g)"/></svg>
+    <div class="lg-brand"><img src="pd-logo-load.webp" alt="" onerror="this.onerror=null;this.src='icon.png'"/><span>PDapp</span></div>
+    <div class="lg-h" data-i18n="lgH">Entren&#225; con el m&#233;todo<br>de la <em>&#233;lite</em>.</div>
+    <div class="lg-hs lg-tr">Planificaci&#243;n, cargas y seguimiento con la metodolog&#237;a de Pablo Dip, preparador de futbolistas de Serie A, La Liga y el f&#250;tbol argentino.</div>
+    <ul class="lg-feat">
+      <li><i><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></i><span class="lg-tr">Arm&#225; el plan y le llega al celular del alumno</span></li>
+      <li><i><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-6"/></svg></i><span class="lg-tr">Med&#237; cargas, tests y t&#233;cnica con video</span></li>
+      <li><i><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg></i><span class="lg-tr">Detect&#225; alertas antes de que haya una lesi&#243;n</span></li>
+    </ul>
+  </aside>
+  <main class="lg-side"><div class="lg-col">
 
     <!-- PANEL LOGIN -->
     <div id="panel-login">
-      <div style="font-size:13px;color:#6b7280;margin-bottom:22px;margin-top:2px;">Ingreso de profe</div>
-      <input id="login-email" type="email" placeholder="Email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <input id="login-pass" type="password" placeholder="Contrase&#241;a" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();login();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <button id="btn-login" onclick="login()" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Entrar</button>
-      <div id="login-err" style="color:#ff4d4d;font-size:13px;margin-top:12px;min-height:18px;"></div>
-      <button onclick="pdDemoStart()" class="demo-cta"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Probar con datos de ejemplo</button>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid #2b2f3a;font-size:12.5px;color:#6b7280;line-height:1.55;">Si sos alumno no necesitás cuenta: entrá con el enlace personal que te pasó tu profe.</div>
-      
-      <button class="auth-link al-pri" onclick="showRegister()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#a8e063;font-size:13px;font-weight:600;cursor:pointer;">&#191;Te invitaron? Cre&#225; tu cuenta con tu c&#243;digo</button>
-      <button class="auth-link" onclick="showForgot()" style="width:100%;padding:0;margin-top:10px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#191;Olvidaste tu contrase&#241;a?</button>
+      <div class="lg-ft lg-tr">Bienvenido de nuevo</div>
+      <div class="lg-fs lg-tr">Ingres&#225; a tu cuenta de profe</div>
+      <label class="lg-fl" for="login-email">Email</label>
+      <div class="lg-in"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="m22 7-10 6L2 7"/></svg><input id="login-email" type="email" placeholder="tu@email.com" autocomplete="username" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}"></div>
+      <div class="lg-row"><label class="lg-fl" for="login-pass">Contrase&#241;a</label><button type="button" class="lg-lk" onclick="showForgot()">&#191;La olvidaste?</button></div>
+      <div class="lg-in"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><input id="login-pass" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();login();}"><button type="button" class="lg-eye" onclick="lgEye(this)" aria-label="Mostrar contrase&#241;a"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      <button id="btn-login" class="lg-btn" onclick="login()">Entrar</button>
+      <div id="login-err" class="lg-err" role="alert"></div>
+      <div class="lg-or"><span class="lg-tr">o</span></div>
+      <button onclick="pdDemoStart()" class="lg-ghost"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Probar con datos de ejemplo</button>
+      <div class="lg-inv"><span class="lg-tr">&#191;Te invitaron?</span> <button type="button" class="lg-lk" onclick="showRegister()">Cre&#225; tu cuenta con tu c&#243;digo</button></div>
     </div>
 
     <!-- PANEL REGISTRO -->
     <div id="panel-register" style="display:none;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#a8e063;margin-top:6px;">Bienvenido a PDapp</div>
-      <div style="font-size:13px;color:#9aa0aa;margin:6px 0 18px;line-height:1.5;">Para crear tu cuenta necesit&#225;s el c&#243;digo de invitaci&#243;n que te pas&#243; PD.</div>
-      <input id="reg-name" type="text" placeholder="Nombre completo" autocomplete="name" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <input id="reg-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <input id="reg-pass" type="password" placeholder="Contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <input id="reg-pass2" type="password" placeholder="Confirmar contrase&#241;a" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <input id="reg-code" type="text" placeholder="C&#243;digo de invitaci&#243;n" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){event.preventDefault();registerCoach();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;font-family:monospace;letter-spacing:0.1em;">
-      <button onclick="registerCoach()" id="btn-register" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Crear cuenta</button>
-      <div id="reg-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
-      <button class="auth-link" onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Ya ten&#233;s cuenta? Ingres&#225;</button>
+      <div class="lg-ft lg-tr">Bienvenido a PDapp</div>
+      <div class="lg-fs lg-tr">Para crear tu cuenta necesit&#225;s el c&#243;digo de invitaci&#243;n que te pas&#243; PD.</div>
+      <input id="reg-name" class="lg-inp" type="text" placeholder="Nombre completo" autocomplete="name">
+      <input id="reg-email" class="lg-inp" type="email" placeholder="Email" autocomplete="username" autocapitalize="off">
+      <input id="reg-pass" class="lg-inp" type="password" placeholder="Contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password">
+      <input id="reg-pass2" class="lg-inp" type="password" placeholder="Confirmar contrase&#241;a" autocomplete="new-password">
+      <input id="reg-code" class="lg-inp" type="text" placeholder="C&#243;digo de invitaci&#243;n" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){event.preventDefault();registerCoach();}" style="font-family:monospace;letter-spacing:0.1em;">
+      <button onclick="registerCoach()" id="btn-register" class="lg-btn">Crear cuenta</button>
+      <div id="reg-msg" class="lg-msg"></div>
+      <button class="lg-back" onclick="showLogin()">&#8592; Ya ten&#233;s cuenta? Ingres&#225;</button>
     </div>
 
     <!-- PANEL RECUPERAR CONTRASEÑA -->
     <div id="panel-forgot" style="display:none;">
-      <div style="font-size:13px;color:#6b7280;margin-bottom:14px;margin-top:2px;">Recuperar contrase&#241;a</div>
-      <div style="font-size:13px;color:#9aa0aa;margin-bottom:14px;line-height:1.5;">Ingres&#225; tu email y te enviamos un link para crear una contrase&#241;a nueva.</div>
-      <input id="forgot-email" type="email" placeholder="Email" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();sendReset();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <button onclick="sendReset()" id="btn-forgot" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Enviar link</button>
-      <div id="forgot-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
-      <button class="auth-link" onclick="showLogin()" style="width:100%;padding:0;margin-top:14px;border:none;background:none;color:#6b7280;font-size:13px;cursor:pointer;">&#8592; Volver</button>
+      <div class="lg-ft lg-tr">Recuperar contrase&#241;a</div>
+      <div class="lg-fs lg-tr">Ingres&#225; tu email y te enviamos un link para crear una contrase&#241;a nueva.</div>
+      <input id="forgot-email" class="lg-inp" type="email" placeholder="Email" autocomplete="username" autocapitalize="off" onkeydown="if(event.key==='Enter'){event.preventDefault();sendReset();}">
+      <button onclick="sendReset()" id="btn-forgot" class="lg-btn">Enviar link</button>
+      <div id="forgot-msg" class="lg-msg"></div>
+      <button class="lg-back" onclick="showLogin()">&#8592; Volver</button>
     </div>
 
     <!-- PANEL NUEVA CONTRASEÑA (desde link de recuperación) -->
     <div id="panel-reset" style="display:none;">
-      <div style="font-size:13px;color:#6b7280;margin-bottom:14px;margin-top:2px;">Cre&#225; tu nueva contrase&#241;a</div>
-      <input id="reset-pass" type="password" placeholder="Nueva contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <input id="reset-pass2" type="password" placeholder="Confirmar contrase&#241;a" autocomplete="new-password" onkeydown="if(event.key==='Enter'){event.preventDefault();doReset();}" style="width:100%;padding:13px;margin:7px 0;border-radius:10px;border:1px solid #2b2f3a;background:#181b22;color:#eef0f5;font-size:16px;box-sizing:border-box;">
-      <button onclick="doReset()" id="btn-reset" style="width:100%;padding:14px;margin-top:10px;border-radius:10px;border:none;background:#a8e063;color:#0a0b0e;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;">Guardar contrase&#241;a</button>
-      <div id="reset-msg" style="font-size:13px;margin-top:12px;min-height:18px;"></div>
+      <div class="lg-ft lg-tr">Cre&#225; tu nueva contrase&#241;a</div>
+      <div class="lg-fs"></div>
+      <input id="reset-pass" class="lg-inp" type="password" placeholder="Nueva contrase&#241;a (m&#237;n. 6 caracteres)" autocomplete="new-password">
+      <input id="reset-pass2" class="lg-inp" type="password" placeholder="Confirmar contrase&#241;a" autocomplete="new-password" onkeydown="if(event.key==='Enter'){event.preventDefault();doReset();}">
+      <button onclick="doReset()" id="btn-reset" class="lg-btn">Guardar contrase&#241;a</button>
+      <div id="reset-msg" class="lg-msg"></div>
     </div>
-  </div>
+
+    <div class="lg-foot">
+      <div class="lg-chip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span class="lg-tr">&#191;Sos alumno? Entr&#225; con el link que te pas&#243; tu profe.</span></div>
+      <div class="lg-lang" id="lg-lang"><button type="button" data-l="es" onclick="setLang('es')">ES</button><button type="button" data-l="en" onclick="setLang('en')">EN</button><button type="button" data-l="it" onclick="setLang('it')">IT</button></div>
+    </div>
+  </div></main>
 </div>
 
 <!-- CUENTA SUSPENDIDA -->
@@ -2748,7 +2821,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261116-2';
+var APP_VERSION='20261116-3';
 (function(){
   try{
     setTimeout(function(){
@@ -3238,6 +3311,8 @@ function applyLang(){
     var _i=LANG==='en'?0:1;
     var BAN={'pd-intro':['Sessions built with the <b style="color:var(--mob);">PD</b> methodology. Insert them as-is into an athlete, or duplicate them to <b>My Sessions</b> to customize them.','Sessioni costruite con la metodologia <b style="color:var(--mob);">PD</b>. Inseriscile cos\u00ec come sono in un atleta, oppure duplicale in <b>Le mie sessioni</b> per personalizzarle.'],'tpl-info':['Save a session as a template from an athlete\u0027s plan (<b style="color:var(--mob);">Save as session</b> button), or create one from scratch below.','Salva una sessione come modello dal piano di un atleta (pulsante <b style="color:var(--mob);">Salva come sessione</b>), oppure creane una da zero qui sotto.']};
     Object.keys(BAN).forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=BAN[id][_i];});
+    var LGH={lgH:['Train with the method<br>of the <em>elite</em>.','Allenati con il metodo<br>dell’<em>élite</em>.']};
+    document.querySelectorAll('[data-i18n]').forEach(function(e){var v=LGH[e.dataset.i18n];if(v)e.innerHTML=v[_i];});
     if(!window.__pdObs){try{window.__pdObs=new MutationObserver(function(ms){
       if(__trBusy)return;
       var obs=window.__pdObs;obs.disconnect();
@@ -3260,7 +3335,7 @@ function tr(str){
 }
 function trStatic(root){
   if(LANG==='es'||!root||__trBusy)return;var _i=LANG==='en'?0:1;
-  var SEL='.hdr-name,.hdr-sub,.pd-nav-item span,.pd-gl span,label,button,h2,h3,option,.lib-tag,.atab-lbl,.filter-chip,.pca-btn,.sec-lbl,.sum-lbl,.cv-btn,.select-title,.select-sub,.welcome-sub,.pnl-stat-l,.modal-sub,.form-row label';
+  var SEL='.lg-tr,.hdr-name,.hdr-sub,.pd-nav-item span,.pd-gl span,label,button,h2,h3,option,.lib-tag,.atab-lbl,.filter-chip,.pca-btn,.sec-lbl,.sum-lbl,.cv-btn,.select-title,.select-sub,.welcome-sub,.pnl-stat-l,.modal-sub,.form-row label';
   __trBusy=true;
   try{
     var fix=function(el){
@@ -4111,6 +4186,8 @@ async function bootApp(){
     var errEl=document.getElementById('loading-error');errEl.style.display='block';errEl.innerHTML='Error cargando datos:<br>'+((e&&e.message)||e);
   }
 }
+function lgEye(b){var i=document.getElementById('login-pass');if(!i)return;var sh=i.type==='password';i.type=sh?'text':'password';b.classList.toggle('on',sh);b.setAttribute('aria-label',tr(sh?'Ocultar contraseña':'Mostrar contraseña'));}
+(function(){try{document.querySelectorAll('#lg-lang button').forEach(function(b){b.classList.toggle('on',b.dataset.l===LANG);});}catch(e){}})();
 function loginBtnReset(){var b=document.getElementById('btn-login');if(b&&b.classList.contains('busy')){b.classList.remove('busy');b.disabled=false;b.innerHTML=tr('Entrar');}}
 async function login(){
   var email=document.getElementById('login-email').value.trim();
@@ -13909,6 +13986,26 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Planificación, cargas y seguimiento con la metodología de Pablo Dip, preparador de futbolistas de Serie A, La Liga y el fútbol argentino."]=STATIC_I18N["Planificación, cargas y seguimiento con la metodología de Pablo Dip, preparador de futbolistas de Serie A, La Liga y el fútbol argentino."]||["Planning, loads and tracking with the methodology of Pablo Dip, strength coach to footballers in Serie A, La Liga and Argentine football.", "Pianificazione, carichi e monitoraggio con la metodologia di Pablo Dip, preparatore di calciatori di Serie A, La Liga e del calcio argentino."];
+STATIC_I18N["Armá el plan y le llega al celular del alumno"]=STATIC_I18N["Armá el plan y le llega al celular del alumno"]||["Build the plan and it reaches your athlete’s phone", "Crea il piano e arriva sul telefono dell’atleta"];
+STATIC_I18N["Medí cargas, tests y técnica con video"]=STATIC_I18N["Medí cargas, tests y técnica con video"]||["Track loads, tests and technique with video", "Misura carichi, test e tecnica con video"];
+STATIC_I18N["Detectá alertas antes de que haya una lesión"]=STATIC_I18N["Detectá alertas antes de que haya una lesión"]||["Spot warning signs before an injury happens", "Individua i segnali prima che arrivi un infortunio"];
+STATIC_I18N["Bienvenido de nuevo"]=STATIC_I18N["Bienvenido de nuevo"]||["Welcome back", "Bentornato"];
+STATIC_I18N["Ingresá a tu cuenta de profe"]=STATIC_I18N["Ingresá a tu cuenta de profe"]||["Sign in to your coach account", "Accedi al tuo account coach"];
+STATIC_I18N["¿La olvidaste?"]=STATIC_I18N["¿La olvidaste?"]||["Forgot it?", "L’hai dimenticata?"];
+STATIC_I18N["¿Te invitaron?"]=STATIC_I18N["¿Te invitaron?"]||["Were you invited?", "Sei stato invitato?"];
+STATIC_I18N["Creá tu cuenta con tu código"]=STATIC_I18N["Creá tu cuenta con tu código"]||["Create your account with your code", "Crea il tuo account con il codice"];
+STATIC_I18N["¿Sos alumno? Entrá con el link que te pasó tu profe."]=STATIC_I18N["¿Sos alumno? Entrá con el link que te pasó tu profe."]||["Athlete? Use the link your coach sent you.", "Sei un atleta? Entra con il link che ti ha mandato il tuo coach."];
+STATIC_I18N["Recuperar contraseña"]=STATIC_I18N["Recuperar contraseña"]||["Recover password", "Recupera password"];
+STATIC_I18N["Ingresá tu email y te enviamos un link para crear una contraseña nueva."]=STATIC_I18N["Ingresá tu email y te enviamos un link para crear una contraseña nueva."]||["Enter your email and we’ll send you a link to create a new password.", "Inserisci la tua email e ti invieremo un link per creare una nuova password."];
+STATIC_I18N["Creá tu nueva contraseña"]=STATIC_I18N["Creá tu nueva contraseña"]||["Create your new password", "Crea la tua nuova password"];
+STATIC_I18N["Bienvenido a PDapp"]=STATIC_I18N["Bienvenido a PDapp"]||["Welcome to PDapp", "Benvenuto in PDapp"];
+STATIC_I18N["Para crear tu cuenta necesitás el código de invitación que te pasó PD."]=STATIC_I18N["Para crear tu cuenta necesitás el código de invitación que te pasó PD."]||["To create your account you need the invitation code PD gave you.", "Per creare il tuo account ti serve il codice di invito che ti ha dato PD."];
+STATIC_I18N["Mostrar contraseña"]=STATIC_I18N["Mostrar contraseña"]||["Show password", "Mostra password"];
+STATIC_I18N["Ocultar contraseña"]=STATIC_I18N["Ocultar contraseña"]||["Hide password", "Nascondi password"];
+STATIC_I18N["Contraseña"]=STATIC_I18N["Contraseña"]||["Password", "Password"];
+STATIC_I18N["Email"]=STATIC_I18N["Email"]||["Email", "Email"];
+STATIC_I18N["o"]=STATIC_I18N["o"]||["or", "o"];
 STATIC_I18N['Conectando…']=STATIC_I18N['Conectando…']||['Connecting…','Connessione…'];
 STATIC_I18N["Avisos activados."]=STATIC_I18N["Avisos activados."]||["Notifications enabled.","Avvisi attivati."];
 STATIC_I18N["Día marcado como completado."]=STATIC_I18N["Día marcado como completado."]||["Day marked as completed.","Giorno segnato come completato."];
