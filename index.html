@@ -2743,7 +2743,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261115-4';
+var APP_VERSION='20261116-1';
 (function(){
   try{
     setTimeout(function(){
@@ -3892,7 +3892,7 @@ var JB_LOADS={};
 var JB_PLANS={};
 var JB_SESSIONS={};
 var JB_NOTRACK={};
-var TEMPLATES=[];
+var TEMPLATES=[];var TPL_LOADED=false; /* true cuando ya se trajeron TODAS las sesiones guardadas */
 var PROGRAMS=[];
 var GROUPS=[];var openGroupId=null;
 var curProgram=null;
@@ -5138,7 +5138,7 @@ function openTemplatesFromHome(){
 }
 async function loadTemplates(){
   var r=await sb.from('session_templates').select('*').order('created_at',{ascending:false});
-  if(!r.error)TEMPLATES=(r.data||[]).map(function(t){return {id:t.id,name:t.name,data:t.data||{},is_base:t.is_base,trainer_id:t.trainer_id,folder:t.folder||null};});
+  if(!r.error){TEMPLATES=(r.data||[]).map(function(t){return {id:t.id,name:t.name,data:t.data||{},is_base:t.is_base,trainer_id:t.trainer_id,folder:t.folder||null};});TPL_LOADED=true;}
 }
 function previewTemplate(id){
   var t=TEMPLATES.find(function(x){return x.id===id;});if(!t)return;
@@ -8486,7 +8486,7 @@ async function emptyDayTemplate(){
   var i=calMenuIso;closeDayMenu();
   if(!i)return;
   curDate=i;
-  if(!TEMPLATES||!TEMPLATES.length){
+  if(!TPL_LOADED||!TEMPLATES||!TEMPLATES.length){
     showSyncStatus('saving');
     try{await loadTemplates();}catch(e){console.error('loadTemplates',e);}
     showSyncStatus('ok');
