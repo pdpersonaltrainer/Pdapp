@@ -1073,6 +1073,7 @@ body.team-view .pd-side{top:calc(36px + var(--sdm) + env(safe-area-inset-top));}
 #loading-title{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 42px);text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#6c727d;opacity:0;animation:ldCx .4s ease 3s forwards;}
 @keyframes ldCx{to{opacity:1;}}
 @keyframes spin{to{transform:rotate(360deg);}}
+.tpl-spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--border2);border-top-color:var(--mob);animation:spin .8s linear infinite;flex:none;}
 @media (prefers-reduced-motion:reduce){.ld-fill{animation:none;clip-path:none;}.ld-wrap{animation:none;}}
 #loading-error{display:none;font-size:12px;color:#ff4d4d;text-align:center;max-width:260px;line-height:1.6;}
 
@@ -2915,7 +2916,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261123-1';
+var APP_VERSION='20261124-1';
 (function(){
   try{
     setTimeout(function(){
@@ -4265,6 +4266,7 @@ async function bootApp(){
     activateCoach();
     try{notifStartPolling();}catch(e){}
     try{setTimeout(pushResync,2500);}catch(e){}
+    try{setTimeout(function(){if(!TPL_LOADED)loadTemplates().catch(function(){});},4000);}catch(e){}
     try{pdConsumeLink();}catch(e){}
     var ib=document.getElementById('invites-btn');if(ib)ib.style.display=isAdmin?'':'none';
     var sp=document.getElementById('side-profes');if(sp)sp.style.display=isAdmin?'':'none';
@@ -8578,7 +8580,10 @@ function openDayEditModal(){if(!isCoach||!currentPlayerId)return;var sObj=getCur
 function closeDayEditModal(){document.getElementById('modal-edit-day').classList.remove('open');}
 function saveDayEdit(){if(!currentPlayerId)return;var sObj=getCurSession(true);sObj.title=document.getElementById('f-day-name').value.trim()||'Entrenamiento';sObj.pattern=document.getElementById('f-day-pattern').value.trim();var pr=document.getElementById('f-day-pills').value.trim();sObj.pills=pr?pr.split(',').map(function(x){return x.trim();}).filter(Boolean):[];PLAN[0][0]=sObj;commitSession();closeDayEditModal();refreshAfterChange();toast(tr('Entrenamiento modificado'));}
 function deleteSession(){if(!isCoach||!currentPlayerId||!curDate)return;askConfirm('\u00bfBorrar el entrenamiento de '+fmtDateLong(curDate)+(tkTurn(curDate)>1||dayTurns(currentPlayerId,curDate).length>1?' ('+tkLabel(curDate)+')':'')+'? No se puede deshacer.',function(){var ss=sessionsOf(currentPlayerId);delete ss[curDate];resetDayProgress(currentPlayerId,curDate,true);var ch=JB_CHECKS[currentPlayerId];if(ch){Object.keys(ch).forEach(function(k){if(k.indexOf(curDate+'-')===0)delete ch[k];});sb.from('progress').upsert({player_id:currentPlayerId,trainer_id:TRAINER_ID,checks:ch,updated_at:new Date().toISOString()},{onConflict:'player_id'}).then(function(){});}var _di=tkIso(curDate);if(compactTurns(currentPlayerId,_di)){saveTurnSide(currentPlayerId);curDate=_di;}saveSessions(currentPlayerId);checkState={};lastCheckedDay=null;closeDayEditModal();refreshAfterChange();toast(tr('Entrenamiento eliminado'),'del');},{danger:true,okLabel:'Borrar'});}
-var calMenuIso=null,_dmClose=null,_dmAnchor=null;
+var calMenuIso=null,_dmClose=null,_dmAnchor=null,_dmOpenedAt=0,_dmLastIso=null,_dmTouchT=0;
+/* El día del menú: si el menú se cerró un instante (el cursor salió al achicarse), igual se recuerda */
+function dmIso(){return calMenuIso||_dmLastIso;}
+document.addEventListener('touchstart',function(){_dmTouchT=Date.now();},{capture:true,passive:true});
 function dmEl(){
   var el=document.getElementById('daymenu-pop');
   if(!el){
@@ -8589,7 +8594,7 @@ function dmEl(){
   }
   return el;
 }
-function dmScheduleClose(){if(_dmClose)clearTimeout(_dmClose);_dmClose=setTimeout(closeDayMenu,320);}
+function dmScheduleClose(){if(Date.now()-_dmTouchT<1500)return; /* con el dedo se cierra tocando afuera, no por "salir" */if(_dmClose)clearTimeout(_dmClose);_dmClose=setTimeout(closeDayMenu,320);}
 function dmCancelClose(){if(_dmClose){clearTimeout(_dmClose);_dmClose=null;}}
 function dmItem(fn,label,icon,danger){
   return '<button onclick="'+fn+'" style="width:100%;box-sizing:border-box;display:flex;align-items:center;gap:9px;background:transparent;border:0;'
@@ -8601,8 +8606,8 @@ function openDayMenu(iso,ev,anchor){
   if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault();}
   if(!isCoach||!currentPlayerId)return;
   dmCancelClose();
-  if(calMenuIso===iso&&document.getElementById('daymenu-pop')&&document.getElementById('daymenu-pop').style.display==='block'&&ev&&ev.type==='click'){closeDayMenu();return;}
-  calMenuIso=iso;curDate=iso;
+  if(calMenuIso===iso&&document.getElementById('daymenu-pop')&&document.getElementById('daymenu-pop').style.display==='block'&&ev&&ev.type==='click'&&Date.now()-_dmOpenedAt>500){closeDayMenu();return;}
+  calMenuIso=iso;_dmLastIso=iso;_dmOpenedAt=Date.now();curDate=iso;
   var ss=sessionsOf(currentPlayerId);var d=ss[iso];
   var ICO_DUP='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
   var ICO_DEL='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
@@ -8620,7 +8625,7 @@ function openDayMenu(iso,ev,anchor){
     +dmItem('dayMenuOpen()',tr('Abrir sesión'),ICO_OPEN,false)
     +(_free?dmItem('dayMenuAddTurn()',tr('Agregar turno')+' '+tkTurn(_free),ICO_ADD,false):'')
     +dmItem('dayMenuComplete()',tr('Marcar como completado'),ICO_CHK,false)
-    +(hasBlk(d)?dmItem('openOrg({kind:\'cal\',iso:calMenuIso})',tr('Mover ejercicios entre bloques'),'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v7a4 4 0 0 0 4 4h12"/><path d="M15 10l5 5-5 5"/></svg>',false):'')
+    +(hasBlk(d)?dmItem('openOrg({kind:\'cal\',iso:dmIso()})',tr('Mover ejercicios entre bloques'),'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v7a4 4 0 0 0 4 4h12"/><path d="M15 10l5 5-5 5"/></svg>',false):'')
     +dmItem('dayMenuMove()',tr('Mover a otra fecha'),ICO_MOVE,false)
     +dmItem('dayMenuDuplicate()',tr(_nt?'Duplicar turno':'Duplicar día'),ICO_DUP,false)
     +dmItem('dayMenuTemplate()',tr('Guardar como modelo'),ICO_TPL,false)
@@ -8638,7 +8643,7 @@ function openEmptyDayMenu(iso,ev,anchor){
   if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault();}
   if(!isCoach||!currentPlayerId)return;
   dmCancelClose();
-  calMenuIso=iso;curDate=iso;
+  calMenuIso=iso;_dmLastIso=iso;_dmOpenedAt=Date.now();curDate=iso;
   var ICO_NEW='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>';
   var ICO_TPL='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 14h8"/></svg>';
   var el=dmEl();
@@ -8654,43 +8659,49 @@ function openEmptyDayMenu(iso,ev,anchor){
   el.style.top=top+'px';el.style.left=left+'px';
 }
 function emptyDayCreate(){
-  var i=calMenuIso;closeDayMenu();
+  var i=dmIso();closeDayMenu();
   if(!i)return;
   curDate=i;openDate(i);createTraining();
 }
 async function emptyDayTemplate(){
-  var i=calMenuIso;closeDayMenu();
-  if(!i)return;
+  var i=dmIso();closeDayMenu();
+  if(!i){showInfo(tr('No se pudo abrir el día. Probá de nuevo.'));return;}
   curDate=i;
-  if(!TPL_LOADED||!TEMPLATES||!TEMPLATES.length){
-    showSyncStatus('saving');
-    try{await loadTemplates();}catch(e){console.error('loadTemplates',e);}
-    showSyncStatus('ok');
-  }
-  if(!TEMPLATES||!TEMPLATES.length){showInfo(tr('Todavía no tenés sesiones guardadas.'));return;}
-  var lst=TEMPLATES.map(function(t){
-    var nb=((t.data&&t.data.blocks)||[]).length;
-    var ne=((t.data&&t.data.blocks)||[]).reduce(function(a,b){return a+((b.exs||[]).length);},0);
-    return '<button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="width:100%;box-sizing:border-box;text-align:left;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:var(--rsm);padding:11px 13px;margin-bottom:8px;cursor:pointer;font-family:\'Barlow\',sans-serif;">'
-      +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.02em;">'+t.name+'</div>'
-      +'<div style="font-size:11.5px;color:var(--muted2);margin-top:2px;">'+nb+' '+(nb===1?tr('bloque'):tr('bloques'))+' · '+ne+' '+tr('ejercicios')+'</div></button>';
-  }).join('');
-  document.getElementById('tplpick-date').textContent=fmtDateLong(i);
-  document.getElementById('tplpick-list').innerHTML=lst;
+  document.getElementById('tplpick-date').textContent=fmtDateLong(i)+(tkTurn(i)>1?' · '+tkLabel(i):'');
+  var L=document.getElementById('tplpick-list');
+  var fill=function(){
+    if(!TEMPLATES||!TEMPLATES.length){L.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:13px;padding:18px 6px;">'+tr('Todavía no tenés sesiones guardadas.')+'</div>';return;}
+    L.innerHTML=TEMPLATES.map(function(t){
+      var nb=((t.data&&t.data.blocks)||[]).length;
+      var ne=((t.data&&t.data.blocks)||[]).reduce(function(a,b){return a+((b.exs||[]).length);},0);
+      return '<button onclick="pickTemplateTarget(this.dataset.id)" data-id="'+t.id+'" style="width:100%;box-sizing:border-box;text-align:left;background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:var(--rsm);padding:11px 13px;margin-bottom:8px;cursor:pointer;font-family:\'Barlow\',sans-serif;">'
+        +'<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:15px;font-weight:800;letter-spacing:0.02em;">'+_tie(t.name)+'</div>'
+        +'<div style="font-size:11.5px;color:var(--muted2);margin-top:2px;">'+nb+' '+(nb===1?tr('bloque'):tr('bloques'))+' · '+ne+' '+tr('ejercicios')+'</div></button>';
+    }).join('');
+  };
+  /* se abre ya: si las sesiones todavía no llegaron, se ve "Cargando…" en vez de no pasar nada */
+  if(TPL_LOADED&&TEMPLATES&&TEMPLATES.length)fill();
+  else L.innerHTML='<div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted2);font-size:13px;padding:22px 6px;"><span class="tpl-spin"></span>'+tr('Cargando tus sesiones…')+'</div>';
   document.getElementById('modal-tplpick').classList.add('open');
+  if(!TPL_LOADED){
+    showSyncStatus('saving');
+    try{await loadTemplates();showSyncStatus('ok');}catch(e){console.error('loadTemplates',e);showSyncStatus('error');}
+    if(!TPL_LOADED&&!(TEMPLATES&&TEMPLATES.length)){L.innerHTML='<div style="text-align:center;color:var(--muted2);font-size:13px;padding:18px 6px;">'+tr('No se pudieron traer tus sesiones. Revisá la conexión y probá de nuevo.')+'</div>';return;}
+    if(document.getElementById('modal-tplpick').classList.contains('open'))fill();
+  }
 }
 function closeTplPick(){document.getElementById('modal-tplpick').classList.remove('open');}
-function dmHover(iso,ev,anchor){dmCancelClose();openDayMenu(iso,ev,anchor);}
+function dmHover(iso,ev,anchor){if(Date.now()-_dmTouchT<900)return;dmCancelClose();openDayMenu(iso,ev,anchor);}
 function closeDayMenu(){var el=document.getElementById('daymenu-pop');if(el)el.style.display='none';calMenuIso=null;dmCancelClose();}
 function dayMenuAddTurn(){
-  var i=calMenuIso,a=_dmAnchor;closeDayMenu();
+  var i=dmIso(),a=_dmAnchor;closeDayMenu();
   if(!i||!isCoach||!currentPlayerId)return;
   var k=nextFreeTurn(currentPlayerId,i);if(!k){showInfo(tr('Ese día ya tiene 3 turnos.'));return;}
   if(a&&document.body.contains(a))openEmptyDayMenu(k,null,a);else{openDate(k);}
 }
-function dayMenuOpen(){var i=calMenuIso;closeDayMenu();if(i)openDate(i);}
-function dayMenuDuplicate(){var i=calMenuIso;closeDayMenu();if(i){curDate=i;openDuplicateModal();}}
-function dayMenuDelete(){var i=calMenuIso;closeDayMenu();if(i){curDate=i;deleteSession();}}
+function dayMenuOpen(){var i=dmIso();closeDayMenu();if(i)openDate(i);}
+function dayMenuDuplicate(){var i=dmIso();closeDayMenu();if(i){curDate=i;openDuplicateModal();}}
+function dayMenuDelete(){var i=dmIso();closeDayMenu();if(i){curDate=i;deleteSession();}}
 document.addEventListener('click',function(e){
   var el=document.getElementById('daymenu-pop');
   if(el&&el.style.display==='block'&&!el.contains(e.target)&&!(e.target.closest&&e.target.closest('.daymenu-btn')))closeDayMenu();
@@ -8704,7 +8715,7 @@ function persistChecks(pid){
   });
 }
 function dayMenuComplete(){
-  var iso=calMenuIso;closeDayMenu();
+  var iso=dmIso();closeDayMenu();
   if(!iso||!isCoach||!currentPlayerId)return;
   var ss=sessionsOf(currentPlayerId);var d=ss[iso];
   if(!d||!d.blocks||!d.blocks.length)return;
@@ -8721,12 +8732,12 @@ function dayMenuComplete(){
   toast(tr('Día marcado como completado'));
 }
 function dayMenuTemplate(){
-  var iso=calMenuIso;closeDayMenu();
+  var iso=dmIso();closeDayMenu();
   if(!iso)return;curDate=iso;saveAsTemplate();
 }
 var moveIso=null;
 function dayMenuMove(){
-  var iso=calMenuIso;closeDayMenu();
+  var iso=dmIso();closeDayMenu();
   if(!iso||!isCoach||!currentPlayerId)return;
   var ss=sessionsOf(currentPlayerId);var d=ss[iso];
   if(!d||!d.blocks||!d.blocks.length){showInfo('Este día no tiene entrenamiento para mover.');return;}
@@ -14305,6 +14316,9 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Cargando tus sesiones…"]=STATIC_I18N["Cargando tus sesiones…"]||["Loading your sessions…", "Caricamento delle tue sessioni…"];
+STATIC_I18N["No se pudieron traer tus sesiones. Revisá la conexión y probá de nuevo."]=STATIC_I18N["No se pudieron traer tus sesiones. Revisá la conexión y probá de nuevo."]||["Couldn’t load your sessions. Check your connection and try again.", "Impossibile caricare le tue sessioni. Controlla la connessione e riprova."];
+STATIC_I18N["No se pudo abrir el día. Probá de nuevo."]=STATIC_I18N["No se pudo abrir el día. Probá de nuevo."]||["Couldn’t open the day. Try again.", "Impossibile aprire il giorno. Riprova."];
 STATIC_I18N["En vivo"]=STATIC_I18N["En vivo"]||["Live","Dal vivo"];
 STATIC_I18N["Sesión en vivo"]=STATIC_I18N["Sesión en vivo"]||["Live session", "Sessione dal vivo"];
 STATIC_I18N["Volver a la sesión en vivo"]=STATIC_I18N["Volver a la sesión en vivo"]||["Back to live session", "Torna alla sessione dal vivo"];
