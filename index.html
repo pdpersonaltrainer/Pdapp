@@ -896,6 +896,9 @@ html.lv-open body{overflow:hidden;}
 .lbp-sug{font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);margin:4px 2px 6px;}
 .lbp-sgi{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:11px 12px;margin-bottom:6px;border-radius:11px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font:inherit;font-size:14px;}
 .lbp-sgi small{color:var(--mob);font-weight:700;font-size:12px;}
+.lbp-fixed{margin:0 0 10px;padding:9px 12px;}
+.lbp-fixed .lbp-plus{width:26px;height:26px;font-size:18px;}
+.lbp-fixed b{font-size:14px;}
 .lbp-hint{font-size:11.5px;color:var(--mob);margin-top:5px;}
 .ex-lbsv{color:var(--mob)!important;}
 .lv-ck.pr{background:#ffc93c!important;border-color:#ffc93c!important;box-shadow:0 0 0 3px rgba(255,201,60,0.25);}
@@ -2250,6 +2253,7 @@ html[data-theme="papel"] .pw-d i{background:rgba(20,22,26,0.05);}
     </div>
     <select id="pick-type-filter" onchange="setPickType(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:8px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todos los tipos</option><option value="mob">Movilidad</option><option value="act">Activaci&#243;n y Prevenci&#243;n</option><option value="fza">Fuerza</option><option value="cm">Estabilidad / Core</option><option value="exp">Explosivos / Velocidad</option><option value="cam">Carrera</option><option value="est">Estiramientos din&#225;micos</option></select>
     <select id="pick-pat-filter" onchange="setPickPattern(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:var(--rsm);padding:9px 12px;margin-bottom:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);outline:none;"><option value="">Todas las acciones</option><option value="dr_bi">Dominante rodilla &middot; Bi</option><option value="dr_uni">Dominante rodilla &middot; Uni</option><option value="dc_bi">Dominante cadera &middot; Bi</option><option value="dc_uni">Dominante cadera &middot; Uni</option><option value="eh_bi">Empuje horizontal &middot; Bi</option><option value="eh_uni">Empuje horizontal &middot; Uni</option><option value="ev_bi">Empuje vertical &middot; Bi</option><option value="ev_uni">Empuje vertical &middot; Uni</option><option value="th">Tracci&#243;n horizontal</option><option value="tv">Tracci&#243;n vertical</option><option value="s2">Salto 2 piernas</option><option value="s1">Salto 1 pierna</option></select>
+    <button type="button" id="pick-new" class="lbp-new lbp-fixed" onclick="lbpCreate()"><span class="lbp-plus">+</span><span><b id="pick-new-t">Crear ejercicio nuevo</b><small class="lg-tr">Se guarda en tu biblioteca y entra al bloque.</small></span></button>
     <div class="pick-list" id="pick-list"></div>
     <div style="display:flex;gap:8px;margin-top:4px;">
       <button class="mbtn mbtn-cancel" style="flex:1;" onclick="closePickModal()">Cerrar</button>
@@ -2947,7 +2951,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261126-2';
+var APP_VERSION='20261126-3';
 (function(){
   try{
     setTimeout(function(){
@@ -14117,8 +14121,9 @@ function lbpCreateRow(q){
   return '<button type="button" class="lbp-new" onclick="lbpCreate()"><span class="lbp-plus">+</span><span><b>'+tr('Crear')+' «'+_tie(lbpCap(q))+'»</b><small>'+tr('No está en tu biblioteca: lo creás y se agrega al bloque.')+'</small></span></button>';
 }
 function lbpCreate(force){
-  var q=lbpCap(pickSearch||'');if(!q||!pickTarget)return;
-  var sim=force?null:lbpSimilar(q);
+  var q=lbpCap(pickSearch||'');if(!pickTarget)return;
+  if(q&&lbpInLib(q))q='';
+  var sim=(force||!q)?null:lbpSimilar(q);
   if(sim){
     var nm=sim.ex.name,id=sim.ex.id;
     askConfirm(tr(sim.s===2?'Ya tenés este ejercicio en la biblioteca:':'Hay uno muy parecido en tu biblioteca:')+' «'+nm+'». '+tr('¿Usás ese o creás uno nuevo?'),function(){lbpCreate(true);},
@@ -14175,7 +14180,7 @@ function lbpSaveFromPlan(w,d,b,e){
   var q=String(pickSearch||'').trim();
   if(q.length>=3&&!L.querySelector('.pick-item')){var sug=(LIB||[]).filter(function(e){return lbpTokFuzzy(q,e.name);}).slice(0,6);
     if(sug.length)L.innerHTML='<div class="lbp-sug">'+tr('¿Quisiste decir…?')+'</div>'+sug.map(function(e){return '<button type="button" class="lbp-sgi" data-lid="'+e.id+'" onclick="pickSelected={};pickSelected[this.dataset.lid]=true;addSelectedFromLib();"><span>'+_tie(e.name)+'</span><small>'+tr('Agregar')+'</small></button>';}).join('');}
-  var cr=lbpCreateRow(q);if(cr)L.insertAdjacentHTML('afterbegin',cr);}catch(e){}};})();
+  var bt=document.getElementById('pick-new-t');if(bt)bt.textContent=(q.length>=2&&!lbpInLib(q))?(tr('Crear')+' «'+lbpCap(q)+'»'):tr('Crear ejercicio nuevo');}catch(e){}};})();
 (function(){var _c0=closeLibModal;closeLibModal=function(){_c0.apply(this,arguments);LIBPICK=null;var r=document.getElementById('f-planonly-row');if(r)r.style.display='none';var h=document.getElementById('f-guess-hint');if(h)h.textContent='';
   var b=document.querySelector('#modal-lib .mbtn-save');if(b)b.textContent=tr('Guardar');['f-share-row','f-pd-row'].forEach(function(id){var x=document.getElementById(id);if(x&&x.dataset.lbpHid!=null){x.style.display=x.dataset.lbpHid;delete x.dataset.lbpHid;}});};})();
 /* ===================== PROGRESO AL TERMINAR: récords, mejoras y aliento =====================
@@ -14584,6 +14589,8 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Crear ejercicio nuevo"]=STATIC_I18N["Crear ejercicio nuevo"]||["Create new exercise", "Crea nuovo esercizio"];
+STATIC_I18N["Se guarda en tu biblioteca y entra al bloque."]=STATIC_I18N["Se guarda en tu biblioteca y entra al bloque."]||["It’s saved to your library and added to the block.", "Viene salvato nella tua libreria e aggiunto al blocco."];
 STATIC_I18N["Crear"]=STATIC_I18N["Crear"]||["Create", "Crea"];
 STATIC_I18N["No está en tu biblioteca: lo creás y se agrega al bloque."]=STATIC_I18N["No está en tu biblioteca: lo creás y se agrega al bloque."]||["Not in your library: create it and it’s added to the block.", "Non è nella tua libreria: lo crei e si aggiunge al blocco."];
 STATIC_I18N["Ya tenés este ejercicio en la biblioteca:"]=STATIC_I18N["Ya tenés este ejercicio en la biblioteca:"]||["You already have this exercise in your library:", "Hai già questo esercizio nella libreria:"];
