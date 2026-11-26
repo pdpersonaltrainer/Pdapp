@@ -889,6 +889,37 @@ html.lv-open body{overflow:hidden;}
 .lv-prow.on .lv-pck{background:var(--mob);border-color:var(--mob);}
 .lv-t2{display:none;}
 @media (max-width:639px){.lv-t1{display:none;}.lv-t2{display:inline;}.lv-add span{display:none;}.lv-tt small{display:none;}.lv-clock{font-size:20px;}.lv-end{padding:9px 11px;}}
+.lbp-new{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 12px;margin-bottom:8px;border-radius:12px;border:1.5px dashed rgba(168,224,99,0.55);background:rgba(168,224,99,0.07);color:var(--text);cursor:pointer;font:inherit;}
+.lbp-new:hover{background:rgba(168,224,99,0.13);}
+.lbp-new .lbp-plus{flex:none;width:30px;height:30px;border-radius:9px;background:var(--mob);color:#0a0b0e;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;}
+.lbp-new b{display:block;font-size:14.5px;}.lbp-new small{display:block;font-size:12px;color:var(--muted2);margin-top:2px;}
+.lbp-sug{font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted2);margin:4px 2px 6px;}
+.lbp-sgi{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:11px 12px;margin-bottom:6px;border-radius:11px;border:1px solid var(--border2);background:var(--s2);color:var(--text);cursor:pointer;font:inherit;font-size:14px;}
+.lbp-sgi small{color:var(--mob);font-weight:700;font-size:12px;}
+.lbp-hint{font-size:11.5px;color:var(--mob);margin-top:5px;}
+.ex-lbsv{color:var(--mob)!important;}
+.lv-ck.pr{background:#ffc93c!important;border-color:#ffc93c!important;box-shadow:0 0 0 3px rgba(255,201,60,0.25);}
+.lv-sb.pr{border-color:rgba(255,201,60,0.7)!important;}
+.pg-modal{text-align:center;}
+.pg-hero{width:64px;height:64px;margin:6px auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(168,224,99,0.14);color:var(--mob);font-size:30px;}
+.pg-hero.pr{background:rgba(255,201,60,0.16);color:#ffc93c;box-shadow:0 0 0 6px rgba(255,201,60,0.08);animation:pgPop .6s cubic-bezier(.2,1.4,.4,1) both;}
+@keyframes pgPop{from{transform:scale(.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.pg-t{margin:0 0 4px!important;}
+.pg-meta{font-size:13px;color:var(--muted2);margin-bottom:14px;}
+.pg-msg{text-align:left;background:rgba(168,224,99,0.08);border:1px solid rgba(168,224,99,0.3);border-radius:14px;padding:13px 15px;margin:0 0 14px;}
+.pg-msg p{margin:0;font-size:15px;line-height:1.5;color:var(--text);}
+.pg-msg small{display:block;margin-top:6px;font-size:12px;color:var(--mob);font-weight:700;}
+.pg-list{display:flex;flex-direction:column;gap:7px;text-align:left;max-height:42vh;overflow-y:auto;margin-bottom:6px;}
+.pg-row{display:flex;align-items:center;gap:11px;background:var(--s2);border:1px solid var(--border2);border-radius:12px;padding:9px 12px;}
+.pg-row i{flex:none;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.pg-n{flex:1;min-width:0;display:flex;flex-direction:column;}.pg-n b{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.pg-n small{font-size:12px;color:var(--muted2);}
+.pg-v{flex:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;}
+.pg-pr{border-color:rgba(255,201,60,0.5);}.pg-pr i{background:rgba(255,201,60,0.15);color:#ffc93c;}.pg-pr .pg-v{color:#ffc93c;}
+.pg-up i{background:rgba(168,224,99,0.14);color:var(--mob);}.pg-up small{color:var(--mob)!important;}
+.pg-down i{background:rgba(255,176,32,0.14);color:#ffb020;}
+.pg-same i,.pg-first i{background:var(--s1);color:var(--muted2);}
+.pg-plan i{background:rgba(77,171,247,0.14);color:#4dabf7;}
+.pg-ok{width:100%;margin-top:12px;}
 .auth-link{display:block!important;width:auto!important;margin-left:auto!important;margin-right:auto!important;padding:7px 14px!important;border-radius:9px!important;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;text-decoration-thickness:1.5px;transition:color .18s ease,background-color .18s ease,text-decoration-color .18s ease,transform .12s ease;-webkit-tap-highlight-color:transparent;}
 .auth-link:hover{color:#d2d6de!important;background:rgba(255,255,255,0.06)!important;text-decoration-color:currentColor;}
 .auth-link.al-pri:hover{color:#c6f28f!important;background:rgba(168,224,99,0.10)!important;}
@@ -2916,7 +2947,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261124-1';
+var APP_VERSION='20261126-2';
 (function(){
   try{
     setTimeout(function(){
@@ -5940,6 +5971,11 @@ function obHide(){try{localStorage.setItem('pd_ob_hide','1');}catch(e){}var c=do
 function obInject(){
   var el=document.getElementById('panel-view');if(!el||!isCoach||isAdmin||PD_DEMO||document.getElementById('ob-card'))return;
   try{if(localStorage.getItem('pd_ob_hide')==='1')return;}catch(e){}
+  /* Solo para profes NUEVOS: nunca en la cuenta principal, ni antes de saber quién es, ni en cuentas con más de 45 días o con 5+ alumnos */
+  if(!MY_PROFILE||MY_PROFILE.is_template||MY_PROFILE.is_main)return;
+  try{if(isMainAcct())return;}catch(e){}
+  try{var _ca=new Date(MY_PROFILE.created_at||0).getTime();if(!_ca||Date.now()-_ca>45*864e5)return;}catch(e){return;}
+  if((PLAYERS||[]).length>=5)return;
   var st=obSteps(),n=st.filter(function(x){return x.ok;}).length;
   if(n===st.length){try{localStorage.setItem('pd_ob_hide','1');}catch(e){}return;}
   var ck='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
@@ -7686,7 +7722,9 @@ function exMoveBtns(w,d,b,e,total){
     +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 6h18"/><path d="M7 22l-4-4 4-4"/><path d="M21 18H3"/></svg></button>';
   var mv='<button class="ex-swap ex-mvb" title="'+tr('Mover a otro bloque')+'" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();exMovePop(this,+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)">'
     +'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v7a4 4 0 0 0 4 4h12"/><path d="M15 10l5 5-5 5"/></svg></button>';
-  return grip+mv+swap;
+  var _ex=((((PLAN[w]||[])[d]||{}).blocks||[])[b]||{}).exs;_ex=_ex&&_ex[e];
+  var sv=(_ex&&_ex.n&&!lbpInLib(_ex.n)&&!lbpSimilarC(_ex.n))?'<button class="ex-swap ex-lbsv" title="'+tr('Guardar en biblioteca')+'" data-w="'+w+'" data-d="'+d+'" data-b="'+b+'" data-e="'+e+'" onclick="event.stopPropagation();lbpSaveFromPlan(+this.dataset.w,+this.dataset.d,+this.dataset.b,+this.dataset.e)"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M12 7v6M9 10h6"/></svg></button>':'';
+  return grip+mv+sv+swap;
 }
 /* ===== MOVER EJERCICIOS ENTRE BLOQUES ===== */
 function exMovePop(btn,w,d,b,e){
@@ -8024,7 +8062,7 @@ function saveNote(el){var w=+el.dataset.w,d=+el.dataset.d,b=+el.dataset.b;var ke
 function openPickModal(w,d,b){pickTarget={wIdx:w,dIdx:d,bIdx:b};pickSelected={};if(!LIB.length){showInfo('La biblioteca est\u00e1 vac\u00eda.');return;}pickPattern='';pickTypeFilter='';pickSearch='';fillPatSelect(document.getElementById('pick-pat-filter'),'','');var sel=document.getElementById('pick-pat-filter');if(sel)sel.value='';var tsel=document.getElementById('pick-type-filter');if(tsel)tsel.value='';var ssel=document.getElementById('pick-search');if(ssel)ssel.value='';renderPickList();document.getElementById('modal-pick').classList.add('open');}
 function setPickPattern(v){pickPattern=v;renderPickList();}
 var pickSelected={};
-function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return patMatch(e,pickPattern);});if(pickSearch){var _q=pickSearch.trim().toLowerCase();if(_q)items=items.filter(function(e){return (e.name||'').toLowerCase().indexOf(_q)!==-1;});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mobfill);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';var _th=e.link?mediaThumbHtml(e.link,e.img,'pick-thumb'):(e.img?'<img class="pick-thumb" src="'+e.img+'" loading="lazy" />':'');var tw=_th?'<button class="pick-tw" data-lid="'+e.id+'" onclick="event.stopPropagation();pickPreview(this.dataset.lid)" title="'+tr('Ver video')+'">'+_th+(e.link?'<span class="pick-play"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</button>':'<div class="pick-tw pick-tw-empty"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-ty" style="color:var(--'+e.type+')">'+(BICONS[e.type]&&e.type!=='gen'?BICONS[e.type]:'')+'</div>'+tw+'<div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
+function renderPickList(){var items=LIB.slice();if(pickTypeFilter)items=items.filter(function(e){return e.type===pickTypeFilter;});if(pickPattern)items=items.filter(function(e){return patMatch(e,pickPattern);});if(pickSearch){var _qt=pdNorm(pickSearch).trim().split(/\s+/).filter(Boolean);if(_qt.length)items=items.filter(function(e){var nn=pdNorm(e.name||'');return _qt.every(function(w){return nn.indexOf(w)!==-1;});});}document.getElementById('pick-list').innerHTML=items.length?items.map(function(e){var pl=e.pattern?'<div class="pick-load" style="color:var(--mob);">'+PATLABEL[e.pattern]+'</div>':'';var sel=!!pickSelected[e.id];var box=sel?'<div style="width:24px;height:24px;flex:none;border-radius:7px;background:var(--mobfill);border:2px solid var(--mob);display:flex;align-items:center;justify-content:center;color:#0a0b0e;font-weight:900;font-size:14px;">\u2713</div>':'<div style="width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--border2);"></div>';var _th=e.link?mediaThumbHtml(e.link,e.img,'pick-thumb'):(e.img?'<img class="pick-thumb" src="'+e.img+'" loading="lazy" />':'');var tw=_th?'<button class="pick-tw" data-lid="'+e.id+'" onclick="event.stopPropagation();pickPreview(this.dataset.lid)" title="'+tr('Ver video')+'">'+_th+(e.link?'<span class="pick-play"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>':'')+'</button>':'<div class="pick-tw pick-tw-empty"></div>';return '<div class="pick-item" data-lid="'+e.id+'" onclick="togglePickSel(this.dataset.lid)" style="'+(sel?'border-color:var(--mob);background:rgba(168,224,99,0.05);':'')+'"><div class="pick-ty" style="color:var(--'+e.type+')">'+(BICONS[e.type]&&e.type!=='gen'?BICONS[e.type]:'')+'</div>'+tw+'<div class="pick-info"><div class="pick-name">'+e.name+'</div><div class="pick-load">'+e.load+'</div>'+pl+'</div>'+box+'</div>';}).join(''):'<div style="text-align:center;color:var(--muted2);padding:20px;font-size:13px;">'+TT('sinEjAccion')+'</div>';updatePickBtn();}
 function pickPreview(id){var ex=LIB.find(function(x){return x.id===id;});if(!ex)return;if(ex.link)openVideoModal(ex.link,ex.name);}
 function togglePickSel(id){if(pickSelected[id])delete pickSelected[id];else pickSelected[id]=true;renderPickList();}
 function updatePickBtn(){var n=Object.keys(pickSelected).length;var b=document.getElementById('pick-add-btn');if(!b)return;b.textContent=tr('Agregar')+' ('+n+')';if(n){b.style.background='var(--mobfill)';b.style.color='#0a0b0e';}else{b.style.background='var(--border2)';b.style.color='var(--muted2)';}}
@@ -8179,6 +8217,7 @@ function closeLibModal(){document.getElementById('modal-lib').classList.remove('
 async function saveLibExercise(){
   var name=document.getElementById('f-name').value.trim();
   if(!name){showInfo('El nombre es obligatorio.');return;}
+  if(LIBPICK&&!LIBPICK.save&&(document.getElementById('f-planonly')||{}).checked){var _po={name:name,note:document.getElementById('f-note').value.trim(),load:document.getElementById('f-load').value.trim(),link:document.getElementById('f-link').value.trim()};var _lp0=LIBPICK;closeLibModal();LIBPICK=_lp0;lbpAddToBlock(_po);return;}
   /* Videos solo por YouTube. Los ya subidos antes se respetan si no se cambian. */
   var _lk=document.getElementById('f-link').value.trim();
   var _prev=editingLibId?((LIB.find(function(e){return e.id===editingLibId;})||{}).link||''):'';
@@ -8206,7 +8245,10 @@ async function saveLibExercise(){
     if(ins.error){showSyncStatus('error');showInfo('Error: '+ins.error.message);return;}
     LIB.push({id:ins.data.id,name:ins.data.name,type:ins.data.type,load:ins.data.load||'',note:ins.data.note||'',link:ins.data.link||'',img:ins.data.img||'',pattern:ins.data.pattern||null,run:ins.data.run||fields.run||null,is_base:!!ins.data.is_base,org_id:ins.data.org_id||null,trainer_id:ins.data.trainer_id||MY_UID});
   }
+  _lbpSimC={};
+  var _lp=LIBPICK,_new=editingLibId?null:LIB[LIB.length-1];
   showSyncStatus('ok');closeLibModal();renderLib();
+  if(_lp&&_new){if(_lp.save)toast(tr('Guardado en tu biblioteca')+': '+_new.name);else{LIBPICK=_lp;lbpAddToBlock(_new);}}
 }
 function editLibEx(id){openLibModal(id);}
 function openDuplicateModal(){
@@ -12165,11 +12207,17 @@ function finishSession(auto){
   cur.e=endIso; cur.m=Math.round(mins);
   saveTimes(currentPlayerId);
   refreshPlanUI();
-  if(!auto)toast(tr('Entrenamiento finalizado')+' · '+fmtDur(cur.m));
+  var _pres=null;try{_pres=progCompare(currentPlayerId,curDate);}catch(e){console.warn('progCompare',e);}
+  if(!auto){
+    if(!isCoach){var _rp0=[];Object.keys(checkState||{}).forEach(function(k){var c=checkState[k];if(c&&c.rpe)_rp0.push(+c.rpe);});
+      var _a0=_rp0.length?Math.round(_rp0.reduce(function(a,b){return a+b;},0)/_rp0.length*10)/10:null;
+      try{progShowSummary(currentPlayerId,curDate,cur.m,_a0);}catch(e){console.warn('progShowSummary',e);toast(tr('Entrenamiento finalizado')+' · '+fmtDur(cur.m));}}
+    else toast(tr('Entrenamiento finalizado')+' · '+fmtDur(cur.m));
+  }
   try{if(!auto&&!isCoach&&ATH_TOKEN){var _pp=PLAYERS.find(function(x){return x.id===currentPlayerId;})||{};var _ss=(JB_SESSIONS[currentPlayerId]||{})[curDate]||{};
     var _rp=[];Object.keys(checkState||{}).forEach(function(k){var c=checkState[k];if(c&&c.rpe)_rp.push(+c.rpe);});
     var _avg=_rp.length?Math.round(_rp.reduce(function(a,b){return a+b;},0)/_rp.length*10)/10:null;
-    pdNotify('done',_pp.name||'PDapp',trN('Terminó el entrenamiento')+(_ss.title?' «'+_ss.title+'»':'')+' · '+fmtDur(cur.m)+(_avg!=null?' · RPE '+_avg:''),{k:'day',pid:currentPlayerId,d:curDate});}}catch(e){}
+    pdNotify('done',_pp.name||'PDapp',trN('Terminó el entrenamiento')+(_ss.title?' «'+_ss.title+'»':'')+' · '+fmtDur(cur.m)+(_avg!=null?' · RPE '+_avg:'')+(_pres?progCoachLine(_pres):''),{k:'day',pid:currentPlayerId,d:curDate});}}catch(e){}
   maybeNotifyLoadPeak(currentPlayerId);
 }
 /* Sesión que quedó abierta más de TM_MAX_H horas (el alumno se olvidó de finalizar):
@@ -13855,6 +13903,7 @@ function lvPickTog(pid){var i=LVS._pick.indexOf(pid);if(i>=0)LVS._pick.splice(i,
 async function lvPickGo(){
   var el=document.getElementById('modal-lv-pick');if(el)el.classList.remove('open');
   var today=isoToday(),pids=LVS._pick.slice();if(!pids.length)return;
+  LVS._pidx={};
   if(!LVS._add){LVS.list=[];LVS.t0=Date.now();LVS.tab=0;}
   pids.forEach(function(pid){var k=lvKeyFor(pid,today);if(k)LVS.list.push({pid:pid,k:k,bi:null,rest:0,restDur:0});});
   LVS.list=LVS.list.slice(0,LV_MAX);LVS.day=today;
@@ -13919,16 +13968,17 @@ function lvAth(i,m){
 }
 function lvExHtml(i,a,bi,e,ei,m){
   var si=lvSets(e),lg=lvLog(a,bi,ei),kg=lvHasKg(e,si),prev=String((JB_LOADS[a.pid]||{})[a.k+'-'+bi+'-'+ei]||'').split('/');
+  var _best=null;try{if(kg)_best=progBestBefore(a.pid,a.k,e.n);}catch(er){}
   var tgt=(e.l?'<em>'+lvEsc(e.l)+'</em>':'');
   var h='<div class="lv-ex'+(lvExDone(a,bi,ei,e)?' done':'')+'"><div class="lv-en"><span>'+lvEsc(e.n||'')+'</span>'+tgt+'</div>';
   if(si.none){var d=lg[0]&&lg[0].d;return h+'<button type="button" class="lv-one'+(d?' on':'')+'" onclick="lvTog('+i+','+bi+','+ei+',0)">'+(d?EI('check')+' '+tr('Hecho'):tr('Marcar como hecho'))+'</button></div>';}
-  var rows=si.rows.map(function(r,s){var x=lg[s]||{},d=!!x.d;
+  var rows=si.rows.map(function(r,s){var x=lg[s]||{},d=!!x.d,isPr=d&&_best!=null&&progNum(x.k)!=null&&progNum(x.k)>_best;
     var kv=x.k!=null?x.k:((prev[s]&&prev[s]!=='–'&&prev.length===si.n)?prev[s]:''),rv=x.r!=null?x.r:'';
     var kph=r.l?(r.l+(si.lU&&si.lU!=='kg'?si.lU:'')):'kg',rph=r.q||'';
     var inK=kg?'<input class="lv-in" inputmode="decimal" value="'+lvEsc(kv)+'" placeholder="'+lvEsc(kph)+'" onchange="lvSet('+i+','+bi+','+ei+','+s+',\'k\',this.value)">':'';
     var inR='<input class="lv-in" inputmode="decimal" value="'+lvEsc(rv)+'" placeholder="'+lvEsc(rph)+'" onchange="lvSet('+i+','+bi+','+ei+','+s+',\'r\',this.value)">';
-    var ck='<button type="button" class="lv-ck'+(d?' on':'')+'" onclick="lvTog('+i+','+bi+','+ei+','+s+')" aria-label="'+tr('Serie')+' '+(s+1)+'">'+(d?EI('check'):'')+'</button>';
-    if(m==='rows')return '<div class="lv-sb'+(d?' on':'')+'"><span class="lv-sn">'+(s+1)+'</span>'+(kg?inK:'')+inR+ck+'</div>';
+    var ck='<button type="button" class="lv-ck'+(d?' on':'')+(isPr?' pr':'')+'" title="'+(isPr?tr('Récord'):'')+'" onclick="lvTog('+i+','+bi+','+ei+','+s+')" aria-label="'+tr('Serie')+' '+(s+1)+'">'+(d?EI('check'):'')+'</button>';
+    if(m==='rows')return '<div class="lv-sb'+(d?' on':'')+(isPr?' pr':'')+'"><span class="lv-sn">'+(s+1)+'</span>'+(kg?inK:'')+inR+ck+'</div>';
     return '<span class="lv-sn">'+(s+1)+'</span>'+(kg?inK:'')+inR+ck;}).join('');
   if(m==='rows')return h+'<div class="lv-sbs">'+rows+'</div></div>';
   var u=si.qU||tr('reps');
@@ -13948,6 +13998,7 @@ function lvTog(i,bi,ei,s){
   /* tomar lo que está escrito en la pantalla (por si no se disparó el change) */
   x.d=x.d?0:1;
   if(x.d){var r=si.rows[s]||{};if(x.r==null||x.r==='')x.r=r.q||'';if(lvHasKg(e,si)&&(x.k==null||x.k==='')){var pv=String((JB_LOADS[a.pid]||{})[a.k+'-'+bi+'-'+ei]||'').split('/');x.k=(pv.length===si.n&&pv[s]&&pv[s]!=='–')?pv[s]:(si.lU==='%'?'':(r.l||''));}x.t=new Date().toISOString();
+    try{var _b=progBestBefore(a.pid,a.k,e.n),_kv=progNum(x.k);if(lvHasKg(e,si)&&_b!=null&&_kv!=null&&_kv>_b)setTimeout(function(){toast(tr('¡Récord de')+' '+lvFirst(lvPl(a.pid))+'! '+e.n+' · '+progKg(_kv));},80);}catch(er){}
     var rs=parseInt((e.p&&e.p.rest)||'',10);a.restDur=(rs>0?rs:LV_REST);a.rest=Date.now()+a.restDur*1000;a.beep=0;
     /* empieza su sesión si todavía no tenía hora de inicio */
     var tm=timesOf(a.pid);if(!tm[a.k]||!tm[a.k].s){tm[a.k]=Object.assign({},tm[a.k]||{},{s:new Date().toISOString()});a._tdirty=1;}
@@ -14012,6 +14063,223 @@ function lvFinish(){
   });
 }
 function lvResumeOrOpen(){if(LVS.list.length&&LVS.day===isoToday())lvShow();else lvOpenPicker(false);}
+
+/* ===================== CREAR EJERCICIOS EN LA BIBLIOTECA DESDE EL PLAN =====================
+   - En "Agregar desde Biblioteca", si lo que buscás no existe: "Crear «…» y agregarlo".
+   - Antes de crear avisa si ya hay uno casi igual ("¿Es «Sentadilla búlgara»?") para no duplicar.
+   - Sugiere tipo y patrón según el nombre. Interruptor "Solo para este plan" (no se guarda en la biblioteca).
+   - En cada ejercicio del plan que no está en la biblioteca: botón "Guardar en biblioteca". */
+var LIBPICK=null; /* {w,d,b,e?(cambio),save?(guardar uno del plan)} */
+var LBP_STOP={de:1,del:1,con:1,en:1,a:1,al:1,el:1,la:1,las:1,los:1,y:1,x:1,c:1,'c/l':1};
+function lbpNorm(t){return pdNorm(t).replace(/[^a-z0-9ñ ]+/g,' ').replace(/\s+/g,' ').trim();}
+function lbpTok(t){return lbpNorm(t).split(' ').filter(function(w){return w&&!LBP_STOP[w];});}
+function lbpLev(a,b){if(a===b)return 0;var m=a.length,n=b.length;if(!m)return n;if(!n)return m;var p=[],i,j;for(j=0;j<=n;j++)p[j]=j;
+  for(i=1;i<=m;i++){var prev=p[0];p[0]=i;for(j=1;j<=n;j++){var tmp=p[j];p[j]=Math.min(p[j]+1,p[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=tmp;}}return p[n];}
+/* ¿qué tan parecido es? 0 = nada · 1 = muy parecido · 2 = igual */
+function lbpSim(a,b){var A=lbpNorm(a),B=lbpNorm(b);if(!A||!B)return 0;if(A===B)return 2;
+  var ta=lbpTok(a).sort().join(' '),tb=lbpTok(b).sort().join(' ');if(ta&&ta===tb)return 2;
+  var d=lbpLev(A,B),mx=Math.max(A.length,B.length);if(d<=Math.max(2,Math.round(mx*0.12)))return 1;
+  var sa=lbpTok(a),sb2=lbpTok(b);if(sa.length>=2&&sb2.length>=2){var hit=0;sa.forEach(function(w){if(sb2.some(function(v){return v===w||(w.length>4&&lbpLev(w,v)<=1);}))hit++;});if(hit===sa.length&&sa.length===sb2.length)return 1;}
+  return 0;}
+function lbpBase(t){return String(t||'').replace(/\([^)]*\)/g,' ');}
+/* todas las palabras de a aparecen en b (con errores de tipeo chicos) */
+function lbpTokFuzzy(a,b){var ta=lbpTok(a),tb=lbpTok(b);if(!ta.length||!tb.length)return false;
+  return ta.every(function(w){return tb.some(function(v){if(v===w||v.indexOf(w)===0)return true;if(w.length>=4&&lbpLev(w,v)<=1)return true;if(w.length>=7&&lbpLev(w,v)<=2)return true;return false;});});}
+var _lbpSimC={};
+function lbpInLib(name){var n=lbpNorm(name);return (LIB||[]).some(function(e){return lbpNorm(e.name)===n;});}
+function lbpSimilar(name){var best=null,bs=0;(LIB||[]).forEach(function(e){var s=lbpSim(name,e.name);if(s<2){var s2=lbpSim(name,lbpBase(e.name));if(s2>s)s=s2;}if(!s&&lbpTokFuzzy(name,lbpBase(e.name))&&lbpTokFuzzy(lbpBase(e.name),name))s=1;if(s>bs){bs=s;best=e;}});return bs?{ex:best,s:bs}:null;}
+function lbpSimilarC(name){var k=lbpNorm(name);if(!(k in _lbpSimC))_lbpSimC[k]=lbpSimilar(name);return _lbpSimC[k];}
+/* tipo y patrón sugeridos según el nombre */
+function lbpGuess(name){
+  var n=' '+lbpNorm(name)+' ',has=function(re){return re.test(n);};
+  var uni=has(/ (1 ?p|1p|una pierna|unilateral|uni|bulgara|split|estocada|zancada|lunge|step ?up|pistol|un brazo|1 brazo|alternad[oa]s?|a una mano|single) /)||has(/ (bulgara|estocada|zancada|split|step|pistol)/);
+  var bu=uni?'_uni':'_bi',pat='',type='';
+  if(has(/(movilidad|mobility|cat ?camel|90 ?90|tobillo en pared|circunduccion|rotacion toracica)/)){type='mob';}
+  else if(has(/(estiramiento|stretch)/)){type='est';}
+  else if(has(/(plancha|plank|pallof|dead ?bug|hollow|bird ?dog|antirrotacion|anti rotacion|antiextension|rueda abdominal|copenhague|side plank|core)/)){type='cm';}
+  else if(has(/(sprint|aceleracion|velocidad|cambio de direccion|carrera|trote|rodaje|intermitente)/)){type='exp';}
+  if(has(/(salto|jump|cmj|drop|pogo|bound|vallas|pliometr)/)){pat=uni?'s1':'s2';type=type||'exp';}
+  else if(has(/(sentadilla|squat|prensa|estocada|zancada|lunge|step ?up|bulgara|split squat|extension de rodilla|pistol|wall sit)/)){pat='dr'+bu;}
+  else if(has(/(peso muerto|rumano|deadlift|rdl|hip thrust|puente de gluteo|puente gluteo|glute bridge|nordico|curl femoral|good morning|swing|isquio|hiperextension)/)){pat='dc'+bu;}
+  else if(has(/(press de banca|press banca|banca|bench|flexion|push ?up|fondos|dips|press de pecho|press pecho|landmine press)/)){pat='eh'+bu;}
+  else if(has(/(press militar|press de hombro|press hombro|overhead|push press|press arnold|press vertical)/)){pat='ev'+bu;}
+  else if(has(/(remo|row|face ?pull|pull ?apart)/)){pat='th'+bu;}
+  else if(has(/(dominada|pull ?up|chin ?up|jalon|lat ?pull|pulldown)/)){pat='tv'+bu;}
+  if(pat&&!type)type=(pat==='s1'||pat==='s2')?'exp':'fza';
+  if(!type&&has(/(activacion|banda|mini ?band|isometric|iso |prevencion)/))type='act';
+  if(PATLABEL&&pat&&!PATLABEL[pat])pat='';
+  return {type:type||'fza',pattern:pat};
+}
+function lbpCap(s){s=String(s||'').trim().replace(/\s+/g,' ');return s.charAt(0).toUpperCase()+s.slice(1);}
+/* fila "Crear «…»" en el buscador del picker */
+function lbpCreateRow(q){
+  q=String(q||'').trim();if(q.length<3||lbpInLib(q))return '';
+  return '<button type="button" class="lbp-new" onclick="lbpCreate()"><span class="lbp-plus">+</span><span><b>'+tr('Crear')+' «'+_tie(lbpCap(q))+'»</b><small>'+tr('No está en tu biblioteca: lo creás y se agrega al bloque.')+'</small></span></button>';
+}
+function lbpCreate(force){
+  var q=lbpCap(pickSearch||'');if(!q||!pickTarget)return;
+  var sim=force?null:lbpSimilar(q);
+  if(sim){
+    var nm=sim.ex.name,id=sim.ex.id;
+    askConfirm(tr(sim.s===2?'Ya tenés este ejercicio en la biblioteca:':'Hay uno muy parecido en tu biblioteca:')+' «'+nm+'». '+tr('¿Usás ese o creás uno nuevo?'),function(){lbpCreate(true);},
+      {okLabel:tr('Crear uno nuevo'),cancelLabel:tr('Usar el que existe'),onCancel:function(){pickSelected={};pickSelected[id]=true;addSelectedFromLib();}});
+    return;
+  }
+  LIBPICK={w:pickTarget.wIdx,d:pickTarget.dIdx,b:pickTarget.bIdx,e:(swapTarget&&swapTarget.bIdx===pickTarget.bIdx)?swapTarget.eIdx:null};
+  closePickModal();
+  lbpOpenForm({name:q});
+}
+/* abre la ficha de "Nuevo ejercicio" de la biblioteca, con lo que ya sabemos */
+function lbpOpenForm(pre){
+  var keep=LIBPICK;openLibModal(null);LIBPICK=keep;
+  var g=lbpGuess(pre.name);
+  document.getElementById('f-name').value=pre.name||'';
+  document.getElementById('f-type').value=pre.type||g.type;
+  try{fillExPatSelect(document.getElementById('f-type').value,pre.pattern||g.pattern);document.getElementById('f-pattern').value=pre.pattern||g.pattern||'';}catch(e){}
+  if(pre.load!=null)document.getElementById('f-load').value=pre.load;
+  if(pre.note!=null)document.getElementById('f-note').value=pre.note;
+  if(pre.link!=null)document.getElementById('f-link').value=pre.link;
+  document.getElementById('modal-lib-title').textContent=tr(LIBPICK&&LIBPICK.save?'Guardar en biblioteca':'Nuevo ejercicio para el plan');
+  var row=document.getElementById('f-planonly-row');
+  if(!row){row=document.createElement('div');row.id='f-planonly-row';row.className='form-row';
+    row.innerHTML='<label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;"><input type="checkbox" id="f-planonly" style="width:18px;height:18px;accent-color:#a8e063;flex:none;" onchange="lbpPlanOnlyUI()"><span style="font-size:13px;color:var(--text);text-transform:none;letter-spacing:0;font-weight:500;">'+tr('Solo para este plan')+'<small style="display:block;color:var(--muted2);font-size:11.5px;margin-top:2px;">'+tr('No se guarda en la biblioteca. Útil para algo puntual.')+'</small></span></label>';
+    var nm=document.getElementById('f-name');var fr=nm&&nm.closest('.form-row');if(fr&&fr.parentNode)fr.parentNode.insertBefore(row,fr.nextSibling);}
+  row.style.display=(LIBPICK&&!LIBPICK.save)?'block':'none';
+  document.getElementById('f-planonly').checked=false;lbpPlanOnlyUI();
+  var hint=document.getElementById('f-guess-hint');
+  if(!hint){hint=document.createElement('div');hint.id='f-guess-hint';hint.className='lbp-hint';var pr=document.getElementById('f-pattern');var fr2=pr&&pr.closest('.form-row');if(fr2)fr2.appendChild(hint);}
+  hint.textContent=(g.pattern&&!pre.pattern)?tr('Sugerido según el nombre. Cambialo si no corresponde.'):'';
+  setTimeout(function(){try{var f=document.getElementById('f-name');if(window.matchMedia('(pointer:fine)').matches){f.focus();f.setSelectionRange(f.value.length,f.value.length);}}catch(e){}},120);
+}
+function lbpPlanOnlyUI(){var on=!!(document.getElementById('f-planonly')||{}).checked;['f-share-row','f-pd-row'].forEach(function(id){var r=document.getElementById(id);if(!r)return;if(on){if(r.dataset.lbpHid==null)r.dataset.lbpHid=r.style.display;r.style.display='none';}else if(r.dataset.lbpHid!=null){r.style.display=r.dataset.lbpHid;delete r.dataset.lbpHid;}});
+  var b=document.querySelector('#modal-lib .mbtn-save,#modal-lib [onclick="saveLibExercise()"]');if(b)b.textContent=tr(on?'Agregar al plan':(LIBPICK&&LIBPICK.save?'Guardar':'Guardar y agregar'));}
+/* después de guardar (o en "solo para este plan"): meterlo en el bloque */
+function lbpAddToBlock(item){
+  var P=LIBPICK;LIBPICK=null;if(!P||P.save||!currentPlayerId)return;
+  var blk=(((PLAN[P.w]||[])[P.d]||{}).blocks||[])[P.b];if(!blk)return;var exs=blk.exs||(blk.exs=[]);
+  var o={n:item.name,d:item.note||'',l:item.load||'',link:item.link||''};if(item.run)o.run=JSON.parse(JSON.stringify(item.run));
+  if(P.e!=null&&exs[P.e]){var prev=exs[P.e];if(prev.l)o.l=prev.l;if(prev.p)o.p=JSON.parse(JSON.stringify(prev.p));exs.splice(P.e,1,o);}else exs.push(o);
+  commitSession();refreshPlanUI();toast(tr('Agregado al bloque')+': '+item.name);
+}
+/* "Guardar en biblioteca" desde un ejercicio del plan */
+function lbpSaveFromPlan(w,d,b,e){
+  var ex=((((PLAN[w]||[])[d]||{}).blocks||[])[b]||{}).exs;ex=ex&&ex[e];if(!ex)return;
+  var sim=lbpSimilar(ex.n);
+  if(sim&&sim.s===2){showInfo(tr('Ya está en tu biblioteca como')+' «'+sim.ex.name+'».');return;}
+  var go=function(){LIBPICK={w:w,d:d,b:b,e:e,save:true};lbpOpenForm({name:ex.n,load:ex.l||'',note:ex.d||'',link:ex.link||''});};
+  if(sim)askConfirm(tr('Hay uno muy parecido en tu biblioteca:')+' «'+sim.ex.name+'». '+tr('¿Lo guardás igual como uno nuevo?'),go,{okLabel:tr('Guardar igual')});else go();
+}
+
+/* el buscador del picker: sin acentos, por palabras, y con la fila "Crear «…»" arriba */
+(function(){var _r0=renderPickList;renderPickList=function(){_r0.apply(this,arguments);try{var L=document.getElementById('pick-list');if(!L)return;
+  var q=String(pickSearch||'').trim();
+  if(q.length>=3&&!L.querySelector('.pick-item')){var sug=(LIB||[]).filter(function(e){return lbpTokFuzzy(q,e.name);}).slice(0,6);
+    if(sug.length)L.innerHTML='<div class="lbp-sug">'+tr('¿Quisiste decir…?')+'</div>'+sug.map(function(e){return '<button type="button" class="lbp-sgi" data-lid="'+e.id+'" onclick="pickSelected={};pickSelected[this.dataset.lid]=true;addSelectedFromLib();"><span>'+_tie(e.name)+'</span><small>'+tr('Agregar')+'</small></button>';}).join('');}
+  var cr=lbpCreateRow(q);if(cr)L.insertAdjacentHTML('afterbegin',cr);}catch(e){}};})();
+(function(){var _c0=closeLibModal;closeLibModal=function(){_c0.apply(this,arguments);LIBPICK=null;var r=document.getElementById('f-planonly-row');if(r)r.style.display='none';var h=document.getElementById('f-guess-hint');if(h)h.textContent='';
+  var b=document.querySelector('#modal-lib .mbtn-save');if(b)b.textContent=tr('Guardar');['f-share-row','f-pd-row'].forEach(function(id){var x=document.getElementById(id);if(x&&x.dataset.lbpHid!=null){x.style.display=x.dataset.lbpHid;delete x.dataset.lbpHid;}});};})();
+/* ===================== PROGRESO AL TERMINAR: récords, mejoras y aliento =====================
+   Compara cada ejercicio con carga contra la ÚLTIMA vez que hizo ese mismo ejercicio (por nombre)
+   y contra su MEJOR marca. Si bajó porque el profe lo planificó más bajo, es "según el plan", no una baja.
+   El mensaje final usa el contexto del día (sueño, energía, molestias del check-in). */
+function progNum(v){var m=String(v==null?'':v).replace(',','.').match(/-?\+?\d+(\.\d+)?/);return m?parseFloat(m[0].replace('+','')):null;}
+function progTop(str){var vals=String(str==null?'':str).split('/').map(progNum).filter(function(x){return x!=null&&!isNaN(x);});if(!vals.length)return null;return {top:Math.max.apply(null,vals),n:vals.length,sum:vals.reduce(function(a,b){return a+b;},0)};}
+function progBlocks(pid,k){var s=(JB_SESSIONS[pid]||{})[k];if(!s)return [];var v=null;try{v=planBState(pid,k);}catch(e){}return (v==='b'?planBBlocks(s):s.blocks)||[];}
+/* historial: nombre normalizado -> [{k,iso,top,n,sum}] */
+function progIndex(pid){
+  var ld=JB_LOADS[pid]||{},idx={},bc={};
+  Object.keys(ld).forEach(function(key){var m=/^(.*)-(\d+)-(\d+)$/.exec(key);if(!m)return;var k=m[1],bi=+m[2],ei=+m[3];
+    var bl=bc[k]||(bc[k]=progBlocks(pid,k));var e=bl[bi]&&(bl[bi].exs||[])[ei];if(!e||!e.n)return;
+    var t=progTop(ld[key]);if(!t)return;var nm=lbpNorm(e.n);(idx[nm]||(idx[nm]=[])).push({k:k,iso:tkIso(k),top:t.top,n:t.n,sum:t.sum,bi:bi,ei:ei});});
+  return idx;
+}
+function progBefore(a,k){var ia=a.iso,ib=tkIso(k);if(ia!==ib)return ia<ib;return (tkTurn(a.k)||1)<(tkTurn(k)||1);}
+function progPlanned(e){try{var si=exSetsInfo(e);if(!si||!si.rows)return null;if(si.lU&&si.lU!=='kg')return null;var v=si.rows.map(function(r){return progNum(r.l);}).filter(function(x){return x!=null;});return v.length?Math.max.apply(null,v):null;}catch(x){return null;}}
+function progCompare(pid,k,idx){
+  idx=idx||progIndex(pid);var ld=JB_LOADS[pid]||{},bl=progBlocks(pid,k),out=[],seen={};
+  Object.keys(ld).forEach(function(key){if(key.indexOf(k+'-')!==0)return;var m=/^(.*)-(\d+)-(\d+)$/.exec(key);if(!m||m[1]!==k)return;
+    var bi=+m[2],ei=+m[3],e=bl[bi]&&(bl[bi].exs||[])[ei];if(!e||!e.n)return;var t=progTop(ld[key]);if(!t)return;
+    var nm=lbpNorm(e.n);if(seen[nm]&&seen[nm].top>=t.top)return;
+    var hist=(idx[nm]||[]).filter(function(h){return progBefore(h,k);}).sort(function(a,b){return a.iso<b.iso?-1:a.iso>b.iso?1:0;});
+    var r={name:e.n,top:t.top,n:t.n,cls:'first',last:null,best:null,delta:0};
+    if(hist.length){var last=hist[hist.length-1],best=Math.max.apply(null,hist.map(function(h){return h.top;}));r.last=last;r.best=best;r.delta=Math.round((t.top-last.top)*10)/10;
+      if(t.top>best)r.cls='pr';
+      else if(t.top>last.top)r.cls='up';
+      else if(t.top===last.top)r.cls=(t.sum>last.sum&&t.n>=last.n)?'up':'same';
+      else{var pl=progPlanned(e);r.cls=(pl!=null&&pl<last.top&&t.top>=pl*0.97)?'plan':'down';}
+    }
+    seen[nm]=r;});
+  Object.keys(seen).forEach(function(k2){out.push(seen[k2]);});
+  var ord={pr:0,up:1,plan:2,same:3,first:4,down:5};out.sort(function(a,b){return ord[a.cls]-ord[b.cls];});
+  return out;
+}
+function progKg(v){return (Math.round(v*10)/10)+' kg';}
+function progDay(iso){try{return fmtDateShort(iso).toLowerCase();}catch(e){return iso;}}
+/* banco de frases: rotan por día y por alumno para no repetirse */
+var PROG_MSG={
+  pr:['¡Récord personal! Esto pasa cuando hacés las cosas bien todos los días.','Nueva mejor marca. El trabajo que nadie ve se está viendo.','¡Marca nueva! Disfrutala, te la ganaste.','Récord. Hoy le ganaste a tu mejor versión.'],
+  up:['Subiste respecto a la última vez. Así se construye.','Un paso más que la vez pasada. Bien ahí.','Hoy sumaste. Seguí así, que va.','Más que la última vez. Constancia que se nota.'],
+  plan:['Hoy tocaba bajar las cargas para recuperar, y lo hiciste como estaba planificado. Así se progresa.','Cargas según el plan. Bajar a propósito también es parte de crecer.'],
+  same:['Sostuviste las cargas. La constancia también es progreso.','Mismo peso, más experiencia. La próxima apretamos.'],
+  down:['Hoy costó un poco más y está bien: no todos los días son para subir. Viniste y completaste, eso es lo que suma.','Un día más bajo no borra nada. Descansá bien y la próxima volvemos a apretar.','Hay días que el cuerpo pide otra cosa. Lo importante es que estuviste.'],
+  sleep:['Dormiste poco y aun así completaste el entrenamiento. Hoy sumar era terminarlo.','Con poco descanso, sostenerlo ya es un logro. Esta noche, a dormir bien.'],
+  energy:['Llegaste con poca energía y lo sacaste igual. Eso también es entrenar.','Con la energía baja, completarlo vale doble.'],
+  pain:['Con molestias, cuidarse es parte del plan. Bien por escuchar al cuerpo.','Bajar con molestias es inteligente, no es retroceder. Contale a tu profe cómo seguís.'],
+  none:['Entrenamiento completo. Cada sesión suma.','Listo por hoy. Lo hiciste, y eso es lo que cuenta.']
+};
+function progPick(arr,pid){var d=new Date(),seed=d.getFullYear()*400+d.getMonth()*31+d.getDate();String(pid||'').split('').forEach(function(c){seed+=c.charCodeAt(0);});return arr[seed%arr.length];}
+function progMessage(pid,res){
+  var c={};res.forEach(function(r){c[r.cls]=(c[r.cls]||0)+1;});
+  var p=(PLAYERS||[]).find(function(x){return x.id===pid;})||{},w=null;try{w=wlReady(p);}catch(e){}
+  var key,extra='';
+  if(c.pr)key='pr';else if(c.up&&!c.down)key='up';
+  else if(c.down){key=(w&&w.mx>=2)?'pain':(w&&w.sl<=2)?'sleep':(w&&w.en<=2)?'energy':'down';}
+  else if(c.plan)key='plan';else if(c.same)key='same';else if(c.up)key='up';else key='none';
+  if(key==='pr'&&c.down)extra=tr('Y si algo bajó, es parte del proceso.');
+  return {key:key,text:tr(progPick(PROG_MSG[key],pid))+(extra?' '+extra:'')};
+}
+function progRowHtml(r){
+  var ic={pr:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>',
+    up:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+    down:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>',
+    same:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg>',
+    plan:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4"/></svg>',
+    first:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V4M4 4h13l-2 4 2 4H4"/></svg>'}[r.cls];
+  var sub;
+  if(r.cls==='pr')sub=tr('Tu mejor marca')+(r.best!=null?' · '+tr('antes')+' '+progKg(r.best):'');
+  else if(r.cls==='up')sub=(r.delta>0?'+'+progKg(r.delta):tr('más series a ese peso'))+' '+tr('vs')+' '+progDay(r.last.iso);
+  else if(r.cls==='down')sub='−'+progKg(Math.abs(r.delta))+' '+tr('vs')+' '+progDay(r.last.iso);
+  else if(r.cls==='same')sub=tr('Igual que el')+' '+progDay(r.last.iso);
+  else if(r.cls==='plan')sub=tr('Según el plan');
+  else sub=tr('Primera vez que lo registrás');
+  return '<div class="pg-row pg-'+r.cls+'"><i>'+ic+'</i><span class="pg-n"><b>'+_tie(r.name)+'</b><small>'+sub+'</small></span><span class="pg-v">'+progKg(r.top)+'</span></div>';
+}
+function progShowSummary(pid,k,mins,rpe){
+  var res=progCompare(pid,k),msg=progMessage(pid,res);
+  var el=document.getElementById('modal-prog');
+  if(!el){el=document.createElement('div');el.id='modal-prog';el.className='modal-overlay';el.onclick=function(e){if(e.target===el)el.classList.remove('open');};document.body.appendChild(el);}
+  var nPr=res.filter(function(r){return r.cls==='pr';}).length;
+  var head=nPr?'<div class="pg-hero pr">'+'<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>'+'</div>'
+    :'<div class="pg-hero">'+EI('check')+'</div>';
+  var title=nPr?(nPr===1?tr('¡Récord personal!'):nPr+' '+tr('récords personales')):tr('¡Entrenamiento terminado!');
+  var meta=[];if(mins)meta.push(fmtDur(mins));if(rpe!=null)meta.push('RPE '+rpe);
+  el.innerHTML='<div class="modal pg-modal"><div class="modal-handle"></div>'+head+'<h3 class="pg-t">'+title+'</h3>'+(meta.length?'<div class="pg-meta">'+meta.join(' · ')+'</div>':'')
+    +'<div class="pg-msg"><p>'+_tie(msg.text)+'</p><small>— '+tr('Tu profe')+'</small></div>'
+    +(res.length?'<div class="pg-list">'+res.slice(0,10).map(progRowHtml).join('')+'</div>':'')
+    +'<button class="mbtn mbtn-save pg-ok" onclick="document.getElementById(\'modal-prog\').classList.remove(\'open\')">'+tr('Listo')+'</button></div>';
+  el.classList.add('open');
+  return res;
+}
+/* línea para el profe: "2 récords: Sentadilla 105 kg, Peso muerto 140 kg · bajó en 1" */
+function progCoachLine(res){
+  var pr=res.filter(function(r){return r.cls==='pr';}),up=res.filter(function(r){return r.cls==='up';}).length,dn=res.filter(function(r){return r.cls==='down';}).length,parts=[];
+  if(pr.length)parts.push(pr.length+' '+trN(pr.length===1?'récord':'récords')+': '+pr.slice(0,3).map(function(r){return r.name+' '+progKg(r.top);}).join(', '));
+  if(up)parts.push(trN('mejoró en')+' '+up);
+  if(dn)parts.push(trN('bajó en')+' '+dn);
+  return parts.length?' · '+parts.join(' · '):'';
+}
+/* Sesión en vivo: mejor marca anterior de un ejercicio (para la tilde dorada) */
+function progBestBefore(pid,k,name){var idx=(LVS._pidx&&LVS._pidx[pid])||((LVS._pidx||(LVS._pidx={}))[pid]=progIndex(pid));var h=(idx[lbpNorm(name)]||[]).filter(function(x){return x.k!==k&&progBefore(x,k);});return h.length?Math.max.apply(null,h.map(function(x){return x.top;})):null;}
 
 /* ===================== MENÚ LATERAL: tarjeta "Hoy", botón "+" y perfil ===================== */
 function sideTodayStats(){
@@ -14316,6 +14584,62 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Crear"]=STATIC_I18N["Crear"]||["Create", "Crea"];
+STATIC_I18N["No está en tu biblioteca: lo creás y se agrega al bloque."]=STATIC_I18N["No está en tu biblioteca: lo creás y se agrega al bloque."]||["Not in your library: create it and it’s added to the block.", "Non è nella tua libreria: lo crei e si aggiunge al blocco."];
+STATIC_I18N["Ya tenés este ejercicio en la biblioteca:"]=STATIC_I18N["Ya tenés este ejercicio en la biblioteca:"]||["You already have this exercise in your library:", "Hai già questo esercizio nella libreria:"];
+STATIC_I18N["Hay uno muy parecido en tu biblioteca:"]=STATIC_I18N["Hay uno muy parecido en tu biblioteca:"]||["There’s a very similar one in your library:", "Ce n’è uno molto simile nella tua libreria:"];
+STATIC_I18N["¿Usás ese o creás uno nuevo?"]=STATIC_I18N["¿Usás ese o creás uno nuevo?"]||["Use that one or create a new one?", "Usi quello o ne crei uno nuovo?"];
+STATIC_I18N["Crear uno nuevo"]=STATIC_I18N["Crear uno nuevo"]||["Create new", "Crea nuovo"];
+STATIC_I18N["Usar el que existe"]=STATIC_I18N["Usar el que existe"]||["Use existing", "Usa quello esistente"];
+STATIC_I18N["Guardar en biblioteca"]=STATIC_I18N["Guardar en biblioteca"]||["Save to library", "Salva nella libreria"];
+STATIC_I18N["Nuevo ejercicio para el plan"]=STATIC_I18N["Nuevo ejercicio para el plan"]||["New exercise for the plan", "Nuovo esercizio per il piano"];
+STATIC_I18N["Solo para este plan"]=STATIC_I18N["Solo para este plan"]||["Only for this plan", "Solo per questo piano"];
+STATIC_I18N["No se guarda en la biblioteca. Útil para algo puntual."]=STATIC_I18N["No se guarda en la biblioteca. Útil para algo puntual."]||["Not saved to the library. Handy for one-offs.", "Non viene salvato nella libreria. Utile per qualcosa di puntuale."];
+STATIC_I18N["Sugerido según el nombre. Cambialo si no corresponde."]=STATIC_I18N["Sugerido según el nombre. Cambialo si no corresponde."]||["Suggested from the name. Change it if it doesn’t fit.", "Suggerito dal nome. Cambialo se non va bene."];
+STATIC_I18N["Agregar al plan"]=STATIC_I18N["Agregar al plan"]||["Add to plan", "Aggiungi al piano"];
+STATIC_I18N["Guardar y agregar"]=STATIC_I18N["Guardar y agregar"]||["Save and add", "Salva e aggiungi"];
+STATIC_I18N["Agregado al bloque"]=STATIC_I18N["Agregado al bloque"]||["Added to block", "Aggiunto al blocco"];
+STATIC_I18N["Ya está en tu biblioteca como"]=STATIC_I18N["Ya está en tu biblioteca como"]||["It’s already in your library as", "È già nella tua libreria come"];
+STATIC_I18N["¿Lo guardás igual como uno nuevo?"]=STATIC_I18N["¿Lo guardás igual como uno nuevo?"]||["Save it as a new one anyway?", "Lo salvi comunque come nuovo?"];
+STATIC_I18N["Guardar igual"]=STATIC_I18N["Guardar igual"]||["Save anyway", "Salva comunque"];
+STATIC_I18N["Guardado en tu biblioteca"]=STATIC_I18N["Guardado en tu biblioteca"]||["Saved to your library", "Salvato nella tua libreria"];
+STATIC_I18N["¿Quisiste decir…?"]=STATIC_I18N["¿Quisiste decir…?"]||["Did you mean…?", "Intendevi…?"];
+STATIC_I18N["Tu mejor marca"]=STATIC_I18N["Tu mejor marca"]||["Your best", "Il tuo record"];
+STATIC_I18N["antes"]=STATIC_I18N["antes"]||["before", "prima"];
+STATIC_I18N["más series a ese peso"]=STATIC_I18N["más series a ese peso"]||["more sets at that weight", "più serie a quel peso"];
+STATIC_I18N["vs"]=STATIC_I18N["vs"]||["vs", "vs"];
+STATIC_I18N["Igual que el"]=STATIC_I18N["Igual que el"]||["Same as on", "Uguale a"];
+STATIC_I18N["Según el plan"]=STATIC_I18N["Según el plan"]||["As planned", "Secondo il piano"];
+STATIC_I18N["Primera vez que lo registrás"]=STATIC_I18N["Primera vez que lo registrás"]||["First time you log it", "Prima volta che lo registri"];
+STATIC_I18N["¡Récord personal!"]=STATIC_I18N["¡Récord personal!"]||["Personal record!", "Record personale!"];
+STATIC_I18N["récords personales"]=STATIC_I18N["récords personales"]||["personal records", "record personali"];
+STATIC_I18N["¡Entrenamiento terminado!"]=STATIC_I18N["¡Entrenamiento terminado!"]||["Workout complete!", "Allenamento completato!"];
+STATIC_I18N["Récord"]=STATIC_I18N["Récord"]||["Record", "Record"];
+STATIC_I18N["¡Récord de"]=STATIC_I18N["¡Récord de"]||["Record for", "Record di"];
+STATIC_I18N["Y si algo bajó, es parte del proceso."]=STATIC_I18N["Y si algo bajó, es parte del proceso."]||["And if something dipped, that’s part of the process.", "E se qualcosa è calato, fa parte del processo."];
+STATIC_I18N["¡Récord personal! Esto pasa cuando hacés las cosas bien todos los días."]=STATIC_I18N["¡Récord personal! Esto pasa cuando hacés las cosas bien todos los días."]||["Personal record! This is what happens when you do things right every day.", "Record personale! Succede quando fai le cose bene ogni giorno."];
+STATIC_I18N["Nueva mejor marca. El trabajo que nadie ve se está viendo."]=STATIC_I18N["Nueva mejor marca. El trabajo que nadie ve se está viendo."]||["New best. The work nobody sees is starting to show.", "Nuovo record. Il lavoro che nessuno vede si sta vedendo."];
+STATIC_I18N["¡Marca nueva! Disfrutala, te la ganaste."]=STATIC_I18N["¡Marca nueva! Disfrutala, te la ganaste."]||["New mark! Enjoy it, you earned it.", "Nuovo record! Goditelo, te lo sei guadagnato."];
+STATIC_I18N["Récord. Hoy le ganaste a tu mejor versión."]=STATIC_I18N["Récord. Hoy le ganaste a tu mejor versión."]||["Record. Today you beat your best self.", "Record. Oggi hai battuto la tua versione migliore."];
+STATIC_I18N["Subiste respecto a la última vez. Así se construye."]=STATIC_I18N["Subiste respecto a la última vez. Así se construye."]||["You went up from last time. That’s how it’s built.", "Sei salito rispetto all’ultima volta. Così si costruisce."];
+STATIC_I18N["Un paso más que la vez pasada. Bien ahí."]=STATIC_I18N["Un paso más que la vez pasada. Bien ahí."]||["One step beyond last time. Nice.", "Un passo in più dell’ultima volta. Bravo."];
+STATIC_I18N["Hoy sumaste. Seguí así, que va."]=STATIC_I18N["Hoy sumaste. Seguí así, que va."]||["You added today. Keep it up.", "Oggi hai aggiunto. Continua così."];
+STATIC_I18N["Más que la última vez. Constancia que se nota."]=STATIC_I18N["Más que la última vez. Constancia que se nota."]||["More than last time. Consistency that shows.", "Più dell’ultima volta. Costanza che si vede."];
+STATIC_I18N["Hoy tocaba bajar las cargas para recuperar, y lo hiciste como estaba planificado. Así se progresa."]=STATIC_I18N["Hoy tocaba bajar las cargas para recuperar, y lo hiciste como estaba planificado. Así se progresa."]||["Today was a lighter day to recover, and you did it as planned. That’s how progress happens.", "Oggi si scaricava per recuperare e l’hai fatto come pianificato. Così si progredisce."];
+STATIC_I18N["Cargas según el plan. Bajar a propósito también es parte de crecer."]=STATIC_I18N["Cargas según el plan. Bajar a propósito también es parte de crecer."]||["Loads as planned. Going lighter on purpose is part of growing too.", "Carichi secondo il piano. Scaricare di proposito fa parte della crescita."];
+STATIC_I18N["Sostuviste las cargas. La constancia también es progreso."]=STATIC_I18N["Sostuviste las cargas. La constancia también es progreso."]||["You held your loads. Consistency is progress too.", "Hai mantenuto i carichi. Anche la costanza è progresso."];
+STATIC_I18N["Mismo peso, más experiencia. La próxima apretamos."]=STATIC_I18N["Mismo peso, más experiencia. La próxima apretamos."]||["Same weight, more experience. Next time we push.", "Stesso peso, più esperienza. La prossima spingiamo."];
+STATIC_I18N["Hoy costó un poco más y está bien: no todos los días son para subir. Viniste y completaste, eso es lo que suma."]=STATIC_I18N["Hoy costó un poco más y está bien: no todos los días son para subir. Viniste y completaste, eso es lo que suma."]||["Today was tougher, and that’s fine: not every day is for going up. You showed up and finished, that’s what counts.", "Oggi è stata più dura, e va bene: non tutti i giorni sono per salire. Sei venuto e hai finito, è questo che conta."];
+STATIC_I18N["Un día más bajo no borra nada. Descansá bien y la próxima volvemos a apretar."]=STATIC_I18N["Un día más bajo no borra nada. Descansá bien y la próxima volvemos a apretar."]||["One lower day erases nothing. Rest well and next time we push again.", "Un giorno più basso non cancella niente. Riposa bene e la prossima volta spingiamo di nuovo."];
+STATIC_I18N["Hay días que el cuerpo pide otra cosa. Lo importante es que estuviste."]=STATIC_I18N["Hay días que el cuerpo pide otra cosa. Lo importante es que estuviste."]||["Some days the body asks for something else. What matters is you were there.", "Ci sono giorni in cui il corpo chiede altro. L’importante è che c’eri."];
+STATIC_I18N["Dormiste poco y aun así completaste el entrenamiento. Hoy sumar era terminarlo."]=STATIC_I18N["Dormiste poco y aun así completaste el entrenamiento. Hoy sumar era terminarlo."]||["You slept little and still finished the workout. Today, finishing was the win.", "Hai dormito poco e hai comunque finito l’allenamento. Oggi vincere era finirlo."];
+STATIC_I18N["Con poco descanso, sostenerlo ya es un logro. Esta noche, a dormir bien."]=STATIC_I18N["Con poco descanso, sostenerlo ya es un logro. Esta noche, a dormir bien."]||["With little rest, holding it is already an achievement. Sleep well tonight.", "Con poco riposo, mantenerlo è già un risultato. Stanotte, dormi bene."];
+STATIC_I18N["Llegaste con poca energía y lo sacaste igual. Eso también es entrenar."]=STATIC_I18N["Llegaste con poca energía y lo sacaste igual. Eso también es entrenar."]||["You came in low on energy and got it done anyway. That’s training too.", "Sei arrivato con poca energia e l’hai fatto lo stesso. Anche questo è allenarsi."];
+STATIC_I18N["Con la energía baja, completarlo vale doble."]=STATIC_I18N["Con la energía baja, completarlo vale doble."]||["With low energy, finishing counts double.", "Con poca energia, finirlo vale doppio."];
+STATIC_I18N["Con molestias, cuidarse es parte del plan. Bien por escuchar al cuerpo."]=STATIC_I18N["Con molestias, cuidarse es parte del plan. Bien por escuchar al cuerpo."]||["With discomfort, taking care is part of the plan. Good on you for listening to your body.", "Con fastidi, prendersi cura fa parte del piano. Bravo ad ascoltare il corpo."];
+STATIC_I18N["Bajar con molestias es inteligente, no es retroceder. Contale a tu profe cómo seguís."]=STATIC_I18N["Bajar con molestias es inteligente, no es retroceder. Contale a tu profe cómo seguís."]||["Going lighter with discomfort is smart, not a step back. Tell your coach how you feel.", "Scaricare con fastidi è intelligente, non è tornare indietro. Racconta al tuo coach come stai."];
+STATIC_I18N["Entrenamiento completo. Cada sesión suma."]=STATIC_I18N["Entrenamiento completo. Cada sesión suma."]||["Workout complete. Every session counts.", "Allenamento completato. Ogni sessione conta."];
+STATIC_I18N["Listo por hoy. Lo hiciste, y eso es lo que cuenta."]=STATIC_I18N["Listo por hoy. Lo hiciste, y eso es lo que cuenta."]||["Done for today. You did it, and that’s what counts.", "Fatto per oggi. Ce l’hai fatta, ed è questo che conta."];
 STATIC_I18N["Cargando tus sesiones…"]=STATIC_I18N["Cargando tus sesiones…"]||["Loading your sessions…", "Caricamento delle tue sessioni…"];
 STATIC_I18N["No se pudieron traer tus sesiones. Revisá la conexión y probá de nuevo."]=STATIC_I18N["No se pudieron traer tus sesiones. Revisá la conexión y probá de nuevo."]||["Couldn’t load your sessions. Check your connection and try again.", "Impossibile caricare le tue sessioni. Controlla la connessione e riprova."];
 STATIC_I18N["No se pudo abrir el día. Probá de nuevo."]=STATIC_I18N["No se pudo abrir el día. Probá de nuevo."]||["Couldn’t open the day. Try again.", "Impossibile aprire il giorno. Riprova."];
