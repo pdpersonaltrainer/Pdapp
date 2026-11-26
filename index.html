@@ -2951,7 +2951,7 @@ var profilePhotoData=null;
 var TRAINER_ID=null;
 var PLAYER_MODE=false;
 /* ===== AUTO-ACTUALIZACIÓN ===== */
-var APP_VERSION='20261126-3';
+var APP_VERSION='20261126-4';
 (function(){
   try{
     setTimeout(function(){
@@ -3455,6 +3455,8 @@ var __trBusy=false;
 /* Posiciones: algunas palabras chocan con otras pantallas (Pecho/Espalda en el mapa corporal = estilos de natación). */
 var POS_I18N={'Libre':['Freestyle','Stile libero'],'Pecho':['Breaststroke','Rana'],'Espalda':['Backstroke','Dorso'],'Mariposa':['Butterfly','Farfalla'],'Combinado':['Individual medley','Misti'],'Central':['Middle blocker','Centrale']};
 function trPos(x){if(LANG!=='es'&&x&&POS_I18N[x])return POS_I18N[x][LANG==='en'?0:1];return tr(x);}
+/* "hace 3 días" · "3 days ago" · "3 giorni fa" */
+function agoTxt(n,u){return LANG==='es'?('hace '+n+' '+u):(n+' '+tr(u)+(LANG==='en'?' ago':' fa'));}
 function tr(str){
   if(LANG==='es'||!str)return str;var _i=LANG==='en'?0:1;
   var k=String(str).trim();var v=STATIC_I18N[k];
@@ -8122,7 +8124,7 @@ function renderLib(){
   if(activePattern)items=items.filter(function(e){return patMatch(e,activePattern);});
   if(q)items=items.filter(function(e){return e.name.toLowerCase().indexOf(q)>=0||(e.note||'').toLowerCase().indexOf(q)>=0;});
   if(!items.length){document.getElementById('lib-grid').innerHTML='<div class="empty-state"><div class="emi"><svg viewBox=\"0 0 24 24\" width=\"34\" height=\"34\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"M20 20l-3.5-3.5\"/></svg></div><p>Sin resultados.</p></div>';return;}
-  document.getElementById('lib-grid').innerHTML=items.map(function(e){var _mt=mediaThumbHtml(e.link,e.img,'lib-card-thumb');var thumbH=_mt?(e.link?'<span class="lib-card-thumb-a" style="cursor:pointer;display:block;" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.name||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt+'</span>':_mt):'<div class="lib-card-thumb-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<button class="lib-card-link" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.name||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">'+icPlay(11)+TT('verVideo')+'</button>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">Biblioteca base</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
+  document.getElementById('lib-grid').innerHTML=items.map(function(e){var _mt=mediaThumbHtml(e.link,e.img,'lib-card-thumb');var thumbH=_mt?(e.link?'<span class="lib-card-thumb-a" style="cursor:pointer;display:block;" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.name||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)">'+_mt+'</span>':_mt):'<div class="lib-card-thumb-ph">'+BICONS[e.type]+'</div>';var link=e.link?'<button class="lib-card-link" data-u="'+String(e.link).replace(/"/g,'&quot;')+'" data-n="'+String(e.name||'').replace(/"/g,'&quot;')+'" onclick="event.stopPropagation();openVideoModal(this.dataset.u,this.dataset.n)" style="border:0;font:inherit;cursor:pointer;">'+icPlay(11)+TT('verVideo')+'</button>':'';var patTag=e.pattern?'<span class="lib-tag" style="background:var(--s2);color:var(--muted);border:1px solid var(--border2);">'+PATLABEL[e.pattern]+'</span>':'';var canEdit=isCoach&&(isAdmin||!e.is_base);var actions=canEdit?'<div class="lib-card-actions"><button class="lca-btn lca-edit" data-lid="'+e.id+'" onclick="editLibEx(this.dataset.lid)">Editar</button><button class="lca-btn lca-del" data-lid="'+e.id+'" onclick="delLibEx(this.dataset.lid)">Eliminar</button></div>':(isCoach&&e.is_base?'<div class="lib-card-actions"><span style="font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted2);">'+tr('Biblioteca base')+'</span></div>':'');return '<div class="lib-card"><div class="lib-card-body"><div class="lib-card-top"><div class="lib-card-main"><div class="lib-card-tags"><span class="lib-tag tag-'+e.type+'">'+labels[e.type]+'</span>'+patTag+'</div><div class="lib-card-name">'+e.name+'</div><div class="lib-card-load">'+e.load+'</div><div class="lib-card-note">'+e.note+'</div>'+link+'</div>'+thumbH+'</div>'+actions+'</div></div>';}).join('');
 }
 
 function filterLib(f,el){activeLibFilter=f;document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');renderLib();}
@@ -10019,7 +10021,7 @@ function rdyOf(p){
   Object.keys(all).forEach(function(d){var ago=Math.round((isoToDate(today)-isoToDate(d))/864e5);if(ago<0||ago>7)return;
     (all[d]||[]).forEach(function(x){var q={1:15,2:35,3:60}[x.lvl]||0;q=q*(1-ago/9);if(q>pen){pen=q;pz={z:x.z,l:x.lvl,a:ago};}});});
   parts.push([R(100-pen),0.2]);
-  if(pz)f.push({t:tr('Molestia')+': '+tr(BODY_LBL[pz.z]||pz.z)+' · '+tr('nivel')+' '+pz.l+' · '+(pz.a===0?tr('hoy'):tr('hace')+' '+pz.a+' '+tr(pz.a===1?'día':'días')),n:-1});
+  if(pz)f.push({t:tr('Molestia')+': '+tr(BODY_LBL[pz.z]||pz.z)+' · '+tr('nivel')+' '+pz.l+' · '+(pz.a===0?tr('hoy'):agoTxt(pz.a,pz.a===1?'día':'días')),n:-1});
   /* 4) carga */
   var ls=null;try{ls=loadStatus(p.id);}catch(x){}
   if(ls&&ls.zone){var lv={hi:35,up:70,ok:100,lo:90}[ls.zone];parts.push([lv,0.2]);
@@ -13011,8 +13013,8 @@ function notifStartPolling(){
 }
 function notifAgo(iso){
   var s=(Date.now()-new Date(iso).getTime())/1000;
-  if(s<60)return tr('recién');if(s<3600)return tr('hace')+' '+Math.floor(s/60)+' min';
-  if(s<86400)return tr('hace')+' '+Math.floor(s/3600)+' h';
+  if(s<60)return tr('recién');if(s<3600)return agoTxt(Math.floor(s/60),'min');
+  if(s<86400)return agoTxt(Math.floor(s/3600),'h');
   var d=new Date(iso);return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
 }
 function notifGroupOf(iso){
@@ -13965,7 +13967,7 @@ function lvAth(i,m){
   }else{
     body='<div class="lv-blk'+(lvBlkDone(a,a.bi)?' done':'')+'"><h4>'+lvEsc(b.title||(tr('Bloque')+' '+(a.bi+1)))+(lvBlkDone(a,a.bi)?' <span class="lv-ok">'+EI('check')+' '+tr('Completo')+'</span>':'')+'</h4>'
       +(b.exs||[]).map(function(e,ei){return lvExHtml(i,a,a.bi,e,ei,m);}).join('')+'</div>';
-    var nx=bl[a.bi+1];if(nx)body+='<div class="lv-nx">'+tr('Después')+': <b>'+lvEsc(nx.title||(tr('Bloque')+' '+(a.bi+2)))+'</b></div>';
+    var nx=bl[a.bi+1];if(nx)body+='<div class="lv-nx">'+tr('A continuación')+': <b>'+lvEsc(nx.title||(tr('Bloque')+' '+(a.bi+2)))+'</b></div>';
   }
   if(m==='rows')head=head.replace('<span class="lv-bn">',rest+'<span class="lv-bn">');
   return '<section class="lv-ath" data-i="'+i+'">'+head+(m==='rows'?'':rest)+'<div class="lv-scroll">'+body+'</div></section>';
@@ -14046,11 +14048,12 @@ function lvTick(){
     var left=a.rest?(a.rest-Date.now())/1000:null,html,cls;
     if(left==null){html='<span>'+tr('Descanso')+'</span><b>—</b>';cls='idle';}
     else if(left>0){html='<span>'+tr('Descanso')+'</span><b>'+lvFmt(left)+'</b>';cls='run';}
-    else{html='<span>'+tr('Puede ir')+'</span><b>'+tr('Listo')+'</b>';cls='go';if(!a.beep){a.beep=1;lvBeep();}}
+    else{html='<span>'+tr('Puede ir')+'</span><b>'+lvReady()+'</b>';cls='go';if(!a.beep){a.beep=1;lvBeep();}}
     var el=document.getElementById('lv-rest-'+i);if(el){el.className='lv-rest '+cls;el.innerHTML=html;}
-    var t=document.getElementById('lv-tr-'+i);if(t){t.className=cls;t.textContent=left==null?'':(left>0?lvFmt(left):tr('Listo'));}
+    var t=document.getElementById('lv-tr-'+i);if(t){t.className=cls;t.textContent=left==null?'':(left>0?lvFmt(left):lvReady());}
   });
 }
+function lvReady(){return LANG==='es'?'Listo':(LANG==='en'?'Ready':'Pronto');}
 var _lvAC=null;
 function lvBeep(){try{if(navigator.vibrate)navigator.vibrate([120,60,120]);}catch(e){}
   try{_lvAC=_lvAC||new (window.AudioContext||window.webkitAudioContext)();var o=_lvAC.createOscillator(),g=_lvAC.createGain();o.frequency.value=880;g.gain.setValueAtTime(0.0001,_lvAC.currentTime);g.gain.exponentialRampToValueAtTime(0.25,_lvAC.currentTime+0.02);g.gain.exponentialRampToValueAtTime(0.0001,_lvAC.currentTime+0.35);o.connect(g);g.connect(_lvAC.destination);o.start();o.stop(_lvAC.currentTime+0.4);}catch(e){}}
@@ -14589,6 +14592,18 @@ function teamBanner(){
 }
 
 /* ===== i18n: claves nuevas y correcciones (revisión nov-2026) ===== */
+STATIC_I18N["Bloque"]=STATIC_I18N["Bloque"]||["Block", "Blocco"];
+STATIC_I18N["Biblioteca base"]=STATIC_I18N["Biblioteca base"]||["Base library", "Libreria base"];
+STATIC_I18N["Doble toque para renombrar"]=STATIC_I18N["Doble toque para renombrar"]||["Double-tap to rename", "Doppio tocco per rinominare"];
+STATIC_I18N["día"]=STATIC_I18N["día"]||["day", "giorno"];
+STATIC_I18N["días"]=STATIC_I18N["días"]||["days", "giorni"];
+STATIC_I18N["min"]=STATIC_I18N["min"]||["min", "min"];
+STATIC_I18N["h"]=STATIC_I18N["h"]||["h", "h"];
+STATIC_I18N["Error al guardar: "]=STATIC_I18N["Error al guardar: "]||["Error saving: ", "Errore nel salvataggio: "];
+STATIC_I18N["Error al eliminar: "]=STATIC_I18N["Error al eliminar: "]||["Error deleting: ", "Errore nell’eliminazione: "];
+STATIC_I18N["Error al generar: "]=STATIC_I18N["Error al generar: "]||["Error generating: ", "Errore nella generazione: "];
+STATIC_I18N["Error al importar: "]=STATIC_I18N["Error al importar: "]||["Error importing: ", "Errore nell’importazione: "];
+STATIC_I18N["A continuación"]=STATIC_I18N["A continuación"]||["Up next", "A seguire"];
 STATIC_I18N["Crear ejercicio nuevo"]=STATIC_I18N["Crear ejercicio nuevo"]||["Create new exercise", "Crea nuovo esercizio"];
 STATIC_I18N["Se guarda en tu biblioteca y entra al bloque."]=STATIC_I18N["Se guarda en tu biblioteca y entra al bloque."]||["It’s saved to your library and added to the block.", "Viene salvato nella tua libreria e aggiunto al blocco."];
 STATIC_I18N["Crear"]=STATIC_I18N["Crear"]||["Create", "Crea"];
